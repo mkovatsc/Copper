@@ -58,6 +58,8 @@ UdpClient.prototype = {
 	host             : "",
 	port             : -1,
 	
+	//tHandler         : null,
+	
 	callback         : null,
 	
 	transportService : null,

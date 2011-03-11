@@ -111,7 +111,7 @@ TransactionHandler.prototype = {
 			
 			this.client.send( this.transactions[tid].packet.serialize() );
 		} else {
-			// hack... is there is cleaner way?
+			// TODO: find nicer way
 			this.defaultCB({getCode:function(){return 'Server not responding';}});
 		}
 	},

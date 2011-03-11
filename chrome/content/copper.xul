@@ -47,7 +47,6 @@
   <vbox>
   	<groupbox>
     	<caption id="info_authority" label="Authority" style="font-size: 14pt; font-weight: bold;"/>
-  		<!--<label id="info_authority" value="Resource" style="font-size: 14pt; font-weight: bold;"/>-->
   		<description id="info_resources">
   			<button label="discovering..." disabled="true"/>
   		</description>

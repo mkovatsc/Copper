@@ -27,7 +27,6 @@
 								<menuitem label="draft-ietf-core-coap-03" value="3"/>
 							</menupopup>
 						</menulist>
-						<!--<textbox id="coap_version" type="number" size="2" preference="copper-version"/>-->
 					</row>
 					<row>
 						<label control="default_payload" value="Default payload"/>

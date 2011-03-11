@@ -37,6 +37,6 @@
 
 function run() {
 	var theTab          = gBrowser.addTab('coap:about');
-    theTab.label        = "Copper B";
+    theTab.label        = "Copper Browser";
     gBrowser.selectedTab = theTab;
 }
