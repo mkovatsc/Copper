@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+ 
+<prefwindow 
+     title="Copper Preferences"
+     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+     
+	<prefpane label="Copper Preferences">
+		<preferences>
+			<preference id="copper-version" name="extensions.copper.coap-version" type="int"/>
+			<preference id="default-payload" name="extensions.copper.payloads.default" type="string"/>
+		</preferences>
+		
+		<groupbox>
+			<caption label="Settings"/>
+			<grid>
+				<columns>
+					<column flex="4"/>
+					<column flex="1"/>
+				</columns>
+				<rows>
+					<row>
+						<label control="coap_version" value="CoAP version"/>
+						<menulist id="coap_version" preference="copper-version">
+							<menupopup>
+								<menuitem label="draft-shelby-core-coap" value="0"/>
+								<menuitem label="draft-ietf-core-coap-03" value="3"/>
+							</menupopup>
+						</menulist>
+						<!--<textbox id="coap_version" type="number" size="2" preference="copper-version"/>-->
+					</row>
+					<row>
+						<label control="default_payload" value="Default payload"/>
+						<textbox id="default_payload" preference="default-payload"/>
+					</row>
+				</rows>
+			</grid>
+		</groupbox>	
+		
+	</prefpane>
+ 
+</prefwindow>

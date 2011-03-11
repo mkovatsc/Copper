@@ -1,0 +1,34 @@
+#copper-toolbar-button {
+	list-style-image: url("chrome://copper/skin/icon24.png");
+}
+toolbar[iconsize="small"] #copper-toolbar-button {
+	list-style-image: url("chrome://copper/skin/icon16.png");
+}
+
+#copper-menu-button {
+	list-style-image: url("chrome://copper/skin/icon16.png");
+}
+
+#copper-status-bar-icon {
+
+}
+
+.copper-selected {
+	outline: 2px solid red !important;
+}
+
+toolbar {
+	margin-bottom: 5px;
+	border-bottom: 1px solid ThreeDShadow;
+	-moz-appearance: none;
+}
+
+#toolbar_get {
+	
+}
+#toolbar_post {
+
+}
+#toolbar_put {
+
+}
