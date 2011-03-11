@@ -39,12 +39,16 @@ function Transaction(myPacket, myTimer, myCB) {
 	this.packet = myPacket;
 	this.timer = myTimer;
 	this.cb = myCB;
-};
+	
+	this.retries = 0;
+}
 Transaction.prototype = {
 	packet : null,
 	timer : null,
-	cb : null
-};
+	cb : null,
+	
+	retries : 0
+}
 
 function TransactionHandler(myClient) {
 	
@@ -53,6 +57,7 @@ function TransactionHandler(myClient) {
 	this.client = myClient;
 	this.client.register( myBind(this, this.handle) );
 	
+	this.retransmissions = true;
 	this.transactions = new Array();
 }
 
@@ -65,6 +70,7 @@ TransactionHandler.prototype = {
 	
 	transactions : null,
 	
+	retransmissions : true,
 	register : function(myCB) {
 		this.defaultCB = myCB;
 	},
@@ -79,10 +85,9 @@ TransactionHandler.prototype = {
 		packet.tid = this.incTid();
 		
 		// store transaction if awaiting answer
-		if (packet.ack==1) {
+		if (packet.ack==1 && this.retransmissions) {
 			// yes, that is really necessary for JavaScript...
 			var that = this;
-			
 			this.transactions[packet.tid] = new Transaction(packet, window.setTimeout(function(){myBind(that,that.resend(packet.tid));}, RESPONSE_TIMEOUT), tidCB);
 		}
 		
@@ -93,7 +98,22 @@ TransactionHandler.prototype = {
 	},
 	
 	resend : function(tid) {
-		alert('Should resend '+tid);
+		
+		if (this.transactions[tid] && this.transactions[tid].retries < MAX_RETRANSMIT) {
+			
+			var that = this;
+			this.transactions[tid].retries = this.transactions[tid].retries+1;
+			
+			var timeout = RESPONSE_TIMEOUT*Math.pow(2,this.transactions[tid].retries);
+			this.transactions[tid].timer = window.setTimeout(function(){myBind(that,that.resend(tid));}, timeout);
+			
+			dump('-re-sending CoAP packet-\nTransaction ID: '+tid+'\nTimeout: '+timeout+'\n------------------------\n');
+			
+			this.client.send( this.transactions[tid].packet.serialize() );
+		} else {
+			// hack... is there is cleaner way?
+			this.defaultCB({getCode:function(){return 'Server not responding';}});
+		}
 	},
 	
 	handle : function(message) {
@@ -113,11 +133,14 @@ TransactionHandler.prototype = {
 			// remove
 			this.transactions[packet.tid] = null;
 		} else {
-			dump('WARNING: TransactionHandler.handle [unknown transaction]\n');
+			dump('WARNING: TransactionHandler.handle [unknown transaction]\n')
 		}
 		
 		// hand over to callback
 		callback( packet );
+	},
+	
+	shutdown : function() {
+		this.client.shutdown();
 	}
-};
-
+}

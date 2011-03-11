@@ -36,6 +36,8 @@
       <toolbarbutton id="toolbar_discover" label="Discover" tooltiptext="GET link-formats from the well-known URI (cached resources are displayed in red)" image="chrome://copper/skin/tool_discover.png" accesskey="D" oncommand="discover();"/>
       <checkbox id="toolbar_auto_discovery" label="Auto discovery" tooltiptext="Automatically GET link-formats when opening a location"/>
       
+      <checkbox id="toolbar_retransmissions" label="Retransmissions" tooltiptext="Retransmit unconfirmed packets" checked="true"/>
+      
 	  <toolbarspacer flex="1"/>
       
       <label id="toolbar_version" value=""/>
@@ -63,15 +65,5 @@
 		<textbox id="packet_payload" readonly="true" multiline="true" rows="10" type="background-color: white; width: 100%; height: 100%; font-family: Courier New;"/>
 	</groupbox>
   </vbox>
-
-  <!--
-  <statusbar>
-    <statusbarpanel id="statustxt" label="Copper"/>
-    <statusbarpanel id="credits" label="Matthias Kovatsch - ETH Zurich" align="center" flex="1"/>
-    <statusbarpanel id="statusmeterpanel">
-      <progressmeter id="statusmeter"     tooltiptext="Tip" mode="normal" />
-    </statusbarpanel>
-  </statusbar>
-  -->
 
 </window>

@@ -51,8 +51,9 @@ var resources = new Array();
 function init() {
  	var tabbrowser = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator).getEnumerator("navigator:browser").getNext().gBrowser;  
 	tabbrowser.setIcon(tabbrowser.selectedTab, 'chrome://copper/skin/icon16.png');
-	document.getElementById('toolbar_auto_discovery').checked = prefManager.getBoolPref('extensions.copper.auto-discover');
 	
+	document.getElementById('toolbar_auto_discovery').checked = prefManager.getBoolPref('extensions.copper.auto-discover');
+	document.getElementById('toolbar_retransmissions').checked = prefManager.getBoolPref('extensions.copper.retransmissions');
 	
 	// load CoAP implementation
 	switch (coapVersion) {
@@ -96,6 +97,7 @@ function unload() {
 	// save as pref as persist does not work
 	prefManager.setCharPref('extensions.copper.payloads.'+hostname+':'+port, document.getElementById('toolbar_payload').value);
 	prefManager.setBoolPref('extensions.copper.auto-discover', document.getElementById('toolbar_auto_discovery').checked);
+	prefManager.setBoolPref('extensions.copper.retransmissions', document.getElementById('toolbar_retransmissions').checked);
 	
 	client.shutdown();
 }

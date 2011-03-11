@@ -40,6 +40,8 @@ function UdpClient(myHost, myPort) {
 	this.host = myHost.replace(/\[/,'').replace(/\]/,'');
 	this.port = myPort;
 	
+	//this.tHandler = new TransactionHandler();
+	
 	this.transportService = Components.classes["@mozilla.org/network/socket-transport-service;1"].getService(Components.interfaces.nsISocketTransportService);
 	this.pump = Components.classes["@mozilla.org/network/input-stream-pump;1"].createInstance(Components.interfaces.nsIInputStreamPump);
 	
@@ -97,6 +99,7 @@ UdpClient.prototype = {
 			}
 			
 			//alert(byteArray);
+			dump('UDP receive\n')
 			
 			if (this.callback) this.callback(byteArray);
 		    
@@ -115,7 +118,7 @@ UdpClient.prototype = {
 	send : function(message) {
 		this.outputStream.write(message, message.length);
 	}
-};
+}
 
 function showByte(b) {
 	var str = "";
