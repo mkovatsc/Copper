@@ -35,12 +35,10 @@
  * \author  Matthias Kovatsch <kovatsch@inf.ethz.ch>\author
  */
 
-function UdpClient(myHost, myPort, myHandler) {
+function UdpClient(myHost, myPort) {
 
 	this.host = myHost.replace(/\[/,'').replace(/\]/,'');
 	this.port = myPort;
-	
-	this.handler = myHandler;
 	
 	this.transportService = Components.classes["@mozilla.org/network/socket-transport-service;1"].getService(Components.interfaces.nsISocketTransportService);
 	this.pump = Components.classes["@mozilla.org/network/input-stream-pump;1"].createInstance(Components.interfaces.nsIInputStreamPump);
@@ -58,13 +56,17 @@ UdpClient.prototype = {
 	host             : "",
 	port             : -1,
 	
-	handler          : null,
+	callback         : null,
 	
 	transportService : null,
 	pump             : null,
 	socket           : null,
 	outputStream     : null,
 	inputStream      : null,
+	
+	register : function(myCB) {
+		this.callback = myCB;
+	},
 	
 	// stream observer functions
 	onStartRequest : function(request, context) { },
@@ -80,6 +82,7 @@ UdpClient.prototype = {
 			var sis = Components.classes["@mozilla.org/scriptableinputstream;1"].createInstance(Components.interfaces.nsIScriptableInputStream);
 			sis.init(inputStream);
 			
+			// read() cannot handle zero bytes in strings, readBytes() coming in FF4
 			var byteArray = new Array(count);
 			for (var i=0; i<count; i++) {
 				//var ch = sis.readBytes(1); // FF4
@@ -94,10 +97,8 @@ UdpClient.prototype = {
 			}
 			
 			//alert(byteArray);
-			var packet = new CoapPacket();
-			packet.parse(byteArray);
 			
-			this.handler(packet);
+			if (this.callback) this.callback(byteArray);
 		    
 		} catch( ex ) {
 		    alert("ERROR: UdpClient.onDataAvailable ["+ex+"]");
@@ -114,7 +115,7 @@ UdpClient.prototype = {
 	send : function(message) {
 		this.outputStream.write(message, message.length);
 	}
-}
+};
 
 function showByte(b) {
 	var str = "";

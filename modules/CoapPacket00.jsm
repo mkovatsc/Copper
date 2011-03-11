@@ -71,6 +71,9 @@ var EXPORTED_SYMBOLS = [
 						
 						'WELL_KNOWN_RESOURCES',
 						
+						'RESPONSE_TIMEOUT',
+						'MAX_RETRANSMIT',
+						
 						'CoapPacket'
 						];
 
@@ -109,6 +112,9 @@ const DELETE = 3;
 const SUBSCRIBE = 4;
 
 const WELL_KNOWN_RESOURCES = '/.well_known/resources';
+
+const RESPONSE_TIMEOUT = 500; // ms
+const MAX_RETRANSMIT = 5;
 
 function CoapPacket() {
 	this.options = new Array();

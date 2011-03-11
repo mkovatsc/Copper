@@ -52,7 +52,7 @@ function init() {
  	var tabbrowser = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator).getEnumerator("navigator:browser").getNext().gBrowser;  
 	tabbrowser.setIcon(tabbrowser.selectedTab, 'chrome://copper/skin/icon16.png');
 	document.getElementById('toolbar_auto_discovery').checked = prefManager.getBoolPref('extensions.copper.auto-discover');
-	updateLabel('toolbar_version', 'CoAP version ' + leadingZero(coapVersion,2));
+	
 	
 	// load CoAP implementation
 	switch (coapVersion) {
@@ -62,16 +62,20 @@ function init() {
 			dump('WARNING: CoAP version '+coapVersion+' not implemented. Using 00.\n');
 			alert('WARNING: CoAP version '+coapVersion+' not implemented. Using 00.');
 			Components.utils.import("resource://mod/CoapPacket00.jsm"); break;
+			coapVersion = 0;
 	}
+	updateLabel('toolbar_version', 'CoAP version ' + leadingZero(coapVersion,2));
 	
-	// add well-known resources
+	// add well-known resource to resource cache
 	resources[WELL_KNOWN_RESOURCES] = new Array();
 	resources[WELL_KNOWN_RESOURCES]['n'] = 'Resource discovery';
 	
 	try {
 		parseUri(document.location.href);
 		
-		client = new UdpClient(hostname, port, mainCoapHandler);
+		var temp = new UdpClient(hostname, port);
+		client = new TransactionHandler(temp);
+		client.register(defaultHandler);
 	
 		if (document.getElementById('toolbar_auto_discovery').checked) {
 			discover();
@@ -98,38 +102,37 @@ function unload() {
 
 
 // Handle incoming packets, register with CoapClient
-function mainCoapHandler(packet) {
+function defaultHandler(packet) {
+	dump('defaultHandler()\n');
 
-	dump('-receiving CoAP packet--\nType: '+packet.getType()+'\nCode: '+packet.getCode()+'\nTransaction ID: '+packet.tid+'\nOptions: '+packet.getOptions()+'\nPayload: '+packet.payload+'\n------------------------\n');
+	updateLabel('info_code', packet.getCode());
+	updateLabel('packet_header', 'Type: '+packet.getType()+'\nCode: '+packet.getCode()+'\nTransaction ID: '+packet.tid+'\nOptions: '+packet.getOptions() );
+	updateLabel('packet_payload', packet.payload);
 	
-	if (packet.tid==0 || packet.getOptions().match(/Content-type: \[int\] 40/)) {
+	//parseLinkFormat(packet.payload);
+}
+
+function discoverHandler(packet) {
+	dump('discoverHandler()\n');
+	if (packet.getOptions().match(/Content-type: \[int\] 40/)) {
 		// discovery
 		// TODO: append, not overwrite
 		prefManager.setCharPref('extensions.copper.resources.'+hostname+':'+port, packet.payload);
 		resourcesCached = false;
 		parseLinkFormat(packet.payload);
 		updateResourceLinks();
+	} else {
+		alert('ERROR: Main.discoverHandler [no link format in payload]');
 	}
-	
-	if (packet.tid!=0) {	
-		updateLabel('info_code', packet.getCode());
-		updateLabel('packet_header', 'Type: '+packet.getType()+'\nCode: '+packet.getCode()+'\nTransaction ID: '+packet.tid+'\nOptions: '+packet.getOptions() );
-		updateLabel('packet_payload', packet.payload);
-		
-	}
-	
-	//parseLinkFormat(packet.payload);
 }
-
 
 function discover() {
 	var packet = new CoapPacket();
 	packet.code = GET;
 	packet.ack = 1;
-	packet.tid = 0x0000;
 	packet.setUri(WELL_KNOWN_RESOURCES);
 	
-	client.send( packet.serialize() );
+	client.send( packet, discoverHandler );
 }
 
 function sendGet(uri) {
@@ -140,9 +143,7 @@ function sendGet(uri) {
 	packet.ack = 1;
 	packet.setUri(uri);
 	
-	dump('-sending CoAP packet----\nType: '+packet.getType()+'\nCode: '+packet.getCode()+'\nTransaction ID: '+packet.tid+'\nOptions: '+packet.getOptions()+'\nPayload: '+packet.payload+'\n------------------------\n');
-	
-	client.send( packet.serialize() );
+	client.send( packet );
 }
 
 
@@ -157,9 +158,7 @@ function sendPost(pl, uri) {
 	
 	packet.payload = pl;
 	
-	dump('-sending CoAP packet----\nType: '+packet.getType()+'\nCode: '+packet.getCode()+'\nTransaction ID: '+packet.tid+'\nOptions: '+packet.getOptions()+'\nPayload: '+packet.payload+'\n------------------------\n');
-	
-	client.send( packet.serialize() );
+	client.send( packet );
 }
 
 function sendPut(pl, uri) {
@@ -172,9 +171,7 @@ function sendPut(pl, uri) {
 	
 	packet.payload = pl;
 	
-	dump('-sending CoAP packet----\nType: '+packet.getType()+'\nCode: '+packet.getCode()+'\nTransaction ID: '+packet.tid+'\nOptions: '+packet.getOptions()+'\nPayload: '+packet.payload+'\n------------------------\n');
-	
-	client.send( packet.serialize() );
+	client.send( packet );
 }
 
 function sendDelete(uri) {
@@ -185,9 +182,7 @@ function sendDelete(uri) {
 	packet.ack = 1;
 	packet.setUri(uri);
 	
-	dump('-sending CoAP packet----\nType: '+packet.getType()+'\nCode: '+packet.getCode()+'\nTransaction ID: '+packet.tid+'\nOptions: '+packet.getOptions()+'\nPayload: '+packet.payload+'\n------------------------\n');
-	
-	client.send( packet.serialize() );
+	client.send( packet );
 }
 
 
@@ -270,7 +265,6 @@ function parseLinkFormat(data) {
 	}
 	dump('------------------------\n');
 }
-
 function updateResourceLinks() {
 	var list = document.getElementById('info_resources');
 	while (list.hasChildNodes()) list.removeChild(list.firstChild);
@@ -298,4 +292,12 @@ function leadingZero(num, len) {
 	num = ''+num;
 	while (num.length<len) num = '0'+num;
 	return num;
+}
+
+
+// workaround for "this" losing scope when passing callback functions
+function myBind(scope, fn) {
+    return function () {
+        fn.apply(scope, arguments);
+    };
 }

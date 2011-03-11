@@ -61,6 +61,9 @@ var EXPORTED_SYMBOLS = [
 						
 						'WELL_KNOWN_RESOURCES',
 						
+						'RESPONSE_TIMEOUT',
+						'MAX_RETRANSMIT',
+						
 						'CoapPacket'
 						];
 
@@ -105,7 +108,7 @@ const DELETE = 4;
 
 const WELL_KNOWN_RESOURCES = '/.well-known/core';
 
-const RESPONSE_TIMEOUT = 1;
+const RESPONSE_TIMEOUT = 1000; // ms
 const MAX_RETRANSMIT = 5;
 
 
