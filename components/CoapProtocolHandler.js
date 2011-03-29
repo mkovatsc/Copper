@@ -42,7 +42,9 @@ const Ce = Components.Exception;
                                 
 const CLASS_ID = Components.ID("{6ffeeb10-91cc-0854-a554-81cf891ced50}");
 
+// Array allows for multiple schemes (e.g., coap and coaps for coap with DTLS)
 const CLASS_SCHEME = ["coap"];
+const CLASS_DEFAULT_PORT = [61616];
 const CLASS_NAME = ["CoAP protocol"];
 
 /**
@@ -52,24 +54,32 @@ function CoapProtocolHandler() {
 }
 
 CoapProtocolHandler.prototype = {
-	scheme: CLASS_SCHEME,
-	defaultPort : -1,
-
-	protocolFlags : (Ci.nsIProtocolHandler.URI_NORELATIVE | Ci.nsIProtocolHandler.URI_NOAUTH),
+	scheme: CLASS_SCHEME[0],
+	defaultPort : CLASS_DEFAULT_PORT[0],
 
 	allowPort: function(port, scheme) {
 		return false;
 	},
 
 	newURI : function(aSpec, aCharset, aBaseURI) {
-		let uri = Cc["@mozilla.org/network/simple-uri;1"].createInstance(Ci.nsIURI);
-		uri.spec = aSpec;
-
+		
+		/*
+		 * Standard URL with URLTYPE_AUTHORITY = 2
+		 * 
+		 * blah:foo/bar    => blah://foo/bar
+		 * blah:/foo/bar   => blah://foo/bar
+		 * blah://foo/bar  => blah://foo/bar
+		 * blah:///foo/bar => blah://foo/bar
+		 */
+		
+		var uri = Cc["@mozilla.org/network/standard-url;1"].createInstance(Ci.nsIStandardURL);
+		uri.init(Ci.nsIStandardURL.URLTYPE_AUTHORITY, this.defaultPort, aSpec, aCharset, aBaseURI);
+		
 		return uri;
 	},
 
 	newChannel : function(aInputURI) {
-		let ioService = Cc["@mozilla.org/network/io-service;1"].getService(Ci.nsIIOService);
+		var ioService = Cc["@mozilla.org/network/io-service;1"].getService(Ci.nsIIOService);
 		return ioService.newChannel("chrome://copper/content/copper.xul", null, null);
 	},
 
@@ -126,7 +136,7 @@ var CoapProtocolHandlerFactory = {
  * the main entry point by which the system accesses an XPCOM component.
  * More: http://developer.mozilla.org/en/docs/nsIModule
  */
-var LinkPasswordHandlerModule = {
+var CoapProtocolHandlerModule = {
   /**
    * When the nsIModule is discovered, this method will be called so that any
    * setup registration can be preformed.
@@ -193,5 +203,5 @@ var LinkPasswordHandlerModule = {
  * @return the module for the service.
  */
 function NSGetModule(aCompMgr, aFileSpec) {
-  return LinkPasswordHandlerModule;
+  return CoapProtocolHandlerModule;
 }
