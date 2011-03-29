@@ -48,16 +48,16 @@ Transaction.prototype = {
 	cb : null,
 	
 	retries : 0
-}
+};
 
-function TransactionHandler(myClient) {
+function TransactionHandler(myClient, retrans) {
 	
 	this.tid = 0xFFFF & parseInt( Math.random() * 0xFFFF);
 	
 	this.client = myClient;
 	this.client.register( myBind(this, this.handle) );
 	
-	this.retransmissions = true;
+	this.retransmissions = retrans!=null ? retrans : true;
 	this.transactions = new Array();
 }
 
@@ -71,6 +71,7 @@ TransactionHandler.prototype = {
 	transactions : null,
 	
 	retransmissions : true,
+	
 	register : function(myCB) {
 		this.defaultCB = myCB;
 	},
@@ -80,14 +81,17 @@ TransactionHandler.prototype = {
 		return this.tid;
 	},
 	
+	setRetransmissions : function(onoff) {
+		this.retransmissions = onoff;
+	},
+	
 	send : function(packet, tidCB) {
 		// set packet transaction ID
 		packet.tid = this.incTid();
 		
 		// store transaction if awaiting answer
 		if (packet.ack==1 && this.retransmissions) {
-			// yes, that is really necessary for JavaScript...
-			var that = this;
+			var that = this; // yes, that is really necessary for JavaScript...
 			this.transactions[packet.tid] = new Transaction(packet, window.setTimeout(function(){myBind(that,that.resend(packet.tid));}, RESPONSE_TIMEOUT), tidCB);
 		}
 		
@@ -99,7 +103,8 @@ TransactionHandler.prototype = {
 	
 	resend : function(tid) {
 		
-		if (this.transactions[tid] && this.transactions[tid].retries < MAX_RETRANSMIT) {
+		// first: retransmissions can be disabled intermediately
+		if (this.retransmissions && this.transactions[tid] && this.transactions[tid].retries < MAX_RETRANSMIT) {
 			
 			var that = this;
 			this.transactions[tid].retries = this.transactions[tid].retries+1;
@@ -112,6 +117,7 @@ TransactionHandler.prototype = {
 			this.client.send( this.transactions[tid].packet.serialize() );
 		} else {
 			// TODO: find nicer way
+			this.transactions[tid] = null;
 			this.defaultCB({getCode:function(){return 'Server not responding';}});
 		}
 	},
@@ -133,7 +139,7 @@ TransactionHandler.prototype = {
 			// remove
 			this.transactions[packet.tid] = null;
 		} else {
-			dump('WARNING: TransactionHandler.handle [unknown transaction]\n')
+			dump('WARNING: TransactionHandler.handle [unknown transaction]\n');
 		}
 		
 		// hand over to callback
@@ -143,4 +149,4 @@ TransactionHandler.prototype = {
 	shutdown : function() {
 		this.client.shutdown();
 	}
-}
+};

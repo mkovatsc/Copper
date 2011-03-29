@@ -48,7 +48,12 @@ var query = '';
 var resourcesCached = true;
 var resources = new Array();
 
+
+// Life cycle functions
+////////////////////////////////////////////////////////////////////////////////
+
 function init() {
+	
  	var tabbrowser = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator).getEnumerator("navigator:browser").getNext().gBrowser;  
 	tabbrowser.setIcon(tabbrowser.selectedTab, 'chrome://copper/skin/icon16.png');
 	
@@ -75,7 +80,7 @@ function init() {
 		parseUri(document.location.href);
 		
 		var temp = new UdpClient(hostname, port);
-		client = new TransactionHandler(temp);
+		client = new TransactionHandler(temp, document.getElementById('toolbar_retransmissions').checked);
 		client.register(defaultHandler);
 	
 		if (document.getElementById('toolbar_auto_discovery').checked) {
@@ -103,7 +108,10 @@ function unload() {
 }
 
 
-// Handle incoming packets, register with CoapClient
+// CoAP packet handlers
+////////////////////////////////////////////////////////////////////////////////
+
+// Handle normal incoming packets, registered as default at TransactionHandler
 function defaultHandler(packet) {
 	dump('defaultHandler()\n');
 
@@ -114,6 +122,7 @@ function defaultHandler(packet) {
 	//parseLinkFormat(packet.payload);
 }
 
+// Handle packets with link format payload 
 function discoverHandler(packet) {
 	dump('discoverHandler()\n');
 	if (packet.getOptions().match(/Content-type: \[int\] 40/)) {
@@ -128,14 +137,9 @@ function discoverHandler(packet) {
 	}
 }
 
-function discover() {
-	var packet = new CoapPacket();
-	packet.code = GET;
-	packet.ack = 1;
-	packet.setUri(WELL_KNOWN_RESOURCES);
-	
-	client.send( packet, discoverHandler );
-}
+
+// Toolbar commands
+////////////////////////////////////////////////////////////////////////////////
 
 function sendGet(uri) {
 	if (!uri) uri = path + (query ? '?'+query : '');
@@ -145,9 +149,9 @@ function sendGet(uri) {
 	packet.ack = 1;
 	packet.setUri(uri);
 	
+	clearLabels();
 	client.send( packet );
 }
-
 
 function sendPost(pl, uri) {
 
@@ -160,6 +164,7 @@ function sendPost(pl, uri) {
 	
 	packet.payload = pl;
 	
+	clearLabels();
 	client.send( packet );
 }
 
@@ -173,6 +178,7 @@ function sendPut(pl, uri) {
 	
 	packet.payload = pl;
 	
+	clearLabels();
 	client.send( packet );
 }
 
@@ -184,7 +190,26 @@ function sendDelete(uri) {
 	packet.ack = 1;
 	packet.setUri(uri);
 	
+	clearLabels();
 	client.send( packet );
+}
+
+function discover() {
+	var packet = new CoapPacket();
+	packet.code = GET;
+	packet.ack = 1;
+	packet.setUri(WELL_KNOWN_RESOURCES);
+	
+	clearLabels();
+	client.send( packet, discoverHandler );
+}
+
+// Addon settings
+////////////////////////////////////////////////////////////////////////////////
+
+function settingRetransmissions() {
+	client.setRetransmissions(document.getElementById('toolbar_retransmissions').checked);
+	prefManager.setBoolPref('extensions.copper.retransmissions', document.getElementById('toolbar_retransmissions').checked);
 }
 
 
@@ -287,6 +312,12 @@ function updateResourceLinks() {
 
 function updateLabel(id, value) {
 	document.getElementById(id).value = value;
+}
+
+function clearLabels() {
+	updateLabel('info_code', '');
+	updateLabel('packet_header', '');
+	updateLabel('packet_payload', '');
 }
 
 function leadingZero(num, len) {

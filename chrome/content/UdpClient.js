@@ -101,7 +101,7 @@ UdpClient.prototype = {
 			}
 			
 			//alert(byteArray);
-			dump('UDP receive\n')
+			dump('UDP receive\n');
 			
 			if (this.callback) this.callback(byteArray);
 		    
@@ -120,7 +120,7 @@ UdpClient.prototype = {
 	send : function(message) {
 		this.outputStream.write(message, message.length);
 	}
-}
+};
 
 function showByte(b) {
 	var str = "";
