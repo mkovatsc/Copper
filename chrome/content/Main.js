@@ -61,9 +61,15 @@ var resources = new Array();
 
 function init() {
 	
- 	var tabbrowser = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator).getEnumerator("navigator:browser").getNext().gBrowser;  
-	tabbrowser.setIcon(tabbrowser.selectedTab, 'chrome://copper/skin/icon16.png');
+ 	// set the Cu icon for all Copper tabs
+	// TODO: There must be a more elegant way
+	var tabbrowser = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator).getEnumerator("navigator:browser").getNext().gBrowser;  
+	for (var i=0; i<tabbrowser.browsers.length; ++i) {
+		if (tabbrowser.mTabs[i].label=='Copper CoAP Browser')
+		tabbrowser.setIcon(tabbrowser.mTabs[i], 'chrome://copper/skin/icon16.png');
+	}
 	
+	// get settings from preferences
 	document.getElementById('toolbar_auto_discovery').checked = prefManager.getBoolPref('extensions.copper.auto-discover');
 	document.getElementById('toolbar_retransmissions').checked = prefManager.getBoolPref('extensions.copper.retransmissions');
 	
@@ -83,6 +89,7 @@ function init() {
 	resources[WELL_KNOWN_RESOURCES] = new Array();
 	resources[WELL_KNOWN_RESOURCES]['n'] = 'Resource discovery';
 	
+	// open location
 	try {
 		parseUri(document.location.href);
 		
