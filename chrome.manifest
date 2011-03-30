@@ -1,5 +1,6 @@
 content     copper    chrome/content/
 content     copper    chrome/content/ contentaccessible=yes
+
 overlay chrome://browser/content/browser.xul chrome://copper/content/integration.xul
 
 locale	copper	en-US	chrome/locale/en-US/

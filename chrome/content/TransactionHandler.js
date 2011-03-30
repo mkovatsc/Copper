@@ -117,6 +117,7 @@ TransactionHandler.prototype = {
 			this.client.send( this.transactions[tid].packet.serialize() );
 		} else {
 			// TODO: find nicer way
+			dump('-timeout----------------\nTransaction ID: '+tid+'\n------------------------\n');
 			this.transactions[tid] = null;
 			this.defaultCB({getCode:function(){return 'Server not responding';}});
 		}

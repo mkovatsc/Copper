@@ -35,6 +35,13 @@
  * \author  Matthias Kovatsch <kovatsch@inf.ethz.ch>\author
  */
 
+var mainWindow = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+		.getInterface(Components.interfaces.nsIWebNavigation)
+		.QueryInterface(Components.interfaces.nsIDocShellTreeItem)
+		.rootTreeItem
+		.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+		.getInterface(Components.interfaces.nsIDOMWindow);
+
 var prefManager = Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefBranch);
 var coapVersion = prefManager.getIntPref('extensions.copper.coap-version');
 
@@ -83,6 +90,7 @@ function init() {
 		client = new TransactionHandler(temp, document.getElementById('toolbar_retransmissions').checked);
 		client.register(defaultHandler);
 	
+		// handle auto discover
 		if (document.getElementById('toolbar_auto_discovery').checked) {
 			discover();
 		} else {
@@ -93,6 +101,23 @@ function init() {
 			}
 		}
 		updateResourceLinks();
+		
+		// handle auto-request after redirect
+		var auto = prefManager.getIntPref('extensions.copper.auto-request.method');
+		if (auto) {
+			switch (auto) {
+				case GET:    sendGet(); break;
+				case POST:   sendPost(prefManager.getCharPref('extensions.copper.auto-request.payload')); break;
+				case GUT:    sendPut(prefManager.getCharPref('extensions.copper.auto-request.payload')); break;
+				case DELETE: sendDelete(); break;
+				default: dump('WARNING: Main.init [unknown method for auto-request: '+auto+']\n');
+			}
+			
+			// reset auto-request
+			prefManager.setIntPref('extensions.copper.auto-request.method', 0);
+			prefManager.setCharPref('extensions.copper.auto-request.payload', '');
+		}
+		
 	} catch( ex ) {
 	    dump('WARNING: Main.init ['+ex+']\n');
 	}
@@ -142,8 +167,9 @@ function discoverHandler(packet) {
 ////////////////////////////////////////////////////////////////////////////////
 
 function sendGet(uri) {
-	if (!uri) uri = path + (query ? '?'+query : '');
-
+	
+	uri = checkUri(uri, GET);
+	
 	var packet = new CoapPacket();
 	packet.code = GET;
 	packet.ack = 1;
@@ -155,7 +181,7 @@ function sendGet(uri) {
 
 function sendPost(pl, uri) {
 
-	if (!uri) uri = path + (query ? '?'+query : '');
+	uri = checkUri(uri, POST);
 	
 	var packet = new CoapPacket();
 	packet.code = POST;
@@ -169,7 +195,8 @@ function sendPost(pl, uri) {
 }
 
 function sendPut(pl, uri) {
-	if (!uri) uri = path + (query ? '?'+query : '');
+	
+	uri = checkUri(uri, PUT);
 	
 	var packet = new CoapPacket();
 	packet.code = PUT;
@@ -183,7 +210,8 @@ function sendPut(pl, uri) {
 }
 
 function sendDelete(uri) {
-	if (!uri) uri = path + (query ? '?'+query : '');
+
+	uri = checkUri(uri, DELETE);
 
 	var packet = new CoapPacket();
 	packet.code = DELETE;
@@ -242,7 +270,7 @@ function parseUri(uri) {
 		
 		//alert(hostname + ':' + port + path);
 		document.title = hostname + ':' + port;
-		document.getElementById('info_authority').label = 'coap://' + hostname + ':' + port;
+		document.getElementById('info_authority').label = '' + hostname + ':' + port;
 		setDefaultPayload();
 	} else {
 		// no valid URI
@@ -251,6 +279,26 @@ function parseUri(uri) {
 	}
 }
 
+// Set the default URI and also check for modified Firefox URL bar
+function checkUri(uri, method, pl) {
+	if (!uri) {
+		// when urlbar was changed without pressing enter, redirect and perform request
+		if (method && (document.location.href != mainWindow.document.getElementById('urlbar').value)) {
+			//alert('You edited the URL bar:\n'+document.location.href+'\n'+mainWindow.document.getElementById('urlbar').value);
+			
+			// schedule the request to start automatically at new location
+			prefManager.setIntPref('extensions.copper.auto-request.method', method);
+			prefManager.setCharPref('extensions.copper.auto-request.payload', String(pl));
+			// redirect
+			document.location.href = mainWindow.document.getElementById('urlbar').value;
+		}
+		return path + (query ? '?'+query : '');
+	} else {
+		return uri;
+	}
+}
+
+// Load last used payload from preferences, otherwise use default payload
 function setDefaultPayload() {
 	var pl = prefManager.getCharPref('extensions.copper.payloads.default');
 	try {
