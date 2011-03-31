@@ -52,6 +52,8 @@ var port = 61616;
 var path = '/';
 var query = '';
 
+var blockSize = 32;
+
 var resourcesCached = true;
 var resources = new Array();
 
@@ -72,6 +74,7 @@ function init() {
 	// get settings from preferences
 	document.getElementById('toolbar_auto_discovery').checked = prefManager.getBoolPref('extensions.copper.auto-discover');
 	document.getElementById('toolbar_retransmissions').checked = prefManager.getBoolPref('extensions.copper.retransmissions');
+	blockSize = prefManager.getIntPref('extensions.copper.default-block-size');
 	
 	// load CoAP implementation
 	switch (coapVersion) {
@@ -149,9 +152,40 @@ function defaultHandler(packet) {
 
 	updateLabel('info_code', packet.getCode());
 	updateLabel('packet_header', 'Type: '+packet.getType()+'\nCode: '+packet.getCode()+'\nTransaction ID: '+packet.tid+'\nOptions: '+packet.getOptions() );
-	updateLabel('packet_payload', packet.payload);
 	
-	//parseLinkFormat(packet.payload);
+	// if message turns out to be block-wise transfer dispatch to corresponding handler
+	if (packet.options[OPTION_BLOCK][1]) {
+		return blockwiseHandler(packet);
+	}
+	
+	updateLabel('packet_payload', packet.payload);
+}
+
+// Handle packets with block-wise transfer
+function blockwiseHandler(packet) {
+	dump('blockwiseHandler()\n');
+	
+	if (packet.options[OPTION_BLOCK][1]) {
+		
+		var block = 0;
+		// byte array to int
+		for (var k in packet.options[OPTION_BLOCK][1]) {
+			block = (block << 8) | packet.options[OPTION_BLOCK][1][k];
+		}
+		
+		//alert((16 << ((0x07 & block)))+' - '+blockSize);
+		if (block & 0x08) {
+			if ((16 << ((0x07 & block)))!=blockSize) {
+				sendGet(null, 0, blockSize);
+			} else {
+				sendGet(null, ((~0x0f & block) >> 4)+1, blockSize);
+			}
+		}
+		updateLabel('packet_payload', packet.payload, true);
+		
+	} else {
+		updateLabel('packet_payload', packet.payload);
+	}
 }
 
 // Handle packets with link format payload 
@@ -173,7 +207,9 @@ function discoverHandler(packet) {
 // Toolbar commands
 ////////////////////////////////////////////////////////////////////////////////
 
-function sendGet(uri) {
+function sendGet(uri, num, size) {
+	
+	client.cancelTransactions();
 	
 	uri = checkUri(uri, GET);
 	
@@ -182,11 +218,19 @@ function sendGet(uri) {
 	packet.ack = 1;
 	packet.setUri(uri);
 	
-	clearLabels();
+	if (num!=null) {
+		if (!size) size = blockSize;
+		packet.setBlock(num, size);
+	}
+	
+	if (!num) clearLabels();
+	
 	client.send( packet );
 }
 
 function sendPost(pl, uri) {
+	
+	client.cancelTransactions();
 
 	uri = checkUri(uri, POST);
 	
@@ -203,6 +247,8 @@ function sendPost(pl, uri) {
 
 function sendPut(pl, uri) {
 	
+	client.cancelTransactions();
+	
 	uri = checkUri(uri, PUT);
 	
 	var packet = new CoapPacket();
@@ -217,6 +263,8 @@ function sendPut(pl, uri) {
 }
 
 function sendDelete(uri) {
+	
+	client.cancelTransactions();
 
 	uri = checkUri(uri, DELETE);
 
@@ -365,8 +413,12 @@ function updateResourceLinks() {
 	}
 }
 
-function updateLabel(id, value) {
-	document.getElementById(id).value = value;
+function updateLabel(id, value, append) {
+	if (append) {
+		document.getElementById(id).value += value;
+	} else {
+		document.getElementById(id).value = value;
+	}
 }
 
 function clearLabels() {

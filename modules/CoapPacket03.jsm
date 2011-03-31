@@ -83,6 +83,7 @@ const OPTION_URI_PATH = 9;
 const OPTION_SUB_LIFETIME = 10;
 const OPTION_TOKEN = 11;
 const OPTION_BLOCK = 13;
+const OPTION_NOOP = 14;
 const OPTION_URI_QUERY = 15;
 
 const CODE_100_CONTINUE = 40;
@@ -114,17 +115,18 @@ const MAX_RETRANSMIT = 5;
 
 function CoapPacket() {
 	this.options = new Array();
-	//                                      length, value
-	this.options[OPTION_CONTENT_TYPE]= new Array(0, 0);
-	this.options[OPTION_MAX_AGE]= new Array(0, 60);
-	this.options[OPTION_ETAG]= new Array(0, null);
-	this.options[OPTION_URI_AUTH]= new Array(0, '');
-	this.options[OPTION_LOCATION]= new Array(0, '');
-	this.options[OPTION_URI_PATH]= new Array(0, '');
-	this.options[OPTION_SUB_LIFETIME]= new Array(0, 0);
-	this.options[OPTION_TOKEN]= new Array(0, null);
-	this.options[OPTION_BLOCK]= new Array(0, 0);
-	this.options[OPTION_URI_QUERY]= new Array(0, '');
+	//                                       length, value
+	this.options[OPTION_CONTENT_TYPE] = new Array(0, null);
+	this.options[OPTION_MAX_AGE] = new Array(0, null);
+	this.options[OPTION_ETAG] = new Array(0, null);
+	this.options[OPTION_URI_AUTH] = new Array(0, null);
+	this.options[OPTION_LOCATION] = new Array(0, null);
+	this.options[OPTION_URI_PATH] = new Array(0, null);
+	this.options[OPTION_SUB_LIFETIME] = new Array(0, null);
+	this.options[OPTION_TOKEN] = new Array(0, null);
+	this.options[OPTION_BLOCK] = new Array(0, null);
+	this.options[OPTION_NOOP] = new Array(0, null);
+	this.options[OPTION_URI_QUERY] = new Array(0, null);
 }
 
 CoapPacket.prototype = {
@@ -189,6 +191,7 @@ CoapPacket.prototype = {
 			case OPTION_SUB_LIFETIME: return 'Subscription lifetime';
 			case OPTION_TOKEN: return 'Token';
 			case OPTION_BLOCK: return 'Block';
+			case OPTION_NOOP: return 'Noop fencepost';
 			case OPTION_URI_QUERY: return 'Uri-Query';
 			default: return 'unknown ('+type+')';
 		}
@@ -213,21 +216,35 @@ CoapPacket.prototype = {
 					case OPTION_LOCATION:
 					case OPTION_URI_PATH:
 					case OPTION_URI_QUERY:
-						 ret += '[str] '+bytes2str(opt);
+						 ret += bytes2str(opt)+' [str,'+optLen+']';
 						 break;
 					
 					// byte arrays
 					case OPTION_ETAG:
 					case OPTION_TOKEN:
-						ret += '[bytes] '+opt;
+						ret += opt+' [bytes,'+optLen+']';
+						break;
+						
+					// noop
+					case OPTION_BLOCK:
+						var int = bytes2int(opt);
+						var more = (0x08 & int);
+						var size = 16 << (0x07 & int);
+						var num = (~0x00000f & int) >> 4;
+						//var offset = (!0x00000f & opt) << (0x07 & opt);
+						ret += num+(more ? '+' : '')+' ['+size+' B/blk]';
+						break;
+					
+					// noop
+					case OPTION_NOOP:
 						break;
 					
 					// integer bytes
 					default:
-						ret += '[int] '+bytes2int(opt);
+						ret += bytes2int(opt)+' [int'+(optLen*8)+']';
 				}
 				
-				ret += ' ('+optLen+'); ';
+				ret += '; ';
 			}
 		}
 		return ret;
@@ -286,6 +303,23 @@ CoapPacket.prototype = {
 		}
 	},
 	
+	// for convenience
+	setBlock : function(num, size) {
+		// check for power of two and correct size
+		if (((size & (size-1))==0) && (size>=16) && (size<=2048)) {
+			var block = num << 4;
+			var szx = 0;
+			
+			size >>= 4;
+			for (szx = 0; size; ++szx) size >>= 1;
+			block |= szx - 1;
+			
+			this.setOption(OPTION_BLOCK, block);
+		} else {
+			throw 'ERROR: CoapPacket.setBlock [block size must be a power of two and 16 <= size <= 2048]';
+		}
+	},
+	
 	serialize : function() {
 		var byteArray = new Array();
 		var tempByte = 0x00;
@@ -316,8 +350,8 @@ CoapPacket.prototype = {
 				//dump('Adding '+this.getOptType(optType)+'\n');
 		    	var optLen = this.options[optType][0];
 				var opt = this.options[optType][1];
-				//dump('len: '+optLen+'\n');
-				//dump('opt: '+opt+'\n');
+				//dump('  len: '+optLen+'\n');
+				//dump('  opt: '+opt+'\n');
 				
 				// delta type encoding
 				tempByte  = (0xFF & (optType-optionDelta)) << 4;
@@ -336,7 +370,7 @@ CoapPacket.prototype = {
 				// add option value
 				for(var i in opt) byteArray.push(opt[i]);
 				
-				optionDelta += optType;
+				optionDelta = optType;
 			}
 		}
 		
@@ -382,8 +416,9 @@ CoapPacket.prototype = {
 	    	var optType = ((0xF0 & tempByte) >> 4) + optionDelta;
 	    	var optLen = (0x0F & tempByte);
 	    	
-	    	dump('Parsing '+this.getOptType(optType)+' ('+optLen+')\n');
+	    	dump('Parsing '+this.getOptType(optType)+' (delta '+((0xF0 & tempByte) >> 4)+', len '+optLen+')\n');
 	    	
+	    	// when the length is 15 or more, another byte is added as an 8-bit unsigned integer
 	    	if (optLen==15) {
 	    		optLen += packet.shift();
 	    	}
@@ -399,7 +434,7 @@ CoapPacket.prototype = {
 	    		this.options[optType][1] = opt;
 	    	}
 				
-			optionDelta += optType;
+			optionDelta = optType;
 		}
 		
         //read payload
@@ -431,6 +466,7 @@ function int2bytes(i) {
 		b.unshift(0xFF & i);
 		i >>= 8;
 	} while (i>0);
+	return b;
 }
 
 function bytes2int(b) {
