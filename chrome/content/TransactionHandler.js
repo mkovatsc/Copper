@@ -85,14 +85,36 @@ TransactionHandler.prototype = {
 		this.retransmissions = onoff;
 	},
 	
+	cancelTransactions : function() {
+		for (var t in this.transactions) {
+			// only cancel default transactions corresponding to the user requests
+			if (this.transactions[t] && this.transactions[t].cb==null) {
+				if (this.transactions[t].timer) {
+					window.clearTimeout(this.transactions[t].timer);
+				}
+				this.transactions[t] = null;
+				dump('INFO: TransactionHandler.cancelTransactions [cancelled transaction '+t+']\n');
+			}
+		}
+	},
+	
 	send : function(packet, tidCB) {
 		// set packet transaction ID
 		packet.tid = this.incTid();
 		
+		var that = this; // yes, that is really necessary for JavaScript...
+		var timer = null;
+		
 		// store transaction if awaiting answer
-		if (packet.ack==1 && this.retransmissions) {
-			var that = this; // yes, that is really necessary for JavaScript...
-			this.transactions[packet.tid] = new Transaction(packet, window.setTimeout(function(){myBind(that,that.resend(packet.tid));}, RESPONSE_TIMEOUT), tidCB);
+		if (packet.ack==1) {
+			if (this.retransmissions) {
+				// schedule resend
+				timer = window.setTimeout(function(){myBind(that,that.resend(packet.tid));}, RESPONSE_TIMEOUT);
+			} else {
+				// also schedule 'not responding' timeout when retransmissions are disabled 
+				timer = window.setTimeout(function(){myBind(that,that.resend(packet.tid));}, 16*RESPONSE_TIMEOUT);
+			}
+			this.transactions[packet.tid] = new Transaction(packet, timer, tidCB);
 		}
 		
 		dump('-sending CoAP packet----\nType: '+packet.getType()+'\nCode: '+packet.getCode()+'\nTransaction ID: '+packet.tid+'\nOptions: '+packet.getOptions()+'\nPayload: '+packet.payload+'\n------------------------\n');
@@ -103,7 +125,7 @@ TransactionHandler.prototype = {
 	
 	resend : function(tid) {
 		
-		// first: retransmissions can be disabled intermediately
+		// check this.retransmissions, as they can be disabled intermediately
 		if (this.retransmissions && this.transactions[tid] && this.transactions[tid].retries < MAX_RETRANSMIT) {
 			
 			var that = this;
@@ -134,7 +156,7 @@ TransactionHandler.prototype = {
 		
 		// handle transaction
 		if (this.transactions[packet.tid]) {
-			window.clearTimeout(this.transactions[packet.tid].timer);
+			if (this.transactions[packet.tid].timer) window.clearTimeout(this.transactions[packet.tid].timer);
 			if (this.transactions[packet.tid].cb) callback = this.transactions[packet.tid].cb;
 			
 			// remove
