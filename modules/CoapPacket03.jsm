@@ -47,7 +47,7 @@ var EXPORTED_SYMBOLS = [
 						'OPTION_MAX_AGE',
 						'OPTION_ETAG',
 						'OPTION_URI_AUTH',
-						'OPTION_LOCATION',
+						'OPTION_LOCATION_PATH',
 						'OPTION_URI_PATH',
 						'OPTION_SUB_LIFETIME',
 						'OPTION_TOKEN',
@@ -78,7 +78,7 @@ const OPTION_CONTENT_TYPE = 1;
 const OPTION_MAX_AGE = 2;
 const OPTION_ETAG = 4;
 const OPTION_URI_AUTH = 5;
-const OPTION_LOCATION = 6;
+const OPTION_LOCATION_PATH = 6;
 const OPTION_URI_PATH = 9;
 const OPTION_SUB_LIFETIME = 10;
 const OPTION_TOKEN = 11;
@@ -115,12 +115,12 @@ const MAX_RETRANSMIT = 5;
 
 function CoapPacket() {
 	this.options = new Array();
-	//                                       length, value
+	//                                       length, value as byte array
 	this.options[OPTION_CONTENT_TYPE] = new Array(0, null);
 	this.options[OPTION_MAX_AGE] = new Array(0, null);
 	this.options[OPTION_ETAG] = new Array(0, null);
 	this.options[OPTION_URI_AUTH] = new Array(0, null);
-	this.options[OPTION_LOCATION] = new Array(0, null);
+	this.options[OPTION_LOCATION_PATH] = new Array(0, null);
 	this.options[OPTION_URI_PATH] = new Array(0, null);
 	this.options[OPTION_SUB_LIFETIME] = new Array(0, null);
 	this.options[OPTION_TOKEN] = new Array(0, null);
@@ -133,7 +133,6 @@ CoapPacket.prototype = {
 	version : VERSION, // member for received packets
 	type : MSG_TYPE_CON,
 	optionCount : 0,
-	ack: 1, // stems from 00, provides same API by setting type through this
 	code : GET,
 	tid : 0x0777,
 	options : null,
@@ -179,86 +178,69 @@ CoapPacket.prototype = {
 		}
 	},
 	
-	// readable option type
-	getOptType : function(type) {
-		switch (parseInt(type)) {
-			case OPTION_CONTENT_TYPE: return 'Content-type';
-			case OPTION_MAX_AGE: return 'Max-age';
-			case OPTION_ETAG: return 'Etag';
-			case OPTION_URI_AUTH: return 'Uri-Authority';
-			case OPTION_LOCATION: return 'Location';
-			case OPTION_URI_PATH: return 'Uri-Path';
-			case OPTION_SUB_LIFETIME: return 'Subscription lifetime';
-			case OPTION_TOKEN: return 'Token';
-			case OPTION_BLOCK: return 'Block';
-			case OPTION_NOOP: return 'Noop fencepost';
-			case OPTION_URI_QUERY: return 'Uri-Query';
-			default: return 'unknown ('+type+')';
-		}
-	},
-	
-	// readable options
+	// get options that are set in the package
 	getOptions : function() {
-		var ret = '';
-		
+		var list = new Array();
 		for (var optType in this.options) {
 	    	if (this.options[optType][0]==0) {
 				continue;
 			} else {
-				ret += this.getOptType(optType)+': ';
-				
-		    	var optLen = this.options[optType][0];
-				var opt = this.options[optType][1];
-				
-				switch (parseInt(optType)) {
-					// strings
-					case OPTION_URI_AUTH:
-					case OPTION_LOCATION:
-					case OPTION_URI_PATH:
-					case OPTION_URI_QUERY:
-						 ret += bytes2str(opt)+' [str,'+optLen+']';
-						 break;
-					
-					// byte arrays
-					case OPTION_ETAG:
-					case OPTION_TOKEN:
-						ret += opt+' [bytes,'+optLen+']';
-						break;
-						
-					// noop
-					case OPTION_BLOCK:
-						var int = bytes2int(opt);
-						var more = (0x08 & int);
-						var size = 16 << (0x07 & int);
-						var num = (~0x00000f & int) >> 4;
-						//var offset = (!0x00000f & opt) << (0x07 & opt);
-						ret += num+(more ? '+' : '')+' ['+size+' B/blk]';
-						break;
-					
-					// noop
-					case OPTION_NOOP:
-						break;
-					
-					// integer bytes
-					default:
-						ret += bytes2int(opt)+' [int'+(optLen*8)+']';
-				}
-				
-				ret += '; ';
+				list.push(optType);
 			}
 		}
-		return ret;
+		return list;
+	},
+	
+	// retrieve option
+	getOptionLength : function(optType) {
+		if (this.options[optType][0]!=null) { 
+			return this.options[optType][0];
+		} else {
+			return -1;
+		}
+	},
+	getOption : function(optType) {
+		
+		if (this.getOptionLength(optType)<=0) {
+			return null;
+		}
+		
+    	//var optLen = this.options[optType][0];
+		var opt = this.options[optType][1];
+
+		switch (parseInt(optType)) {
+			// strings
+			case OPTION_LOCATION_PATH:
+			case OPTION_URI_AUTH:
+			case OPTION_URI_PATH:
+			case OPTION_URI_QUERY:
+				return bytes2str(opt);
+				break;
+			
+			// byte arrays
+			case OPTION_ETAG:
+			case OPTION_TOKEN:
+				return opt;
+				break;
+			
+			// noop
+			case OPTION_NOOP:
+				return 0;
+				break;
+			
+			// integers
+			default:
+				return bytes2int(opt);
+		}
 	},
 	
 	setOption : function(option, value) {
 		switch (parseInt(option)) {
 			// strings
 			case OPTION_URI_AUTH:
-			case OPTION_LOCATION:
+			case OPTION_LOCATION_PATH:
 			case OPTION_URI_PATH:
 			case OPTION_URI_QUERY:
-				if (value.charAt(0)=='/' || value.charAt(0)=='?') value = value.substr(1);
-				//dump('Setting '+this.getOptType(option)+': ' + value + ' (' + value.length + ')\n');
 				this.options[option][0] = value.length;
 				this.options[option][1] = str2bytes(value);
 				break;
@@ -295,37 +277,25 @@ CoapPacket.prototype = {
 		var tokens = uri.match(/^(coap:\/\/[a-z0-9-\.]+)?(:[0-9]{1,5})?(\/?|(\/[^\/\?]+)+)(\?.*)?$/i);
 		if (tokens) {
 			
-			this.setOption(OPTION_URI_PATH, tokens[3]);
-			if (tokens[5]) this.setOption(OPTION_URI_QUERY, tokens[5]);
+			var path = tokens[3];
+			var query = tokens[5];
+			
+			while (path.charAt(0)=='/') path = path.substr(1);
+			this.setOption(OPTION_URI_PATH, path);
+			
+			if (query) {
+				while (query.charAt(0)=='?') query = query.substr(1);
+				this.setOption(OPTION_URI_QUERY, query);
+			}
 			
 		} else {
 			throw 'ERROR: CoapPacket.setUri [invalid URI: '+uri+']';
 		}
 	},
 	
-	// for convenience
-	setBlock : function(num, size) {
-		// check for power of two and correct size
-		if (((size & (size-1))==0) && (size>=16) && (size<=2048)) {
-			var block = num << 4;
-			var szx = 0;
-			
-			size >>= 4;
-			for (szx = 0; size; ++szx) size >>= 1;
-			block |= szx - 1;
-			
-			this.setOption(OPTION_BLOCK, block);
-		} else {
-			throw 'ERROR: CoapPacket.setBlock [block size must be a power of two and 16 <= size <= 2048]';
-		}
-	},
-	
 	serialize : function() {
 		var byteArray = new Array();
 		var tempByte = 0x00;
-		
-		// 00 ack support
-		if (this.ack==1 && this.type==MSG_TYPE_NON) this.type = MSG_TYPE_CON;
 		
 		// first byte: version, type, and option count
 		tempByte  = (0x03 & VERSION) << 6; // using const for sending packets
@@ -347,7 +317,6 @@ CoapPacket.prototype = {
 	    	if (this.options[optType][0]==0) {
 				continue;
 			} else {
-				//dump('Adding '+this.getOptType(optType)+'\n');
 		    	var optLen = this.options[optType][0];
 				var opt = this.options[optType][1];
 				//dump('  len: '+optLen+'\n');
@@ -416,7 +385,7 @@ CoapPacket.prototype = {
 	    	var optType = ((0xF0 & tempByte) >> 4) + optionDelta;
 	    	var optLen = (0x0F & tempByte);
 	    	
-	    	dump('Parsing '+this.getOptType(optType)+' (delta '+((0xF0 & tempByte) >> 4)+', len '+optLen+')\n');
+	    	dump('Parsing '+optType+' (delta '+((0xF0 & tempByte) >> 4)+', len '+optLen+')\n');
 	    	
 	    	// when the length is 15 or more, another byte is added as an 8-bit unsigned integer
 	    	if (optLen==15) {
@@ -445,6 +414,9 @@ CoapPacket.prototype = {
         this.payload = bytes2str(payloadBytes);
 	}
 };
+
+//Helper functions
+////////////////////////////////////////////////////////////////////////////////
 
 function str2bytes(str) {
 	var b = new Array(str.length);
@@ -476,6 +448,3 @@ function bytes2int(b) {
 	}
 	return i;
 }
-
-const toast = Components.classes['@mozilla.org/alerts-service;1'].getService(Components.interfaces.nsIAlertsService).showAlertNotification;
-var popup = function(str) { toast('chrome://copper/skin/icon24.png','Alert',str); };

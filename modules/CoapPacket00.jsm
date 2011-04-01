@@ -48,7 +48,7 @@ var EXPORTED_SYMBOLS = [
 						'OPTION_MAX_AGE',
 						'OPTION_ETAG',
 						'OPTION_DATE',
-						'OPTION_SUBSCRIPTION_LIFETIME',
+						'OPTION_SUB_LIFETIME',
 						
 						'CODE_200_OK',
 						'CODE_201_CREATED',
@@ -89,7 +89,7 @@ const OPTION_URI_CODE = 2;
 const OPTION_MAX_AGE = 3;
 const OPTION_ETAG = 4;
 const OPTION_DATE = 5;
-const OPTION_SUBSCRIPTION_LIFETIME = 6;
+const OPTION_SUB_LIFETIME = 6;
 
 const CODE_200_OK = 0;
 const CODE_201_CREATED = 1;
@@ -176,23 +176,23 @@ CoapPacket.prototype = {
 	// readable option type
 	getOptType : function(type) {
 		switch (parseInt(type)) {
-			case OPTION_CONTENT_TYPE: return 'CONTENT-TYPE';
+			case OPTION_CONTENT_TYPE: return 'Content-type';
 			case OPTION_URI: return 'URI';
-			case OPTION_URI_CODE: return 'URI-CODE';
-			case OPTION_MAX_AGE: return 'MAX-AGE';
-			case OPTION_ETAG: return 'ETAG';
-			case OPTION_DATE: return 'DATE';
-			case OPTION_SUBSCRIPTION_LIFETIME: return 'SUBSCRIPTION-LIFETIME';
+			case OPTION_URI_CODE: return 'URI code';
+			case OPTION_MAX_AGE: return 'Max-age';
+			case OPTION_ETAG: return 'ETag';
+			case OPTION_DATE: return 'Date';
+			case OPTION_SUB_LIFETIME: return 'Subscription lifetime';
 			default: return 'unknown';
 		}
 	},
 	
-	getOptions : function() {
-		var ret = '';
-		for (var optType in this.options) {
-			ret += this.getOptType(optType)+': '+ this.options[optType]+'; ';
+	getOption : function(optType, readable) {
+		if (readable) {
+			return this.getOptType(optType)+': '+ this.options[optType];
+		} else {
+			return this.options[optType];
 		}
-		return ret;
 	},
 	
 	setOption : function(option, value) {
@@ -203,7 +203,7 @@ CoapPacket.prototype = {
 				this.options[option] = str2bytes(value);
 				break;
 			default:
-				dump('ERROR: CoapPacket.setOption [Unknown option ('+option+')]\n')
+				dump('ERROR: CoapPacket.setOption [Unknown option ('+option+')]\n');
 				throw 'ERROR: CoapPacket.setOption [Unknown option ('+option+')]';
 		}
 		this.optionCount++;
@@ -290,7 +290,7 @@ CoapPacket.prototype = {
 
 		this.type = 0xFF & ((tempByte & 0x30) >> 4);
         if (this.type < 0 || this.type > 2) {
-        	dump('ERROR: CoapPacket.parse [Wrong message type ('+this.type+')]\n')
+        	dump('ERROR: CoapPacket.parse [Wrong message type ('+this.type+')]\n');
             throw 'ERROR: CoapPacket.parse [Wrong message type ('+this.type+')]';
         }
 
@@ -341,51 +341,6 @@ CoapPacket.prototype = {
         this.payload = bytes2str(payloadBytes);
 	}
 };
-
-/*
-function readableMethod(num) {
-	switch (parseInt(num)) {
-		case GET: return 'GET';
-		case POST: return 'POST';
-		case PUT: return 'PUT';
-		case DELETE: return 'DELETE';
-		case SUBSCRIBE: return 'SUBSCRIBE';
-		default: return 'unknown';
-	}
-}
-
-function readableCode(num) {
-	switch (parseInt(num)) {
-		case CODE_200_OK: return '200 OK';
-		case CODE_201_CREATED: return '201 CREATED';
-		case CODE_304_NOT_MODIFIED: return '304 NOT MODIFIED';
-		case CODE_400_BAD_REQUEST: return '400 BAD REQUEST';
-		case CODE_401_UNAUTHORIZED: return '401 UNAUTHORIZED';
-		case CODE_403_FORBIDDEN: return '403 FORBIDDEN';
-		case CODE_404_NOT_FOUND: return '404 NOT FOUND';
-		case CODE_405_METHOD_NOT_ALLOWED: return '405 METHOD NOT ALLOWED';
-		case CODE_409_CONFLICT: return '409 CONFLICT';
-		case CODE_415_UNSUPPORTED_MADIA_TYPE: return '415 UNSUPPORTED MADIA TYPE';
-		case CODE_500_INTERNAL_SERVER_ERROR: return '500 INTERNAL SERVER ERROR';
-		case CODE_503_SERVICE_UNAVAILABLE: return '503 SERVICE UNAVAILABLE';
-		case CODE_504_GATEWAY_TIMEOUT: return '504 GATEWAY TIMEOUT';
-		default: return 'unknown';
-	}
-}
-
-function readableOption(num) {
-	switch (parseInt(num)) {
-		case OPTION_CONTENT_TYPE: return 'CONTENT-TYPE';
-		case OPTION_URI: return 'URI';
-		case OPTION_URI_CODE: return 'URI-CODE';
-		case OPTION_MAX_AGE: return 'MAX-AGE';
-		case OPTION_ETAG: return 'ETAG';
-		case OPTION_DATE: return 'DATE';
-		case OPTION_SUBSCRIPTION_LIFETIME: return 'SUBSCRIPTION-LIFETIME';
-		default: return 'unknown';
-	}
-}
-*/
 
 function str2bytes(str) {
 	var b = new Array(str.length);

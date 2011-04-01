@@ -36,14 +36,14 @@
  */
 
 function Transaction(myPacket, myTimer, myCB) {
-	this.packet = myPacket;
+	this.message = myPacket;
 	this.timer = myTimer;
 	this.cb = myCB;
 	
 	this.retries = 0;
 }
 Transaction.prototype = {
-	packet : null,
+	message : null,
 	timer : null,
 	cb : null,
 	
@@ -98,29 +98,30 @@ TransactionHandler.prototype = {
 		}
 	},
 	
-	send : function(packet, tidCB) {
-		// set packet transaction ID
-		packet.tid = this.incTid();
+	send : function(message, tidCB) {
+		// set transaction ID for message
+		message.setTID( this.incTid() );
+
 		
 		var that = this; // yes, that is really necessary for JavaScript...
 		var timer = null;
 		
 		// store transaction if awaiting answer
-		if (packet.ack==1) {
+		if (message.isConfirmable()) {
 			if (this.retransmissions) {
 				// schedule resend
-				timer = window.setTimeout(function(){myBind(that,that.resend(packet.tid));}, RESPONSE_TIMEOUT);
+				timer = window.setTimeout(function(){myBind(that,that.resend(message.getTID()));}, RESPONSE_TIMEOUT);
 			} else {
 				// also schedule 'not responding' timeout when retransmissions are disabled 
-				timer = window.setTimeout(function(){myBind(that,that.resend(packet.tid));}, 16*RESPONSE_TIMEOUT);
+				timer = window.setTimeout(function(){myBind(that,that.resend(message.getTID()));}, 16*RESPONSE_TIMEOUT);
 			}
-			this.transactions[packet.tid] = new Transaction(packet, timer, tidCB);
+			this.transactions[message.getTID()] = new Transaction(message, timer, tidCB);
 		}
 		
-		dump('-sending CoAP packet----\nType: '+packet.getType()+'\nCode: '+packet.getCode()+'\nTransaction ID: '+packet.tid+'\nOptions: '+packet.getOptions()+'\nPayload: '+packet.payload+'\n------------------------\n');
+		dump('-sending CoAP packet----\n'+message.getSummary());
 		
 		// and send
-		this.client.send( packet.serialize() );
+		this.client.send( message.serialize() );
 	},
 	
 	resend : function(tid) {
@@ -145,28 +146,28 @@ TransactionHandler.prototype = {
 		}
 	},
 	
-	handle : function(message) {
+	handle : function(packet) {
 		// parse byte message to CoAP packet
-		var packet = new CoapPacket();
-		packet.parse(message);
+		var message = new CoapMessage();
+		message.parse(packet);
 		
-		dump('-receiving CoAP packet--\nType: '+packet.getType()+'\nCode: '+packet.getCode()+'\nTransaction ID: '+packet.tid+'\nOptions: '+packet.getOptions()+'\nPayload: '+packet.payload+'\n------------------------\n');
+		dump('-receiving CoAP packet--\n'+message.getSummary());
 		
 		var callback = this.defaultCB;
 		
 		// handle transaction
-		if (this.transactions[packet.tid]) {
-			if (this.transactions[packet.tid].timer) window.clearTimeout(this.transactions[packet.tid].timer);
-			if (this.transactions[packet.tid].cb) callback = this.transactions[packet.tid].cb;
+		if (this.transactions[message.getTID()]) {
+			if (this.transactions[message.getTID()].timer) window.clearTimeout(this.transactions[message.getTID()].timer);
+			if (this.transactions[message.getTID()].cb) callback = this.transactions[message.getTID()].cb;
 			
 			// remove
-			this.transactions[packet.tid] = null;
+			this.transactions[message.getTID()] = null;
 		} else {
 			dump('WARNING: TransactionHandler.handle [unknown transaction]\n');
 		}
 		
 		// hand over to callback
-		callback( packet );
+		callback( message );
 	},
 	
 	shutdown : function() {

@@ -4,14 +4,6 @@
 <overlay id="sample" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 	<script src="copper.js" />
 	
-	<menupopup id="menu_ToolsPopup"> 
-		<menuitem id="copper-menu-button" label="&runcopper;" key="copper-run-key" oncommand="run()" class="menuitem-iconic" position="7" />
-	</menupopup>
-	
-	<keyset>
-		<key id="copper-run-key" modifiers="accel alt shift" key="L" oncommand="run()"/>
-	</keyset>
-	
 	<statusbar id="status-bar">
 		<statusbarpanel id="copper-status-bar-icon" class="statusbarpanel-iconic" src="chrome://copper/skin/icon16.png" tooltiptext="&runcopper;" onclick="run()" />
 	</statusbar>

@@ -8,4 +8,4 @@ locale	copper	en-US	chrome/locale/en-US/
 skin	copper	classic/1.0	chrome/skin/
 style	chrome://global/content/customizeToolbar.xul	chrome://copper/skin/skin.css
 
-resource mod modules/
+resource modules modules/

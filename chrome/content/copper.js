@@ -36,7 +36,18 @@
  */
 
 function run() {
-	var theTab          = gBrowser.addTab('coap:about');
-    theTab.label        = "Copper Browser";
-    gBrowser.selectedTab = theTab;
+
+	try {
+		var theTab          = gBrowser.addTab('');
+	    theTab.label        = "Copper Browser";
+	    gBrowser.selectedTab = theTab;
+	    
+	    alert('Just enter a CoAP URI into the address bar!');
+	    
+	    document.getElementById('urlbar').value = 'coap://';
+	    document.getElementById('urlbar').focus();
+	    document.getElementById('urlbar').selectTextRange(7,7);
+	} catch (ex) {
+		alert(ex);
+	}
 }

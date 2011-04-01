@@ -24,7 +24,6 @@
 						<label control="coap_version" value="CoAP version"/>
 						<menulist id="coap_version" preference="copper-version">
 							<menupopup>
-								<menuitem label="draft-shelby-core-coap" value="0"/>
 								<menuitem label="draft-ietf-core-coap-03" value="3"/>
 							</menupopup>
 						</menulist>

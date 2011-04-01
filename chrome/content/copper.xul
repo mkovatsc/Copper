@@ -14,6 +14,7 @@
         onunload      = "unload()">
 
 <script type="application/x-javascript" src="chrome://copper/content/Main.js"/>
+<script type="application/x-javascript" src="chrome://copper/content/CoapMessage.js"/>
 <script type="application/x-javascript" src="chrome://copper/content/UdpClient.js"/>
 <script type="application/x-javascript" src="chrome://copper/content/TransactionHandler.js"/>
 

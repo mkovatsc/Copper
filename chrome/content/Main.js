@@ -63,6 +63,19 @@ var resources = new Array();
 
 function init() {
 	
+	/*
+	//test
+	var szx = 0;
+	var size = 511;
+	
+	if (size<16) size = 16;
+	if (size>2048) size = 2048;
+	//size >>= 4;
+	for (szx = 0; size; ++szx) size >>= 1;
+	--szx;
+	alert('2^'+ szx + ' = ' + Math.pow(2, szx));
+	*/
+	
  	// set the Cu icon for all Copper tabs
 	// TODO: There must be a more elegant way
 	var tabbrowser = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator).getEnumerator("navigator:browser").getNext().gBrowser;  
@@ -78,12 +91,10 @@ function init() {
 	
 	// load CoAP implementation
 	switch (coapVersion) {
-		case 0: Components.utils.import("resource://mod/CoapPacket00.jsm"); break;
-		case 3: Components.utils.import("resource://mod/CoapPacket03.jsm"); break;
+		case 3: Components.utils.import("resource://modules/CoapPacket03.jsm"); break;
 		default:
-			dump('WARNING: CoAP version '+coapVersion+' not implemented. Using 00.\n');
-			alert('WARNING: CoAP version '+coapVersion+' not implemented. Using 00.');
-			Components.utils.import("resource://mod/CoapPacket00.jsm"); break;
+			alert('WARNING: CoAP version '+coapVersion+' not implemented. Using 03.');
+			Components.utils.import("resource://modules/CoapPacket00.jsm"); break;
 			coapVersion = 0;
 	}
 	updateLabel('toolbar_version', 'CoAP version ' + leadingZero(coapVersion,2));
@@ -143,60 +154,54 @@ function unload() {
 }
 
 
-// CoAP packet handlers
+// CoAP message handlers
 ////////////////////////////////////////////////////////////////////////////////
 
-// Handle normal incoming packets, registered as default at TransactionHandler
-function defaultHandler(packet) {
+// Handle normal incoming messages, registered as default at TransactionHandler
+function defaultHandler(message) {
 	dump('defaultHandler()\n');
 
-	updateLabel('info_code', packet.getCode());
-	updateLabel('packet_header', 'Type: '+packet.getType()+'\nCode: '+packet.getCode()+'\nTransaction ID: '+packet.tid+'\nOptions: '+packet.getOptions() );
+	updateLabel('info_code', message.getCode());
+	updateLabel('packet_header', 'Type: '+message.getType()+'\nCode: '+message.getCode()+'\nTransaction ID: '+message.getTID()+'\nOptions: '+message.getOptions() );
 	
 	// if message turns out to be block-wise transfer dispatch to corresponding handler
-	if (packet.options[OPTION_BLOCK][1]) {
-		return blockwiseHandler(packet);
+	if (message.isOption(OPTION_BLOCK)) {
+		return blockwiseHandler(message);
 	}
 	
-	updateLabel('packet_payload', packet.payload);
+	updateLabel('packet_payload', message.getPayload());
 }
 
-// Handle packets with block-wise transfer
-function blockwiseHandler(packet) {
+// Handle messages with block-wise transfer
+function blockwiseHandler(message) {
 	dump('blockwiseHandler()\n');
 	
-	if (packet.options[OPTION_BLOCK][1]) {
+	if (message.isOption(OPTION_BLOCK)) {
 		
-		var block = 0;
-		// byte array to int
-		for (var k in packet.options[OPTION_BLOCK][1]) {
-			block = (block << 8) | packet.options[OPTION_BLOCK][1][k];
-		}
-		
-		//alert((16 << ((0x07 & block)))+' - '+blockSize);
-		if (block & 0x08) {
-			if ((16 << ((0x07 & block)))!=blockSize) {
-				sendGet(null, 0, blockSize);
+		if (message.getBlockMore()) {
+			
+			if (message.getBlockSize()!=blockSize) {
+				sendBlockwiseGet(0, blockSize);
 			} else {
-				sendGet(null, ((~0x0f & block) >> 4)+1, blockSize);
+				sendBlockwiseGet(message.getBlockNumber()+1, blockSize);
 			}
 		}
-		updateLabel('packet_payload', packet.payload, true);
+		updateLabel('packet_payload', message.getPayload(), true);
 		
 	} else {
-		updateLabel('packet_payload', packet.payload);
+		updateLabel('packet_payload', message.getPayload());
 	}
 }
 
-// Handle packets with link format payload 
-function discoverHandler(packet) {
+// Handle messages with link format payload 
+function discoverHandler(message) {
 	dump('discoverHandler()\n');
-	if (packet.getOptions().match(/Content-type: \[int\] 40/)) {
+	if (message.getContentType()==40) {
 		// discovery
 		// TODO: append, not overwrite
-		prefManager.setCharPref('extensions.copper.resources.'+hostname+':'+port, packet.payload);
+		prefManager.setCharPref('extensions.copper.resources.'+hostname+':'+port, message.getPayload());
 		resourcesCached = false;
-		parseLinkFormat(packet.payload);
+		parseLinkFormat(message.getPayload());
 		updateResourceLinks();
 	} else {
 		alert('ERROR: Main.discoverHandler [no link format in payload]');
@@ -207,84 +212,93 @@ function discoverHandler(packet) {
 // Toolbar commands
 ////////////////////////////////////////////////////////////////////////////////
 
-function sendGet(uri, num, size) {
-	
-	client.cancelTransactions();
-	
-	uri = checkUri(uri, GET);
-	
-	var packet = new CoapPacket();
-	packet.code = GET;
-	packet.ack = 1;
-	packet.setUri(uri);
-	
-	if (num!=null) {
-		if (!size) size = blockSize;
-		packet.setBlock(num, size);
+function sendGet(uri) {
+	try {
+		client.cancelTransactions();
+		
+		uri = checkUri(uri, GET);
+		
+		var message = new CoapMessage(GET, 1, uri);
+		
+		clearLabels();	
+		client.send( message );
+	} catch (ex) {
+		alert('ERROR: Main.sendGet ['+ex+']');
 	}
+}
+function sendBlockwiseGet(num, size, uri) {
+	try {
+		client.cancelTransactions();
 	
-	if (!num) clearLabels();
-	
-	client.send( packet );
+		if (!num) num = 0;
+		if (!size) size = blockSize;
+		uri = checkUri(uri, GET);
+		
+		var message = new CoapMessage(GET, 1, uri);
+		
+		message.setBlock(num, size);
+		
+		if (num=0) clearLabels();
+		client.send( message );
+	} catch (ex) {
+		alert('ERROR: Main.sendBlockwiseGet ['+ex+']');
+	}
 }
 
 function sendPost(pl, uri) {
+	try {
+		client.cancelTransactions();
 	
-	client.cancelTransactions();
-
-	uri = checkUri(uri, POST);
-	
-	var packet = new CoapPacket();
-	packet.code = POST;
-	packet.ack = 1;
-	packet.setUri(uri);
-	
-	packet.payload = pl;
-	
-	clearLabels();
-	client.send( packet );
+		uri = checkUri(uri, POST);
+		
+		var message = new CoapMessage(POST, 1, uri, pl);
+		
+		clearLabels();
+		client.send( message );
+	} catch (ex) {
+		alert('ERROR: Main.sendPost ['+ex+']');
+	}
 }
 
 function sendPut(pl, uri) {
-	
-	client.cancelTransactions();
-	
-	uri = checkUri(uri, PUT);
-	
-	var packet = new CoapPacket();
-	packet.code = PUT;
-	packet.ack = 1;
-	packet.setUri(uri);
-	
-	packet.payload = pl;
-	
-	clearLabels();
-	client.send( packet );
+	try {
+		client.cancelTransactions();
+		
+		uri = checkUri(uri, PUT);
+		
+		var message = new CoapMessage(PUT, 1, uri, pl);
+		
+		clearLabels();
+		client.send( message );
+	} catch (ex) {
+		alert('ERROR: Main.sendPut ['+ex+']');
+	}
 }
 
 function sendDelete(uri) {
-	
-	client.cancelTransactions();
-
-	uri = checkUri(uri, DELETE);
-
-	var packet = new CoapPacket();
-	packet.code = DELETE;
-	packet.ack = 1;
-	packet.setUri(uri);
-	
-	clearLabels();
-	client.send( packet );
+	try {
+		client.cancelTransactions();
+		
+		uri = checkUri(uri, DELETE);
+		
+		var message = new CoapMessage(DELETE, 1, uri);
+		
+		clearLabels();
+		client.send( message );
+	} catch (ex) {
+		alert('ERROR: Main.sendDelete ['+ex+']');
+	}
 }
 
 function discover() {
-	var packet = new CoapPacket();
-	packet.code = GET;
-	packet.ack = 1;
-	packet.setUri(WELL_KNOWN_RESOURCES);
-	
-	clearLabels();
-	client.send( packet, discoverHandler );
+	try {
+		var message = new CoapMessage(GET, 1, WELL_KNOWN_RESOURCES);
+		
+		clearLabels();
+		client.send( message, discoverHandler );
+	} catch (ex) {
+		alert('ERROR: Main.discover ['+ex+']');
+	}
 }
 
 // Addon settings
@@ -434,6 +448,13 @@ function leadingZero(num, len) {
 	return num;
 }
 
+function isPowerOfTwo(i) {
+	return ((i & (i-1))==0);
+}
+
+function isDefined(variable) {
+    return (typeof(window[variable]) == 'undefined') ?  false : true;
+}
 
 // workaround for "this" losing scope when passing callback functions
 function myBind(scope, fn) {

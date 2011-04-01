@@ -106,7 +106,7 @@ UdpClient.prototype = {
 			if (this.callback) this.callback(byteArray);
 		    
 		} catch( ex ) {
-		    alert("ERROR: UdpClient.onDataAvailable ["+ex+"]");
+		    alert('ERROR: UdpClient.onDataAvailable ['+ex+']');
 		}
 	},
 	
@@ -123,9 +123,9 @@ UdpClient.prototype = {
 };
 
 function showByte(b) {
-	var str = "";
+	var str = '';
 	for (var j=0; j<8; j++) {
-		str = ((b & 1<<j)>0 ? "1" : "0") + str;
+		str = ((b & 1<<j)>0 ? '1' : '0') + str;
 	}
-	alert(b + ": " + str);
+	dump('UDP byte ' + b + ': ' + str + '\n');
 }
