@@ -35,8 +35,8 @@
  * \author  Matthias Kovatsch <kovatsch@inf.ethz.ch>\author
  */
 
-function Transaction(myPacket, myTimer, myCB) {
-	this.message = myPacket;
+function Transaction(myMessage, myTimer, myCB) {
+	this.message = myMessage;
 	this.timer = myTimer;
 	this.cb = myCB;
 	
@@ -118,7 +118,7 @@ TransactionHandler.prototype = {
 			this.transactions[message.getTID()] = new Transaction(message, timer, tidCB);
 		}
 		
-		dump('-sending CoAP packet----\n'+message.getSummary());
+		dump('-sending CoAP message---\n'+message.getSummary());
 		
 		// and send
 		this.client.send( message.serialize() );
@@ -135,7 +135,7 @@ TransactionHandler.prototype = {
 			var timeout = RESPONSE_TIMEOUT*Math.pow(2,this.transactions[tid].retries);
 			this.transactions[tid].timer = window.setTimeout(function(){myBind(that,that.resend(tid));}, timeout);
 			
-			dump('-re-sending CoAP packet-\nTransaction ID: '+tid+'\nTimeout: '+timeout+'\n------------------------\n');
+			dump('-re-sending CoAP message\nTransaction ID: '+tid+'\nTimeout: '+timeout+'\n------------------------\n');
 			
 			this.client.send( this.transactions[tid].packet.serialize() );
 		} else {
@@ -146,12 +146,12 @@ TransactionHandler.prototype = {
 		}
 	},
 	
-	handle : function(packet) {
+	handle : function(datagram) {
 		// parse byte message to CoAP packet
 		var message = new CoapMessage();
-		message.parse(packet);
+		message.parse(datagram);
 		
-		dump('-receiving CoAP packet--\n'+message.getSummary());
+		dump('-received CoAP message--\n'+message.getSummary());
 		
 		var callback = this.defaultCB;
 		

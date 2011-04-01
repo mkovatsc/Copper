@@ -115,11 +115,11 @@ UdpClient.prototype = {
 		this.inputStream.close();
 	},
 	
-	send : function(message) {
+	send : function(datagram) {
 		try {
-			this.outputStream.write(message, message.length);
+			this.outputStream.write(datagram, datagram.length);
 		} catch (ex) {
-			dump('WARNING: IO error during send');
+			dump('WARNING: UdpClient.send [IO error]');
 		}
 	}
 };
