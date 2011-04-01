@@ -140,6 +140,11 @@ function init() {
 		}
 		
 	} catch( ex ) {
+		// disable the toolbar
+		var obj = document.getElementById('main_toolbar').firstPermanentChild;
+		do {
+			obj.setAttribute("disabled", "true");
+		} while ( obj = obj.nextSibling);
 	    dump('WARNING: Main.init ['+ex+']\n');
 	}
 }

@@ -49,7 +49,6 @@
   	<groupbox>
     	<caption id="info_authority" label="Authority" style="font-size: 14pt; font-weight: bold;"/>
   		<description id="info_resources">
-  			<button label="discovering..." disabled="true"/>
   		</description>
   	</groupbox>
   	<label id="info_code" value="" style="font-size: 24pt; font-weight: bold;"/>
