@@ -46,13 +46,37 @@ var EXPORTED_SYMBOLS = [
 						'OPTION_CONTENT_TYPE',
 						'OPTION_MAX_AGE',
 						'OPTION_ETAG',
-						'OPTION_URI_AUTH',
+						'OPTION_URI_HOST',
 						'OPTION_LOCATION_PATH',
 						'OPTION_URI_PATH',
 						'OPTION_SUB_LIFETIME',
 						'OPTION_TOKEN',
 						'OPTION_BLOCK',
 						'OPTION_URI_QUERY',
+						
+						'CONTENT_TYPE_TEXT_PLAIN',
+						'CONTENT_TYPE_TEXT_XML',
+						'CONTENT_TYPE_TEXT_CSV',
+						'CONTENT_TYPE_TEXT_HTML',
+						'CONTENT_TYPE_IMAGE_GIF',
+						'CONTENT_TYPE_IMAGE_JPEG',
+						'CONTENT_TYPE_IMAGE_PNG',
+						'CONTENT_TYPE_IMAGE_TIFF',
+						'CONTENT_TYPE_AUDIO_RAW',
+						'CONTENT_TYPE_VIDEO_RAW',
+						'CONTENT_TYPE_APPLICATION_LINK_FORMAT',
+						'CONTENT_TYPE_APPLICATION_XML',
+						'CONTENT_TYPE_APPLICATION_OCTET_STREAM',
+						'CONTENT_TYPE_APPLICATION_RDF_XML',
+						'CONTENT_TYPE_APPLICATION_SOAP_XML',
+						'CONTENT_TYPE_APPLICATION_ATOM_XML',
+						'CONTENT_TYPE_APPLICATION_XMPP_XML',
+						'CONTENT_TYPE_APPLICATION_EXI',
+						'CONTENT_TYPE_APPLICATION_X_BXML',
+						'CONTENT_TYPE_APPLICATION_FASTINFOSET',
+						'CONTENT_TYPE_APPLICATION_SOAP_FASTINFOSET',
+						'CONTENT_TYPE_APPLICATION_JSON',
+						'CONTENT_TYPE_APPLICATION_X_OBIX_BINARY',
 						
 						'GET',
 						'POST',
@@ -77,7 +101,7 @@ const MSG_TYPE_RST = 3;
 const OPTION_CONTENT_TYPE = 1;
 const OPTION_MAX_AGE = 2;
 const OPTION_ETAG = 4;
-const OPTION_URI_AUTH = 5;
+const OPTION_URI_HOST = 5;
 const OPTION_LOCATION_PATH = 6;
 const OPTION_URI_PATH = 9;
 const OPTION_SUB_LIFETIME = 10;
@@ -102,6 +126,30 @@ const CODE_TOKEN_OPTION_REQUIRED = 240;
 const CODE_URI_AUTHORITY_OPTION_REQUIRED = 241;
 const CODE_CRITICAL_OPTION_NOT_SUPPORTED = 242;
 
+const CONTENT_TYPE_TEXT_PLAIN = 0;
+const CONTENT_TYPE_TEXT_XML = 1;
+const CONTENT_TYPE_TEXT_CSV = 2;
+const CONTENT_TYPE_TEXT_HTML = 3;
+const CONTENT_TYPE_IMAGE_GIF = 21; // 03
+const CONTENT_TYPE_IMAGE_JPEG = 22; // 03
+const CONTENT_TYPE_IMAGE_PNG = 23; // 03
+const CONTENT_TYPE_IMAGE_TIFF = 24; // 03
+const CONTENT_TYPE_AUDIO_RAW = 25; // 03
+const CONTENT_TYPE_VIDEO_RAW = 26; // 03
+const CONTENT_TYPE_APPLICATION_LINK_FORMAT = 40;
+const CONTENT_TYPE_APPLICATION_XML = 41;
+const CONTENT_TYPE_APPLICATION_OCTET_STREAM = 42;
+const CONTENT_TYPE_APPLICATION_RDF_XML = 43;
+const CONTENT_TYPE_APPLICATION_SOAP_XML = 44;
+const CONTENT_TYPE_APPLICATION_ATOM_XML = 45;
+const CONTENT_TYPE_APPLICATION_XMPP_XML = 46;
+const CONTENT_TYPE_APPLICATION_EXI = 47;
+const CONTENT_TYPE_APPLICATION_X_BXML = 48;
+const CONTENT_TYPE_APPLICATION_FASTINFOSET = 49;
+const CONTENT_TYPE_APPLICATION_SOAP_FASTINFOSET = 50;
+const CONTENT_TYPE_APPLICATION_JSON = 51;
+const CONTENT_TYPE_APPLICATION_X_OBIX_BINARY = -1; // 04+
+
 const GET = 1;
 const POST = 2;
 const PUT = 3;
@@ -119,7 +167,7 @@ function CoapPacket() {
 	this.options[OPTION_CONTENT_TYPE] = new Array(0, null);
 	this.options[OPTION_MAX_AGE] = new Array(0, null);
 	this.options[OPTION_ETAG] = new Array(0, null);
-	this.options[OPTION_URI_AUTH] = new Array(0, null);
+	this.options[OPTION_URI_HOST] = new Array(0, null);
 	this.options[OPTION_LOCATION_PATH] = new Array(0, null);
 	this.options[OPTION_URI_PATH] = new Array(0, null);
 	this.options[OPTION_SUB_LIFETIME] = new Array(0, null);
@@ -137,17 +185,6 @@ CoapPacket.prototype = {
 	tid : 0x0777,
 	options : null,
 	payload : '',
-	
-	// readable type
-	getType : function() {
-		switch (parseInt(this.type)) {
-			case MSG_TYPE_CON: return 'Confirmable';
-			case MSG_TYPE_NON: return 'Non-Confirmable';
-			case MSG_TYPE_ACK: return 'Acknowledgment';
-			case MSG_TYPE_RST: return 'Reset';
-			default: return 'unknown ('+this.type+')';
-		}
-	},
 	
 	// readable method or response code
 	getCode : function() {
@@ -211,7 +248,7 @@ CoapPacket.prototype = {
 		switch (parseInt(optType)) {
 			// strings
 			case OPTION_LOCATION_PATH:
-			case OPTION_URI_AUTH:
+			case OPTION_URI_HOST:
 			case OPTION_URI_PATH:
 			case OPTION_URI_QUERY:
 				return bytes2str(opt);
@@ -237,8 +274,8 @@ CoapPacket.prototype = {
 	setOption : function(option, value) {
 		switch (parseInt(option)) {
 			// strings
-			case OPTION_URI_AUTH:
 			case OPTION_LOCATION_PATH:
+			case OPTION_URI_HOST:
 			case OPTION_URI_PATH:
 			case OPTION_URI_QUERY:
 				this.options[option][0] = value.length;

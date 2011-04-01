@@ -71,16 +71,34 @@ CoapMessage.prototype = {
 	
 	// message summary (e.g., for info/debug dumps)
 	getSummary : function() {
-		return 'Type: '+this.getType(true) + '\nCode: '+this.getCode(true) + '\nTransaction ID: '+this.getTID() + '\nOptions: '+this.getOptions() + '\nPayload: '+this.getPayload() + '\n------------------------\n';
+		var ret = '';
+		ret += 'Type: '+this.getType(true);
+		ret += '\nCode: '+this.getCode(true);
+		ret += '\nTransaction ID: '+this.getTID();
+		ret += '\nOptions: '+this.getOptions();
+		ret += '\nPayload: '+this.getPayload();
+		ret += '\n------------------------\n';
+		return ret;
 	},
 	
 	// readable type
 	getType : function(readable) {
-		return this.packet.getType();
+		switch (parseInt(this.packet.type)) {
+			case MSG_TYPE_CON: return 'Confirmable';
+			case MSG_TYPE_NON: return 'Non-Confirmable';
+			case MSG_TYPE_ACK: return 'Acknowledgment';
+			case MSG_TYPE_RST: return 'Reset';
+			default: return 'unknown ('+this.packet.type+')';
+		}
+	},
+
+	isConfirmable : function() {
+		return this.packet.type==MSG_TYPE_CON;
 	},
 	
 	// readable method or response code
 	getCode : function(readable) {
+		// codes are version specific
 		return this.packet.getCode();
 	},
 	
@@ -90,23 +108,18 @@ CoapMessage.prototype = {
 	setTID : function(id) {
 		this.packet.tid = id;
 	},
-
-	// either through type or through ack field
-	isConfirmable : function() {
-		if (MSG_TYPE_CON!=null) {
-			return this.packet.type==MSG_TYPE_CON;
-		} else {
-			return this.packet.ack==1;
-		}
-	},
+	
 	
 	/*
+	 * Option definitions for different versions
+	 * 
+	draft-05                            draft-03                            draft-00
 	const OPTION_CONTENT_TYPE = 1;		const OPTION_CONTENT_TYPE = 1;		const OPTION_CONTENT_TYPE = 0;
 	const OPTION_MAX_AGE = 2;			const OPTION_MAX_AGE = 2;			const OPTION_MAX_AGE = 3;
 	const OPTION_PROXY_URI = 3;			
 	const OPTION_ETAG = 4;				const OPTION_ETAG = 4;				const OPTION_ETAG = 4;
 	const OPTION_URI_HOST = 5;			const OPTION_URI_AUTH = 5;			const OPTION_URI = 1;
-	const OPTION_LOCATION_PATH = 6;		const OPTION_LOCATION = 6;		// for POST responses to indicate the location of created resource
+	const OPTION_LOCATION_PATH = 6;		const OPTION_LOCATION = 6;
 	const OPTION_URI_PORT = 7;
 	const OPTION_LOCATION_QUERY = 8;
 	const OPTION_URI_PATH = 9;			const OPTION_URI_PATH = 9;			const OPTION_URI = 1;
@@ -129,8 +142,32 @@ CoapMessage.prototype = {
 			if (optLen<=0) return '';
 			
 			var ret = 'Content-Type: ';
-			// TODO: print readable content-type
-			ret += opt;
+			switch (opt) {
+				case CONTENT_TYPE_TEXT_PLAIN: ret += 'text/plain'; break;
+				case CONTENT_TYPE_TEXT_XML: ret += 'text/xml'; break;
+				case CONTENT_TYPE_TEXT_CSV: ret += 'text/csv'; break;
+				case CONTENT_TYPE_TEXT_HTML: ret += 'text/html'; break;
+				case CONTENT_TYPE_IMAGE_GIF: ret += 'image/gif'; break;
+				case CONTENT_TYPE_IMAGE_JPEG: ret += 'image/jpeg'; break;
+				case CONTENT_TYPE_IMAGE_PNG: ret += 'image/png'; break;
+				case CONTENT_TYPE_IMAGE_TIFF: ret += 'image/tiff'; break;
+				case CONTENT_TYPE_AUDIO_RAW: ret += 'audio/raw'; break;
+				case CONTENT_TYPE_VIDEO_RAW: ret += 'video/raw'; break;
+				case CONTENT_TYPE_APPLICATION_LINK_FORMAT: ret += 'application/link-format'; break;
+				case CONTENT_TYPE_APPLICATION_XML: ret += 'application/xml'; break;
+				case CONTENT_TYPE_APPLICATION_OCTET_STREAM: ret += 'application/octet-stream'; break;
+				case CONTENT_TYPE_APPLICATION_RDF_XML: ret += 'application/rdf+xml'; break;
+				case CONTENT_TYPE_APPLICATION_SOAP_XML: ret += 'application/soap+xml'; break;
+				case CONTENT_TYPE_APPLICATION_ATOM_XML: ret += 'application/atom+xml'; break;
+				case CONTENT_TYPE_APPLICATION_XMPP_XML: ret += 'application/xmpp+xml'; break;
+				case CONTENT_TYPE_APPLICATION_EXI: ret += 'application/exi'; break;
+				case CONTENT_TYPE_APPLICATION_X_BXML: ret += 'application/x-bxml'; break;
+				case CONTENT_TYPE_APPLICATION_FASTINFOSET: ret += 'application/fastinfoset'; break;
+				case CONTENT_TYPE_APPLICATION_SOAP_FASTINFOSET: ret += 'application/soap+fastinfoset'; break;
+				case CONTENT_TYPE_APPLICATION_JSON: ret += 'application/json'; break;
+				case CONTENT_TYPE_APPLICATION_X_OBIX_BINARY: ret += 'application/x-obix-binary'; break;
+				default: ret += 'unknown ('+opt+')';
+			}
 			ret += '; ';
 			
 			return ret;
@@ -164,12 +201,12 @@ CoapMessage.prototype = {
 			var y = 0;
 			if (w>104) var y = Math.round(1212424351/60.0/60.0/24.0/365.25*100.0)/100.0;
 			
-			// only print from largest unit onwards
+			// only print from largest to smallest given unit
 			if (w) ret += w+'w ';
-			if (w|d) ret += d+'d ';
-			if (w|d|h) ret += h+'h ';
-			if (w|d|h|m) ret += m+'m ';
-			if (w|d|h|m|s) ret += s+'s ';
+			if (d||(w&&(h||m||s))) ret += d+'d ';
+			if (h||((w||d)&&(m||s))) ret += h+'h ';
+			if (m||((w||d||h)&&s)) ret += m+'m ';
+			if (s) ret += s+'s ';
 			if (y) ret += '(~'+y+'y) ';
 			
 			ret += '[int'+(optLen*8)+']; ';
@@ -229,32 +266,15 @@ CoapMessage.prototype = {
 		}
 	},
 	
-	// OPTION_URI_HOST:04+ / OPTION_URI_AUTH:03 / OPTION_URI:00
-	getUriHost : function() {
-		//TODO
-	},
-	// OPTION_URI_PORT:04+ / OPTION_URI:00
-	getUriPort : function() {
-		//TODO
-	},
-	// OPTION_URI_PATH:03+ / OPTION_URI:00
-	getUriPath : function() {
-		//TODO
-	},
-	// OPTION_URI_QUERY:03+ / OPTION_URI:00
-	getUriQuery : function() {
-		//TODO
-	},
-	// convenience function
-	getUri : function(readable) {
-		//TODO
-		var optLen = 0;
-		var opt = null;
+	// OPTION_URI_HOST:04+ / OPTION_URI_AUTH:03*renamed
+	getUriHost : function(readable) {
+		var optLen = this.packet.getOptionLength(OPTION_URI_HOST);
+		var opt = this.packet.getOption(OPTION_URI_HOST); // string
 		
 		if (readable) {
 			if (optLen<=0) return '';
 			
-			var ret = 'Uri: ';
+			var ret = 'Uri-Host: ';
 			ret += opt;
 			ret += ' [str,'+optLen+']; ';
 			
@@ -263,17 +283,147 @@ CoapMessage.prototype = {
 			return opt;
 		}
 	},
+	// OPTION_URI_PORT:04+
+	getUriPort : function(readable) {
+		
+		if (coapVersion < 4) {
+			if (readable) {
+				return '';
+			} else {
+				return null;
+			}
+		}
+
+		var optLen = this.packet.getOptionLength(OPTION_URI_PORT);
+		var opt = this.packet.getOption(OPTION_URI_PORT); // int
+		
+		if (readable) {
+			if (optLen<=0) return '';
+			
+			var ret = 'Uri-Port: ';
+			ret += opt;
+			ret += ' [int'+(optLen*8)+']; ';
+			
+			return ret;
+		} else {
+			return opt;
+		}
+	},
+	// multiple OPTION_URI_PATH:04+ / OPTION_URI_PATH:03+
+	getUriPath : function(readable) {
+		// multiple OPTION_URI_PATH options should be concatinated during datagram parsing
+		// TODO: maybe use a string array later
+
+		var optLen = this.packet.getOptionLength(OPTION_URI_PATH);
+		var opt = this.packet.getOption(OPTION_URI_PATH); // string
+		
+		if (readable) {
+			if (optLen<=0) return '';
+			
+			var ret = 'Uri-Path: ';
+			ret += '/' + opt;
+			ret += ' [str,'+optLen+']; ';
+			
+			return ret;
+		} else {
+			return opt;
+		}
+	},
+	// OPTION_URI_QUERY:03+
+	getUriQuery : function(readable) {
+		var optLen = this.packet.getOptionLength(OPTION_URI_QUERY);
+		var opt = this.packet.getOption(OPTION_URI_QUERY); // string
+		
+		if (readable) {
+			if (optLen<=0) return '';
+			
+			var ret = 'Uri-Query: ';
+			ret += opt;
+			ret += ' [str,'+optLen+']; ';
+			
+			return ret;
+		} else {
+			return opt;
+		}
+	},
+	// convenience function
+	getUri : function(readable) {
+		
+		var host = this.getUriHost();
+		var port = this.getUriPort();
+		var path = this.getUriPath();
+		var query = this.getUriQuery();
+		
+		var uri = '';
+		if (host) uri += 'coap://' + host;
+		if (port) uri += ':' + port;
+		if (path) uri += '/' + path;
+		if (query) uri += '?' + query;
+		
+		
+		if (readable) {
+			if (!path) return '';
+			
+			var ret = 'Uri: ';
+			ret += uri;
+			ret += ' [str]; ';
+			
+			return ret;
+		} else {
+			return opt;
+		}
+	},
 	setUri : function(uri) {
+		// URI encoding is version specific
 		this.packet.setUri(uri);
 	},
 	
-	// OPTION_LOCATION_PATH:04+ / OPTION_LOCATION:03
-	getLocationPath : function() {
-		//TODO
+	// multiple OPTION_LOCATION_PATH:04+ / OPTION_LOCATION:03*renamed
+	getLocationPath : function(readable) {
+		// multiple OPTION_LOCATION_PATH options should be concatinated during datagram parsing
+		// TODO: maybe use a string array later
+		
+		var optLen = this.packet.getOptionLength(OPTION_LOCATION_PATH);
+		var opt = this.packet.getOption(OPTION_LOCATION_PATH); // string
+		
+		if (readable) {
+			if (optLen<=0) return '';
+			
+			var ret = 'Location-Path: ';
+			if (opt.charAt(0)!='/') ret += '/';
+			ret += opt;
+			ret += ' [str,'+optLen+']; ';
+			
+			return ret;
+		} else {
+			return opt;
+		}
 	},
 	// OPTION_LOCATION_QUERY:05+
-	getLocationQuery : function() {
-		//TODO
+	getLocationQuery : function(readable) {
+		
+		if (coapVersion < 5) {
+			if (readable) {
+				return '';
+			} else {
+				return null;
+			}
+		}
+
+		var optLen = this.packet.getOptionLength(OPTION_LOCATION_QUERY);
+		var opt = this.packet.getOption(OPTION_LOCATION_QUERY); // string
+		
+		if (readable) {
+			if (optLen<=0) return '';
+			
+			var ret = 'Location-Query: ';
+			ret += opt;
+			ret += ' [str,'+optLen+']; ';
+			
+			return ret;
+		} else {
+			return opt;
+		}
 	},
 	// convenience function
 	getLocation : function(readable) {
@@ -296,7 +446,9 @@ CoapMessage.prototype = {
 			var ret = 'Location: ';
 			if (opt.charAt(0)!='/') ret += '/';
 			ret += opt;
-			ret += ' [str,'+optLen+','+optLen2+']; ';
+			ret += ' [str,'+optLen;
+			if (optLen2) ret += ','+optLen2;
+			ret += ']; ';
 			
 			return ret;
 		} else {
