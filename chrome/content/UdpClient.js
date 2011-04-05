@@ -107,7 +107,9 @@ UdpClient.prototype = {
 			}
 
 			//alert(byteArray);
-			dump('=receiving UDP datagram='+count+'\n');
+			dump('-receiving UDP datagram-\n');
+			dump(' Length: '+count+'\n');
+			dump(' -----------------------\n');
 			if (this.callback) this.callback(byteArray);
 			
 		    
@@ -121,15 +123,18 @@ UdpClient.prototype = {
 		// will also trigger onStopRequest()
 		this.outputStream.close();
 		this.inputStream.close();
-		dump('=UDP shut down==========\n');
+		dump('-UDP shut down-----------\n');
 	},
 	
 	send : function(datagram) {
 		try {
 			this.outputStream.write(datagram, datagram.length);
-			dump('=sent UDP datagram======\n');
+			
+			dump('-sent UDP datagram------\n');
+			dump(' Length: '+datagram.length+'\n');
+			dump(' -----------------------\n');
 		} catch (ex) {
-			dump('WARNING: UdpClient.send [IO error]');
+			dump('WARNING: UdpClient.send [IO error]\n');
 		}
 	}
 };

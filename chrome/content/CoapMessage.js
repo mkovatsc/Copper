@@ -66,12 +66,11 @@ CoapMessage.prototype = {
 	// message summary (e.g., for info/debug dumps)
 	getSummary : function() {
 		var ret = '';
-		ret += 'Type: '+this.getType(true);
-		ret += '\nCode: '+this.getCode(true);
-		ret += '\nTransaction ID: '+this.getTID();
-		ret += '\nOptions: '+this.getOptions();
-		ret += '\nPayload: '+this.getPayload();
-		ret += '\n------------------------\n';
+		ret += ' Type: '+this.getType(true);
+		ret += '\n Code: '+this.getCode(true);
+		ret += '\n Transaction ID: '+this.getTID();
+		ret += '\n Options: '+this.getOptions();
+		ret += '\n Payload: '+this.getPayload();
 		return ret;
 	},
 	
@@ -477,7 +476,10 @@ CoapMessage.prototype = {
 		}
 	},
 	setToken : function(token) {
-		token = (0xFFFF & token);
+		if (token>0xFFFF) {
+			token = (0xFFFF & token);
+			dump('WARNING: CoapMessage.setToken [token must be a 1-2 byte value; masking to two bytes]\n');
+		}
 		this.packet.setOption(OPTION_TOKEN, token);
 	},
 	

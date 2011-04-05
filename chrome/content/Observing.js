@@ -84,7 +84,7 @@ Observing.prototype = {
 	},
 	
 	initSubscription : function(message) {
-		dump('initSubscription()\n');
+		dump('INFO: initSubscription()\n');
 		if (!this.pending) {
 			throw 'no subscription pending';
 		}
@@ -100,7 +100,7 @@ Observing.prototype = {
 		} else {
 			this.subscriptions[this.pending] = null;
 			this.pending = null;
-			dump('WARNING: Observerving not supported\n');
+			dump('WARNING: Observerving not supported by server\n');
 		}
 	},
 

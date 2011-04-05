@@ -64,6 +64,11 @@ var resources = new Array();
 ////////////////////////////////////////////////////////////////////////////////
 
 function init() {
+	
+	dump('\n\n\n\n\n');
+	dump('==============================================================================\n');
+	dump('=INITIALIZING COPPER==========================================================\n');
+	dump('==============================================================================\n');
 		
  	// set the Cu icon for all Copper tabs
 	// TODO: There must be a more elegant way
@@ -108,13 +113,11 @@ function init() {
 		if (document.getElementById('toolbar_auto_discovery').checked) {
 			discover();
 		} else {
-			try {
-				parseLinkFormat(prefManager.getCharPref('extensions.copper.resources.'+hostname+':'+port));
-			} catch( ex ) {
-			    dump('INFO: Main.init [no cache for '+hostname+':'+port+' yet]\n');
-			}
+			loadCachedResources();
 		}
 		updateResourceLinks();
+		
+		loadDefaultPayload();
 		
 		// handle auto-request after redirect
 		var auto = prefManager.getIntPref('extensions.copper.auto-request.method');
@@ -138,7 +141,8 @@ function init() {
 		do {
 			obj.setAttribute("disabled", "true");
 		} while ( obj = obj.nextSibling);
-	    dump('WARNING: Main.init ['+ex+']\n');
+		
+	    dump('ERROR: Main.init ['+ex+']\n');
 	}
 }
 
@@ -157,7 +161,7 @@ function unload() {
 
 // Handle normal incoming messages, registered as default at TransactionHandler
 function defaultHandler(message) {
-	dump('defaultHandler()\n');
+	dump('INFO: defaultHandler()\n');
 
 	updateLabel('info_code', message.getCode());
 	updateLabel('packet_header', 'Type: '+message.getType(true)+'\nCode: '+message.getCode(true)+'\nTransaction ID: '+message.getTID()+'\nOptions: '+message.getOptions() );
@@ -172,7 +176,7 @@ function defaultHandler(message) {
 
 // Handle messages with block-wise transfer
 function blockwiseHandler(message) {
-	dump('blockwiseHandler()\n');
+	dump('INFO: blockwiseHandler()\n');
 	
 	updateLabel('info_code', message.getCode() + ' (Blockwise)');
 	
@@ -195,7 +199,7 @@ function blockwiseHandler(message) {
 
 //Handle messages with block-wise transfer
 function observingHandler(message) {
-	dump('observingHandler()\n');
+	dump('INFO: observingHandler()\n');
 	
 	if (message.isOption(OPTION_SUB_LIFETIME)) {
 		
@@ -210,7 +214,7 @@ function observingHandler(message) {
 
 // Handle messages with link format payload 
 function discoverHandler(message) {
-	dump('discoverHandler()\n');
+	dump('INFO: discoverHandler()\n');
 	if (message.getContentType()==40) {
 		// discovery
 		// TODO: append, not overwrite
@@ -364,10 +368,9 @@ function parseUri(uri) {
 		path = tokens[5] ? tokens[5] : path;
 		query = tokens[8] ? tokens[8] : '';
 		
-		//alert(hostname + ':' + port + path);
+		
 		document.title = hostname + ':' + port;
 		document.getElementById('info_authority').label = '' + hostname + ':' + port;
-		setDefaultPayload();
 	} else {
 		// no valid URI
 		document.getElementById('info_authority').label = 'Invalid URI';
@@ -394,13 +397,23 @@ function checkUri(uri, method, pl) {
 	}
 }
 
+// Load cached resource links from preferences
+function loadCachedResources() {
+	try {
+		dump('INFO: loading cached resource links\n');
+		parseLinkFormat(prefManager.getCharPref('extensions.copper.resources.'+hostname+':'+port));
+	} catch( ex ) {
+	    dump('INFO: no cached links for '+hostname+':'+port+' yet\n');
+	}
+}
+
 // Load last used payload from preferences, otherwise use default payload
-function setDefaultPayload() {
+function loadDefaultPayload() {
 	var pl = prefManager.getCharPref('extensions.copper.payloads.default');
 	try {
 		pl = prefManager.getCharPref('extensions.copper.payloads.'+hostname+':'+port);
 	} catch( ex ) {
-	    dump('INFO: Main.init [no default payload for '+hostname+':'+port+' yet]\n');
+	    dump('INFO: no default payload for '+hostname+':'+port+' yet\n');
 	}
 	document.getElementById('toolbar_payload').value = pl;
 }
@@ -409,7 +422,7 @@ function parseLinkFormat(data) {
 	
 	// totally complicated but supports ',' and '\n' to seperate links and ',' as well as '\"' within quoted strings
 	var links = data.match(/(<[^>]+>\s*(;\s*[^<"\s;,]+\s*=\s*([^<"\s;,]+|"([^"\\]*(\\.[^"\\]*)*)")\s*)*)/g);
-	dump('-parsing links----------\n');
+	dump('-parsing links----------------------------------\n');
 	for (var i in links) {
 		//dump(links[i]+'\n');
 		var elems = links[i].match(/^<([^>]+)>\s*(;.+)\s*$/);
@@ -422,7 +435,7 @@ function parseLinkFormat(data) {
 		
 		var attribs = new Array();
 		
-		dump(uri+' ('+tokens.length+')\n');
+		dump(' '+uri+' ('+tokens.length+')\n');
 		
 		for (var j in tokens) {
 			//dump('  '+tokens[j]+'\n');
@@ -434,7 +447,7 @@ function parseLinkFormat(data) {
 		}
 		resources[uri] = attribs;
 	}
-	dump('------------------------\n');
+	dump(' -----------------------------------------------\n');
 }
 function updateResourceLinks() {
 	var list = document.getElementById('info_resources');

@@ -430,7 +430,7 @@ CoapPacket.prototype = {
 	    	var optType = ((0xF0 & tempByte) >> 4) + optionDelta;
 	    	var optLen = (0x0F & tempByte);
 	    	
-	    	dump('Parsing '+optType+' (delta '+((0xF0 & tempByte) >> 4)+', len '+optLen+')\n');
+	    	dump('INFO: parsing option '+optType+' (delta '+((0xF0 & tempByte) >> 4)+', len '+optLen+')\n');
 	    	
 	    	// when the length is 15 or more, another byte is added as an 8-bit unsigned integer
 	    	if (optLen==15) {

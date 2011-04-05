@@ -120,7 +120,9 @@ TransactionHandler.prototype = {
 		}
 		
 		// and send
-		dump('-sending CoAP message---\n'+message.getSummary());
+		dump('=sending CoAP message===\n');
+		dump(message.getSummary()+'\n');
+		dump(' =======================\n');
 		this.client.send( message.serialize() );
 	},
 	
@@ -135,10 +137,15 @@ TransactionHandler.prototype = {
 			var timeout = RESPONSE_TIMEOUT*Math.pow(2,this.transactions[tid].retries);
 			this.transactions[tid].timer = window.setTimeout(function(){myBind(that,that.resend(tid));}, timeout);
 			
-			dump('-re-sending CoAP message\nTransaction ID: '+tid+'\nTimeout: '+timeout+'\n------------------------\n');
+			dump('=re-sending CoAP message\n');
+			dump(' Transaction ID: '+tid+'\n');
+			dump(' Timeout: '+timeout+'\n');
+			dump(' =======================\n');
 			this.client.send( this.transactions[tid].packet.serialize() );
 		} else {
-			dump('-timeout----------------\nTransaction ID: '+tid+'\n------------------------\n');
+			dump('=timeout================\n');
+			dump(' Transaction ID: '+tid+'\n');
+			dump(' =======================\n');
 			this.transactions[tid] = null;
 			// TODO: find nicer way, maybe registered error CB
 			this.defaultCB({getCode:function(){return 'Server not responding';}});
@@ -150,7 +157,9 @@ TransactionHandler.prototype = {
 		var message = new CoapMessage();
 		message.parse(datagram);
 		
-		dump('-received CoAP message--\n'+message.getSummary());
+		dump('=received CoAP message==\n');
+		dump(message.getSummary()+'\n');
+		dump(' =======================\n');
 		
 		var callback = this.defaultCB;
 		
@@ -164,7 +173,7 @@ TransactionHandler.prototype = {
 			
 		// handle observing
 		} else if (observer && message.getToken() && observer.isRegisteredToken(message.getToken())) {
-			dump('-observing--------------\n');
+			dump('=observing==============\n');
 			callback = observer.getSubscriberCallback(message.getToken());
 
 			// handle confirmables
