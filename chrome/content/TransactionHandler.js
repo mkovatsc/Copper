@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, Institute for Pervasive Computing, ETH Zurich.
+ * Copyright (c) 2011, Institute for Pervasive Computing, ETH Zurich.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -72,11 +72,11 @@ TransactionHandler.prototype = {
 	
 	retransmissions : true,
 	
-	register : function(myCB) {
+	registerCallback : function(myCB) {
 		this.defaultCB = myCB;
 	},
 	
-	incTid : function() {
+	incTID : function() {
 		this.tid = 0xFFFF & (this.tid+1); 
 		return this.tid;
 	},
@@ -100,8 +100,9 @@ TransactionHandler.prototype = {
 	
 	send : function(message, tidCB) {
 		// set transaction ID for message
-		message.setTID( this.incTid() );
-
+		if (message.getType()!=MSG_TYPE_ACK && message.getType()!=MSG_TYPE_RST) {
+			message.setTID( this.incTID() );
+		}
 		
 		var that = this; // yes, that is really necessary for JavaScript...
 		var timer = null;
@@ -118,9 +119,8 @@ TransactionHandler.prototype = {
 			this.transactions[message.getTID()] = new Transaction(message, timer, tidCB);
 		}
 		
-		dump('-sending CoAP message---\n'+message.getSummary());
-		
 		// and send
+		dump('-sending CoAP message---\n'+message.getSummary());
 		this.client.send( message.serialize() );
 	},
 	
@@ -136,7 +136,6 @@ TransactionHandler.prototype = {
 			this.transactions[tid].timer = window.setTimeout(function(){myBind(that,that.resend(tid));}, timeout);
 			
 			dump('-re-sending CoAP message\nTransaction ID: '+tid+'\nTimeout: '+timeout+'\n------------------------\n');
-			
 			this.client.send( this.transactions[tid].packet.serialize() );
 		} else {
 			dump('-timeout----------------\nTransaction ID: '+tid+'\n------------------------\n');
@@ -162,12 +161,44 @@ TransactionHandler.prototype = {
 			
 			// remove
 			this.transactions[message.getTID()] = null;
+			
+		// handle observing
+		} else if (observer && message.getToken() && observer.isRegisteredToken(message.getToken())) {
+			dump('-observing--------------\n');
+			callback = observer.getSubscriberCallback(message.getToken());
+
+			// handle confirmables
+			if (message.getType()==MSG_TYPE_CON) {
+				this.ack(message.getTID());
+			}
+			
 		} else {
-			dump('WARNING: TransactionHandler.handle [unknown transaction]\n');
+			dump('WARNING: TransactionHandler.handle [unknown transaction and token]\n');
+			
+			// handle confirmables
+			if (message.getType()==MSG_TYPE_CON) {
+				this.reset(message.getTID());
+			}
 		}
 		
 		// hand over to callback
 		callback( message );
+	},
+	
+	ack : function(tid) {
+		var ack = new CoapMessage(MSG_TYPE_ACK);
+		ack.setTID( tid );
+		
+		this.send( ack );
+		popup(hostname+':'+port, 'Sending ACK for transaction '+tid);
+	},
+	
+	reset : function(tid) {
+		var rst = new CoapMessage(MSG_TYPE_RST);
+		rst.setTID( tid );
+		
+		this.send( rst );
+		popup(hostname+':'+port, 'Sending RST for transaction '+tid);
 	},
 	
 	shutdown : function() {

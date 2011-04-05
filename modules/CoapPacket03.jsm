@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, Institute for Pervasive Computing, ETH Zurich.
+ * Copyright (c) 2011, Institute for Pervasive Computing, ETH Zurich.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -255,10 +255,14 @@ CoapPacket.prototype = {
 				break;
 			
 			// byte arrays
+				/*
+				 * treat as int
+				 * 
 			case OPTION_ETAG:
 			case OPTION_TOKEN:
 				return opt;
 				break;
+				*/
 			
 			// noop
 			case OPTION_NOOP:
@@ -285,9 +289,13 @@ CoapPacket.prototype = {
 			// byte arrays
 			case OPTION_ETAG:
 			case OPTION_TOKEN:
+				/*
+				 * treat as int
+				 * 
 				this.options[option][0] = value.length;
 				this.options[option][1] = value;
 				break;
+				*/
 			
 			// integers
 			case OPTION_CONTENT_TYPE:

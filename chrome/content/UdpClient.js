@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, Institute for Pervasive Computing, ETH Zurich.
+ * Copyright (c) 2011, Institute for Pervasive Computing, ETH Zurich.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,6 +35,12 @@
  * \author  Matthias Kovatsch <kovatsch@inf.ethz.ch>\author
  */
 
+/*
+ * FIXME: inputStream does not separate single datagrams.
+ * Thus, increased traffic results in merged datagrams, i.e., one or more datagrams are added to the payload of the first one.
+ * A workaround will probably need native code to provide a datagram handler (transport-service) that pipes them to/from Firefox.
+ */ 
+
 function UdpClient(myHost, myPort) {
 
 	this.host = myHost.replace(/\[/,'').replace(/\]/,'');
@@ -44,6 +50,7 @@ function UdpClient(myHost, myPort) {
 	this.pump = Components.classes["@mozilla.org/network/input-stream-pump;1"].createInstance(Components.interfaces.nsIInputStreamPump);
 	
 	this.socket = this.transportService.createTransport(["udp"], 1, this.host, this.port, null);
+	
 	this.outputStream = this.socket.openOutputStream(0,0,0);
 	this.inputStream = this.socket.openInputStream(0, 0, 0); // 1,0,0 = OPEN_BLOCKING
 	
@@ -53,10 +60,8 @@ function UdpClient(myHost, myPort) {
 
 UdpClient.prototype = {
 
-	host             : "",
+	host             : '',
 	port             : -1,
-	
-	//tHandler         : null,
 	
 	callback         : null,
 	
@@ -65,13 +70,16 @@ UdpClient.prototype = {
 	socket           : null,
 	outputStream     : null,
 	inputStream      : null,
+	sis : null,
 	
 	register : function(myCB) {
 		this.callback = myCB;
 	},
 	
 	// stream observer functions
-	onStartRequest : function(request, context) { },
+	onStartRequest : function(request, context) {
+		;
+	},
 	
 	onStopRequest : function(request, context, status) {
 		this.outputStream.close();
@@ -97,11 +105,11 @@ UdpClient.prototype = {
 				
 				//showByte(byteArray[i])
 			}
-			
+
 			//alert(byteArray);
-			dump('UDP receive\n');
-			
+			dump('=receiving UDP datagram='+count+'\n');
 			if (this.callback) this.callback(byteArray);
+			
 		    
 		} catch( ex ) {
 		    alert('ERROR: UdpClient.onDataAvailable ['+ex+']');
@@ -113,11 +121,13 @@ UdpClient.prototype = {
 		// will also trigger onStopRequest()
 		this.outputStream.close();
 		this.inputStream.close();
+		dump('=UDP shut down==========\n');
 	},
 	
 	send : function(datagram) {
 		try {
 			this.outputStream.write(datagram, datagram.length);
+			dump('=sent UDP datagram======\n');
 		} catch (ex) {
 			dump('WARNING: UdpClient.send [IO error]');
 		}

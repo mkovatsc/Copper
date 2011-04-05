@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, Institute for Pervasive Computing, ETH Zurich.
+ * Copyright (c) 2011, Institute for Pervasive Computing, ETH Zurich.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,19 +43,13 @@
  * RESPONSE_TIMEOUT, MAX_RETRANSMIT
  */
 
-function CoapMessage(method, ack, uri, pl) {
+//create a request/ack, received responses use parse()
+function CoapMessage(type, code, uri, pl) {
 	this.packet = new CoapPacket();
 	
-	// creating a request, responses use parse()
-	if (method!=null) {
-		this.packet.code = method;
-	}
-	// should message be acknowledged
-	if (ack) {
-		this.packet.type = MSG_TYPE_CON;
-	} else {
-		this.packet.type = MSG_TYPE_NON;
-	}
+	this.packet.type = type;
+	this.packet.code = code;
+	
 	// URI
 	if (uri!=null) {
 		this.setUri(uri);
@@ -83,12 +77,16 @@ CoapMessage.prototype = {
 	
 	// readable type
 	getType : function(readable) {
-		switch (parseInt(this.packet.type)) {
-			case MSG_TYPE_CON: return 'Confirmable';
-			case MSG_TYPE_NON: return 'Non-Confirmable';
-			case MSG_TYPE_ACK: return 'Acknowledgment';
-			case MSG_TYPE_RST: return 'Reset';
-			default: return 'unknown ('+this.packet.type+')';
+		if (readable) {
+			switch (parseInt(this.packet.type)) {
+				case MSG_TYPE_CON: return 'Confirmable';
+				case MSG_TYPE_NON: return 'Non-Confirmable';
+				case MSG_TYPE_ACK: return 'Acknowledgment';
+				case MSG_TYPE_RST: return 'Reset';
+				default: return 'unknown ('+this.packet.type+')';
+			}
+		} else {
+			return parseInt(this.packet.type);
 		}
 	},
 
@@ -100,6 +98,9 @@ CoapMessage.prototype = {
 	getCode : function(readable) {
 		// codes are version specific
 		return this.packet.getCode();
+	},
+	setCode : function(code) {
+		this.packet.code = code;
 	},
 	
 	getTID : function() {
@@ -123,7 +124,7 @@ CoapMessage.prototype = {
 	const OPTION_URI_PORT = 7;
 	const OPTION_LOCATION_QUERY = 8;
 	const OPTION_URI_PATH = 9;			const OPTION_URI_PATH = 9;			const OPTION_URI = 1;
-										const OPTION_SUB_LIFETIME = 10;		const OPTION_SUB_LIFETIME = 6;
+	const OPTION_OBSERVE = 10;			const OPTION_SUB_LIFETIME = 10;		const OPTION_SUB_LIFETIME = 6;
 	const OPTION_TOKEN = 11;			const OPTION_TOKEN = 11;
 	const OPTION_BLOCK = 13;			const OPTION_BLOCK = 13;
 	const OPTION_NOOP = 14;				const OPTION_NOOP = 14;
@@ -459,7 +460,7 @@ CoapMessage.prototype = {
 	// OPTION_TOKEN:03+
 	getToken : function(readable) {
 		var optLen = this.packet.getOptionLength(OPTION_TOKEN);
-		var opt = this.packet.getOption(OPTION_TOKEN); // byte array
+		var opt = this.packet.getOption(OPTION_TOKEN); // byte array, treat as int
 
 		if (readable) {
 			if (optLen<=0) return '';
@@ -467,15 +468,17 @@ CoapMessage.prototype = {
 			var ret = 'Token: ';
 			
 			ret += '0x';
-			for (i in opt) {
-				ret += opt[i].toString(16).toUpperCase();
-			}
+			ret += opt.toString(16).toUpperCase();
 			ret += ' ['+optLen+' bytes]; ';
 			
 			return ret; 
 		} else {
 			return opt;
 		}
+	},
+	setToken : function(token) {
+		token = (0xFFFF & token);
+		this.packet.setOption(OPTION_TOKEN, token);
 	},
 	
 	// OPTION_BLOCK:03+
@@ -531,7 +534,28 @@ CoapMessage.prototype = {
 		return (0x08 & this.getBlock());
 	},
 
-	
+	// OPTION_SUB_LIFETIME:draft-ietf-core-observe-00
+	getSubscription : function(readable) {
+		var optLen = this.packet.getOptionLength(OPTION_SUB_LIFETIME);
+		var opt = this.packet.getOption(OPTION_SUB_LIFETIME); // int
+
+		if (readable) {
+			if (optLen<=0) return '';
+			
+			var ret = 'Subscription: ';
+			
+			ret += opt;
+			ret += ' [int'+(optLen*8)+']; ';
+			
+			return ret; 
+		} else {
+			return opt;
+		}
+	},
+	setSubscription : function(time) {
+		if (time> 0xFFFFFFFF) time = 0xFFFFFFFF;
+		this.packet.setOption(OPTION_SUB_LIFETIME, time);
+	},
 	
 	// readable options list
 	getOptions : function() {
@@ -543,11 +567,13 @@ CoapMessage.prototype = {
 		ret += this.getETag(true);
 		ret += this.getUri(true);
 		ret += this.getLocation(true);
+		ret += this.getSubscription(true);
 		ret += this.getToken(true);
 		ret += this.getBlock(true);
 		
 		return ret;
 	},
+	
 	// check if option is present
 	isOption : function(optType) {
 		var list = this.packet.getOptions();

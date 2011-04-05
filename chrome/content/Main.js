@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, Institute for Pervasive Computing, ETH Zurich.
+ * Copyright (c) 2011, Institute for Pervasive Computing, ETH Zurich.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,6 +47,8 @@ var coapVersion = prefManager.getIntPref('extensions.copper.coap-version');
 
 var client = null;
 
+var observer = null;
+
 var hostname = 'localhost';
 var port = 61616;
 var path = '/';
@@ -62,20 +64,7 @@ var resources = new Array();
 ////////////////////////////////////////////////////////////////////////////////
 
 function init() {
-	
-	/*
-	//test
-	var szx = 0;
-	var size = 511;
-	
-	if (size<16) size = 16;
-	if (size>2048) size = 2048;
-	//size >>= 4;
-	for (szx = 0; size; ++szx) size >>= 1;
-	--szx;
-	alert('2^'+ szx + ' = ' + Math.pow(2, szx));
-	*/
-	
+		
  	// set the Cu icon for all Copper tabs
 	// TODO: There must be a more elegant way
 	var tabbrowser = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator).getEnumerator("navigator:browser").getNext().gBrowser;  
@@ -107,9 +96,13 @@ function init() {
 	try {
 		parseUri(document.location.href);
 		
+		// set up datagram and transaction layer
 		var temp = new UdpClient(hostname, port);
 		client = new TransactionHandler(temp, document.getElementById('toolbar_retransmissions').checked);
-		client.register(defaultHandler);
+		client.registerCallback(defaultHandler);
+		
+		// enable observing
+		observer = new Observing();
 	
 		// handle auto discover
 		if (document.getElementById('toolbar_auto_discovery').checked) {
@@ -167,7 +160,7 @@ function defaultHandler(message) {
 	dump('defaultHandler()\n');
 
 	updateLabel('info_code', message.getCode());
-	updateLabel('packet_header', 'Type: '+message.getType()+'\nCode: '+message.getCode()+'\nTransaction ID: '+message.getTID()+'\nOptions: '+message.getOptions() );
+	updateLabel('packet_header', 'Type: '+message.getType(true)+'\nCode: '+message.getCode(true)+'\nTransaction ID: '+message.getTID()+'\nOptions: '+message.getOptions() );
 	
 	// if message turns out to be block-wise transfer dispatch to corresponding handler
 	if (message.isOption(OPTION_BLOCK)) {
@@ -180,6 +173,8 @@ function defaultHandler(message) {
 // Handle messages with block-wise transfer
 function blockwiseHandler(message) {
 	dump('blockwiseHandler()\n');
+	
+	updateLabel('info_code', message.getCode() + ' (Blockwise)');
 	
 	if (message.isOption(OPTION_BLOCK)) {
 		
@@ -195,6 +190,21 @@ function blockwiseHandler(message) {
 		
 	} else {
 		updateLabel('packet_payload', message.getPayload());
+	}
+}
+
+//Handle messages with block-wise transfer
+function observingHandler(message) {
+	dump('observingHandler()\n');
+	
+	if (message.isOption(OPTION_SUB_LIFETIME)) {
+		
+		updateLabel('info_code', message.getCode() + ' (Observing)');
+		updateLabel('packet_header', 'Type: '+message.getType(true)+'\nCode: '+message.getCode(true)+'\nTransaction ID: '+message.getTID()+'\nOptions: '+message.getOptions() );
+		
+		updateLabel('packet_payload', message.getPayload());
+	} else {
+		updateLabel('info_code', 'Observing not supported');
 	}
 }
 
@@ -223,7 +233,7 @@ function sendGet(uri) {
 		
 		uri = checkUri(uri, GET);
 		
-		var message = new CoapMessage(GET, 1, uri);
+		var message = new CoapMessage(MSG_TYPE_CON, GET, uri);
 		
 		clearLabels();	
 		client.send( message );
@@ -239,7 +249,7 @@ function sendBlockwiseGet(num, size, uri) {
 		if (!size) size = blockSize;
 		uri = checkUri(uri, GET);
 		
-		var message = new CoapMessage(GET, 1, uri);
+		var message = new CoapMessage(MSG_TYPE_CON, GET, uri);
 		
 		message.setBlock(num, size);
 		
@@ -256,7 +266,7 @@ function sendPost(pl, uri) {
 	
 		uri = checkUri(uri, POST);
 		
-		var message = new CoapMessage(POST, 1, uri, pl);
+		var message = new CoapMessage(MSG_TYPE_CON, POST, uri, pl);
 		
 		clearLabels();
 		client.send( message );
@@ -271,7 +281,7 @@ function sendPut(pl, uri) {
 		
 		uri = checkUri(uri, PUT);
 		
-		var message = new CoapMessage(PUT, 1, uri, pl);
+		var message = new CoapMessage(MSG_TYPE_CON, PUT, uri, pl);
 		
 		clearLabels();
 		client.send( message );
@@ -286,7 +296,7 @@ function sendDelete(uri) {
 		
 		uri = checkUri(uri, DELETE);
 		
-		var message = new CoapMessage(DELETE, 1, uri);
+		var message = new CoapMessage(MSG_TYPE_CON, DELETE, uri);
 		
 		clearLabels();
 		client.send( message );
@@ -295,11 +305,23 @@ function sendDelete(uri) {
 	}
 }
 
+function observe(uri) {
+	try {
+		client.cancelTransactions();
+		
+		uri = checkUri(uri, DELETE);
+
+		observer.subscribe(uri, observingHandler);
+		
+	} catch (ex) {
+		alert('ERROR: Main.sendDelete ['+ex+']');
+	}
+}
+
 function discover() {
 	try {
-		var message = new CoapMessage(GET, 1, WELL_KNOWN_RESOURCES);
+		var message = new CoapMessage(MSG_TYPE_CON, GET, WELL_KNOWN_RESOURCES);
 		
-		clearLabels();
 		client.send( message, discoverHandler );
 	} catch (ex) {
 		alert('ERROR: Main.discover ['+ex+']');
@@ -457,6 +479,11 @@ function isPowerOfTwo(i) {
 	return ((i & (i-1))==0);
 }
 
+function isArray(obj) {
+    if (obj == null) return false;
+    return obj.constructor == Array;
+}
+
 function isDefined(variable) {
     return (typeof(window[variable]) == 'undefined') ?  false : true;
 }
@@ -467,3 +494,8 @@ function myBind(scope, fn) {
         fn.apply(scope, arguments);
     };
 }
+
+const toast = Components.classes['@mozilla.org/alerts-service;1'].getService(Components.interfaces.nsIAlertsService).showAlertNotification;
+function popup(title, str) {
+	toast('chrome://copper/skin/icon24.png',title,str);
+};
