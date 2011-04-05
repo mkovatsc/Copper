@@ -1,3 +1,7 @@
+component {6ffeeb10-91cc-0854-a554-81cf891ced50} components/CoapProtocolHandler.js
+contract @mozilla.org/network/protocol;1?name=coap	{6ffeeb10-91cc-0854-a554-81cf891ced50}
+category profile-after-change CoapProtocolHandler @mozilla.org/network/protocol;1?name=coap
+
 content     copper    chrome/content/
 content     copper    chrome/content/ contentaccessible=yes
 
