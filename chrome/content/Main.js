@@ -137,7 +137,7 @@ function init() {
 		
 	} catch( ex ) {
 		// disable the toolbar
-		var obj = document.getElementById('main_toolbar').firstPermanentChild;
+		var obj = document.getElementById('main_toolbar').firstChild;
 		do {
 			obj.setAttribute("disabled", "true");
 		} while ( obj = obj.nextSibling);
@@ -164,6 +164,7 @@ function defaultHandler(message) {
 	dump('INFO: defaultHandler()\n');
 
 	updateLabel('info_code', message.getCode());
+	// TODO: use nice table
 	updateLabel('packet_header', 'Type: '+message.getType(true)+'\nCode: '+message.getCode(true)+'\nTransaction ID: '+message.getTID()+'\nOptions: '+message.getOptions() );
 	
 	// if message turns out to be block-wise transfer dispatch to corresponding handler
@@ -204,6 +205,7 @@ function observingHandler(message) {
 	if (message.isOption(OPTION_SUB_LIFETIME)) {
 		
 		updateLabel('info_code', message.getCode() + ' (Observing)');
+		// TODO: use nice table
 		updateLabel('packet_header', 'Type: '+message.getType(true)+'\nCode: '+message.getCode(true)+'\nTransaction ID: '+message.getTID()+'\nOptions: '+message.getOptions() );
 		
 		updateLabel('packet_payload', message.getPayload());
@@ -264,6 +266,7 @@ function sendBlockwiseGet(num, size, uri) {
 	}
 }
 
+//TODO: blockwise POST
 function sendPost(pl, uri) {
 	try {
 		client.cancelTransactions();
@@ -279,6 +282,7 @@ function sendPost(pl, uri) {
 	}
 }
 
+//TODO: blockwise PUT
 function sendPut(pl, uri) {
 	try {
 		client.cancelTransactions();
@@ -368,8 +372,8 @@ function parseUri(uri) {
 		path = tokens[5] ? tokens[5] : path;
 		query = tokens[8] ? tokens[8] : '';
 		
+		document.title = hostname + path;
 		
-		document.title = hostname + ':' + port;
 		document.getElementById('info_authority').label = '' + hostname + ':' + port;
 	} else {
 		// no valid URI
