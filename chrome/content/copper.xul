@@ -35,7 +35,7 @@
 	
 	<toolbarbutton id="toolbar_observe" label="Observe" tooltiptext="Subscribe to the resource" image="chrome://copper/skin/tool_observe.png" oncommand="observe();"/>
 	
-	<toolbarbutton id="toolbar_discover" label="Discover" tooltiptext="GET link-formats from the well-known URI (cached resources are displayed in red)" image="chrome://copper/skin/tool_discover.png" oncommand="discover();"/>
+	<toolbarbutton id="toolbar_discover" label="Discover" tooltiptext="GET link-formats from the well-known URI (cached resources are displayed in red)" image="chrome://copper/skin/tool_discover.png" oncommand="reDiscover();"/>
 	<checkbox id="toolbar_auto_discovery" label="Auto discovery" tooltiptext="Automatically GET link-formats when opening a location"/>
 	
 	<checkbox id="toolbar_retransmissions" label="Retransmissions" tooltiptext="Retransmit unconfirmed packets" checked="false" oncommand="settingRetransmissions();"/>
@@ -50,6 +50,7 @@
 		<groupbox>
 			<caption id="info_authority" label="Authority" style="font-size: 14pt; font-weight: bold;"/>
 			<description id="info_resources">
+			  <button label="discovering..." disabled="true"/>
 			</description>
 		</groupbox>
 		<label id="info_code" value="" style="font-size: 24pt; font-weight: bold;"/>

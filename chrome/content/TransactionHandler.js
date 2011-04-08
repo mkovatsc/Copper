@@ -96,6 +96,8 @@ TransactionHandler.prototype = {
 				dump('INFO: TransactionHandler.cancelTransactions [cancelled transaction '+t+']\n');
 			}
 		}
+		
+		// TODO maybe cancel subscriptions as well?
 	},
 	
 	send : function(message, tidCB) {

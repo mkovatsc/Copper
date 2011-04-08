@@ -49,7 +49,7 @@ var client = null;
 
 var observer = null;
 
-var hostname = 'localhost';
+var hostname = '';
 var port = 61616;
 var path = '/';
 var query = '';
@@ -93,10 +93,6 @@ function init() {
 	}
 	updateLabel('toolbar_version', 'CoAP version ' + leadingZero(coapVersion,2));
 	
-	// add well-known resource to resource cache
-	resources[WELL_KNOWN_RESOURCES] = new Object();
-	resources[WELL_KNOWN_RESOURCES]['n'] = 'Resource discovery';
-	
 	// open location
 	try {
 		parseUri(document.location.href);
@@ -108,12 +104,11 @@ function init() {
 		
 		// enable observing
 		observer = new Observing();
-	
+		
 		// handle auto discover
+		loadCachedResources();
 		if (document.getElementById('toolbar_auto_discovery').checked) {
 			discover();
-		} else {
-			loadCachedResources();
 		}
 		updateResourceLinks();
 		
@@ -142,6 +137,8 @@ function init() {
 		do {
 			obj.setAttribute("disabled", "true");
 		} while ( obj = obj.nextSibling);
+
+		updateResourceLinks();
 		
 	    dump('ERROR: Main.init ['+ex+']\n');
 	}
@@ -225,8 +222,8 @@ function discoverHandler(message) {
 	if (message.getContentType()==40) {
 		// link-format
 		resourcesCached = false;
-		resources = parseLinkFormat(message.getPayload());
-		updateResourceLinks();
+		
+		updateResourceLinks( parseLinkFormat(message.getPayload()) );
 	} else {
 		alert('ERROR: Main.discoverHandler [no link format in payload]');
 	}
@@ -339,6 +336,15 @@ function discover() {
 	}
 }
 
+// like discover, but resets cached resources -- used for the button
+function reDiscover() {
+	dump('INFO: resetting cached resources\n');
+	prefManager.setCharPref('extensions.copper.resources.'+hostname+':'+port, '' );
+	resources = new Object();
+	
+	discover();
+}
+
 // Addon settings
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -412,6 +418,13 @@ function loadCachedResources() {
 	} catch( ex ) {
 	    dump('INFO: no cached links for '+hostname+':'+port+' yet\n');
 	}
+	
+	// add well-known resource to resource cache
+	if (!resources[WELL_KNOWN_RESOURCES]) {
+		resources[WELL_KNOWN_RESOURCES] = new Object();
+		resources[WELL_KNOWN_RESOURCES]['ct'] = '40';
+		resources[WELL_KNOWN_RESOURCES]['title'] = 'Resource discovery';
+	}
 }
 
 // Load last used payload from preferences, otherwise use default payload
@@ -465,6 +478,8 @@ function parseLinkFormat(data) {
 	return links;
 }
 function updateResourceLinks(add) {
+	
+	// merge links
 	if (add) {
 		for (uri in add) {
 			if (!resources[uri]) {
@@ -501,6 +516,12 @@ function updateResourceLinks(add) {
 		
 		if (resourcesCached) {
 			button.setAttribute("style", "color: red;");
+		}
+		
+		// highlight current resource
+		if (uri==path) {
+			button.setAttribute("style", "font-weight: bold; text-shadow: 2px 2px 3px #666666;");
+			
 		}
 		
 		list.appendChild(button);
