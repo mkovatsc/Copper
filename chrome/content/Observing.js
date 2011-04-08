@@ -45,8 +45,8 @@ ObserveEntry.prototype = {
 };
 
 function Observing() {
-	this.subscriptions = new Array();
-	this.uri2token = new Array();
+	this.subscriptions = new Object();
+	this.uri2token = new Object();
 }
 
 Observing.prototype = {

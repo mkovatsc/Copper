@@ -58,7 +58,7 @@ function TransactionHandler(myClient, retrans) {
 	this.client.register( myBind(this, this.handle) );
 	
 	this.retransmissions = retrans!=null ? retrans : true;
-	this.transactions = new Array();
+	this.transactions = new Object();
 }
 
 TransactionHandler.prototype = {

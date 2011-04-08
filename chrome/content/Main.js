@@ -57,7 +57,7 @@ var query = '';
 var blockSize = 32;
 
 var resourcesCached = true;
-var resources = new Array();
+var resources = new Object();
 
 
 // Life cycle functions
@@ -94,7 +94,7 @@ function init() {
 	updateLabel('toolbar_version', 'CoAP version ' + leadingZero(coapVersion,2));
 	
 	// add well-known resource to resource cache
-	resources[WELL_KNOWN_RESOURCES] = new Array();
+	resources[WELL_KNOWN_RESOURCES] = new Object();
 	resources[WELL_KNOWN_RESOURCES]['n'] = 'Resource discovery';
 	
 	// open location
@@ -174,6 +174,10 @@ function defaultHandler(message) {
 	}
 	
 	updateLabel('packet_payload', message.getPayload());
+	
+	if (message.getContentType()==40) {
+		updateResourceLinks( parseLinkFormat(message.getPayload()) );
+	}
 }
 
 // Handle messages with block-wise transfer
@@ -219,11 +223,9 @@ function observingHandler(message) {
 function discoverHandler(message) {
 	dump('INFO: discoverHandler()\n');
 	if (message.getContentType()==40) {
-		// discovery
-		// TODO: append, not overwrite
-		prefManager.setCharPref('extensions.copper.resources.'+hostname+':'+port, message.getPayload());
+		// link-format
 		resourcesCached = false;
-		parseLinkFormat(message.getPayload());
+		resources = parseLinkFormat(message.getPayload());
 		updateResourceLinks();
 	} else {
 		alert('ERROR: Main.discoverHandler [no link format in payload]');
@@ -406,7 +408,7 @@ function checkUri(uri, method, pl) {
 function loadCachedResources() {
 	try {
 		dump('INFO: loading cached resource links\n');
-		parseLinkFormat(prefManager.getCharPref('extensions.copper.resources.'+hostname+':'+port));
+		resources = JSON.parse( prefManager.getCharPref('extensions.copper.resources.'+hostname+':'+port) );
 	} catch( ex ) {
 	    dump('INFO: no cached links for '+hostname+':'+port+' yet\n');
 	}
@@ -425,44 +427,77 @@ function loadDefaultPayload() {
 
 function parseLinkFormat(data) {
 	
+	var links = new Object();
+	
 	// totally complicated but supports ',' and '\n' to seperate links and ',' as well as '\"' within quoted strings
-	var links = data.match(/(<[^>]+>\s*(;\s*[^<"\s;,]+\s*=\s*([^<"\s;,]+|"([^"\\]*(\\.[^"\\]*)*)")\s*)*)/g);
-	dump('-parsing links----------------------------------\n');
-	for (var i in links) {
+	var format = data.match(/(<[^>]+>\s*(;\s*[^<"\s;,]+\s*=\s*([^<"\s;,]+|"([^"\\]*(\\.[^"\\]*)*)")\s*)*)/g);
+	dump('-parsing link-format----------------------------\n');
+	for (var i in format) {
 		//dump(links[i]+'\n');
-		var elems = links[i].match(/^<([^>]+)>\s*(;.+)\s*$/);
-		
+		var elems = format[i].match(/^<([^>]+)>\s*(;.+)?\s*$/);
+				
 		var uri = elems[1];
 		// fix for Contiki implementation and others which omit the leading '/' in the link format
 		if (uri.charAt(0)!='/') uri = '/'+uri;
 		
-		var tokens = elems[2].match(/(;\s*[^<"\s;,]+\s*=\s*([^<"\s;,]+|"([^"\\]*(\\.[^"\\]*)*)"))/g);
+		links[uri] = new Object();
 		
-		var attribs = new Array();
+		if (elems[2]) {
 		
-		dump(' '+uri+' ('+tokens.length+')\n');
+			var tokens = elems[2].match(/(;\s*[^<"\s;,]+\s*=\s*([^<"\s;,]+|"([^"\\]*(\\.[^"\\]*)*)"))/g);
 		
-		for (var j in tokens) {
-			//dump('  '+tokens[j]+'\n');
-			var keyVal = tokens[j].match(/;\s*([^<"\s;,]+)\s*=\s*(([^<"\s;,]+)|"([^"\\]*(\\.[^"\\]*)*)")/);
-			if (keyVal) {
-				dump('   '+keyVal[1]+': '+(keyVal[3] ? keyVal[3] : keyVal[4].replace(/\\/g,''))+'\n');
-				attribs[keyVal[1]] = keyVal[3] ? keyVal[3] : keyVal[4].replace(/\\/g,'');
+			dump(' '+uri+' ('+tokens.length+')\n');
+		
+			for (var j in tokens) {
+				//dump('  '+tokens[j]+'\n');
+				var keyVal = tokens[j].match(/;\s*([^<"\s;,]+)\s*=\s*(([^<"\s;,]+)|"([^"\\]*(\\.[^"\\]*)*)")/);
+				if (keyVal) {
+					dump('   '+keyVal[1]+': '+(keyVal[3] ? keyVal[3] : keyVal[4].replace(/\\/g,''))+'\n');
+					links[uri][keyVal[1]] = keyVal[3] ? keyVal[3] : keyVal[4].replace(/\\/g,'');
+				}
 			}
+		} else {
+			dump(' '+uri+' (no attributes)\n');
 		}
-		resources[uri] = attribs;
 	}
 	dump(' -----------------------------------------------\n');
+	
+	return links;
 }
-function updateResourceLinks() {
+function updateResourceLinks(add) {
+	if (add) {
+		for (uri in add) {
+			if (!resources[uri]) {
+				resources[uri] = add[uri];
+				dump('INFO: adding '+uri+' to host resources\n');
+			}
+		}
+	}
+	
+	// button container
 	var list = document.getElementById('info_resources');
 	while (list.hasChildNodes()) list.removeChild(list.firstChild);
 	
+	// sort by path
+	var sorted = new Array();
 	for (uri in resources) {
+		sorted.push(uri);
+	}
+	sorted.sort();
+	
+	for (entry in sorted) {
+		var uri = sorted[entry];
+		
 		var button = document.createElement("button");
 		button.setAttribute("label", uri);
-		button.setAttribute("tooltiptext",resources[uri]['n']);
 		button.setAttribute("oncommand","document.location.href='coap://" + hostname + ":" + port + uri + "';");
+		
+		var tooltiptext = '';
+		for (var attrib in resources[uri]) {
+			if (tooltiptext) tooltiptext += ', ';
+			tooltiptext += attrib + '=' + resources[uri][attrib];
+		}
+		button.setAttribute("tooltiptext", tooltiptext);
 		
 		if (resourcesCached) {
 			button.setAttribute("style", "color: red;");
@@ -470,6 +505,9 @@ function updateResourceLinks() {
 		
 		list.appendChild(button);
 	}
+	
+	// save in cache
+	prefManager.setCharPref('extensions.copper.resources.'+hostname+':'+port, JSON.stringify(resources) );
 }
 
 function updateLabel(id, value, append) {
