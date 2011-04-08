@@ -123,6 +123,7 @@ function init() {
 		var auto = prefManager.getIntPref('extensions.copper.auto-request.method');
 		if (auto) {
 			switch (auto) {
+				case 0:      break;
 				case GET:    sendGet(); break;
 				case POST:   sendPost(prefManager.getCharPref('extensions.copper.auto-request.payload')); break;
 				case GUT:    sendPut(prefManager.getCharPref('extensions.copper.auto-request.payload')); break;

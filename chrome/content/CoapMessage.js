@@ -216,6 +216,13 @@ CoapMessage.prototype = {
 			return opt;
 		}
 	},
+	setMaxAge : function(age) {
+		if (age>0xFFFFFFFF) {
+			age = (0xFFFFFFFF & age);
+			dump('WARNING: CoapMessage.setMaxAge [max-age must be a 1-4 byte value; masking to 4 bytes]\n');
+		}
+		this.packet.setOption(OPTION_MAX_AGE, age);
+	},
 	
 	// OPTION_PROXY_URI:04+
 	getProxyUri : function(readable) {
@@ -264,6 +271,13 @@ CoapMessage.prototype = {
 		} else {
 			return opt;
 		}
+	},
+	setETag : function(tag) {
+		if (tag>0xFFFFFFFF) {
+			tag = (0xFFFFFFFF & tag);
+			dump('WARNING: CoapMessage.setETag [token must be a 1-4 byte value; masking to 4 bytes]\n');
+		}
+		this.packet.setOption(OPTION_ETAG, tag);
 	},
 	
 	// OPTION_URI_HOST:04+ / OPTION_URI_AUTH:03*renamed
