@@ -43,21 +43,20 @@ var mainWindow = window.QueryInterface(Components.interfaces.nsIInterfaceRequest
 		.getInterface(Components.interfaces.nsIDOMWindow);
 
 var prefManager = Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefBranch);
-var coapVersion = prefManager.getIntPref('extensions.copper.coap-version');
 
-var client = null;
-
-var observer = null;
+var coapVersion = 3;
+var blockSize = 32;
 
 var hostname = '';
 var port = 61616;
 var path = '/';
 var query = '';
 
-var blockSize = 32;
+var client = null;
+var observer = null;
 
-var resourcesCached = true;
 var resources = new Object();
+var resourcesCached = true;
 
 
 // Life cycle functions
@@ -79,23 +78,46 @@ function init() {
 	}
 	
 	// get settings from preferences
-	document.getElementById('toolbar_auto_discovery').checked = prefManager.getBoolPref('extensions.copper.auto-discover');
-	document.getElementById('toolbar_retransmissions').checked = prefManager.getBoolPref('extensions.copper.retransmissions');
-	blockSize = prefManager.getIntPref('extensions.copper.default-block-size');
+	var auto = null; // auto-method
+	try {
+		coapVersion = prefManager.getIntPref('extensions.copper.coap-version');
+		blockSize = prefManager.getIntPref('extensions.copper.default-block-size');
+		document.getElementById('toolbar_auto_discovery').checked = prefManager.getBoolPref('extensions.copper.auto-discover');
+		document.getElementById('toolbar_retransmissions').checked = prefManager.getBoolPref('extensions.copper.retransmissions');
+		auto = prefManager.getIntPref('extensions.copper.auto-request.method');
+		
+		// debug options
+		document.getElementById('debug_options').checked = prefManager.getBoolPref('extensions.copper.debug.options-enabled');
+		document.getElementById('debug_option_content_type').value = prefManager.getCharPref('extensions.copper.debug.options.content-type');
+		document.getElementById('debug_option_max_age').value = prefManager.getCharPref('extensions.copper.debug.options.max-age');
+		document.getElementById('debug_option_etag').value = prefManager.getCharPref('extensions.copper.debug.options.etag');
+		document.getElementById('debug_option_uri_host').value = prefManager.getCharPref('extensions.copper.debug.options.uri-host');
+		document.getElementById('debug_option_location_path').value = prefManager.getCharPref('extensions.copper.debug.options.location-path');
+		document.getElementById('debug_option_observe').value = prefManager.getCharPref('extensions.copper.debug.options.observe');
+		document.getElementById('debug_option_token').value = prefManager.getCharPref('extensions.copper.debug.options.token');
+		document.getElementById('debug_option_block').value = prefManager.getCharPref('extensions.copper.debug.options.block');
+	} catch (ex) {
+		alert('WARNING: Could not load preferences. Using hardcoded defauls.');
+	}
+	
 	
 	// load CoAP implementation
 	switch (coapVersion) {
 		case 3: Components.utils.import("resource://modules/CoapPacket03.jsm"); break;
 		default:
 			alert('WARNING: CoAP version '+coapVersion+' not implemented. Using 03.');
-			Components.utils.import("resource://modules/CoapPacket00.jsm"); break;
+			Components.utils.import("resource://modules/CoapPacket03.jsm"); break;
 			coapVersion = 0;
 	}
-	updateLabel('toolbar_version', 'CoAP version ' + leadingZero(coapVersion,2));
+	document.getElementById('toolbar_version').label = 'CoAP ' + leadingZero(coapVersion,2) + ' ';
 	
 	// open location
 	try {
 		parseUri(document.location.href);
+		
+		// debug
+		document.getElementById('debug_option_uri_path').value = path;
+		document.getElementById('debug_option_query').value = query;
 		
 		// set up datagram and transaction layer
 		var temp = new UdpClient(hostname, port);
@@ -115,7 +137,6 @@ function init() {
 		loadDefaultPayload();
 		
 		// handle auto-request after redirect
-		var auto = prefManager.getIntPref('extensions.copper.auto-request.method');
 		if (auto) {
 			switch (auto) {
 				case 0:      break;
@@ -149,6 +170,17 @@ function unload() {
 	prefManager.setCharPref('extensions.copper.payloads.'+hostname+':'+port, document.getElementById('toolbar_payload').value);
 	prefManager.setBoolPref('extensions.copper.auto-discover', document.getElementById('toolbar_auto_discovery').checked);
 	prefManager.setBoolPref('extensions.copper.retransmissions', document.getElementById('toolbar_retransmissions').checked);
+	
+	// debug options
+	prefManager.setBoolPref('extensions.copper.debug.options-enabled', document.getElementById('debug_options').checked);
+	prefManager.setCharPref('extensions.copper.debug.options.content-type', document.getElementById('debug_option_content_type').value);
+	prefManager.setCharPref('extensions.copper.debug.options.max-age', document.getElementById('debug_option_max_age').value);
+	prefManager.setCharPref('extensions.copper.debug.options.etag', document.getElementById('debug_option_etag').value);
+	prefManager.setCharPref('extensions.copper.debug.options.uri-host', document.getElementById('debug_option_uri_host').value);
+	prefManager.setCharPref('extensions.copper.debug.options.location-path', document.getElementById('debug_option_location_path').value);
+	prefManager.setCharPref('extensions.copper.debug.options.observe', document.getElementById('debug_option_observe').value);
+	prefManager.setCharPref('extensions.copper.debug.options.token', document.getElementById('debug_option_token').value);
+	prefManager.setCharPref('extensions.copper.debug.options.block', document.getElementById('debug_option_block').value);
 	
 	client.shutdown();
 }
@@ -204,7 +236,7 @@ function blockwiseHandler(message) {
 function observingHandler(message) {
 	dump('INFO: observingHandler()\n');
 	
-	if (message.isOption(OPTION_SUB_LIFETIME)) {
+	if (message.isOption(OPTION_OBSERVE)) {
 		
 		updateLabel('info_code', message.getCode() + ' (Observing)');
 		// TODO: use nice table
@@ -241,6 +273,8 @@ function sendGet(uri) {
 		
 		var message = new CoapMessage(MSG_TYPE_CON, GET, uri);
 		
+		checkDebugOptions(message);
+		
 		clearLabels();	
 		client.send( message );
 	} catch (ex) {
@@ -259,6 +293,8 @@ function sendBlockwiseGet(num, size, uri) {
 		
 		message.setBlock(num, size);
 		
+		checkDebugOptions(message);
+		
 		if (num=0) clearLabels();
 		client.send( message );
 	} catch (ex) {
@@ -274,6 +310,8 @@ function sendPost(pl, uri) {
 		uri = checkUri(uri, POST);
 		
 		var message = new CoapMessage(MSG_TYPE_CON, POST, uri, pl);
+		
+		checkDebugOptions(message);
 		
 		clearLabels();
 		client.send( message );
@@ -291,6 +329,8 @@ function sendPut(pl, uri) {
 		
 		var message = new CoapMessage(MSG_TYPE_CON, PUT, uri, pl);
 		
+		checkDebugOptions(message);
+		
 		clearLabels();
 		client.send( message );
 	} catch (ex) {
@@ -305,6 +345,8 @@ function sendDelete(uri) {
 		uri = checkUri(uri, DELETE);
 		
 		var message = new CoapMessage(MSG_TYPE_CON, DELETE, uri);
+		
+		checkDebugOptions(message);
 		
 		clearLabels();
 		client.send( message );
@@ -407,6 +449,35 @@ function checkUri(uri, method, pl) {
 		return path + (query ? '?'+query : '');
 	} else {
 		return uri;
+	}
+}
+
+function checkDebugOptions(message) {
+	if (document.getElementById('debug_options').checked) {
+		if (document.getElementById('debug_option_content_type').value!='') {
+			message.setContentType(parseInt(document.getElementById('debug_option_content_type').value));
+		}
+		if (document.getElementById('debug_option_max_age').value!='') {
+			message.setMaxAge(parseInt(document.getElementById('debug_option_max_age').value));
+		}
+		if (document.getElementById('debug_option_etag').value!='') {
+			message.setETag(parseInt(document.getElementById('debug_option_etag').value));
+		}
+		if (document.getElementById('debug_option_uri_host').value!='') {
+			message.setUriHost(document.getElementById('debug_option_uri_host').value);
+		}
+		if (document.getElementById('debug_option_location_path').value!='') {
+			message.setLocationPath(document.getElementById('debug_option_location_path').value);
+		}
+		if (document.getElementById('debug_option_observe').value!='') {
+			message.setSubscription(parseInt(document.getElementById('debug_option_observe').value));
+		}
+		if (document.getElementById('debug_option_token').value!='') {
+			message.setToken(parseInt(document.getElementById('debug_option_token').value));
+		}
+		if (document.getElementById('debug_option_block').value!='') {
+			message.setBlock(parseInt(document.getElementById('debug_option_block').value), blockSize);
+		}
 	}
 }
 

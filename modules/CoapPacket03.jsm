@@ -49,7 +49,7 @@ var EXPORTED_SYMBOLS = [
 						'OPTION_URI_HOST',
 						'OPTION_LOCATION_PATH',
 						'OPTION_URI_PATH',
-						'OPTION_SUB_LIFETIME',
+						'OPTION_OBSERVE',
 						'OPTION_TOKEN',
 						'OPTION_BLOCK',
 						'OPTION_URI_QUERY',
@@ -101,10 +101,10 @@ const MSG_TYPE_RST = 3;
 const OPTION_CONTENT_TYPE = 1;
 const OPTION_MAX_AGE = 2;
 const OPTION_ETAG = 4;
-const OPTION_URI_HOST = 5;
-const OPTION_LOCATION_PATH = 6;
+const OPTION_URI_HOST = 5; // renamed
+const OPTION_LOCATION_PATH = 6; // renamed
 const OPTION_URI_PATH = 9;
-const OPTION_SUB_LIFETIME = 10; // TODO: rename to OPTION_OBSERVE
+const OPTION_OBSERVE = 10; // renamed
 const OPTION_TOKEN = 11;
 const OPTION_BLOCK = 13;
 const OPTION_NOOP = 14;
@@ -170,7 +170,7 @@ function CoapPacket() {
 	this.options[OPTION_URI_HOST] = new Array(0, null);
 	this.options[OPTION_LOCATION_PATH] = new Array(0, null);
 	this.options[OPTION_URI_PATH] = new Array(0, null);
-	this.options[OPTION_SUB_LIFETIME] = new Array(0, null);
+	this.options[OPTION_OBSERVE] = new Array(0, null);
 	this.options[OPTION_TOKEN] = new Array(0, null);
 	this.options[OPTION_BLOCK] = new Array(0, null);
 	this.options[OPTION_NOOP] = new Array(0, null);
@@ -300,7 +300,7 @@ CoapPacket.prototype = {
 			// integers
 			case OPTION_CONTENT_TYPE:
 			case OPTION_MAX_AGE:
-			case OPTION_SUB_LIFETIME:
+			case OPTION_OBSERVE:
 			case OPTION_BLOCK:
 				this.options[option][1] = int2bytes(value);
 				this.options[option][0] = this.options[option][1].length;

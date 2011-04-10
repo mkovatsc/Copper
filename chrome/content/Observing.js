@@ -89,7 +89,7 @@ Observing.prototype = {
 			throw 'no subscription pending';
 		}
 		
-		if (message.isOption(OPTION_SUB_LIFETIME) && message.getToken()==this.pending) {
+		if (message.isOption(OPTION_OBSERVE) && message.getToken()==this.pending) {
 			// server supports observing this resource
 			this.subscriptions[this.pending].callback(message);
 			this.pending = null;

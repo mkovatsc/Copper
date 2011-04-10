@@ -23,26 +23,32 @@
 
 
 <toolbar id="main_toolbar"	align="center">
-	<toolbarbutton id="toolbar_get" label="GET" image="chrome://copper/skin/tool_get.png" oncommand="sendGet();"/>
-	<toolbarbutton id="toolbar_post" label="POST" image="chrome://copper/skin/tool_post.png" oncommand="sendPost(document.getElementById('toolbar_payload').value);"/>
-	<toolbarbutton id="toolbar_put" label="PUT" image="chrome://copper/skin/tool_put.png" oncommand="sendPut(document.getElementById('toolbar_payload').value);"/>
-	<toolbarbutton id="toolbar_delete" label="DELETE" image="chrome://copper/skin/tool_delete.png" oncommand="sendDelete();"/>
+
+	<toolbaritem id="toolbar_methods">
+		<toolbarbutton id="toolbar_get" label="GET" image="chrome://copper/skin/tool_get.png" oncommand="sendGet();"/>
+		<toolbarbutton id="toolbar_post" label="POST" image="chrome://copper/skin/tool_post.png" oncommand="sendPost(document.getElementById('toolbar_payload').value);"/>
+		<toolbarbutton id="toolbar_put" label="PUT" image="chrome://copper/skin/tool_put.png" oncommand="sendPut(document.getElementById('toolbar_payload').value);"/>
+		<toolbarbutton id="toolbar_delete" label="DELETE" image="chrome://copper/skin/tool_delete.png" oncommand="sendDelete();"/>
+	</toolbaritem>
 	
+	<toolbaritem style="vertical-align: bottom;">
+		<label control="toolbar_payload" value="Payload"/>
+		<textbox id="toolbar_payload" onfocus="this.select()" />
+	</toolbaritem>
 	
-	<label control="toolbar_payload" value="Payload"/>
-	<textbox id="toolbar_payload" onfocus="this.select()" />
+	<toolbaritem id="toolbar_special">
+		<toolbarbutton id="toolbar_observe" label="Observe" tooltiptext="Subscribe to the resource" image="chrome://copper/skin/tool_observe.png" oncommand="observe();"/>
+		<toolbarbutton id="toolbar_discover" label="Discover" tooltiptext="GET link-formats from the well-known URI (cached resources are displayed in red)" image="chrome://copper/skin/tool_discover.png" oncommand="reDiscover();"/>
+	</toolbaritem>
 	
-	
-	<toolbarbutton id="toolbar_observe" label="Observe" tooltiptext="Subscribe to the resource" image="chrome://copper/skin/tool_observe.png" oncommand="observe();"/>
-	
-	<toolbarbutton id="toolbar_discover" label="Discover" tooltiptext="GET link-formats from the well-known URI (cached resources are displayed in red)" image="chrome://copper/skin/tool_discover.png" oncommand="reDiscover();"/>
-	<checkbox id="toolbar_auto_discovery" label="Auto discovery" tooltiptext="Automatically GET link-formats when opening a location"/>
-	
-	<checkbox id="toolbar_retransmissions" label="Retransmissions" tooltiptext="Retransmit unconfirmed packets" checked="false" oncommand="settingRetransmissions();"/>
+	<toolbaritem id="toolbar_settings">
+		<checkbox id="toolbar_auto_discovery" label="Auto discovery" tooltiptext="Automatically GET link-formats when opening a location"/>
+		<checkbox id="toolbar_retransmissions" label="Retransmissions" tooltiptext="Retransmit unconfirmed packets" checked="false" oncommand="settingRetransmissions();"/>
+	</toolbaritem>
 	
 	<toolbarspacer flex="1"/>
 	
-	<label id="toolbar_version" value=""/>
+	<toolbarbutton id="toolbar_version" label="CoAP version" oncommand="window.openDialog('chrome://copper/content/options.xul', 'Prefs', 'chrome,titlebar,toolbar,centerscreen,modal');"/>
 </toolbar>
 
 <hbox flex="1">
@@ -50,7 +56,7 @@
 		<groupbox>
 			<caption id="info_authority" label="Authority" style="font-size: 14pt; font-weight: bold;"/>
 			<description id="info_resources">
-			  <button label="discovering..." disabled="true"/>
+				<button label="discovering..." disabled="true"/>
 			</description>
 		</groupbox>
 		<label id="info_code" value="" style="font-size: 24pt; font-weight: bold;"/>
@@ -64,11 +70,42 @@
 		</groupbox>
 	</vbox>
 
-<!-- possible sidebar
-	<vbox flex="1">
+<!-- collapsable sidebar -->
+	<splitter collapse="after" resizebefore="farthest">
+		<grippy/>
+	</splitter>
+	<vbox id="sidebar">
+		<groupbox flex="1">
+			<caption>
+				<checkbox id="debug_options" label="Debug options"/>
+			</caption>
+			
+			<vbox flex="1" style="overflow: auto;">
+				<label control="debug_option_content_type" value="Content-Type"/>
+					<textbox id="debug_option_content_type" emptytext="not set: use integer"/>
+				<label control="debug_option_max_age" value="Max-Age"/>
+					<textbox id="debug_option_max_age" emptytext="not set: use integer"/>
+				<label control="debug_option_etag" value="ETag"/>
+					<textbox id="debug_option_etag" emptytext="not set: use hex"/>
+				<label control="debug_option_uri_host" value="Uri-Host"/>
+					<textbox id="debug_option_uri_host" emptytext="not set"/>
+				<label control="debug_option_location_path" value="Location-Path"/>
+					<textbox id="debug_option_location_path" emptytext="not set"/>
+				<label control="debug_option_uri_path" value="Uri-Path"/>
+					<textbox id="debug_option_uri_path" emptytext="not set" disabled="true"/>
+				<label control="debug_option_observe" value="Observe"/>
+					<textbox id="debug_option_observe" emptytext="not set: use integer"/>
+				<label control="debug_option_token" value="Token"/>
+					<textbox id="debug_option_token" emptytext="not set: use hex"/>
+				<label control="debug_option_block" value="Block number"/>
+					<textbox id="debug_option_block" emptytext="not set: use integer"/>
+				<label control="debug_option_block" value="Uri-Query"/>
+					<textbox id="debug_option_query" emptytext="not set" disabled="true"/>
+			</vbox>
+		</groupbox>
 
 	</vbox>
--->
+<!-- -->
 </hbox>
 
 
