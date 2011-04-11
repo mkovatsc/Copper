@@ -77,6 +77,8 @@ function init() {
 		tabbrowser.setIcon(tabbrowser.mTabs[i], 'chrome://copper/skin/icon16.png');
 	}
 	
+	
+	
 	// get settings from preferences
 	var auto = null; // auto-method
 	try {
@@ -118,6 +120,9 @@ function init() {
 		// debug
 		document.getElementById('debug_option_uri_path').value = path;
 		document.getElementById('debug_option_query').value = query;
+		// workaround to hide useless scrollbar
+		document.getElementById('packet_header').focus();
+		document.getElementById('packet_options').focus();
 		
 		// set up datagram and transaction layer
 		var temp = new UdpClient(hostname, port);
@@ -195,7 +200,7 @@ function defaultHandler(message) {
 
 	updateLabel('info_code', message.getCode());
 	// TODO: use nice table
-	updateLabel('packet_header', 'Type: '+message.getType(true)+'\nCode: '+message.getCode(true)+'\nTransaction ID: '+message.getTID()+'\nOptions: '+message.getOptions() );
+	updateMessageInfo(message);
 	
 	// if message turns out to be block-wise transfer dispatch to corresponding handler
 	if (message.isOption(OPTION_BLOCK)) {
@@ -213,7 +218,7 @@ function defaultHandler(message) {
 function blockwiseHandler(message) {
 	dump('INFO: blockwiseHandler()\n');
 	
-	updateLabel('info_code', message.getCode() + ' (Blockwise)');
+	updateLabel('info_code', ' (Blockwise)', true);
 	
 	if (message.isOption(OPTION_BLOCK)) {
 		
@@ -240,7 +245,7 @@ function observingHandler(message) {
 		
 		updateLabel('info_code', message.getCode() + ' (Observing)');
 		// TODO: use nice table
-		updateLabel('packet_header', 'Type: '+message.getType(true)+'\nCode: '+message.getCode(true)+'\nTransaction ID: '+message.getTID()+'\nOptions: '+message.getOptions() );
+		updateMessageInfo(message);
 		
 		updateLabel('packet_payload', message.getPayload());
 	} else {
@@ -470,7 +475,7 @@ function checkDebugOptions(message) {
 			message.setLocationPath(document.getElementById('debug_option_location_path').value);
 		}
 		if (document.getElementById('debug_option_observe').value!='') {
-			message.setSubscription(parseInt(document.getElementById('debug_option_observe').value));
+			message.setObserve(parseInt(document.getElementById('debug_option_observe').value));
 		}
 		if (document.getElementById('debug_option_token').value!='') {
 			message.setToken(parseInt(document.getElementById('debug_option_token').value));
@@ -600,6 +605,37 @@ function updateResourceLinks(add) {
 	
 	// save in cache
 	prefManager.setCharPref('extensions.copper.resources.'+hostname+':'+port, JSON.stringify(resources) );
+}
+
+function updateMessageInfo(message) {
+
+	document.getElementById('packet_header_type').setAttribute('label', message.getType(true));
+	document.getElementById('packet_header_oc').setAttribute('label', message.getOptionCount(true));
+	document.getElementById('packet_header_code').setAttribute('label', message.getCode(true));
+	document.getElementById('packet_header_tid').setAttribute('label', message.getTID(true));
+	
+	var optionList = document.getElementById('packet_options');
+	while (optionList.getRowCount()) optionList.removeItemAt(0);
+	var options = message.getOptions();
+	
+	for (var i = 0; i < message.getOptionCount(); i++)
+    {
+        var row = document.createElement('listitem');
+        
+        var cell = document.createElement('listcell');
+        cell.setAttribute('label', options[i][0]);
+        row.appendChild(cell);
+
+        cell = document.createElement('listcell');
+        cell.setAttribute('label',  options[i][1] );
+        row.appendChild(cell);
+
+        cell = document.createElement('listcell');
+        cell.setAttribute('label',  options[i][2] );
+        row.appendChild(cell);
+
+        optionList.appendChild(row);
+    }
 }
 
 function updateLabel(id, value, append) {

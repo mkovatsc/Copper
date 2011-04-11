@@ -69,7 +69,7 @@ CoapMessage.prototype = {
 		ret += ' Type: '+this.getType(true);
 		ret += '\n Code: '+this.getCode(true);
 		ret += '\n Transaction ID: '+this.getTID();
-		ret += '\n Options ('+this.packet.optionCount+'): '+this.getOptions();
+		ret += '\n Options ('+this.packet.optionCount+'): '+this.getOptions(true);
 		ret += '\n Payload: '+this.getPayload();
 		return ret;
 	},
@@ -91,6 +91,10 @@ CoapMessage.prototype = {
 
 	isConfirmable : function() {
 		return this.packet.type==MSG_TYPE_CON;
+	},
+	
+	getOptionCount : function() {
+		return this.packet.optionCount;
 	},
 	
 	// readable method or response code
@@ -159,47 +163,44 @@ CoapMessage.prototype = {
 	getContentType : function(readable) {
 		var optLen = this.packet.getOptionLength(OPTION_CONTENT_TYPE);
 		var opt = this.packet.getOption(OPTION_CONTENT_TYPE); // integer
+
+		if (optLen<=0) return null;
 		
 		if (readable) {
-			if (optLen<=0) return '';
-			
-			var ret = 'Content-Type: ';
+			var ret = 'unknown';
 			switch (opt) {
-				case CONTENT_TYPE_TEXT_PLAIN: ret += 'text/plain'; break;
-				case CONTENT_TYPE_TEXT_XML: ret += 'text/xml'; break;
-				case CONTENT_TYPE_TEXT_CSV: ret += 'text/csv'; break;
-				case CONTENT_TYPE_TEXT_HTML: ret += 'text/html'; break;
-				case CONTENT_TYPE_IMAGE_GIF: ret += 'image/gif'; break;
-				case CONTENT_TYPE_IMAGE_JPEG: ret += 'image/jpeg'; break;
-				case CONTENT_TYPE_IMAGE_PNG: ret += 'image/png'; break;
-				case CONTENT_TYPE_IMAGE_TIFF: ret += 'image/tiff'; break;
-				case CONTENT_TYPE_AUDIO_RAW: ret += 'audio/raw'; break;
-				case CONTENT_TYPE_VIDEO_RAW: ret += 'video/raw'; break;
-				case CONTENT_TYPE_APPLICATION_LINK_FORMAT: ret += 'application/link-format'; break;
-				case CONTENT_TYPE_APPLICATION_XML: ret += 'application/xml'; break;
-				case CONTENT_TYPE_APPLICATION_OCTET_STREAM: ret += 'application/octet-stream'; break;
-				case CONTENT_TYPE_APPLICATION_RDF_XML: ret += 'application/rdf+xml'; break;
-				case CONTENT_TYPE_APPLICATION_SOAP_XML: ret += 'application/soap+xml'; break;
-				case CONTENT_TYPE_APPLICATION_ATOM_XML: ret += 'application/atom+xml'; break;
-				case CONTENT_TYPE_APPLICATION_XMPP_XML: ret += 'application/xmpp+xml'; break;
-				case CONTENT_TYPE_APPLICATION_EXI: ret += 'application/exi'; break;
-				case CONTENT_TYPE_APPLICATION_X_BXML: ret += 'application/x-bxml'; break;
-				case CONTENT_TYPE_APPLICATION_FASTINFOSET: ret += 'application/fastinfoset'; break;
-				case CONTENT_TYPE_APPLICATION_SOAP_FASTINFOSET: ret += 'application/soap+fastinfoset'; break;
-				case CONTENT_TYPE_APPLICATION_JSON: ret += 'application/json'; break;
-				case CONTENT_TYPE_APPLICATION_X_OBIX_BINARY: ret += 'application/x-obix-binary'; break;
-				default: ret += 'unknown ('+opt+')';
+				case CONTENT_TYPE_TEXT_PLAIN: ret = 'text/plain'; break;
+				case CONTENT_TYPE_TEXT_XML: ret = 'text/xml'; break;
+				case CONTENT_TYPE_TEXT_CSV: ret = 'text/csv'; break;
+				case CONTENT_TYPE_TEXT_HTML: ret = 'text/html'; break;
+				case CONTENT_TYPE_IMAGE_GIF: ret = 'image/gif'; break;
+				case CONTENT_TYPE_IMAGE_JPEG: ret = 'image/jpeg'; break;
+				case CONTENT_TYPE_IMAGE_PNG: ret = 'image/png'; break;
+				case CONTENT_TYPE_IMAGE_TIFF: ret = 'image/tiff'; break;
+				case CONTENT_TYPE_AUDIO_RAW: ret = 'audio/raw'; break;
+				case CONTENT_TYPE_VIDEO_RAW: ret = 'video/raw'; break;
+				case CONTENT_TYPE_APPLICATION_LINK_FORMAT: ret = 'application/link-format'; break;
+				case CONTENT_TYPE_APPLICATION_XML: ret = 'application/xml'; break;
+				case CONTENT_TYPE_APPLICATION_OCTET_STREAM: ret = 'application/octet-stream'; break;
+				case CONTENT_TYPE_APPLICATION_RDF_XML: ret = 'application/rdf+xml'; break;
+				case CONTENT_TYPE_APPLICATION_SOAP_XML: ret = 'application/soap+xml'; break;
+				case CONTENT_TYPE_APPLICATION_ATOM_XML: ret = 'application/atom+xml'; break;
+				case CONTENT_TYPE_APPLICATION_XMPP_XML: ret = 'application/xmpp+xml'; break;
+				case CONTENT_TYPE_APPLICATION_EXI: ret = 'application/exi'; break;
+				case CONTENT_TYPE_APPLICATION_X_BXML: ret = 'application/x-bxml'; break;
+				case CONTENT_TYPE_APPLICATION_FASTINFOSET: ret = 'application/fastinfoset'; break;
+				case CONTENT_TYPE_APPLICATION_SOAP_FASTINFOSET: ret = 'application/soap+fastinfoset'; break;
+				case CONTENT_TYPE_APPLICATION_JSON: ret = 'application/json'; break;
+				case CONTENT_TYPE_APPLICATION_X_OBIX_BINARY: ret = 'application/x-obix-binary'; break;
 			}
-			ret += '; ';
-			
-			return ret;
+			return new Array('Content-Type', ret, opt);
 		} else {
 			return opt;
 		}
 	},
 	setContentType : function(content) {
 		if (content>0xFF) {
-			dump('WARNING: CoapMessage.setContentType [must be 1 byte value; ignoring]\n');
+			dump('WARNING: CoapMessage.setContentType [must be 1 byte; ignoring]\n');
 		} else {
 			this.packet.setOption(OPTION_CONTENT_TYPE, content);
 		}
@@ -209,11 +210,12 @@ CoapMessage.prototype = {
 	getMaxAge : function(readable) {
 		var optLen = this.packet.getOptionLength(OPTION_MAX_AGE);
 		var opt = this.packet.getOption(OPTION_MAX_AGE); // integer
+		
+		if (optLen<=0) return null;
 
 		if (readable) {
-			if (optLen<=0) return '';
 			
-			var ret = 'Max-Age: ';
+			var ret = '';
 			var time = opt;
 			
 			if (time==0) {
@@ -242,9 +244,7 @@ CoapMessage.prototype = {
 				if (y) ret += '(~'+y+'y) ';
 			}
 			
-			ret += '[int'+(optLen*8)+']; ';
-			
-			return ret;
+			return new Array('Max-Age', ret.substring(0, ret.length-1), optLen+' byte(s)');
 		} else {
 			return opt;
 		}
@@ -252,7 +252,7 @@ CoapMessage.prototype = {
 	setMaxAge : function(age) {
 		if (age>0xFFFFFFFF) {
 			age = (0xFFFFFFFF & age);
-			dump('WARNING: CoapMessage.setMaxAge [max-age must be a 1-4 byte value; masking to 4 bytes]\n');
+			dump('WARNING: CoapMessage.setMaxAge [max-age must be 1-4 bytes; masking to 4 bytes]\n');
 		}
 		this.packet.setOption(OPTION_MAX_AGE, age);
 	},
@@ -261,24 +261,16 @@ CoapMessage.prototype = {
 	getProxyUri : function(readable) {
 		
 		if (coapVersion < 4) {
-			if (readable) {
-				return '';
-			} else {
-				return null;
-			}
+			return null;
 		}
 
 		var optLen = this.packet.getOptionLength(OPTION_PROXY_URI);
 		var opt = this.packet.getOption(OPTION_PROXY_URI); // string
+
+		if (optLen<=0) return null;
 		
 		if (readable) {
-			if (optLen<=0) return '';
-			
-			var ret = 'Proxy-Uri: ';
-			ret += opt;
-			ret += ' ['+optLen+']; ';
-			
-			return ret;
+			return new Array('Proxy-Uri', opt, optLen+' byte(s)');
 		} else {
 			return opt;
 		}
@@ -289,16 +281,10 @@ CoapMessage.prototype = {
 		var optLen = this.packet.getOptionLength(OPTION_ETAG);
 		var opt = this.packet.getOption(OPTION_ETAG); // byte array
 
+		if (optLen<=0) return null;
+
 		if (readable) {
-			if (optLen<=0) return '';
-			
-			var ret = 'ETag: ';
-			
-			ret += '0x';
-			ret += opt.toString(16).toUpperCase();
-			ret += ' ['+optLen+' bytes]; ';
-			
-			return ret;
+			return new Array('ETag', '0x'+opt.toString(16).toUpperCase(), optLen+' byte(s)');
 		} else {
 			return opt;
 		}
@@ -306,7 +292,7 @@ CoapMessage.prototype = {
 	setETag : function(tag) {
 		if (tag>0xFFFFFFFF) {
 			tag = (0xFFFFFFFF & tag);
-			dump('WARNING: CoapMessage.setETag [token must be a 1-4 byte value; masking to 4 bytes]\n');
+			dump('WARNING: CoapMessage.setETag [token must be 1-4 bytes; masking to 4 bytes]\n');
 		}
 		this.packet.setOption(OPTION_ETAG, tag);
 	},
@@ -316,14 +302,10 @@ CoapMessage.prototype = {
 		var optLen = this.packet.getOptionLength(OPTION_URI_HOST);
 		var opt = this.packet.getOption(OPTION_URI_HOST); // string
 		
+		if (optLen<=0) return null;
+		
 		if (readable) {
-			if (optLen<=0) return '';
-			
-			var ret = 'Uri-Host: ';
-			ret += opt;
-			ret += ' ['+optLen+']; ';
-			
-			return ret;
+			return new Array('Uri-Host', opt, optLen+' byte(s)');
 		} else {
 			return opt;
 		}
@@ -335,24 +317,16 @@ CoapMessage.prototype = {
 	getUriPort : function(readable) {
 		
 		if (coapVersion < 4) {
-			if (readable) {
-				return '';
-			} else {
-				return null;
-			}
+			return null;
 		}
 
 		var optLen = this.packet.getOptionLength(OPTION_URI_PORT);
 		var opt = this.packet.getOption(OPTION_URI_PORT); // int
+
+		if (optLen<=0) return null;
 		
 		if (readable) {
-			if (optLen<=0) return '';
-			
-			var ret = 'Uri-Port: ';
-			ret += opt;
-			ret += ' [int'+(optLen*8)+']; ';
-			
-			return ret;
+			return new Array('Uri-Port', opt, optLen+' byte(s)');
 		} else {
 			return opt;
 		}
@@ -364,15 +338,11 @@ CoapMessage.prototype = {
 
 		var optLen = this.packet.getOptionLength(OPTION_URI_PATH);
 		var opt = this.packet.getOption(OPTION_URI_PATH); // string
+
+		if (optLen<=0) return null;
 		
 		if (readable) {
-			if (optLen<=0) return '';
-			
-			var ret = 'Uri-Path: ';
-			ret += '/' + opt;
-			ret += ' ['+optLen+']; ';
-			
-			return ret;
+			return new Array('Uri-Path', opt, optLen+' byte(s)');
 		} else {
 			return opt;
 		}
@@ -381,15 +351,11 @@ CoapMessage.prototype = {
 	getUriQuery : function(readable) {
 		var optLen = this.packet.getOptionLength(OPTION_URI_QUERY);
 		var opt = this.packet.getOption(OPTION_URI_QUERY); // string
+
+		if (optLen<=0) return null;
 		
 		if (readable) {
-			if (optLen<=0) return '';
-			
-			var ret = 'Uri-Query: ';
-			ret += opt;
-			ret += ' ['+optLen+']; ';
-			
-			return ret;
+			return new Array('Uri-Query', opt, optLen+' byte(s)');
 		} else {
 			return opt;
 		}
@@ -420,18 +386,13 @@ CoapMessage.prototype = {
 			uri += '?' + query;
 			++decoded;
 		}
-		
+
+		if (decoded<=0) return null;
 		
 		if (readable) {
-			if (!path) return '';
-			
-			var ret = 'Uri: ';
-			ret += uri;
-			ret += ' ['+decoded+' opt]; ';
-			
-			return ret;
+			return new Array('Uri', uri, decoded+(decoded==1 ? ' option' : ' options'));
 		} else {
-			return opt;
+			return uri;
 		}
 	},
 	setUri : function(uri) {
@@ -446,16 +407,12 @@ CoapMessage.prototype = {
 		
 		var optLen = this.packet.getOptionLength(OPTION_LOCATION_PATH);
 		var opt = this.packet.getOption(OPTION_LOCATION_PATH); // string
+
+		if (optLen<=0) return null;
 		
 		if (readable) {
-			if (optLen<=0) return '';
-			
-			var ret = 'Location-Path: ';
-			if (opt.charAt(0)!='/') ret += '/';
-			ret += opt;
-			ret += ' [str,'+optLen+']; ';
-			
-			return ret;
+			if (opt.charAt(0)!='/') opt = '/' + opt;
+			return new Array('Location-Path', opt, optLen+' byte(s)');
 		} else {
 			return opt;
 		}
@@ -467,24 +424,16 @@ CoapMessage.prototype = {
 	getLocationQuery : function(readable) {
 		
 		if (coapVersion < 5) {
-			if (readable) {
-				return '';
-			} else {
-				return null;
-			}
+			return null;
 		}
 
 		var optLen = this.packet.getOptionLength(OPTION_LOCATION_QUERY);
 		var opt = this.packet.getOption(OPTION_LOCATION_QUERY); // string
+
+		if (optLen<=0) return null;
 		
 		if (readable) {
-			if (optLen<=0) return '';
-			
-			var ret = 'Location-Query: ';
-			ret += opt;
-			ret += ' [str,'+optLen+']; ';
-			
-			return ret;
+			return new Array('Location-Query', opt, optLen+' byte(s)');
 		} else {
 			return opt;
 		}
@@ -504,17 +453,11 @@ CoapMessage.prototype = {
 			}
 		}
 		
+		if (optLen+optLen2<=0) return null;
+		
 		if (readable) {
-			if (optLen<=0) return '';
-			
-			var ret = 'Location: ';
-			if (opt.charAt(0)!='/') ret += '/';
-			ret += opt;
-			ret += ' [str,'+optLen;
-			if (optLen2) ret += ','+optLen2;
-			ret += ']; ';
-			
-			return ret;
+			if (opt.charAt(0)!='/') opt = '/' + opt;
+			return new Array('Location', opt, optLen2>0 ? '2 options' : '1 option');
 		} else {
 			return opt;
 		}
@@ -524,17 +467,11 @@ CoapMessage.prototype = {
 	getToken : function(readable) {
 		var optLen = this.packet.getOptionLength(OPTION_TOKEN);
 		var opt = this.packet.getOption(OPTION_TOKEN); // byte array, treat as int
-
+		
+		if (optLen<=0) return null;
+		
 		if (readable) {
-			if (optLen<=0) return '';
-			
-			var ret = 'Token: ';
-			
-			ret += '0x';
-			ret += opt.toString(16).toUpperCase();
-			ret += ' ['+optLen+' bytes]; ';
-			
-			return ret; 
+			return new Array('Token', '0x'+opt.toString(16).toUpperCase(), optLen+' byte(s)'); 
 		} else {
 			return opt;
 		}
@@ -542,7 +479,7 @@ CoapMessage.prototype = {
 	setToken : function(token) {
 		if (token>0xFFFF) {
 			token = (0xFFFF & token);
-			dump('WARNING: CoapMessage.setToken [token must be a 1-2 byte value; masking to two bytes]\n');
+			dump('WARNING: CoapMessage.setToken [token must be 1-2 bytes; masking to 2 bytes]\n');
 		}
 		this.packet.setOption(OPTION_TOKEN, token);
 	},
@@ -552,16 +489,12 @@ CoapMessage.prototype = {
 		var optLen = this.packet.getOptionLength(OPTION_BLOCK);
 		var opt = this.packet.getOption(OPTION_BLOCK); // integer
 
-		if (readable) {
-			if (optLen<=0) return '';
-			
-			var ret = 'Block: ';
+		if (optLen<=0) return null;
 		
-			ret += this.getBlockNumber();
+		if (readable) {
+			var ret = this.getBlockNumber();
 			if (this.getBlockMore()) ret += '+';
-			ret += ' ['+this.getBlockSize()+' B/blk]; ';
-			
-			return ret;
+			return new Array('Block', ret, this.getBlockSize()+' B/blk');
 		} else {
 			return opt;
 		}
@@ -605,39 +538,51 @@ CoapMessage.prototype = {
 		var optLen = this.packet.getOptionLength(OPTION_OBSERVE);
 		var opt = this.packet.getOption(OPTION_OBSERVE); // int
 
+		if (optLen<=0) return null;
+		
 		if (readable) {
-			if (optLen<=0) return '';
-			
-			var ret = 'Subscription: ';
-			
-			ret += opt;
-			ret += ' [int'+(optLen*8)+']; ';
-			
-			return ret; 
+			return new Array('Observe', opt, optLen+' byte(s)'); 
 		} else {
 			return opt;
 		}
 	},
-	setSubscription : function(num) {
+	setObserve : function(num) {
 		if (num> 0xFFFFFFFF) time = 0xFFFFFFFF;
 		this.packet.setOption(OPTION_OBSERVE, num);
 	},
 	
 	// readable options list
-	getOptions : function() {
-		var ret = '';
-
-		ret += this.getContentType(true);
-		ret += this.getMaxAge(true);
-		ret += this.getProxyUri(true);
-		ret += this.getETag(true);
-		ret += this.getUri(true);
-		ret += this.getLocation(true);
-		ret += this.getObserve(true);
-		ret += this.getToken(true);
-		ret += this.getBlock(true);
+	getOptions : function(readable) {
 		
-		return ret;
+		if (readable) {
+			var ret = '';
+	
+			if (this.getContentType()!=null) ret += this.getContentType(true)[0] + ': ' + this.getContentType(true)[1] + ' ['+this.getContentType(true)[2]+']; ';
+			if (this.getMaxAge()!=null) ret += this.getMaxAge(true)[0] + ': ' + this.getMaxAge(true)[1] + ' ['+this.getMaxAge(true)[2]+']; ';
+			if (this.getProxyUri()!=null) ret += this.getProxyUri(true)[0] + ': ' + this.getProxyUri(true)[1] + ' ['+this.getProxyUri(true)[2]+']; ';
+			if (this.getETag()!=null) ret += this.getETag(true)[0] + ': ' + this.getETag(true)[1] + ' ['+this.getETag(true)[2]+']; ';
+			if (this.getUri()!=null) ret += this.getUri(true)[0] + ': ' + this.getUri(true)[1] + ' ['+this.getUri(true)[2]+']; ';
+			if (this.getLocation()!=null) ret += this.getLocation(true)[0] + ': ' + this.getLocation(true)[1] + ' ['+this.getLocation(true)[2]+']; ';
+			if (this.getObserve()!=null) ret += this.getObserve(true)[0] + ': ' + this.getObserve(true)[1] + ' ['+this.getObserve(true)[2]+']; ';
+			if (this.getToken()!=null) ret += this.getToken(true)[0] + ': ' + this.getToken(true)[1] + ' ['+this.getToken(true)[2]+']; ';
+			if (this.getBlock()!=null) ret += this.getBlock(true)[0] + ': ' + this.getBlock(true)[1] + ' ['+this.getBlock(true)[2]+']; ';
+			
+			return ret;
+		} else {
+			var ret = new Array();
+			
+			if (this.getContentType()!=null) ret.push(this.getContentType(true));
+			if (this.getMaxAge()!=null) ret.push( this.getMaxAge(true) );
+			if (this.getProxyUri()!=null) ret.push( this.getProxyUri(true) );
+			if (this.getETag()!=null) ret.push( this.getETag(true) );
+			if (this.getUri()!=null) ret.push( this.getUri(true) );
+			if (this.getLocation()!=null) ret.push( this.getLocation(true) );
+			if (this.getObserve()!=null) ret.push( this.getObserve(true) );
+			if (this.getToken()!=null) ret.push( this.getToken(true) );
+			if (this.getBlock()!=null) ret.push( this.getBlock(true) );
+			
+			return ret;
+		}
 	},
 	
 	// check if option is present

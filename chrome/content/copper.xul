@@ -60,10 +60,49 @@
 			</description>
 		</groupbox>
 		<label id="info_code" value="" style="font-size: 24pt; font-weight: bold;"/>
-		<groupbox>
-			<caption label="Header"/>
-			<textbox id="packet_header" readonly="true" multiline="true" rows="4" type="background-color: white; width: 100%;"/>
-		</groupbox>
+		<box>
+			<hbox flex="1">
+				<listbox id="packet_header" flex="1" rows="4">
+				    <listhead>
+				        <listheader label="Header"/>
+				        <listheader label="Value"/>
+				    </listhead>
+				    <listcols>
+				        <listcol flex="1" width="10"/>
+				        <listcol flex="2"/>
+				    </listcols>
+				    <listitem>
+				        <listcell label="Type"/>
+				        <listcell id="packet_header_type"/>
+				    </listitem>
+				    <listitem>
+				        <listcell label="Code"/>
+				        <listcell id="packet_header_code"/>
+				    </listitem>
+				    <listitem>
+				        <listcell label="TransID"/>
+				        <listcell id="packet_header_tid"/>
+				    </listitem>
+				    <listitem>
+				        <listcell label="Options"/>
+				        <listcell id="packet_header_oc"/>
+				    </listitem>
+				</listbox>
+			
+				<listbox id="packet_options" flex="3" rows="4">
+				    <listhead>
+				        <listheader label="Option"/>
+				        <listheader label="Value"/>
+				        <listheader label="Info"/>
+				    </listhead>
+				    <listcols>
+				        <listcol flex="1"/>
+				        <listcol flex="2"/>
+				        <listcol flex="1"/>
+				    </listcols>
+				</listbox>
+			</hbox>
+			</box>
 		<groupbox flex="1">
 			<caption label="Payload"/>
 			<textbox flex="1" id="packet_payload" readonly="true" multiline="true" type="background-color: white; width: 100%; height: 100%; font-family: Courier New;"/>

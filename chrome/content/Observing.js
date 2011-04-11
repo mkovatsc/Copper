@@ -74,7 +74,7 @@ Observing.prototype = {
 		this.subscriptions[token] = new ObserveEntry(uri, cb);
 		
 		var subscribe = new CoapMessage(MSG_TYPE_CON, GET, uri);
-		subscribe.setSubscription(60);
+		subscribe.setObserve(60);
 		subscribe.setToken(token);
 		
 		var that = this;
