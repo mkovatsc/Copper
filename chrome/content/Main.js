@@ -413,20 +413,20 @@ function parseUri(uri) {
     ( '?'  Uri-Query ) only if Uri-Query is present
 */
 	
-	var tokens = uri.match(/^(coap:)\/\/([a-z0-9-\.]+|\[[a-z0-9:]+\])(:([0-9]{1,5}))?(\/?|(\/[^\/\?]+)+)(\?(.*))?$/i);
+	var tokens = uri.match(/^(coap:)\/\/([a-z0-9-\.]+|\[[a-z0-9:]+(%[a-z0-9]+)?\])(:([0-9]{1,5}))?(\/?|(\/[^\/\?]+)+)(\?(.*))?$/i);
 	if (tokens) {
-		//alert('Protocol: ' + tokens[1] + '\nHost: ' + tokens[2] + '\nPort: ' + tokens[4] + '\nPath: ' + tokens[5] + '\nQuery: ' + tokens[7] );
+		//alert('Protocol: ' + tokens[1] + '\nHost: ' + tokens[2] + '\nPort: ' + tokens[5] + '\nPath: ' + tokens[6] + '\nQuery: ' + tokens[8] );
 		
 		// autocomplete URI with /
-		if (!tokens[5]) {
+		if (!tokens[6]) {
 			document.location.href = 'coap://'+tokens[2]+tokens[3]+'/';
 			return;
 		}
 		
 		hostname = tokens[2];
-		port = tokens[4] ? tokens[4] : port;
-		path = tokens[5] ? tokens[5] : path;
-		query = tokens[8] ? tokens[8] : '';
+		port = tokens[5] ? tokens[5] : port;
+		path = tokens[6] ? tokens[6] : path;
+		query = tokens[9] ? tokens[9] : '';
 		
 		document.title = hostname + path;
 		
