@@ -494,7 +494,8 @@ CoapMessage.prototype = {
 		if (readable) {
 			var ret = this.getBlockNumber();
 			if (this.getBlockMore()) ret += '+';
-			return new Array('Block', ret, this.getBlockSize()+' B/blk');
+			ret += ' ('+this.getBlockSize()+' B/block)';
+			return new Array('Block', ret, optLen+' byte(s)');
 		} else {
 			return opt;
 		}

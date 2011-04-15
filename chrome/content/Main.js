@@ -618,7 +618,7 @@ function updateMessageInfo(message) {
 	while (optionList.getRowCount()) optionList.removeItemAt(0);
 	var options = message.getOptions();
 	
-	for (var i = 0; i < message.getOptionCount(); i++)
+	for (var i = 0; i < options.length; i++)
     {
         var row = document.createElement('listitem');
         
@@ -648,8 +648,15 @@ function updateLabel(id, value, append) {
 
 function clearLabels() {
 	updateLabel('info_code', '');
-	updateLabel('packet_header', '');
 	updateLabel('packet_payload', '');
+
+	document.getElementById('packet_header_type').setAttribute('label', '');
+	document.getElementById('packet_header_oc').setAttribute('label', '');
+	document.getElementById('packet_header_code').setAttribute('label', '');
+	document.getElementById('packet_header_tid').setAttribute('label', '');
+	
+	var optionList = document.getElementById('packet_options');
+	while (optionList.getRowCount()) optionList.removeItemAt(0);
 }
 
 function leadingZero(num, len) {
