@@ -319,13 +319,18 @@ CoapPacket.prototype = {
 	
 	// for convenience and consistent API over the versions 
 	setUri : function(uri) {
-		var tokens = uri.match(/^(coap:\/\/[a-z0-9-\.]+)?(:[0-9]{1,5})?(\/?|(\/[^\/\?]+)+)(\?.*)?$/i);
+		var tokens = uri.match(/^(coap:\/\/[a-z0-9-\.]+(%[a-z0-9]+)?)?(:[0-9]{1,5})?(\/?|(\/[^\/\?]+)+)(\?.*)?$/i);
 		if (tokens) {
 			
-			var path = tokens[3];
-			var query = tokens[5];
+			var path = tokens[4];
+			var query = tokens[6];
 			
+			// omit leading slash
 			while (path.charAt(0)=='/') path = path.substr(1);
+			
+			// encode spaces
+			path.replace(/ /g, '%20');
+			
 			this.setOption(OPTION_URI_PATH, path);
 			
 			if (query) {

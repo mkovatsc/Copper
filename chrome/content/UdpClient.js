@@ -112,7 +112,6 @@ UdpClient.prototype = {
 			dump(' -----------------------\n');
 			if (this.callback) this.callback(byteArray);
 			
-		    
 		} catch( ex ) {
 		    alert('ERROR: UdpClient.onDataAvailable ['+ex+']');
 		}
@@ -123,6 +122,7 @@ UdpClient.prototype = {
 		// will also trigger onStopRequest()
 		this.outputStream.close();
 		this.inputStream.close();
+		this.socket.close(0);
 		dump('-UDP shut down-----------\n');
 	},
 	

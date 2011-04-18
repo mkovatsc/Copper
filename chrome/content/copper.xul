@@ -31,8 +31,8 @@
 		<toolbarbutton id="toolbar_delete" label="DELETE" image="chrome://copper/skin/tool_delete.png" oncommand="sendDelete();"/>
 	</toolbaritem>
 	
-	<toolbaritem style="vertical-align: bottom;">
-		<label control="toolbar_payload" value="Payload"/>
+  <label control="toolbar_payload" value="Payload"/><!-- sticks to the top if it is inside a toolbaritem -->
+	<toolbaritem>
 		<textbox id="toolbar_payload" onfocus="this.select()" />
 	</toolbaritem>
 	

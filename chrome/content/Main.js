@@ -78,7 +78,6 @@ function init() {
 	}
 	
 	
-	
 	// get settings from preferences
 	var auto = null; // auto-method
 	try {
@@ -413,20 +412,20 @@ function parseUri(uri) {
     ( '?'  Uri-Query ) only if Uri-Query is present
 */
 	
-	var tokens = uri.match(/^(coap:)\/\/([a-z0-9-\.]+|\[[a-z0-9:]+(%[a-z0-9]+)?\])(:([0-9]{1,5}))?(\/?|(\/[^\/\?]+)+)(\?(.*))?$/i);
+	var tokens = uri.match(/^(coap:)\/\/([a-z0-9-\.]+|\[[a-z0-9:]+(%[a-z0-9]+)?\])(:([0-9]{1,5}))?(\/?|(\/[^\/\?]+)+)(\/)?(\?(.*))?$/i);
 	if (tokens) {
-		//alert('Protocol: ' + tokens[1] + '\nHost: ' + tokens[2] + '\nPort: ' + tokens[5] + '\nPath: ' + tokens[6] + '\nQuery: ' + tokens[8] );
+		//alert('Protocol: ' + tokens[1] + '\nHost: ' + tokens[2] + '\nPort: ' + tokens[5] + '\nPath: ' + tokens[6] + '\nQuery: ' + tokens[9] );
 		
-		// autocomplete URI with /
-		if (!tokens[6]) {
-			document.location.href = 'coap://'+tokens[2]+tokens[3]+'/';
+		// remove final / for non-root paths
+		if (tokens[8]) {
+			document.location.href = 'coap://'+tokens[2] + (tokens[3] ? tokens[3] : '') + tokens[6] + (tokens[9] ? tokens[9] : '');
 			return;
 		}
 		
 		hostname = tokens[2];
 		port = tokens[5] ? tokens[5] : port;
 		path = tokens[6] ? tokens[6] : path;
-		query = tokens[9] ? tokens[9] : '';
+		query = tokens[10] ? tokens[10] : '';
 		
 		document.title = hostname + path;
 		
@@ -442,12 +441,13 @@ function parseUri(uri) {
 function checkUri(uri, method, pl) {
 	if (!uri) {
 		// when urlbar was changed without pressing enter, redirect and perform request
-		if (method && (document.location.href != mainWindow.document.getElementById('urlbar').value)) {
+		if (method && (document.location.href != mainWindow.document.getElementById('urlbar').value.replace(/ /g, '%20'))) {
 			//alert('You edited the URL bar:\n'+document.location.href+'\n'+mainWindow.document.getElementById('urlbar').value);
 			
 			// schedule the request to start automatically at new location
 			prefManager.setIntPref('extensions.copper.auto-request.method', method);
 			prefManager.setCharPref('extensions.copper.auto-request.payload', String(pl));
+			
 			// redirect
 			document.location.href = mainWindow.document.getElementById('urlbar').value;
 		}
@@ -580,7 +580,7 @@ function updateResourceLinks(add) {
 		var uri = sorted[entry];
 		
 		var button = document.createElement("button");
-		button.setAttribute("label", uri);
+		button.setAttribute("label", uri.replace(/%20/g, ' '));
 		button.setAttribute("oncommand","document.location.href='coap://" + hostname + ":" + port + uri + "';");
 		
 		var tooltiptext = '';
