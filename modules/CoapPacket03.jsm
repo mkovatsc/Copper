@@ -496,5 +496,6 @@ function bytes2int(b) {
 	for (var k in b) {
 		i = (i << 8) | b[k];
 	}
-	return i;
+	//convert to unsigned int
+	return i>>>0;
 }
