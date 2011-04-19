@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 
-<?xml-stylesheet href="chrome://global/skin/global.css"	 type="text/css"?>
-<?xml-stylesheet href="chrome://copper/skin/skin.css" type="text/css"?> 
+<?xml-stylesheet href="chrome://global/skin/global.css" stype="text/css"?>
+<?xml-stylesheet href="chrome://copper/skin/classic.css" type="text/css"?> 
 
 <!DOCTYPE copper SYSTEM "chrome://copper/locale/translations.dtd">
 

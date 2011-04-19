@@ -217,7 +217,7 @@ function defaultHandler(message) {
 function blockwiseHandler(message) {
 	dump('INFO: blockwiseHandler()\n');
 	
-	updateLabel('info_code', ' (Blockwise)', message.getBlockNumber()>0);
+	updateLabel('info_code', ' (Blockwise)', true);
 	
 	if (message.isOption(OPTION_BLOCK)) {
 		
@@ -229,7 +229,7 @@ function blockwiseHandler(message) {
 				sendBlockwiseGet(message.getBlockNumber()+1, blockSize);
 			}
 		}
-		updateLabel('packet_payload', message.getPayload(), true);
+		updateLabel('packet_payload', message.getPayload(), message.getBlockNumber()>0);
 		
 	} else {
 		updateLabel('packet_payload', message.getPayload());
