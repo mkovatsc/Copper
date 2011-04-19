@@ -217,7 +217,7 @@ function defaultHandler(message) {
 function blockwiseHandler(message) {
 	dump('INFO: blockwiseHandler()\n');
 	
-	updateLabel('info_code', ' (Blockwise)', true);
+	updateLabel('info_code', ' (Blockwise)', message.getBlockNumber()>0);
 	
 	if (message.isOption(OPTION_BLOCK)) {
 		
