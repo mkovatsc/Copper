@@ -48,7 +48,7 @@ function CoapMessage(type, code, uri, pl) {
 	this.packet = new CoapPacket();
 	
 	this.packet.type = type;
-	this.packet.code = code;
+	this.packet.code = code ? code : 0;
 	
 	// URI
 	if (uri!=null) {
