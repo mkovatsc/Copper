@@ -105,7 +105,7 @@
 			</box>
 		<groupbox flex="1">
 			<caption label="Payload"/>
-			<textbox flex="1" id="packet_payload" readonly="true" multiline="true" type="background-color: white; width: 100%; height: 100%; font-family: Courier New;"/>
+			<textbox flex="1" id="packet_payload" readonly="true" multiline="true" style="background-color: white; width: 100%; height: 100%; font-family: monospace;"/>
 		</groupbox>
 	</vbox>
 
@@ -116,7 +116,7 @@
 	<vbox id="sidebar">
 		<groupbox flex="1">
 			<caption>
-				<checkbox id="debug_options" label="Debug options"/>
+				<checkbox id="chk_debug_options" label="Debug options"/>
 			</caption>
 			
 			<vbox flex="1" style="overflow: auto;">

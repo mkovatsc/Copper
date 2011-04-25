@@ -88,7 +88,7 @@ function init() {
 		auto = prefManager.getIntPref('extensions.copper.auto-request.method');
 		
 		// debug options
-		document.getElementById('debug_options').checked = prefManager.getBoolPref('extensions.copper.debug.options-enabled');
+		document.getElementById('chk_debug_options').checked = prefManager.getBoolPref('extensions.copper.debug.options-enabled');
 		document.getElementById('debug_option_content_type').value = prefManager.getCharPref('extensions.copper.debug.options.content-type');
 		document.getElementById('debug_option_max_age').value = prefManager.getCharPref('extensions.copper.debug.options.max-age');
 		document.getElementById('debug_option_etag').value = prefManager.getCharPref('extensions.copper.debug.options.etag');
@@ -146,7 +146,7 @@ function init() {
 				case 0:      break;
 				case GET:    sendGet(); break;
 				case POST:   sendPost(prefManager.getCharPref('extensions.copper.auto-request.payload')); break;
-				case GUT:    sendPut(prefManager.getCharPref('extensions.copper.auto-request.payload')); break;
+				case PUT:    sendPut(prefManager.getCharPref('extensions.copper.auto-request.payload')); break;
 				case DELETE: sendDelete(); break;
 				default: dump('WARNING: Main.init [unknown method for auto-request: '+auto+']\n');
 			}
@@ -176,7 +176,7 @@ function unload() {
 	prefManager.setBoolPref('extensions.copper.retransmissions', document.getElementById('toolbar_retransmissions').checked);
 	
 	// debug options
-	prefManager.setBoolPref('extensions.copper.debug.options-enabled', document.getElementById('debug_options').checked);
+	prefManager.setBoolPref('extensions.copper.debug.options-enabled', document.getElementById('chk_debug_options').checked);
 	prefManager.setCharPref('extensions.copper.debug.options.content-type', document.getElementById('debug_option_content_type').value);
 	prefManager.setCharPref('extensions.copper.debug.options.max-age', document.getElementById('debug_option_max_age').value);
 	prefManager.setCharPref('extensions.copper.debug.options.etag', document.getElementById('debug_option_etag').value);
@@ -198,7 +198,6 @@ function defaultHandler(message) {
 	dump('INFO: defaultHandler()\n');
 
 	updateLabel('info_code', message.getCode());
-	// TODO: use nice table
 	updateMessageInfo(message);
 	
 	// if message turns out to be block-wise transfer dispatch to corresponding handler
@@ -243,7 +242,6 @@ function observingHandler(message) {
 	if (message.isOption(OPTION_OBSERVE)) {
 		
 		updateLabel('info_code', message.getCode() + ' (Observing)');
-		// TODO: use nice table
 		updateMessageInfo(message);
 		
 		updateLabel('packet_payload', message.getPayload());
@@ -412,7 +410,7 @@ function parseUri(uri) {
     ( '?'  Uri-Query ) only if Uri-Query is present
 */
 	
-	var tokens = uri.match(/^(coap:)\/\/([a-z0-9-\.]+|\[[a-z0-9:]+(%[a-z0-9]+)?\])(:([0-9]{1,5}))?(\/?|(\/[^\/\?]+)+)(\/)?(\?(.*))?$/i);
+	var tokens = uri.match(/^(coap:)\/\/([a-z0-9-\.]+|\[[a-z0-9:]+(%[a-z0-9]+)?\])(:([0-9]{0,5}))?(\/?|(\/[^\/\?]+)+)(\/)?(\?(.*))?$/i);
 	if (tokens) {
 		//alert('Protocol: ' + tokens[1] + '\nHost: ' + tokens[2] + '\nPort: ' + tokens[5] + '\nPath: ' + tokens[6] + '\nQuery: ' + tokens[9] );
 		
@@ -441,7 +439,7 @@ function parseUri(uri) {
 function checkUri(uri, method, pl) {
 	if (!uri) {
 		// when urlbar was changed without pressing enter, redirect and perform request
-		if (method && (document.location.href != mainWindow.document.getElementById('urlbar').value.replace(/ /g, '%20'))) {
+		if (method && (document.location.href != encodeURI(mainWindow.document.getElementById('urlbar').value))) {
 			//alert('You edited the URL bar:\n'+document.location.href+'\n'+mainWindow.document.getElementById('urlbar').value);
 			
 			// schedule the request to start automatically at new location
@@ -458,7 +456,7 @@ function checkUri(uri, method, pl) {
 }
 
 function checkDebugOptions(message) {
-	if (document.getElementById('debug_options').checked) {
+	if (document.getElementById('chk_debug_options').checked) {
 		if (document.getElementById('debug_option_content_type').value!='') {
 			message.setContentType(parseInt(document.getElementById('debug_option_content_type').value));
 		}
@@ -553,6 +551,7 @@ function parseLinkFormat(data) {
 	
 	return links;
 }
+
 function updateResourceLinks(add) {
 	
 	// merge links
@@ -597,7 +596,6 @@ function updateResourceLinks(add) {
 		// highlight current resource
 		if (uri==path) {
 			button.setAttribute("style", "font-weight: bold; text-shadow: 2px 2px 3px #666666;");
-			
 		}
 		
 		list.appendChild(button);

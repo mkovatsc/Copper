@@ -396,6 +396,9 @@ CoapMessage.prototype = {
 		}
 	},
 	setUri : function(uri) {
+		// ensure percent-encoding
+		encodeURI(uri);
+		
 		// URI encoding is version specific
 		this.packet.setUri(uri);
 	},
@@ -418,6 +421,8 @@ CoapMessage.prototype = {
 		}
 	},
 	setLocationPath : function(path) {
+		while (path.charAt(0)=='/') path = path.substr(1);
+		
 		this.packet.setOption(OPTION_LOCATION_PATH, path);
 	},
 	// OPTION_LOCATION_QUERY:05+

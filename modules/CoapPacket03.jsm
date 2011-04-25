@@ -328,9 +328,6 @@ CoapPacket.prototype = {
 			// omit leading slash
 			while (path.charAt(0)=='/') path = path.substr(1);
 			
-			// encode spaces
-			path.replace(/ /g, '%20');
-			
 			this.setOption(OPTION_URI_PATH, path);
 			
 			if (query) {
