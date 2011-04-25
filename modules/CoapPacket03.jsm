@@ -354,7 +354,7 @@ CoapPacket.prototype = {
 	    byteArray.push(0xFF & this.code);
 	    
 	    // third and forth byte: transaction ID (TID)
-	    byteArray.push(0xFF & (this.tid >> 8));
+	    byteArray.push(0xFF & (this.tid >>> 8));
 	    byteArray.push(0xFF & this.tid);
 	    
 	    // options
@@ -405,12 +405,12 @@ CoapPacket.prototype = {
 		// first byte: version, type, and option count
 		var tempByte = packet.shift();
 		
-		this.version = 0xFF & ((tempByte & 0xC0) >> 6);
+		this.version = 0xFF & ((tempByte & 0xC0) >>> 6);
 		if (this.version != VERSION) {
 			throw 'ERROR: CoapPacket.parse [CoAP version '+this.version+' not supported]';
         }
 
-		this.type = 0xFF & ((tempByte & 0x30) >> 4);
+		this.type = 0xFF & ((tempByte & 0x30) >>> 4);
         if (this.type < 0 || this.type > 3) {
             throw 'ERROR: CoapPacket.parse [Wrong message type ('+this.type+')]';
         }
@@ -429,10 +429,10 @@ CoapPacket.prototype = {
 	    for (var i=0; i<this.optionCount; i++) {
 	    
 	    	tempByte = packet.shift();
-	    	var optType = ((0xF0 & tempByte) >> 4) + optionDelta;
+	    	var optType = ((0xF0 & tempByte) >>> 4) + optionDelta;
 	    	var optLen = (0x0F & tempByte);
 	    	
-	    	dump('INFO: parsing option '+optType+' (delta '+((0xF0 & tempByte) >> 4)+', len '+optLen+')\n');
+	    	dump('INFO: parsing option '+optType+' (delta '+((0xF0 & tempByte) >>> 4)+', len '+optLen+')\n');
 	    	
 	    	// when the length is 15 or more, another byte is added as an 8-bit unsigned integer
 	    	if (optLen==15) {
@@ -483,7 +483,7 @@ function int2bytes(i) {
 	var b = new Array();
 	do {
 		b.unshift(0xFF & i);
-		i >>= 8;
+		i >>>= 8;
 	} while (i>0);
 	return b;
 }

@@ -290,8 +290,8 @@ CoapMessage.prototype = {
 		}
 	},
 	setETag : function(tag) {
-		if (tag>0xFFFFFFFF) {
-			tag = (0xFFFFFFFF & tag);
+		if (tag>0xFFFFFFFF>>>0) {
+			tag = (0xFFFFFFFF>>>0 & tag);
 			dump('WARNING: CoapMessage.setETag [token must be 1-4 bytes; masking to 4 bytes]\n');
 		}
 		this.packet.setOption(OPTION_ETAG, tag);
