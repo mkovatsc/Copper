@@ -38,6 +38,81 @@
 var EXPORTED_SYMBOLS = [];
 Components.utils.import("resource://modules/common.jsm");
 
+// Constants
+////////////////////////////////////////////////////////////////////////////////
+
+Copper.__defineGetter__("VERSION", function() { return 1; });
+
+Copper.__defineGetter__("MSG_TYPE_CON", function() { return 0; });
+Copper.__defineGetter__("MSG_TYPE_NON", function() { return 1; });
+Copper.__defineGetter__("MSG_TYPE_ACK", function() { return 2; });
+Copper.__defineGetter__("MSG_TYPE_RST", function() { return 3; });
+
+Copper.__defineGetter__("OPTION_CONTENT_TYPE", function() { return 1; });
+Copper.__defineGetter__("OPTION_MAX_AGE", function() { return 2; });
+Copper.__defineGetter__("OPTION_ETAG", function() { return 4; });
+Copper.__defineGetter__("OPTION_URI_HOST", function() { return 5; }); // renamed
+Copper.__defineGetter__("OPTION_LOCATION_PATH", function() { return 6; }); // renamed
+Copper.__defineGetter__("OPTION_URI_PATH", function() { return 9; });
+Copper.__defineGetter__("OPTION_OBSERVE", function() { return 10; }); // renamed
+Copper.__defineGetter__("OPTION_TOKEN", function() { return 11; });
+Copper.__defineGetter__("OPTION_BLOCK", function() { return 13; });
+Copper.__defineGetter__("OPTION_NOOP", function() { return 14; });
+Copper.__defineGetter__("OPTION_URI_QUERY", function() { return 15; });
+
+Copper.__defineGetter__("CODE_100_CONTINUE", function() { return 40; });
+Copper.__defineGetter__("CODE_200_OK", function() { return 80; });
+Copper.__defineGetter__("CODE_201_CREATED", function() { return 81; });
+Copper.__defineGetter__("CODE_304_NOT_MODIFIED", function() { return 124; });
+Copper.__defineGetter__("CODE_400_BAD_REQUEST", function() { return 160; });
+Copper.__defineGetter__("CODE_404_NOT_FOUND", function() { return 164; });
+Copper.__defineGetter__("CODE_405_METHOD_NOT_ALLOWED", function() { return 165; });
+Copper.__defineGetter__("CODE_415_UNSUPPORTED_MADIA_TYPE", function() { return 175; });
+Copper.__defineGetter__("CODE_500_INTERNAL_SERVER_ERROR", function() { return 200; });
+Copper.__defineGetter__("CODE_502_BAD_GATEWAY", function() { return 202; });
+Copper.__defineGetter__("CODE_503_SERVICE_UNAVAILABLE", function() { return 203; });
+Copper.__defineGetter__("CODE_504_GATEWAY_TIMEOUT", function() { return 204; });
+Copper.__defineGetter__("CODE_TOKEN_OPTION_REQUIRED", function() { return 240; });
+Copper.__defineGetter__("CODE_URI_AUTHORITY_OPTION_REQUIRED", function() { return 241; });
+Copper.__defineGetter__("CODE_CRITICAL_OPTION_NOT_SUPPORTED", function() { return 242; });
+
+Copper.__defineGetter__("CONTENT_TYPE_TEXT_PLAIN", function() { return 0; });
+Copper.__defineGetter__("CONTENT_TYPE_TEXT_XML", function() { return 1; });
+Copper.__defineGetter__("CONTENT_TYPE_TEXT_CSV", function() { return 2; });
+Copper.__defineGetter__("CONTENT_TYPE_TEXT_HTML", function() { return 3; });
+Copper.__defineGetter__("CONTENT_TYPE_IMAGE_GIF", function() { return 21; }); // 03
+Copper.__defineGetter__("CONTENT_TYPE_IMAGE_JPEG", function() { return 22; }); // 03
+Copper.__defineGetter__("CONTENT_TYPE_IMAGE_PNG", function() { return 23; }); // 03
+Copper.__defineGetter__("CONTENT_TYPE_IMAGE_TIFF", function() { return 24; }); // 03
+Copper.__defineGetter__("CONTENT_TYPE_AUDIO_RAW", function() { return 25; }); // 03
+Copper.__defineGetter__("CONTENT_TYPE_VIDEO_RAW", function() { return 26; }); // 03
+Copper.__defineGetter__("CONTENT_TYPE_APPLICATION_LINK_FORMAT", function() { return 40; });
+Copper.__defineGetter__("CONTENT_TYPE_APPLICATION_XML", function() { return 41; });
+Copper.__defineGetter__("CONTENT_TYPE_APPLICATION_OCTET_STREAM", function() { return 42; });
+Copper.__defineGetter__("CONTENT_TYPE_APPLICATION_RDF_XML", function() { return 43; });
+Copper.__defineGetter__("CONTENT_TYPE_APPLICATION_SOAP_XML", function() { return 44; });
+Copper.__defineGetter__("CONTENT_TYPE_APPLICATION_ATOM_XML", function() { return 45; });
+Copper.__defineGetter__("CONTENT_TYPE_APPLICATION_XMPP_XML", function() { return 46; });
+Copper.__defineGetter__("CONTENT_TYPE_APPLICATION_EXI", function() { return 47; });
+Copper.__defineGetter__("CONTENT_TYPE_APPLICATION_X_BXML", function() { return 48; });
+Copper.__defineGetter__("CONTENT_TYPE_APPLICATION_FASTINFOSET", function() { return 49; });
+Copper.__defineGetter__("CONTENT_TYPE_APPLICATION_SOAP_FASTINFOSET", function() { return 50; });
+Copper.__defineGetter__("CONTENT_TYPE_APPLICATION_JSON", function() { return 51; });
+Copper.__defineGetter__("CONTENT_TYPE_APPLICATION_X_OBIX_BINARY", function() { return -1; }); // 04+
+
+Copper.__defineGetter__("GET", function() { return 1; });
+Copper.__defineGetter__("POST", function() { return 2; });
+Copper.__defineGetter__("PUT", function() { return 3; });
+Copper.__defineGetter__("DELETE", function() { return 4; });
+
+Copper.__defineGetter__("WELL_KNOWN_RESOURCES", function() { return '/.well-known/core'; });
+
+Copper.__defineGetter__("RESPONSE_TIMEOUT", function() { return 1000; }); // ms
+Copper.__defineGetter__("MAX_RETRANSMIT", function() { return 5; });
+
+// CoAP draft-03 implementation
+////////////////////////////////////////////////////////////////////////////////
+
 Copper.CoapPacket = function() {
 	this.options = new Array();
 	//                                       length, value as byte array
@@ -52,17 +127,18 @@ Copper.CoapPacket = function() {
 	this.options[Copper.OPTION_BLOCK] = new Array(0, null);
 	this.options[Copper.OPTION_NOOP] = new Array(0, null);
 	this.options[Copper.OPTION_URI_QUERY] = new Array(0, null);
-	dump('PacketCon\n');
+
+	this.tid = parseInt(Math.random()*0x10000);
 };
 
 Copper.CoapPacket.prototype = {
-	version : Copper.VERSION, // member for received packets
-	type : Copper.MSG_TYPE_CON,
+	version :     Copper.VERSION, // member for received packets
+	type :        Copper.MSG_TYPE_CON,
 	optionCount : 0,
-	code : Copper.GET,
-	tid : 0x0777,
-	options : null,
-	payload : '',
+	code :        Copper.GET,
+	tid :         0,
+	options :     null,
+	payload :     '',
 	
 	// readable method or response code
 	getCode : function() {
@@ -310,7 +386,7 @@ Copper.CoapPacket.prototype = {
 	    	var optType = ((0xF0 & tempByte) >>> 4) + optionDelta;
 	    	var optLen = (0x0F & tempByte);
 	    	
-	    	dump('INFO: parsing option '+optType+' (delta '+((0xF0 & tempByte) >>> 4)+', len '+optLen+')\n');
+	    	//dump('INFO: parsing option '+optType+' (delta '+((0xF0 & tempByte) >>> 4)+', len '+optLen+')\n');
 	    	
 	    	// when the length is 15 or more, another byte is added as an 8-bit unsigned integer
 	    	if (optLen==15) {
@@ -331,7 +407,7 @@ Copper.CoapPacket.prototype = {
 			optionDelta = optType;
 		}
 		
-        //read payload
+        // read payload
         var payloadBytes = new Array();
         while (packet.length) {
 			payloadBytes.push(packet.shift());
