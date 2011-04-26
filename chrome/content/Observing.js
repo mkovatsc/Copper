@@ -45,13 +45,12 @@ CopperChrome.ObserveEntry.prototype = {
 };
 
 CopperChrome.Observing = function() {
+	// maybe support multiple subscriptions via sidebar in the future
 	this.subscriptions = new Object();
-	this.uri2token = new Object();
 };
 
 CopperChrome.Observing.prototype = {
 	subscriptions : null,
-	uri2token: null,
 	
 	pending : null,
 	
@@ -107,6 +106,11 @@ CopperChrome.Observing.prototype = {
 	unsubscribe : function(token) {
 		if (this.subscriptions[token]!=null) {
 			this.subscriptions[token] = null;
+			document.getElementById('toolbar_observe').image = 'chrome://copper/skin/tool_observe.png';
+			document.getElementById('toolbar_observe').label = 'Observe';
+		} else if (token==null) {
+			// cancel all subscriptions
+			this.subscriptions = new Object();
 			document.getElementById('toolbar_observe').image = 'chrome://copper/skin/tool_observe.png';
 			document.getElementById('toolbar_observe').label = 'Observe';
 		}

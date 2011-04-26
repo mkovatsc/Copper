@@ -50,19 +50,19 @@
 	
 	<toolbarspacer flex="1"/>
 	
-	<toolbarbutton id="toolbar_version" label="CoAP version" oncommand="window.openDialog('chrome://copper/content/options.xul', 'Prefs', 'chrome,titlebar,toolbar,centerscreen,modal');"/>
+	<toolbarbutton id="toolbar_version" label="CoAP version" oncommand="window.openDialog('chrome://copper/content/options.xul', 'Prefs', 'chrome,titlebar,toolbar,centerscreen,modal');document.location.reload();"/>
 </toolbar>
 
 <hbox flex="1">
 	<vbox flex="1">
-		<groupbox>
-			<caption id="info_authority" label="Authority" style="font-size: 14pt; font-weight: bold;"/>
+		<groupbox id="group_host" style="margin-bottom: -3px;">
+			<caption id="info_host" label="Host" style="font-size: 14pt; font-weight: bold;"/>
 			<description id="info_resources">
 				<button label="discovering..." disabled="true"/>
 			</description>
 		</groupbox>
 		<label id="info_code" value="" style="font-size: 24pt; font-weight: bold;"/>
-		<box>
+		<box id="group_head">
 			<hbox flex="1">
 				<listbox id="packet_header" flex="1" rows="4">
 				    <listhead>
@@ -104,8 +104,8 @@
 				    </listcols>
 				</listbox>
 			</hbox>
-			</box>
-		<groupbox flex="1">
+		</box>
+		<groupbox id="group_payload" flex="1">
 			<caption label="Payload"/>
 			<textbox flex="1" id="packet_payload" readonly="true" multiline="true" style="background-color: white; width: 100%; height: 100%; font-family: monospace;"/>
 		</groupbox>

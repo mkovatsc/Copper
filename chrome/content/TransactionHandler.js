@@ -97,7 +97,10 @@ CopperChrome.TransactionHandler.prototype = {
 			}
 		}
 		
-		// TODO maybe cancel subscriptions as well?
+		// cancel subscriptions as well
+		if (CopperChrome.observer) {
+			CopperChrome.observer.unsubscribe();
+		}
 	},
 	
 	send : function(message, tidCB) {
@@ -113,10 +116,10 @@ CopperChrome.TransactionHandler.prototype = {
 		if (message.isConfirmable()) {
 			if (this.retransmissions) {
 				// schedule resend
-				timer = window.setTimeout(function(){myBind(that,that.resend(message.getTID()));}, Copper.RESPONSE_TIMEOUT);
+				timer = window.setTimeout(function(){CopperChrome.myBind(that,that.resend(message.getTID()));}, Copper.RESPONSE_TIMEOUT);
 			} else {
 				// also schedule 'not responding' timeout when retransmissions are disabled 
-				timer = window.setTimeout(function(){myBind(that,that.resend(message.getTID()));}, 16*Copper.RESPONSE_TIMEOUT);
+				timer = window.setTimeout(function(){CopperChrome.myBind(that,that.resend(message.getTID()));}, 16000); // 16 seconds
 			}
 			this.transactions[message.getTID()] = new CopperChrome.Transaction(message, timer, tidCB);
 		}
@@ -137,7 +140,7 @@ CopperChrome.TransactionHandler.prototype = {
 			this.transactions[tid].retries = this.transactions[tid].retries+1;
 			
 			var timeout = Copper.RESPONSE_TIMEOUT*Math.pow(2,this.transactions[tid].retries);
-			this.transactions[tid].timer = window.setTimeout(function(){myBind(that,that.resend(tid));}, timeout);
+			this.transactions[tid].timer = window.setTimeout(function(){CopperChrome.myBind(that,that.resend(tid));}, timeout);
 			
 			dump('=re-sending CoAP message\n');
 			dump(' Transaction ID: '+tid+'\n');
@@ -150,7 +153,7 @@ CopperChrome.TransactionHandler.prototype = {
 			dump(' =======================\n');
 			this.transactions[tid] = null;
 			// TODO: find nicer way, maybe registered error CB
-			this.defaultCB({getCode:function(){return 'Server not responding';}});
+			this.defaultCB( {getCopperCode:function(){return 'Server not responding';}});
 		}
 	},
 	
@@ -186,14 +189,26 @@ CopperChrome.TransactionHandler.prototype = {
 		} else {
 			dump('WARNING: TransactionHandler.handle [unknown transaction and token]\n');
 			
+			var infoReset = '';
+			
 			// handle confirmables
 			if (message.getType()==Copper.MSG_TYPE_CON) {
 				this.reset(message.getTID());
+				infoReset = ' (sent RST)';
+			}
+			
+			if (CopperChrome.showUnknownTransactions) {
+				// hack for additional info
+				message.getCopperCode = function() { return 'Unknown transaction'+infoReset; };
+			} else {
+				return;
 			}
 		}
 		
 		// hand over to callback
-		callback( message );
+		if (callback) {
+			callback( message );
+		}
 	},
 	
 	ack : function(tid) {

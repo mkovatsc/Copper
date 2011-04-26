@@ -4,19 +4,24 @@
 <prefwindow 
      title="Copper Preferences"
      xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+<script type="application/x-javascript" src="chrome://copper/content/namespace.js"/>     
+<script type="application/x-javascript" src="chrome://copper/content/Options.js"/>
      
 	<prefpane label="Copper Preferences">
 		<preferences>
 			<preference id="copper-version" name="extensions.copper.coap-version" type="int"/>
 			<preference id="default-block-size" name="extensions.copper.default-block-size" type="int"/>
-			<preference id="default-payload" name="extensions.copper.payloads.default" type="string"/>
+			<preference id="default-payload" name="extensions.copper.default-payload" type="string"/>
+			<preference id="show-unknown" name="extensions.copper.show-unknown-transactions" type="bool"/>
+			<preference id="global-dumps" name="browser.dom.window.dump.enabled" type="bool"/>
 		</preferences>
 		
 		<groupbox>
 			<caption label="Settings"/>
 			<grid>
 				<columns>
-					<column flex="4"/>
+					<column flex="1"/>
 					<column flex="1"/>
 				</columns>
 				<rows>
@@ -46,6 +51,28 @@
 					<row>
 						<label control="default_payload" value="Default payload"/>
 						<textbox id="default_payload" preference="default-payload"/>
+					</row>
+				</rows>
+			</grid>
+		</groupbox>	
+		<groupbox>
+			<caption label="Debug"/>
+			<grid>
+				<columns>
+					<column flex="1"/>
+				</columns>
+				<rows>
+					<row>
+						<checkbox id="debug_unknown" preference="show-unknown" label="Display messages with unknown transaction"/>
+					</row>
+					<row>
+						<checkbox id="debug_dumps" preference="global-dumps" label="Print debug output to the console"/>
+					</row>
+					<row>
+						<button label="Clear resource cache" oncommand="CopperChrome.Options.clearResourceCache();"/>
+					</row>
+					<row>
+						<button label="Clear payload cache" oncommand="CopperChrome.Options.clearPayloadCache();"/>
 					</row>
 				</rows>
 			</grid>
