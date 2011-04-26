@@ -35,34 +35,38 @@
  * \author  Matthias Kovatsch <kovatsch@inf.ethz.ch>\author
  */
 
-var mainWindow = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+Components.utils.import("resource://modules/common.jsm");
+
+
+
+CopperChrome.mainWindow = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
 		.getInterface(Components.interfaces.nsIWebNavigation)
 		.QueryInterface(Components.interfaces.nsIDocShellTreeItem)
 		.rootTreeItem
 		.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
 		.getInterface(Components.interfaces.nsIDOMWindow);
 
-var prefManager = Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefBranch);
+CopperChrome.prefManager = Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefBranch);
 
-var coapVersion = 3;
-var blockSize = 32;
+CopperChrome.coapVersion = 3;
+CopperChrome.blockSize = 32;
 
-var hostname = '';
-var port = 61616;
-var path = '/';
-var query = '';
+CopperChrome.hostname = '';
+CopperChrome.port = 61616;
+CopperChrome.path = '/';
+CopperChrome.query = '';
 
-var client = null;
-var observer = null;
+CopperChrome.client = null;
+CopperChrome.observer = null;
 
-var resources = new Object();
-var resourcesCached = true;
+CopperChrome.resources = new Object();
+CopperChrome.resourcesCached = true;
 
 
 // Life cycle functions
 ////////////////////////////////////////////////////////////////////////////////
 
-function init() {
+CopperChrome.main = function() {
 	
 	dump('\n\n\n\n\n');
 	dump('==============================================================================\n');
@@ -77,83 +81,97 @@ function init() {
 		tabbrowser.setIcon(tabbrowser.mTabs[i], 'chrome://copper/skin/icon16.png');
 	}
 	
-	
 	// get settings from preferences
 	var auto = null; // auto-method
 	try {
-		coapVersion = prefManager.getIntPref('extensions.copper.coap-version');
-		blockSize = prefManager.getIntPref('extensions.copper.default-block-size');
-		document.getElementById('toolbar_auto_discovery').checked = prefManager.getBoolPref('extensions.copper.auto-discover');
-		document.getElementById('toolbar_retransmissions').checked = prefManager.getBoolPref('extensions.copper.retransmissions');
-		auto = prefManager.getIntPref('extensions.copper.auto-request.method');
+		CopperChrome.coapVersion = CopperChrome.prefManager.getIntPref('extensions.copper.coap-version');
+		CopperChrome.blockSize = CopperChrome.prefManager.getIntPref('extensions.copper.default-block-size');
+		document.getElementById('toolbar_auto_discovery').checked = CopperChrome.prefManager.getBoolPref('extensions.copper.auto-discover');
+		document.getElementById('toolbar_retransmissions').checked = CopperChrome.prefManager.getBoolPref('extensions.copper.retransmissions');
+		auto = CopperChrome.prefManager.getIntPref('extensions.copper.auto-request.method');
 		
 		// debug options
-		document.getElementById('chk_debug_options').checked = prefManager.getBoolPref('extensions.copper.debug.options-enabled');
-		document.getElementById('debug_option_content_type').value = prefManager.getCharPref('extensions.copper.debug.options.content-type');
-		document.getElementById('debug_option_max_age').value = prefManager.getCharPref('extensions.copper.debug.options.max-age');
-		document.getElementById('debug_option_etag').value = prefManager.getCharPref('extensions.copper.debug.options.etag');
-		document.getElementById('debug_option_uri_host').value = prefManager.getCharPref('extensions.copper.debug.options.uri-host');
-		document.getElementById('debug_option_location_path').value = prefManager.getCharPref('extensions.copper.debug.options.location-path');
-		document.getElementById('debug_option_observe').value = prefManager.getCharPref('extensions.copper.debug.options.observe');
-		document.getElementById('debug_option_token').value = prefManager.getCharPref('extensions.copper.debug.options.token');
-		document.getElementById('debug_option_block').value = prefManager.getCharPref('extensions.copper.debug.options.block');
+		document.getElementById('chk_debug_options').checked = CopperChrome.prefManager.getBoolPref('extensions.copper.debug.options-enabled');
+		document.getElementById('debug_option_content_type').value = CopperChrome.prefManager.getCharPref('extensions.copper.debug.options.content-type');
+		document.getElementById('debug_option_max_age').value = CopperChrome.prefManager.getCharPref('extensions.copper.debug.options.max-age');
+		document.getElementById('debug_option_etag').value = CopperChrome.prefManager.getCharPref('extensions.copper.debug.options.etag');
+		document.getElementById('debug_option_uri_host').value = CopperChrome.prefManager.getCharPref('extensions.copper.debug.options.uri-host');
+		document.getElementById('debug_option_location_path').value = CopperChrome.prefManager.getCharPref('extensions.copper.debug.options.location-path');
+		document.getElementById('debug_option_observe').value = CopperChrome.prefManager.getCharPref('extensions.copper.debug.options.observe');
+		document.getElementById('debug_option_token').value = CopperChrome.prefManager.getCharPref('extensions.copper.debug.options.token');
+		document.getElementById('debug_option_block').value = CopperChrome.prefManager.getCharPref('extensions.copper.debug.options.block');
 	} catch (ex) {
-		alert('WARNING: Could not load preferences. Using hardcoded defauls.');
+		window.setTimeout(
+				function() { window.alert('WARNING: Could not load preferences; using hardcoded defauls.'); },
+				0);
 	}
 	
 	
 	// load CoAP implementation
-	switch (coapVersion) {
-		case 3: Components.utils.import("resource://modules/CoapPacket03.jsm"); break;
-		default:
-			alert('WARNING: CoAP version '+coapVersion+' not implemented. Using 03.');
-			Components.utils.import("resource://modules/CoapPacket03.jsm"); break;
-			coapVersion = 0;
+	try {
+		switch (CopperChrome.coapVersion) {
+			case 3:
+				Components.utils.import("resource://modules/CoapPacket03.jsm");
+				break;
+			default:
+				window.setTimeout(
+						function() { window.alert('WARNING: CoAP version '+CopperChrome.coapVersion+' not implemented. Using 03.'); },
+						0);			
+				Components.utils.import("resource://modules/CoapPacket03.jsm"); break;
+				CopperChrome.coapVersion = 3;
+		}
+		document.getElementById('toolbar_version').label = 'CoAP ' + CopperChrome.leadingZero(CopperChrome.coapVersion,2) + ' ';
+	} catch (ex) {
+		window.setTimeout(
+				function() { window.alert('ERROR: Could not load protocol module ['+ex+']'); },
+				0);
 	}
-	document.getElementById('toolbar_version').label = 'CoAP ' + leadingZero(coapVersion,2) + ' ';
 	
 	// open location
 	try {
-		parseUri(document.location.href);
+		CopperChrome.parseUri(document.location.href);
 		
-		// debug
-		document.getElementById('debug_option_uri_path').value = path;
-		document.getElementById('debug_option_query').value = query;
-		// workaround to hide useless scrollbar
+		// debug options set by URI
+		document.getElementById('debug_option_uri_path').value = CopperChrome.path;
+		document.getElementById('debug_option_query').value = CopperChrome.query;
+		
+		// Header table workaround to hide useless scrollbar
 		document.getElementById('packet_header').focus();
 		document.getElementById('packet_options').focus();
 		
 		// set up datagram and transaction layer
-		var temp = new UdpClient(hostname, port);
-		client = new TransactionHandler(temp, document.getElementById('toolbar_retransmissions').checked);
-		client.registerCallback(defaultHandler);
+		var temp = new CopperChrome.UdpClient(CopperChrome.hostname, CopperChrome.port);
+		
+		CopperChrome.client = new CopperChrome.TransactionHandler(temp, document.getElementById('toolbar_retransmissions').checked);
+		CopperChrome.client.registerCallback(CopperChrome.defaultHandler);
 		
 		// enable observing
-		observer = new Observing();
+		CopperChrome.observer = new CopperChrome.Observing();
 		
 		// handle auto discover
-		loadCachedResources();
-		if (document.getElementById('toolbar_auto_discovery').checked) {
-			discover();
-		}
-		updateResourceLinks();
 		
-		loadDefaultPayload();
+		CopperChrome.loadCachedResources();
+		if (document.getElementById('toolbar_auto_discovery').checked) {
+			CopperChrome.discover();
+		}
+		CopperChrome.updateResourceLinks();
+		
+		CopperChrome.loadDefaultPayload();
 		
 		// handle auto-request after redirect
 		if (auto) {
 			switch (auto) {
-				case 0:      break;
-				case GET:    sendGet(); break;
-				case POST:   sendPost(prefManager.getCharPref('extensions.copper.auto-request.payload')); break;
-				case PUT:    sendPut(prefManager.getCharPref('extensions.copper.auto-request.payload')); break;
-				case DELETE: sendDelete(); break;
+				case 0:             break;
+				case Copper.GET:    sendGet(); break;
+				case Copper.POST:   sendPost(CopperChrome.prefManager.getCharPref('extensions.copper.auto-request.payload')); break;
+				case Copper.PUT:    sendPut(CopperChrome.prefManager.getCharPref('extensions.copper.auto-request.payload')); break;
+				case Copper.DELETE: sendDelete(); break;
 				default: dump('WARNING: Main.init [unknown method for auto-request: '+auto+']\n');
 			}
 			
 			// reset auto-request
-			prefManager.setIntPref('extensions.copper.auto-request.method', 0);
-			prefManager.setCharPref('extensions.copper.auto-request.payload', '');
+			CopperChrome.prefManager.setIntPref('extensions.copper.auto-request.method', 0);
+			CopperChrome.prefManager.setCharPref('extensions.copper.auto-request.payload', '');
 		}
 		
 	} catch( ex ) {
@@ -163,245 +181,247 @@ function init() {
 			obj.setAttribute("disabled", "true");
 		} while ( obj = obj.nextSibling);
 
-		updateResourceLinks();
+		CopperChrome.updateResourceLinks();
 		
 	    dump('ERROR: Main.init ['+ex+']\n');
 	}
-}
+};
 
-function unload() {
+CopperChrome.unload = function() {
 	// save as pref as persist does not work
-	prefManager.setCharPref('extensions.copper.payloads.'+hostname+':'+port, document.getElementById('toolbar_payload').value);
-	prefManager.setBoolPref('extensions.copper.auto-discover', document.getElementById('toolbar_auto_discovery').checked);
-	prefManager.setBoolPref('extensions.copper.retransmissions', document.getElementById('toolbar_retransmissions').checked);
+	CopperChrome.prefManager.setCharPref('extensions.copper.payloads.'+CopperChrome.hostname+':'+CopperChrome.port, document.getElementById('toolbar_payload').value);
+	CopperChrome.prefManager.setBoolPref('extensions.copper.auto-discover', document.getElementById('toolbar_auto_discovery').checked);
+	CopperChrome.prefManager.setBoolPref('extensions.copper.retransmissions', document.getElementById('toolbar_retransmissions').checked);
 	
 	// debug options
-	prefManager.setBoolPref('extensions.copper.debug.options-enabled', document.getElementById('chk_debug_options').checked);
-	prefManager.setCharPref('extensions.copper.debug.options.content-type', document.getElementById('debug_option_content_type').value);
-	prefManager.setCharPref('extensions.copper.debug.options.max-age', document.getElementById('debug_option_max_age').value);
-	prefManager.setCharPref('extensions.copper.debug.options.etag', document.getElementById('debug_option_etag').value);
-	prefManager.setCharPref('extensions.copper.debug.options.uri-host', document.getElementById('debug_option_uri_host').value);
-	prefManager.setCharPref('extensions.copper.debug.options.location-path', document.getElementById('debug_option_location_path').value);
-	prefManager.setCharPref('extensions.copper.debug.options.observe', document.getElementById('debug_option_observe').value);
-	prefManager.setCharPref('extensions.copper.debug.options.token', document.getElementById('debug_option_token').value);
-	prefManager.setCharPref('extensions.copper.debug.options.block', document.getElementById('debug_option_block').value);
+	CopperChrome.prefManager.setBoolPref('extensions.copper.debug.options-enabled', document.getElementById('chk_debug_options').checked);
+	CopperChrome.prefManager.setCharPref('extensions.copper.debug.options.content-type', document.getElementById('debug_option_content_type').value);
+	CopperChrome.prefManager.setCharPref('extensions.copper.debug.options.max-age', document.getElementById('debug_option_max_age').value);
+	CopperChrome.prefManager.setCharPref('extensions.copper.debug.options.etag', document.getElementById('debug_option_etag').value);
+	CopperChrome.prefManager.setCharPref('extensions.copper.debug.options.uri-host', document.getElementById('debug_option_uri_host').value);
+	CopperChrome.prefManager.setCharPref('extensions.copper.debug.options.location-path', document.getElementById('debug_option_location_path').value);
+	CopperChrome.prefManager.setCharPref('extensions.copper.debug.options.observe', document.getElementById('debug_option_observe').value);
+	CopperChrome.prefManager.setCharPref('extensions.copper.debug.options.token', document.getElementById('debug_option_token').value);
+	CopperChrome.prefManager.setCharPref('extensions.copper.debug.options.block', document.getElementById('debug_option_block').value);
 	
-	client.shutdown();
-}
+	CopperChrome.client.shutdown();
+};
 
 
 // CoAP message handlers
 ////////////////////////////////////////////////////////////////////////////////
 
 // Handle normal incoming messages, registered as default at TransactionHandler
-function defaultHandler(message) {
+CopperChrome.defaultHandler = function(message) {
 	dump('INFO: defaultHandler()\n');
 
-	updateLabel('info_code', message.getCode());
-	updateMessageInfo(message);
-	
 	// if message turns out to be block-wise transfer dispatch to corresponding handler
-	if (message.isOption(OPTION_BLOCK)) {
-		return blockwiseHandler(message);
+	if (message.isOption(Copper.OPTION_BLOCK)) {
+		return CopperChrome.blockwiseHandler(message);
 	}
+
+	CopperChrome.updateLabel('info_code', message.getCode());
+	CopperChrome.updateMessageInfo(message);
 	
-	updateLabel('packet_payload', message.getPayload());
+	CopperChrome.updateLabel('packet_payload', message.getPayload());
 	
-	if (message.getContentType()==40) {
-		updateResourceLinks( parseLinkFormat(message.getPayload()) );
+	if (message.getContentType()==Copper.CONTENT_TYPE_APPLICATION_LINK_FORMAT) {
+		CopperChrome.updateResourceLinks( CopperChrome.parseLinkFormat(message.getPayload()) );
 	}
-}
+};
 
 // Handle messages with block-wise transfer
-function blockwiseHandler(message) {
+CopperChrome.blockwiseHandler = function(message) {
 	dump('INFO: blockwiseHandler()\n');
 	
-	updateLabel('info_code', ' (Blockwise)', true);
+	CopperChrome.updateLabel('info_code', message.getCode() + ' (Blockwise)');
+	CopperChrome.updateMessageInfo(message);
 	
-	if (message.isOption(OPTION_BLOCK)) {
+	if (message.isOption(Copper.OPTION_BLOCK)) {
 		
 		if (message.getBlockMore()) {
 			
-			if (message.getBlockSize()!=blockSize) {
-				sendBlockwiseGet(0, blockSize);
+			if (message.getBlockSize()!=CopperChrome.blockSize) {
+				CopperChrome.sendBlockwiseGet(0, CopperChrome.blockSize);
 			} else {
-				sendBlockwiseGet(message.getBlockNumber()+1, blockSize);
+				CopperChrome.sendBlockwiseGet(message.getBlockNumber()+1, CopperChrome.blockSize);
 			}
 		}
-		updateLabel('packet_payload', message.getPayload(), message.getBlockNumber()>0);
+		CopperChrome.updateLabel('packet_payload', message.getPayload(), message.getBlockNumber()>0);
 		
 	} else {
-		updateLabel('packet_payload', message.getPayload());
+		CopperChrome.updateLabel('packet_payload', message.getPayload());
 	}
-}
+};
 
 //Handle messages with block-wise transfer
-function observingHandler(message) {
+CopperChrome.observingHandler = function(message) {
 	dump('INFO: observingHandler()\n');
 	
-	if (message.isOption(OPTION_OBSERVE)) {
+	if (message.isOption(Copper.OPTION_OBSERVE)) {
 		
-		updateLabel('info_code', message.getCode() + ' (Observing)');
-		updateMessageInfo(message);
+		CopperChrome.updateLabel('info_code', message.getCode() + ' (Observing)');
+		CopperChrome.updateMessageInfo(message);
 		
-		updateLabel('packet_payload', message.getPayload());
+		CopperChrome.updateLabel('packet_payload', message.getPayload());
 	} else {
-		updateLabel('info_code', 'Observing not supported');
+		CopperChrome.updateLabel('info_code', 'Observing not supported');
 	}
-}
+};
 
 // Handle messages with link format payload 
-function discoverHandler(message) {
+CopperChrome.discoverHandler = function(message) {
 	dump('INFO: discoverHandler()\n');
-	if (message.getContentType()==40) {
+	if (message.getContentType()==Copper.CONTENT_TYPE_APPLICATION_LINK_FORMAT) {
 		// link-format
-		resourcesCached = false;
+		CopperChrome.resourcesCached = false;
 		
-		updateResourceLinks( parseLinkFormat(message.getPayload()) );
+		CopperChrome.updateResourceLinks( CopperChrome.parseLinkFormat(message.getPayload()) );
 	} else {
 		alert('ERROR: Main.discoverHandler [no link format in payload]');
 	}
-}
+};
 
 
 // Toolbar commands
 ////////////////////////////////////////////////////////////////////////////////
 
-function sendGet(uri) {
+CopperChrome.sendGet = function(uri) {
 	try {
-		client.cancelTransactions();
+		CopperChrome.client.cancelTransactions();
 		
-		uri = checkUri(uri, GET);
+		uri = CopperChrome.checkUri(uri, Copper.GET);
 		
-		var message = new CoapMessage(MSG_TYPE_CON, GET, uri);
+		var message = new CopperChrome.CoapMessage(Copper.MSG_TYPE_CON, Copper.GET, uri);
 		
-		checkDebugOptions(message);
+		CopperChrome.checkDebugOptions(message);
 		
-		clearLabels();	
-		client.send( message );
+		CopperChrome.clearLabels();	
+		CopperChrome.client.send( message );
 	} catch (ex) {
 		alert('ERROR: Main.sendGet ['+ex+']');
 	}
-}
-function sendBlockwiseGet(num, size, uri) {
+};
+CopperChrome.sendBlockwiseGet = function(num, size, uri) {
 	try {
-		client.cancelTransactions();
+		CopperChrome.client.cancelTransactions();
 	
 		if (!num) num = 0;
-		if (!size) size = blockSize;
-		uri = checkUri(uri, GET);
+		if (!size) size = CopperChrome.blockSize;
+		uri = CopperChrome.checkUri(uri, Copper.GET);
 		
-		var message = new CoapMessage(MSG_TYPE_CON, GET, uri);
+		var message = new CopperChrome.CoapMessage(Copper.MSG_TYPE_CON, Copper.GET, uri);
 		
+		CopperChrome.checkDebugOptions(message);
+		
+		// (re)set to useful block option
 		message.setBlock(num, size);
 		
-		checkDebugOptions(message);
-		
-		if (num=0) clearLabels();
-		client.send( message );
+		if (num=0) CopperChrome.clearLabels();
+		CopperChrome.client.send( message, CopperChrome.blockwiseHandler );
 	} catch (ex) {
 		alert('ERROR: Main.sendBlockwiseGet ['+ex+']');
 	}
-}
+};
 
 //TODO: blockwise POST
-function sendPost(pl, uri) {
+CopperChrome.sendPost = function(pl, uri) {
 	try {
-		client.cancelTransactions();
+		CopperChrome.client.cancelTransactions();
 	
-		uri = checkUri(uri, POST);
+		uri = CopperChrome.checkUri(uri, Copper.POST);
 		
-		var message = new CoapMessage(MSG_TYPE_CON, POST, uri, pl);
+		var message = new CopperChrome.CoapMessage(Copper.MSG_TYPE_CON, Copper.POST, uri, pl);
 		
-		checkDebugOptions(message);
+		CopperChrome.checkDebugOptions(message);
 		
-		clearLabels();
-		client.send( message );
+		CopperChrome.clearLabels();
+		CopperChrome.client.send( message );
 	} catch (ex) {
 		alert('ERROR: Main.sendPost ['+ex+']');
 	}
-}
+};
 
 //TODO: blockwise PUT
-function sendPut(pl, uri) {
+CopperChrome.sendPut = function(pl, uri) {
 	try {
-		client.cancelTransactions();
+		CopperChrome.client.cancelTransactions();
 		
-		uri = checkUri(uri, PUT);
+		uri = CopperChrome.checkUri(uri, Copper.PUT);
 		
-		var message = new CoapMessage(MSG_TYPE_CON, PUT, uri, pl);
+		var message = new CopperChrome.CoapMessage(Copper.MSG_TYPE_CON, Copper.PUT, uri, pl);
 		
-		checkDebugOptions(message);
+		CopperChrome.checkDebugOptions(message);
 		
-		clearLabels();
-		client.send( message );
+		CopperChrome.clearLabels();
+		CopperChrome.client.send( message );
 	} catch (ex) {
 		alert('ERROR: Main.sendPut ['+ex+']');
 	}
-}
+};
 
-function sendDelete(uri) {
+CopperChrome.sendDelete = function(uri) {
 	try {
-		client.cancelTransactions();
+		CopperChrome.client.cancelTransactions();
 		
-		uri = checkUri(uri, DELETE);
+		uri = CopperChrome.checkUri(uri, Copper.DELETE);
 		
-		var message = new CoapMessage(MSG_TYPE_CON, DELETE, uri);
+		var message = new CopperChrome.CoapMessage(Copper.MSG_TYPE_CON, Copper.DELETE, uri);
 		
-		checkDebugOptions(message);
+		CopperChrome.checkDebugOptions(message);
 		
-		clearLabels();
-		client.send( message );
+		CopperChrome.clearLabels();
+		CopperChrome.client.send( message );
 	} catch (ex) {
 		alert('ERROR: Main.sendDelete ['+ex+']');
 	}
-}
+};
 
-function observe(uri) {
+CopperChrome.observe = function(uri) {
 	try {
-		client.cancelTransactions();
+		CopperChrome.client.cancelTransactions();
 		
-		uri = checkUri(uri, DELETE);
+		uri = CopperChrome.checkUri(uri);
 
-		observer.subscribe(uri, observingHandler);
+		CopperChrome.observer.subscribe(uri, CopperChrome.observingHandler);
 		
 	} catch (ex) {
-		alert('ERROR: Main.sendDelete ['+ex+']');
+		alert('ERROR: Main.observe ['+ex+']');
 	}
-}
+};
 
-function discover() {
+CopperChrome.discover = function() {
 	try {
-		var message = new CoapMessage(MSG_TYPE_CON, GET, WELL_KNOWN_RESOURCES);
+		var message = new CopperChrome.CoapMessage(Copper.MSG_TYPE_CON, Copper.GET, Copper.WELL_KNOWN_RESOURCES);
 		
-		client.send( message, discoverHandler );
+		CopperChrome.client.send( message, CopperChrome.discoverHandler );
 	} catch (ex) {
 		alert('ERROR: Main.discover ['+ex+']');
 	}
-}
+};
 
 // like discover, but resets cached resources -- used for the button
-function reDiscover() {
+CopperChrome.reDiscover = function() {
 	dump('INFO: resetting cached resources\n');
-	prefManager.setCharPref('extensions.copper.resources.'+hostname+':'+port, '' );
-	resources = new Object();
+	CopperChrome.prefManager.setCharPref('extensions.copper.resources.'+CopperChrome.hostname+':'+CopperChrome.port, '' );
+	CopperChrome.resources = new Object();
 	
-	discover();
-}
+	CopperChrome.discover();
+};
 
 // Addon settings
 ////////////////////////////////////////////////////////////////////////////////
 
-function settingRetransmissions() {
-	client.setRetransmissions(document.getElementById('toolbar_retransmissions').checked);
-	prefManager.setBoolPref('extensions.copper.retransmissions', document.getElementById('toolbar_retransmissions').checked);
-}
+CopperChrome.settingRetransmissions = function() {
+	CopperChrome.client.setRetransmissions(document.getElementById('toolbar_retransmissions').checked);
+	CopperChrome.prefManager.setBoolPref('extensions.copper.retransmissions', document.getElementById('toolbar_retransmissions').checked);
+};
 
 
 // Helper functions
 ////////////////////////////////////////////////////////////////////////////////
 
-function parseUri(uri) {
+CopperChrome.parseUri = function(uri) {
 
 /*	
 	( 'coap:' )
@@ -420,42 +440,42 @@ function parseUri(uri) {
 			return;
 		}
 		
-		hostname = tokens[2];
-		port = tokens[5] ? tokens[5] : port;
-		path = tokens[6] ? tokens[6] : path;
-		query = tokens[10] ? tokens[10] : '';
+		CopperChrome.hostname = tokens[2];
+		CopperChrome.port = tokens[5] ? tokens[5] : CopperChrome.port;
+		CopperChrome.path = tokens[6] ? tokens[6] : CopperChrome.path;
+		CopperChrome.query = tokens[10] ? tokens[10] : '';
 		
-		document.title = hostname + path;
+		document.title = CopperChrome.hostname + CopperChrome.path;
 		
-		document.getElementById('info_authority').label = '' + hostname + ':' + port;
+		document.getElementById('info_authority').label = '' + CopperChrome.hostname + ':' + CopperChrome.port;
 	} else {
 		// no valid URI
 		document.getElementById('info_authority').label = 'Invalid URI';
 		throw 'invalid URI';
 	}
-}
+};
 
 // Set the default URI and also check for modified Firefox URL bar
-function checkUri(uri, method, pl) {
+CopperChrome.checkUri = function(uri, method, pl) {
 	if (!uri) {
 		// when urlbar was changed without pressing enter, redirect and perform request
-		if (method && (document.location.href != encodeURI(mainWindow.document.getElementById('urlbar').value))) {
+		if (method && (document.location.href != encodeURI(CopperChrome.mainWindow.document.getElementById('urlbar').value))) {
 			//alert('You edited the URL bar:\n'+document.location.href+'\n'+mainWindow.document.getElementById('urlbar').value);
 			
 			// schedule the request to start automatically at new location
-			prefManager.setIntPref('extensions.copper.auto-request.method', method);
-			prefManager.setCharPref('extensions.copper.auto-request.payload', String(pl));
+			CopperChrome.prefManager.setIntPref('extensions.copper.auto-request.method', method);
+			CopperChrome.prefManager.setCharPref('extensions.copper.auto-request.payload', String(pl));
 			
 			// redirect
-			document.location.href = mainWindow.document.getElementById('urlbar').value;
+			document.location.href = CopperChrome.mainWindow.document.getElementById('urlbar').value;
 		}
-		return path + (query ? '?'+query : '');
+		return CopperChrome.path + (CopperChrome.query ? '?'+CopperChrome.query : '');
 	} else {
 		return uri;
 	}
-}
+};
 
-function checkDebugOptions(message) {
+CopperChrome.checkDebugOptions = function(message) {
 	if (document.getElementById('chk_debug_options').checked) {
 		if (document.getElementById('debug_option_content_type').value!='') {
 			message.setContentType(parseInt(document.getElementById('debug_option_content_type').value));
@@ -479,40 +499,40 @@ function checkDebugOptions(message) {
 			message.setToken(parseInt(document.getElementById('debug_option_token').value));
 		}
 		if (document.getElementById('debug_option_block').value!='') {
-			message.setBlock(parseInt(document.getElementById('debug_option_block').value), blockSize);
+			message.setBlock(parseInt(document.getElementById('debug_option_block').value), CopperChrome.blockSize);
 		}
 	}
-}
+};
 
 // Load cached resource links from preferences
-function loadCachedResources() {
+CopperChrome.loadCachedResources = function() {
 	try {
 		dump('INFO: loading cached resource links\n');
-		resources = JSON.parse( prefManager.getCharPref('extensions.copper.resources.'+hostname+':'+port) );
+		CopperChrome.resources = JSON.parse( CopperChrome.prefManager.getCharPref('extensions.copper.resources.'+CopperChrome.hostname+':'+CopperChrome.port) );
 	} catch( ex ) {
-	    dump('INFO: no cached links for '+hostname+':'+port+' yet\n');
+	    dump('INFO: no cached links for '+CopperChrome.hostname+':'+CopperChrome.port+' yet\n');
 	}
 	
 	// add well-known resource to resource cache
-	if (!resources[WELL_KNOWN_RESOURCES]) {
-		resources[WELL_KNOWN_RESOURCES] = new Object();
-		resources[WELL_KNOWN_RESOURCES]['ct'] = '40';
-		resources[WELL_KNOWN_RESOURCES]['title'] = 'Resource discovery';
+	if (!CopperChrome.resources[Copper.WELL_KNOWN_RESOURCES]) {
+		CopperChrome.resources[Copper.WELL_KNOWN_RESOURCES] = new Object();
+		CopperChrome.resources[Copper.WELL_KNOWN_RESOURCES]['ct'] = '40';
+		CopperChrome.resources[Copper.WELL_KNOWN_RESOURCES]['title'] = 'Resource discovery';
 	}
-}
+};
 
 // Load last used payload from preferences, otherwise use default payload
-function loadDefaultPayload() {
-	var pl = prefManager.getCharPref('extensions.copper.payloads.default');
+CopperChrome.loadDefaultPayload = function() {
+	var pl = CopperChrome.prefManager.getCharPref('extensions.copper.payloads.default');
 	try {
-		pl = prefManager.getCharPref('extensions.copper.payloads.'+hostname+':'+port);
+		pl = CopperChrome.prefManager.getCharPref('extensions.copper.payloads.'+CopperChrome.hostname+':'+CopperChrome.port);
 	} catch( ex ) {
-	    dump('INFO: no default payload for '+hostname+':'+port+' yet\n');
+	    dump('INFO: no default payload for '+CopperChrome.hostname+':'+CopperChrome.port+' yet\n');
 	}
 	document.getElementById('toolbar_payload').value = pl;
-}
+};
 
-function parseLinkFormat(data) {
+CopperChrome.parseLinkFormat = function(data) {
 	
 	var links = new Object();
 	
@@ -550,15 +570,15 @@ function parseLinkFormat(data) {
 	dump(' -----------------------------------------------\n');
 	
 	return links;
-}
+};
 
-function updateResourceLinks(add) {
+CopperChrome.updateResourceLinks = function(add) {
 	
 	// merge links
 	if (add) {
 		for (uri in add) {
-			if (!resources[uri]) {
-				resources[uri] = add[uri];
+			if (!CopperChrome.resources[uri]) {
+				CopperChrome.resources[uri] = add[uri];
 				dump('INFO: adding '+uri+' to host resources\n');
 			}
 		}
@@ -570,7 +590,7 @@ function updateResourceLinks(add) {
 	
 	// sort by path
 	var sorted = new Array();
-	for (uri in resources) {
+	for (uri in CopperChrome.resources) {
 		sorted.push(uri);
 	}
 	sorted.sort();
@@ -578,34 +598,34 @@ function updateResourceLinks(add) {
 	for (entry in sorted) {
 		var uri = sorted[entry];
 		
-		var button = document.createElement("button");
-		button.setAttribute("label", uri.replace(/%20/g, ' '));
-		button.setAttribute("oncommand","document.location.href='coap://" + hostname + ":" + port + uri + "';");
+		var button = document.createElement('button');
+		button.setAttribute('label', decodeURI(uri));
+		button.setAttribute('oncommand',"document.location.href='coap://" + CopperChrome.hostname + ':' + CopperChrome.port + uri + "';");
 		
 		var tooltiptext = '';
-		for (var attrib in resources[uri]) {
+		for (var attrib in CopperChrome.resources[uri]) {
 			if (tooltiptext) tooltiptext += ', ';
-			tooltiptext += attrib + '=' + resources[uri][attrib];
+			tooltiptext += attrib + '=' + CopperChrome.resources[uri][attrib];
 		}
-		button.setAttribute("tooltiptext", tooltiptext);
+		button.setAttribute('tooltiptext', tooltiptext);
 		
-		if (resourcesCached) {
-			button.setAttribute("style", "color: red;");
+		if (CopperChrome.resourcesCached) {
+			button.setAttribute('style', 'color: red;');
 		}
 		
 		// highlight current resource
-		if (uri==path) {
-			button.setAttribute("style", "font-weight: bold; text-shadow: 2px 2px 3px #666666;");
+		if (uri==CopperChrome.path) {
+			button.setAttribute('style', 'font-weight: bold; text-shadow: 2px 2px 3px #666666;');
 		}
 		
 		list.appendChild(button);
 	}
 	
 	// save in cache
-	prefManager.setCharPref('extensions.copper.resources.'+hostname+':'+port, JSON.stringify(resources) );
-}
+	CopperChrome.prefManager.setCharPref('extensions.copper.resources.'+CopperChrome.hostname+':'+CopperChrome.port, JSON.stringify(CopperChrome.resources) );
+};
 
-function updateMessageInfo(message) {
+CopperChrome.updateMessageInfo = function(message) {
 
 	document.getElementById('packet_header_type').setAttribute('label', message.getType(true));
 	document.getElementById('packet_header_oc').setAttribute('label', message.getOptionCount(true));
@@ -634,19 +654,19 @@ function updateMessageInfo(message) {
 
         optionList.appendChild(row);
     }
-}
+};
 
-function updateLabel(id, value, append) {
+CopperChrome.updateLabel = function(id, value, append) {
 	if (append) {
 		document.getElementById(id).value += value;
 	} else {
 		document.getElementById(id).value = value;
 	}
-}
+};
 
-function clearLabels() {
-	updateLabel('info_code', '');
-	updateLabel('packet_payload', '');
+CopperChrome.clearLabels = function() {
+	CopperChrome.updateLabel('info_code', '');
+	CopperChrome.updateLabel('packet_payload', '');
 
 	document.getElementById('packet_header_type').setAttribute('label', '');
 	document.getElementById('packet_header_oc').setAttribute('label', '');
@@ -655,36 +675,26 @@ function clearLabels() {
 	
 	var optionList = document.getElementById('packet_options');
 	while (optionList.getRowCount()) optionList.removeItemAt(0);
-}
+};
 
-function leadingZero(num, len) {
+CopperChrome.leadingZero = function(num, len) {
 	if (!len) len = 2;
 	num = ''+num;
 	while (num.length<len) num = '0'+num;
 	return num;
-}
+};
 
-function isPowerOfTwo(i) {
+CopperChrome.isPowerOfTwo = function(i) {
 	return ((i & (i-1))==0);
-}
-
-function isArray(obj) {
-    if (obj == null) return false;
-    return obj.constructor == Array;
-}
-
-function isDefined(variable) {
-    return (typeof(window[variable]) == 'undefined') ?  false : true;
-}
+};
 
 // workaround for "this" losing scope when passing callback functions
-function myBind(scope, fn) {
+CopperChrome.myBind = function(scope, fn) {
     return function () {
         fn.apply(scope, arguments);
     };
-}
+};
 
-const toast = Components.classes['@mozilla.org/alerts-service;1'].getService(Components.interfaces.nsIAlertsService).showAlertNotification;
-function popup(title, str) {
-	toast('chrome://copper/skin/icon24.png',title,str);
+CopperChrome.popup = function(title, str) {
+	Components.classes['@mozilla.org/alerts-service;1'].getService(Components.interfaces.nsIAlertsService).showAlertNotification('chrome://copper/skin/icon24.png',title,str);
 };

@@ -35,21 +35,21 @@
  * \author  Matthias Kovatsch <kovatsch@inf.ethz.ch>\author
  */
 
-function ObserveEntry(uri, cb) {
+CopperChrome.ObserveEntry = function(uri, cb) {
 	this.uri = uri;
 	this.callback = cb;
-}
-ObserveEntry.prototype = {
+};
+CopperChrome.ObserveEntry.prototype = {
 	uri : null,
 	callback: null
 };
 
-function Observing() {
+CopperChrome.Observing = function() {
 	this.subscriptions = new Object();
 	this.uri2token = new Object();
-}
+};
 
-Observing.prototype = {
+CopperChrome.Observing.prototype = {
 	subscriptions : null,
 	uri2token: null,
 	
@@ -71,14 +71,14 @@ Observing.prototype = {
 		
 		this.pending = token;
 		
-		this.subscriptions[token] = new ObserveEntry(uri, cb);
+		this.subscriptions[token] = new CopperChrome.ObserveEntry(uri, cb);
 		
-		var subscribe = new CoapMessage(MSG_TYPE_CON, GET, uri);
+		var subscribe = new CopperChrome.CoapMessage(Copper.MSG_TYPE_CON, Copper.GET, uri);
 		subscribe.setObserve(60);
 		subscribe.setToken(token);
 		
 		var that = this;
-		client.send(subscribe, myBind(this,this.initSubscription));
+		CopperChrome.client.send(subscribe, CopperChrome.myBind(that,that.initSubscription));
 		
 		return token;
 	},
@@ -89,7 +89,7 @@ Observing.prototype = {
 			throw 'no subscription pending';
 		}
 		
-		if (message.isOption(OPTION_OBSERVE) && message.getToken()==this.pending) {
+		if (message.isOption(Copper.OPTION_OBSERVE) && message.getToken()==this.pending) {
 			// server supports observing this resource
 			this.subscriptions[this.pending].callback(message);
 			this.pending = null;

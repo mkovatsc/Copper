@@ -41,7 +41,7 @@
  * A workaround will probably need native code to provide a datagram handler (transport-service) that pipes them to/from Firefox.
  */ 
 
-function UdpClient(myHost, myPort) {
+CopperChrome.UdpClient = function(myHost, myPort) {
 
 	this.host = myHost.replace(/\[/,'').replace(/\]/,'');
 	this.port = myPort;
@@ -56,9 +56,9 @@ function UdpClient(myHost, myPort) {
 	
     this.pump.init(this.inputStream, -1, -1, 0, 0, false);
 	this.pump.asyncRead(this, null);
-}
+};
 
-UdpClient.prototype = {
+CopperChrome.UdpClient.prototype = {
 
 	host             : '',
 	port             : -1,
@@ -139,6 +139,7 @@ UdpClient.prototype = {
 	}
 };
 
+/*
 function showByte(b) {
 	var str = '';
 	for (var j=0; j<8; j++) {
@@ -146,3 +147,4 @@ function showByte(b) {
 	}
 	dump('UDP byte ' + b + ': ' + str + '\n');
 }
+*/

@@ -10,8 +10,10 @@
 				orient				= "vertical"
 				xmlns				 = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
 				xmlns:html		= "http://www.w3.org/1999/xhtml"
-				onload				= "init()"
-				onunload			= "unload()">
+				onload				= "CopperChrome.main()"
+				onunload			= "CopperChrome.unload()">
+
+<script type="application/x-javascript" src="chrome://copper/content/namespace.js"/>
 
 <script type="application/x-javascript" src="chrome://copper/content/Main.js"/>
 <script type="application/x-javascript" src="chrome://copper/content/CoapMessage.js"/>
@@ -25,10 +27,10 @@
 <toolbar id="main_toolbar"	align="center">
 
 	<toolbaritem id="toolbar_methods">
-		<toolbarbutton id="toolbar_get" label="GET" image="chrome://copper/skin/tool_get.png" oncommand="sendGet();"/>
-		<toolbarbutton id="toolbar_post" label="POST" image="chrome://copper/skin/tool_post.png" oncommand="sendPost(document.getElementById('toolbar_payload').value);"/>
-		<toolbarbutton id="toolbar_put" label="PUT" image="chrome://copper/skin/tool_put.png" oncommand="sendPut(document.getElementById('toolbar_payload').value);"/>
-		<toolbarbutton id="toolbar_delete" label="DELETE" image="chrome://copper/skin/tool_delete.png" oncommand="sendDelete();"/>
+		<toolbarbutton id="toolbar_get" label="GET" image="chrome://copper/skin/tool_get.png" oncommand="CopperChrome.sendGet();"/>
+		<toolbarbutton id="toolbar_post" label="POST" image="chrome://copper/skin/tool_post.png" oncommand="CopperChrome.sendPost(document.getElementById('toolbar_payload').value);"/>
+		<toolbarbutton id="toolbar_put" label="PUT" image="chrome://copper/skin/tool_put.png" oncommand="CopperChrome.sendPut(document.getElementById('toolbar_payload').value);"/>
+		<toolbarbutton id="toolbar_delete" label="DELETE" image="chrome://copper/skin/tool_delete.png" oncommand="CopperChrome.sendDelete();"/>
 	</toolbaritem>
 	
   <label control="toolbar_payload" value="Payload"/><!-- sticks to the top if it is inside a toolbaritem -->
@@ -37,13 +39,13 @@
 	</toolbaritem>
 	
 	<toolbaritem id="toolbar_special">
-		<toolbarbutton id="toolbar_observe" label="Observe" tooltiptext="Subscribe to the resource" image="chrome://copper/skin/tool_observe.png" oncommand="observe();"/>
-		<toolbarbutton id="toolbar_discover" label="Discover" tooltiptext="GET link-formats from the well-known URI (cached resources are displayed in red)" image="chrome://copper/skin/tool_discover.png" oncommand="reDiscover();"/>
+		<toolbarbutton id="toolbar_observe" label="Observe" tooltiptext="Subscribe to the resource" image="chrome://copper/skin/tool_observe.png" oncommand="CopperChrome.observe();"/>
+		<toolbarbutton id="toolbar_discover" label="Discover" tooltiptext="GET link-formats from the well-known URI (cached resources are displayed in red)" image="chrome://copper/skin/tool_discover.png" oncommand="CopperChrome.reDiscover();"/>
 	</toolbaritem>
 	
 	<toolbaritem id="toolbar_settings">
 		<checkbox id="toolbar_auto_discovery" label="Auto discovery" tooltiptext="Automatically GET link-formats when opening a location"/>
-		<checkbox id="toolbar_retransmissions" label="Retransmissions" tooltiptext="Retransmit unconfirmed packets" checked="false" oncommand="settingRetransmissions();"/>
+		<checkbox id="toolbar_retransmissions" label="Retransmissions" tooltiptext="Retransmit unconfirmed packets" checked="false" oncommand="CopperChrome.settingRetransmissions();"/>
 	</toolbaritem>
 	
 	<toolbarspacer flex="1"/>

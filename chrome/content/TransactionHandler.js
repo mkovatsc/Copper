@@ -35,14 +35,14 @@
  * \author  Matthias Kovatsch <kovatsch@inf.ethz.ch>\author
  */
 
-function Transaction(myMessage, myTimer, myCB) {
+CopperChrome.Transaction = function(myMessage, myTimer, myCB) {
 	this.message = myMessage;
 	this.timer = myTimer;
 	this.cb = myCB;
 	
 	this.retries = 0;
-}
-Transaction.prototype = {
+};
+CopperChrome.Transaction.prototype = {
 	message : null,
 	timer : null,
 	cb : null,
@@ -50,18 +50,18 @@ Transaction.prototype = {
 	retries : 0
 };
 
-function TransactionHandler(myClient, retrans) {
+CopperChrome.TransactionHandler = function(myClient, retrans) {
 	
 	this.tid = 0xFFFF & parseInt( Math.random() * 0xFFFF);
 	
 	this.client = myClient;
-	this.client.register( myBind(this, this.handle) );
+	this.client.register( CopperChrome.myBind(this, this.handle) );
 	
 	this.retransmissions = retrans!=null ? retrans : true;
 	this.transactions = new Object();
-}
+};
 
-TransactionHandler.prototype = {
+CopperChrome.TransactionHandler.prototype = {
 
 	tid : 0,
 
@@ -102,7 +102,7 @@ TransactionHandler.prototype = {
 	
 	send : function(message, tidCB) {
 		// set transaction ID for message
-		if (message.getType()!=MSG_TYPE_ACK && message.getType()!=MSG_TYPE_RST) {
+		if (message.getType()!=Copper.MSG_TYPE_ACK && message.getType()!=Copper.MSG_TYPE_RST) {
 			message.setTID( this.incTID() );
 		}
 		
@@ -113,12 +113,12 @@ TransactionHandler.prototype = {
 		if (message.isConfirmable()) {
 			if (this.retransmissions) {
 				// schedule resend
-				timer = window.setTimeout(function(){myBind(that,that.resend(message.getTID()));}, RESPONSE_TIMEOUT);
+				timer = window.setTimeout(function(){myBind(that,that.resend(message.getTID()));}, Copper.RESPONSE_TIMEOUT);
 			} else {
 				// also schedule 'not responding' timeout when retransmissions are disabled 
-				timer = window.setTimeout(function(){myBind(that,that.resend(message.getTID()));}, 16*RESPONSE_TIMEOUT);
+				timer = window.setTimeout(function(){myBind(that,that.resend(message.getTID()));}, 16*Copper.RESPONSE_TIMEOUT);
 			}
-			this.transactions[message.getTID()] = new Transaction(message, timer, tidCB);
+			this.transactions[message.getTID()] = new CopperChrome.Transaction(message, timer, tidCB);
 		}
 		
 		// and send
@@ -131,12 +131,12 @@ TransactionHandler.prototype = {
 	resend : function(tid) {
 		
 		// check this.retransmissions, as they can be disabled intermediately
-		if (this.retransmissions && this.transactions[tid] && this.transactions[tid].retries < MAX_RETRANSMIT) {
+		if (this.retransmissions && this.transactions[tid] && this.transactions[tid].retries < Copper.MAX_RETRANSMIT) {
 			
 			var that = this;
 			this.transactions[tid].retries = this.transactions[tid].retries+1;
 			
-			var timeout = RESPONSE_TIMEOUT*Math.pow(2,this.transactions[tid].retries);
+			var timeout = Copper.RESPONSE_TIMEOUT*Math.pow(2,this.transactions[tid].retries);
 			this.transactions[tid].timer = window.setTimeout(function(){myBind(that,that.resend(tid));}, timeout);
 			
 			dump('=re-sending CoAP message\n');
@@ -156,7 +156,7 @@ TransactionHandler.prototype = {
 	
 	handle : function(datagram) {
 		// parse byte message to CoAP packet
-		var message = new CoapMessage();
+		var message = new CopperChrome.CoapMessage();
 		message.parse(datagram);
 		
 		dump('=received CoAP message==\n');
@@ -174,12 +174,12 @@ TransactionHandler.prototype = {
 			this.transactions[message.getTID()] = null;
 			
 		// handle observing
-		} else if (observer && message.getToken() && observer.isRegisteredToken(message.getToken())) {
+		} else if (CopperChrome.observer && message.getToken() && CopperChrome.observer.isRegisteredToken(message.getToken())) {
 			dump('=observing==============\n');
-			callback = observer.getSubscriberCallback(message.getToken());
+			callback = CopperChrome.observer.getSubscriberCallback(message.getToken());
 
 			// handle confirmables
-			if (message.getType()==MSG_TYPE_CON) {
+			if (message.getType()==Copper.MSG_TYPE_CON) {
 				this.ack(message.getTID());
 			}
 			
@@ -187,7 +187,7 @@ TransactionHandler.prototype = {
 			dump('WARNING: TransactionHandler.handle [unknown transaction and token]\n');
 			
 			// handle confirmables
-			if (message.getType()==MSG_TYPE_CON) {
+			if (message.getType()==Copper.MSG_TYPE_CON) {
 				this.reset(message.getTID());
 			}
 		}
@@ -197,19 +197,19 @@ TransactionHandler.prototype = {
 	},
 	
 	ack : function(tid) {
-		var ack = new CoapMessage(MSG_TYPE_ACK);
+		var ack = new CopperChrome.CoapMessage(Copper.MSG_TYPE_ACK);
 		ack.setTID( tid );
 		
 		this.send( ack );
-		popup(hostname+':'+port, 'Sending ACK for transaction '+tid);
+		CopperChrome.popup(CopperChrome.hostname+':'+CopperChrome.port, 'Sending ACK for transaction '+tid);
 	},
 	
 	reset : function(tid) {
-		var rst = new CoapMessage(MSG_TYPE_RST);
+		var rst = new CopperChrome.CoapMessage(Copper.MSG_TYPE_RST);
 		rst.setTID( tid );
 		
 		this.send( rst );
-		popup(hostname+':'+port, 'Sending RST for transaction '+tid);
+		CopperChrome.popup(CopperChrome.hostname+':'+CopperChrome.port, 'Sending RST for transaction '+tid);
 	},
 	
 	shutdown : function() {

@@ -44,8 +44,8 @@
  */
 
 //create a request/ack, received responses use parse()
-function CoapMessage(type, code, uri, pl) {
-	this.packet = new CoapPacket();
+CopperChrome.CoapMessage = function(type, code, uri, pl) {
+	this.packet = new Copper.CoapPacket();
 	
 	this.packet.type = type;
 	this.packet.code = code ? code : 0;
@@ -58,9 +58,9 @@ function CoapMessage(type, code, uri, pl) {
 	if (pl!=null) {
 		this.setPayload(pl);
 	}
-}
+};
 
-CoapMessage.prototype = {
+CopperChrome.CoapMessage.prototype = {
 	packet : null,
 	
 	// message summary (e.g., for info/debug dumps)
@@ -78,10 +78,10 @@ CoapMessage.prototype = {
 	getType : function(readable) {
 		if (readable) {
 			switch (parseInt(this.packet.type)) {
-				case MSG_TYPE_CON: return 'Confirmable';
-				case MSG_TYPE_NON: return 'Non-Confirmable';
-				case MSG_TYPE_ACK: return 'Acknowledgment';
-				case MSG_TYPE_RST: return 'Reset';
+				case Copper.MSG_TYPE_CON: return 'Confirmable';
+				case Copper.MSG_TYPE_NON: return 'Non-Confirmable';
+				case Copper.MSG_TYPE_ACK: return 'Acknowledgment';
+				case Copper.MSG_TYPE_RST: return 'Reset';
 				default: return 'unknown ('+this.packet.type+')';
 			}
 		} else {
@@ -90,7 +90,7 @@ CoapMessage.prototype = {
 	},
 
 	isConfirmable : function() {
-		return this.packet.type==MSG_TYPE_CON;
+		return this.packet.type==Copper.MSG_TYPE_CON;
 	},
 	
 	getOptionCount : function() {
@@ -118,80 +118,80 @@ CoapMessage.prototype = {
 	 * Option definitions for different versions
 	 * 
 	draft-05                            draft-03                            draft-00
-	const OPTION_CONTENT_TYPE = 1;		const OPTION_CONTENT_TYPE = 1;		const OPTION_CONTENT_TYPE = 0;
+	const Copper.OPTION_CONTENT_TYPE = 1;		const Copper.OPTION_CONTENT_TYPE = 1;		const Copper.OPTION_CONTENT_TYPE = 0;
 										MUST be supported, once
 										
-	const OPTION_MAX_AGE = 2;			const OPTION_MAX_AGE = 2;			const OPTION_MAX_AGE = 3;
+	const Copper.OPTION_MAX_AGE = 2;			const Copper.OPTION_MAX_AGE = 2;			const Copper.OPTION_MAX_AGE = 3;
 										once
 										
-	const OPTION_PROXY_URI = 3;			
+	const Copper.OPTION_PROXY_URI = 3;			
 	
-	const OPTION_ETAG = 4;				const OPTION_ETAG = 4;				const OPTION_ETAG = 4;
+	const Copper.OPTION_ETAG = 4;				const Copper.OPTION_ETAG = 4;				const Copper.OPTION_ETAG = 4;
 										SHOULD be included for cache refresh, multiple
 										
-	const OPTION_URI_HOST = 5;			const OPTION_URI_AUTH = 5;			const OPTION_URI = 1;
+	const Copper.OPTION_URI_HOST = 5;			const Copper.OPTION_URI_AUTH = 5;			const Copper.OPTION_URI = 1;
 										MUST be supported by proxy
 										SHOULD be included if known, once
 										
-	const OPTION_LOCATION_PATH = 6;		const OPTION_LOCATION = 6;
+	const Copper.OPTION_LOCATION_PATH = 6;		const Copper.OPTION_LOCATION = 6;
 										MAY be included for 30x response, once
 										
-	const OPTION_URI_PORT = 7;
+	const Copper.OPTION_URI_PORT = 7;
 	
-	const OPTION_LOCATION_QUERY = 8;
+	const Copper.OPTION_LOCATION_QUERY = 8;
 	
-	const OPTION_URI_PATH = 9;			const OPTION_URI_PATH = 9;			const OPTION_URI = 1;
+	const Copper.OPTION_URI_PATH = 9;			const Copper.OPTION_URI_PATH = 9;			const Copper.OPTION_URI = 1;
 										MUST be supported, once
 										
-	const OPTION_OBSERVE = 10;			const OPTION_SUB_LIFETIME = 10;		const OPTION_SUB_LIFETIME = 6;
+	const Copper.OPTION_OBSERVE = 10;			const Copper.OPTION_SUB_LIFETIME = 10;		const Copper.OPTION_SUB_LIFETIME = 6;
 	
-	const OPTION_TOKEN = 11;			const OPTION_TOKEN = 11;
+	const Copper.OPTION_TOKEN = 11;			const Copper.OPTION_TOKEN = 11;
 										MUST be included for delayed response (SHOULD omit Uri), once
 										If delayed and no option in req, return 240
 										
-	const OPTION_BLOCK = 13;			const OPTION_BLOCK = 13;
+	const Copper.OPTION_BLOCK = 13;			const Copper.OPTION_BLOCK = 13;
 	
-	const OPTION_NOOP = 14;				const OPTION_NOOP = 14;
+	const Copper.OPTION_NOOP = 14;				const Copper.OPTION_NOOP = 14;
 	
-	const OPTION_URI_QUERY = 15;		const OPTION_URI_QUERY = 15;		const OPTION_URI = 1;
+	const Copper.OPTION_URI_QUERY = 15;		const Copper.OPTION_URI_QUERY = 15;		const Copper.OPTION_URI = 1;
 										MUST be supported, once
-																			const OPTION_URI_CODE = 2;
-																			const OPTION_DATE = 5;
+																			const Copper.OPTION_URI_CODE = 2;
+																			const Copper.OPTION_DATE = 5;
 	*/
 	
-	// OPTION_CONTENT_TYPE:00+
+	// Copper.OPTION_CONTENT_TYPE:00+
 	getContentType : function(readable) {
-		var optLen = this.packet.getOptionLength(OPTION_CONTENT_TYPE);
-		var opt = this.packet.getOption(OPTION_CONTENT_TYPE); // integer
+		var optLen = this.packet.getOptionLength(Copper.OPTION_CONTENT_TYPE);
+		var opt = this.packet.getOption(Copper.OPTION_CONTENT_TYPE); // integer
 
 		if (optLen<=0) return null;
 		
 		if (readable) {
 			var ret = 'unknown';
 			switch (opt) {
-				case CONTENT_TYPE_TEXT_PLAIN: ret = 'text/plain'; break;
-				case CONTENT_TYPE_TEXT_XML: ret = 'text/xml'; break;
-				case CONTENT_TYPE_TEXT_CSV: ret = 'text/csv'; break;
-				case CONTENT_TYPE_TEXT_HTML: ret = 'text/html'; break;
-				case CONTENT_TYPE_IMAGE_GIF: ret = 'image/gif'; break;
-				case CONTENT_TYPE_IMAGE_JPEG: ret = 'image/jpeg'; break;
-				case CONTENT_TYPE_IMAGE_PNG: ret = 'image/png'; break;
-				case CONTENT_TYPE_IMAGE_TIFF: ret = 'image/tiff'; break;
-				case CONTENT_TYPE_AUDIO_RAW: ret = 'audio/raw'; break;
-				case CONTENT_TYPE_VIDEO_RAW: ret = 'video/raw'; break;
-				case CONTENT_TYPE_APPLICATION_LINK_FORMAT: ret = 'application/link-format'; break;
-				case CONTENT_TYPE_APPLICATION_XML: ret = 'application/xml'; break;
-				case CONTENT_TYPE_APPLICATION_OCTET_STREAM: ret = 'application/octet-stream'; break;
-				case CONTENT_TYPE_APPLICATION_RDF_XML: ret = 'application/rdf+xml'; break;
-				case CONTENT_TYPE_APPLICATION_SOAP_XML: ret = 'application/soap+xml'; break;
-				case CONTENT_TYPE_APPLICATION_ATOM_XML: ret = 'application/atom+xml'; break;
-				case CONTENT_TYPE_APPLICATION_XMPP_XML: ret = 'application/xmpp+xml'; break;
-				case CONTENT_TYPE_APPLICATION_EXI: ret = 'application/exi'; break;
-				case CONTENT_TYPE_APPLICATION_X_BXML: ret = 'application/x-bxml'; break;
-				case CONTENT_TYPE_APPLICATION_FASTINFOSET: ret = 'application/fastinfoset'; break;
-				case CONTENT_TYPE_APPLICATION_SOAP_FASTINFOSET: ret = 'application/soap+fastinfoset'; break;
-				case CONTENT_TYPE_APPLICATION_JSON: ret = 'application/json'; break;
-				case CONTENT_TYPE_APPLICATION_X_OBIX_BINARY: ret = 'application/x-obix-binary'; break;
+				case Copper.CONTENT_TYPE_TEXT_PLAIN: ret = 'text/plain'; break;
+				case Copper.CONTENT_TYPE_TEXT_XML: ret = 'text/xml'; break;
+				case Copper.CONTENT_TYPE_TEXT_CSV: ret = 'text/csv'; break;
+				case Copper.CONTENT_TYPE_TEXT_HTML: ret = 'text/html'; break;
+				case Copper.CONTENT_TYPE_IMAGE_GIF: ret = 'image/gif'; break;
+				case Copper.CONTENT_TYPE_IMAGE_JPEG: ret = 'image/jpeg'; break;
+				case Copper.CONTENT_TYPE_IMAGE_PNG: ret = 'image/png'; break;
+				case Copper.CONTENT_TYPE_IMAGE_TIFF: ret = 'image/tiff'; break;
+				case Copper.CONTENT_TYPE_AUDIO_RAW: ret = 'audio/raw'; break;
+				case Copper.CONTENT_TYPE_VIDEO_RAW: ret = 'video/raw'; break;
+				case Copper.CONTENT_TYPE_APPLICATION_LINK_FORMAT: ret = 'application/link-format'; break;
+				case Copper.CONTENT_TYPE_APPLICATION_XML: ret = 'application/xml'; break;
+				case Copper.CONTENT_TYPE_APPLICATION_OCTET_STREAM: ret = 'application/octet-stream'; break;
+				case Copper.CONTENT_TYPE_APPLICATION_RDF_XML: ret = 'application/rdf+xml'; break;
+				case Copper.CONTENT_TYPE_APPLICATION_SOAP_XML: ret = 'application/soap+xml'; break;
+				case Copper.CONTENT_TYPE_APPLICATION_ATOM_XML: ret = 'application/atom+xml'; break;
+				case Copper.CONTENT_TYPE_APPLICATION_XMPP_XML: ret = 'application/xmpp+xml'; break;
+				case Copper.CONTENT_TYPE_APPLICATION_EXI: ret = 'application/exi'; break;
+				case Copper.CONTENT_TYPE_APPLICATION_X_BXML: ret = 'application/x-bxml'; break;
+				case Copper.CONTENT_TYPE_APPLICATION_FASTINFOSET: ret = 'application/fastinfoset'; break;
+				case Copper.CONTENT_TYPE_APPLICATION_SOAP_FASTINFOSET: ret = 'application/soap+fastinfoset'; break;
+				case Copper.CONTENT_TYPE_APPLICATION_JSON: ret = 'application/json'; break;
+				case Copper.CONTENT_TYPE_APPLICATION_X_OBIX_BINARY: ret = 'application/x-obix-binary'; break;
 			}
 			return new Array('Content-Type', ret, opt);
 		} else {
@@ -202,14 +202,14 @@ CoapMessage.prototype = {
 		if (content>0xFF) {
 			dump('WARNING: CoapMessage.setContentType [must be 1 byte; ignoring]\n');
 		} else {
-			this.packet.setOption(OPTION_CONTENT_TYPE, content);
+			this.packet.setOption(Copper.OPTION_CONTENT_TYPE, content);
 		}
 	},
 	
-	// OPTION_MAX_AGE:00+
+	// Copper.OPTION_MAX_AGE:00+
 	getMaxAge : function(readable) {
-		var optLen = this.packet.getOptionLength(OPTION_MAX_AGE);
-		var opt = this.packet.getOption(OPTION_MAX_AGE); // integer
+		var optLen = this.packet.getOptionLength(Copper.OPTION_MAX_AGE);
+		var opt = this.packet.getOption(Copper.OPTION_MAX_AGE); // integer
 		
 		if (optLen<=0) return null;
 
@@ -254,18 +254,18 @@ CoapMessage.prototype = {
 			age = (0xFFFFFFFF & age);
 			dump('WARNING: CoapMessage.setMaxAge [max-age must be 1-4 bytes; masking to 4 bytes]\n');
 		}
-		this.packet.setOption(OPTION_MAX_AGE, age);
+		this.packet.setOption(Copper.OPTION_MAX_AGE, age);
 	},
 	
-	// OPTION_PROXY_URI:04+
+	// Copper.OPTION_PROXY_URI:04+
 	getProxyUri : function(readable) {
 		
-		if (coapVersion < 4) {
+		if (CopperChrome.coapVersion < 4) {
 			return null;
 		}
 
-		var optLen = this.packet.getOptionLength(OPTION_PROXY_URI);
-		var opt = this.packet.getOption(OPTION_PROXY_URI); // string
+		var optLen = this.packet.getOptionLength(Copper.OPTION_PROXY_URI);
+		var opt = this.packet.getOption(Copper.OPTION_PROXY_URI); // string
 
 		if (optLen<=0) return null;
 		
@@ -276,10 +276,10 @@ CoapMessage.prototype = {
 		}
 	},
 	
-	// OPTION_ETAG:00+
+	// Copper.OPTION_ETAG:00+
 	getETag : function(readable) {
-		var optLen = this.packet.getOptionLength(OPTION_ETAG);
-		var opt = this.packet.getOption(OPTION_ETAG); // byte array
+		var optLen = this.packet.getOptionLength(Copper.OPTION_ETAG);
+		var opt = this.packet.getOption(Copper.OPTION_ETAG); // byte array
 
 		if (optLen<=0) return null;
 
@@ -294,13 +294,13 @@ CoapMessage.prototype = {
 			tag = (0xFFFFFFFF>>>0 & tag);
 			dump('WARNING: CoapMessage.setETag [token must be 1-4 bytes; masking to 4 bytes]\n');
 		}
-		this.packet.setOption(OPTION_ETAG, tag);
+		this.packet.setOption(Copper.OPTION_ETAG, tag);
 	},
 	
-	// OPTION_URI_HOST:04+ / OPTION_URI_AUTH:03*renamed
+	// Copper.OPTION_URI_HOST:04+ / Copper.OPTION_URI_AUTH:03*renamed
 	getUriHost : function(readable) {
-		var optLen = this.packet.getOptionLength(OPTION_URI_HOST);
-		var opt = this.packet.getOption(OPTION_URI_HOST); // string
+		var optLen = this.packet.getOptionLength(Copper.OPTION_URI_HOST);
+		var opt = this.packet.getOption(Copper.OPTION_URI_HOST); // string
 		
 		if (optLen<=0) return null;
 		
@@ -311,17 +311,17 @@ CoapMessage.prototype = {
 		}
 	},
 	setUriHost : function(host) {
-		this.packet.setOption(OPTION_URI_HOST, host);
+		this.packet.setOption(Copper.OPTION_URI_HOST, host);
 	},
-	// OPTION_URI_PORT:04+
+	// Copper.OPTION_URI_PORT:04+
 	getUriPort : function(readable) {
 		
-		if (coapVersion < 4) {
+		if (CopperChrome.coapVersion < 4) {
 			return null;
 		}
 
-		var optLen = this.packet.getOptionLength(OPTION_URI_PORT);
-		var opt = this.packet.getOption(OPTION_URI_PORT); // int
+		var optLen = this.packet.getOptionLength(Copper.OPTION_URI_PORT);
+		var opt = this.packet.getOption(Copper.OPTION_URI_PORT); // int
 
 		if (optLen<=0) return null;
 		
@@ -331,13 +331,13 @@ CoapMessage.prototype = {
 			return opt;
 		}
 	},
-	// multiple OPTION_URI_PATH:04+ / OPTION_URI_PATH:03+
+	// multiple Copper.OPTION_URI_PATH:04+ / Copper.OPTION_URI_PATH:03+
 	getUriPath : function(readable) {
-		// multiple OPTION_URI_PATH options should be concatinated during datagram parsing
+		// multiple Copper.OPTION_URI_PATH options should be concatinated during datagram parsing
 		// TODO: maybe use a string array later
 
-		var optLen = this.packet.getOptionLength(OPTION_URI_PATH);
-		var opt = this.packet.getOption(OPTION_URI_PATH); // string
+		var optLen = this.packet.getOptionLength(Copper.OPTION_URI_PATH);
+		var opt = this.packet.getOption(Copper.OPTION_URI_PATH); // string
 
 		if (optLen<=0) return null;
 		
@@ -347,10 +347,10 @@ CoapMessage.prototype = {
 			return opt;
 		}
 	},
-	// OPTION_URI_QUERY:03+
+	// Copper.OPTION_URI_QUERY:03+
 	getUriQuery : function(readable) {
-		var optLen = this.packet.getOptionLength(OPTION_URI_QUERY);
-		var opt = this.packet.getOption(OPTION_URI_QUERY); // string
+		var optLen = this.packet.getOptionLength(Copper.OPTION_URI_QUERY);
+		var opt = this.packet.getOption(Copper.OPTION_URI_QUERY); // string
 
 		if (optLen<=0) return null;
 		
@@ -397,19 +397,19 @@ CoapMessage.prototype = {
 	},
 	setUri : function(uri) {
 		// ensure percent-encoding
-		encodeURI(uri);
+		uri = encodeURI(uri);
 		
 		// URI encoding is version specific
 		this.packet.setUri(uri);
 	},
 	
-	// multiple OPTION_LOCATION_PATH:04+ / OPTION_LOCATION:03*renamed
+	// multiple Copper.OPTION_LOCATION_PATH:04+ / Copper.OPTION_LOCATION:03*renamed
 	getLocationPath : function(readable) {
-		// multiple OPTION_LOCATION_PATH options should be concatinated during datagram parsing
+		// multiple Copper.OPTION_LOCATION_PATH options should be concatinated during datagram parsing
 		// TODO: maybe use a string array later
 		
-		var optLen = this.packet.getOptionLength(OPTION_LOCATION_PATH);
-		var opt = this.packet.getOption(OPTION_LOCATION_PATH); // string
+		var optLen = this.packet.getOptionLength(Copper.OPTION_LOCATION_PATH);
+		var opt = this.packet.getOption(Copper.OPTION_LOCATION_PATH); // string
 
 		if (optLen<=0) return null;
 		
@@ -423,17 +423,17 @@ CoapMessage.prototype = {
 	setLocationPath : function(path) {
 		while (path.charAt(0)=='/') path = path.substr(1);
 		
-		this.packet.setOption(OPTION_LOCATION_PATH, path);
+		this.packet.setOption(Copper.OPTION_LOCATION_PATH, path);
 	},
-	// OPTION_LOCATION_QUERY:05+
+	// Copper.OPTION_LOCATION_QUERY:05+
 	getLocationQuery : function(readable) {
 		
-		if (coapVersion < 5) {
+		if (CopperChrome.coapVersion < 5) {
 			return null;
 		}
 
-		var optLen = this.packet.getOptionLength(OPTION_LOCATION_QUERY);
-		var opt = this.packet.getOption(OPTION_LOCATION_QUERY); // string
+		var optLen = this.packet.getOptionLength(Copper.OPTION_LOCATION_QUERY);
+		var opt = this.packet.getOption(Copper.OPTION_LOCATION_QUERY); // string
 
 		if (optLen<=0) return null;
 		
@@ -445,16 +445,16 @@ CoapMessage.prototype = {
 	},
 	// convenience function
 	getLocation : function(readable) {
-		var optLen = this.packet.getOptionLength(OPTION_LOCATION_PATH);
-		var opt = this.packet.getOption(OPTION_LOCATION_PATH); // string
+		var optLen = this.packet.getOptionLength(Copper.OPTION_LOCATION_PATH);
+		var opt = this.packet.getOption(Copper.OPTION_LOCATION_PATH); // string
 		
 		var opt2 = null;
 		var optLen2 = 0;
 
-		if (coapVersion >= 5) {
-			if (this.packet.getOptionLength(OPTION_LOCATION_QUERY)) {
-				opt += '?' + this.packet.getOption(OPTION_LOCATION_QUERY);
-				optLen2 = this.packet.getOptionLength(OPTION_LOCATION_QUERY);
+		if (CopperChrome.coapVersion >= 5) {
+			if (this.packet.getOptionLength(Copper.OPTION_LOCATION_QUERY)) {
+				opt += '?' + this.packet.getOption(Copper.OPTION_LOCATION_QUERY);
+				optLen2 = this.packet.getOptionLength(Copper.OPTION_LOCATION_QUERY);
 			}
 		}
 		
@@ -468,10 +468,10 @@ CoapMessage.prototype = {
 		}
 	},
 	
-	// OPTION_TOKEN:03+
+	// Copper.OPTION_TOKEN:03+
 	getToken : function(readable) {
-		var optLen = this.packet.getOptionLength(OPTION_TOKEN);
-		var opt = this.packet.getOption(OPTION_TOKEN); // byte array, treat as int
+		var optLen = this.packet.getOptionLength(Copper.OPTION_TOKEN);
+		var opt = this.packet.getOption(Copper.OPTION_TOKEN); // byte array, treat as int
 		
 		if (optLen<=0) return null;
 		
@@ -486,13 +486,13 @@ CoapMessage.prototype = {
 			token = (0xFFFF & token);
 			dump('WARNING: CoapMessage.setToken [token must be 1-2 bytes; masking to 2 bytes]\n');
 		}
-		this.packet.setOption(OPTION_TOKEN, token);
+		this.packet.setOption(Copper.OPTION_TOKEN, token);
 	},
 	
-	// OPTION_BLOCK:03+
+	// Copper.OPTION_BLOCK:03+
 	getBlock : function(readable) {
-		var optLen = this.packet.getOptionLength(OPTION_BLOCK);
-		var opt = this.packet.getOption(OPTION_BLOCK); // integer
+		var optLen = this.packet.getOptionLength(Copper.OPTION_BLOCK);
+		var opt = this.packet.getOption(Copper.OPTION_BLOCK); // integer
 
 		if (optLen<=0) return null;
 		
@@ -510,7 +510,7 @@ CoapMessage.prototype = {
 		var szx = 0;
 		
 		// check for power of two and correct size
-		if (!isPowerOfTwo(size)) {
+		if (!CopperChrome.isPowerOfTwo(size)) {
 			dump('WARNING: CoapMessage.setBlock ['+size+' not a power of two; using next smaller power]\n');
 		}
 		if (size<16) {
@@ -526,7 +526,7 @@ CoapMessage.prototype = {
 		for (szx = 0; size; ++szx) size >>= 1;
 		block |= szx - 1;
 		
-		this.packet.setOption(OPTION_BLOCK, block);
+		this.packet.setOption(Copper.OPTION_BLOCK, block);
 	},
 	// convenience functions for block option parts
 	getBlockNumber : function() {
@@ -539,10 +539,10 @@ CoapMessage.prototype = {
 		return (0x08 & this.getBlock());
 	},
 
-	// OPTION_SUB_LIFETIME:draft-ietf-core-observe-00*renamed
+	// Copper.OPTION_SUB_LIFETIME:draft-ietf-core-observe-00*renamed
 	getObserve : function(readable) {
-		var optLen = this.packet.getOptionLength(OPTION_OBSERVE);
-		var opt = this.packet.getOption(OPTION_OBSERVE); // int
+		var optLen = this.packet.getOptionLength(Copper.OPTION_OBSERVE);
+		var opt = this.packet.getOption(Copper.OPTION_OBSERVE); // int
 
 		if (optLen<=0) return null;
 		
@@ -554,7 +554,7 @@ CoapMessage.prototype = {
 	},
 	setObserve : function(num) {
 		if (num> 0xFFFFFFFF) time = 0xFFFFFFFF;
-		this.packet.setOption(OPTION_OBSERVE, num);
+		this.packet.setOption(Copper.OPTION_OBSERVE, num);
 	},
 	
 	// readable options list
