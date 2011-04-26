@@ -165,10 +165,10 @@ CopperChrome.main = function() {
 		if (auto) {
 			switch (auto) {
 				case 0:             break;
-				case Copper.GET:    sendGet(); break;
-				case Copper.POST:   sendPost(CopperChrome.prefManager.getCharPref('extensions.copper.auto-request.payload')); break;
-				case Copper.PUT:    sendPut(CopperChrome.prefManager.getCharPref('extensions.copper.auto-request.payload')); break;
-				case Copper.DELETE: sendDelete(); break;
+				case Copper.GET:    CopperChrome.sendGet(); break;
+				case Copper.POST:   CopperChrome.sendPost(CopperChrome.prefManager.getCharPref('extensions.copper.auto-request.payload')); break;
+				case Copper.PUT:    CopperChrome.sendPut(CopperChrome.prefManager.getCharPref('extensions.copper.auto-request.payload')); break;
+				case Copper.DELETE: CopperChrome.sendDelete(); break;
 				default: dump('WARNING: Main.init [unknown method for auto-request: '+auto+']\n');
 			}
 			
@@ -444,7 +444,7 @@ CopperChrome.parseUri = function(uri) {
 		
 		// remove final / for non-root paths
 		if (tokens[8]) {
-			document.location.href = 'coap://'+tokens[2] + (tokens[3] ? tokens[3] : '') + tokens[6] + (tokens[9] ? tokens[9] : '');
+			document.location.href = 'coap://'+tokens[2] + (tokens[4] ? tokens[4] : '') + tokens[6] + (tokens[9] ? tokens[9] : '');
 			return;
 		}
 		
@@ -469,16 +469,20 @@ CopperChrome.parseUri = function(uri) {
 // Set the default URI and also check for modified Firefox URL bar
 CopperChrome.checkUri = function(uri, method, pl) {
 	if (!uri) {
+		var parsedUri = Components.classes["@mozilla.org/network/simple-uri;1"].getService(Components.interfaces.nsIURI);
+
+		parsedUri.spec = CopperChrome.mainWindow.document.getElementById('urlbar').value;
+		
 		// when urlbar was changed without pressing enter, redirect and perform request
-		if (method && (document.location.href != encodeURI(CopperChrome.mainWindow.document.getElementById('urlbar').value))) {
-			//alert('You edited the URL bar:\n'+document.location.href+'\n'+mainWindow.document.getElementById('urlbar').value);
+		if (method && (document.location.href!=parsedUri.spec)) {
+			//alert('You edited the URL bar:\n'+document.location.href+'\n'+parsedUri.spec);
 			
 			// schedule the request to start automatically at new location
 			CopperChrome.prefManager.setIntPref('extensions.copper.auto-request.method', method);
 			CopperChrome.prefManager.setCharPref('extensions.copper.auto-request.payload', String(pl));
 			
 			// redirect
-			document.location.href = CopperChrome.mainWindow.document.getElementById('urlbar').value;
+			document.location.href = parsedUri.spec;
 		}
 		return CopperChrome.path + (CopperChrome.query ? '?'+CopperChrome.query : '');
 	} else {
