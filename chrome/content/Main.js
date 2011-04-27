@@ -437,32 +437,58 @@ CopperChrome.parseUri = function(uri) {
     ( '/' Uri-Path )
     ( '?'  Uri-Query ) only if Uri-Query is present
 */
-	
-	var tokens = uri.match(/^(coap:)\/\/([a-z0-9-\.]+|\[[a-z0-9:]+(%[a-z0-9]+)?\])(:([0-9]{0,5}))?(\/?|(\/[^\/\?]+)+)(\/)?(\?(.*))?$/i);
-	if (tokens) {
-		//alert('Protocol: ' + tokens[1] + '\nHost: ' + tokens[2] + '\nPort: ' + tokens[5] + '\nPath: ' + tokens[6] + '\nQuery: ' + tokens[9] );
+
+	try {
+		var parsedUri = Components.classes["@mozilla.org/network/io-service;1"]
+	    	.getService(Components.interfaces.nsIIOService)
+	    	.newURI(uri, null, null);
 		
-		// remove final / for non-root paths
-		if (tokens[8]) {
-			document.location.href = 'coap://'+tokens[2] + (tokens[4] ? tokens[4] : '') + tokens[6] + (tokens[9] ? tokens[9] : '');
+		var url = parsedUri.QueryInterface(Components.interfaces.nsIURL);
+		
+		// redirect to omit subsequent slash, refs (#), and params (;) 
+		if (url.filePath!='/' && url.fileName=='') {
+			document.location.href = url.prePath + url.filePath.substring(0, url.filePath.length-1) + (url.query!='' ? '?'+url.query : '');
+			return;
+		} else if (url.ref!='' || url.param!='') {
+			document.location.href = url.prePath + url.filePath + (url.query!='' ? '?'+url.query : '');
 			return;
 		}
 		
-		CopperChrome.hostname = tokens[2];
-		CopperChrome.port = tokens[5] ? tokens[5] : CopperChrome.port;
-		CopperChrome.path = tokens[6] ? tokens[6] : CopperChrome.path;
-		CopperChrome.query = tokens[10] ? tokens[10] : '';
+		if (url.port>0xFFFF) {
+			throw 'Illeagal port';
+		}
+		
+		// DNS lookup
+		try {
+			var ns = Components.classes["@mozilla.org/network/dns-service;1"].createInstance(Components.interfaces.nsIDNSService).resolve(url.host, 0);
+			
+			var addresses = '';
+			while (ns.hasMore()) {
+				addresses += ns.getNextAddrAsString()+'\n';
+			}
+			if (addresses!='') document.getElementById('info_host').setAttribute('tooltiptext', addresses);
+			
+		} catch (ex) {
+			throw 'Cannot resolve host';
+		}
+		
+		CopperChrome.hostname = url.host;
+		if (CopperChrome.hostname.indexOf(':')!=-1) CopperChrome.hostname = '['+CopperChrome.hostname+']';
+		
+		CopperChrome.port = url.port!=-1 ? url.port : CopperChrome.port;
+		CopperChrome.path = url.filePath;
+		CopperChrome.query = url.query;
 		
 		document.title = CopperChrome.hostname + CopperChrome.path;
-		
 		document.getElementById('info_host').label = '' + CopperChrome.hostname + ':' + CopperChrome.port;
-	} else {
-		// no valid URI
+		
+	} catch(ex) {
+		// cannot parse URI
 		document.getElementById('group_host').setAttribute('style', 'display: none;');
 		document.getElementById('group_head').setAttribute('style', 'display: none;');
 		document.getElementById('group_payload').setAttribute('style', 'display: none;');
-		CopperChrome.updateLabel('info_code', 'Copper: Invalid URI');
-		throw 'invalid URI';
+		CopperChrome.updateLabel('info_code', 'Copper: '+ ex);
+		throw 'invalid URI: '+ex;
 	}
 };
 

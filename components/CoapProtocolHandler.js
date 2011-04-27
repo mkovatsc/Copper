@@ -77,6 +77,9 @@ CoapProtocolHandler.prototype = {
 		
 		} catch (ex) {
 			dump('ERROR: CoapProtocolHandler.newURI ['+ex+']\n');
+			
+			// will cause an alert
+			return uri = Components.classes["@mozilla.org/network/simple-uri;1"].createInstance(Components.interfaces.nsIURI);
 		}
 	},
 
