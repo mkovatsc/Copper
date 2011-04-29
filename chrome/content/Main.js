@@ -232,6 +232,7 @@ CopperChrome.defaultHandler = function(message) {
 	
 	CopperChrome.updateMessageInfo(message);
 	CopperChrome.updateLabel('packet_payload', message.getPayload());
+	document.getElementById('info_payload').label='Payload ('+document.getElementById('packet_payload').value.length+')';
 	
 	if (message.getContentType()==Copper.CONTENT_TYPE_APPLICATION_LINK_FORMAT) {
 		CopperChrome.updateResourceLinks( CopperChrome.parseLinkFormat(message.getPayload()) );
@@ -249,16 +250,25 @@ CopperChrome.blockwiseHandler = function(message) {
 		
 		if (message.getBlockMore()) {
 			
-			if (message.getBlockSize()!=CopperChrome.blockSize) {
+			// TODO: give in, as browser could request large blocks and server might be constrained
+			if (message.getBlockSize()>CopperChrome.blockSize) {
 				CopperChrome.sendBlockwiseGet(0, CopperChrome.blockSize);
 			} else {
-				CopperChrome.sendBlockwiseGet(message.getBlockNumber()+1, CopperChrome.blockSize);
+				CopperChrome.sendBlockwiseGet(message.getBlockNumber()+1, message.getBlockSize());
 			}
 		}
 		CopperChrome.updateLabel('packet_payload', message.getPayload(), message.getBlockNumber()>0);
+		document.getElementById('info_payload').label='Payload ('+document.getElementById('packet_payload').value.length+')';
+		
+		if (!message.getBlockMore()) {
+			if (message.getContentType()==Copper.CONTENT_TYPE_APPLICATION_LINK_FORMAT) {
+				CopperChrome.updateResourceLinks( CopperChrome.parseLinkFormat( document.getElementById('packet_payload').value ) );
+			}
+		}
 		
 	} else {
 		CopperChrome.updateLabel('packet_payload', message.getPayload());
+		document.getElementById('info_payload').label='Payload ('+document.getElementById('packet_payload').value.length+')';
 	}
 };
 
@@ -272,6 +282,7 @@ CopperChrome.observingHandler = function(message) {
 		CopperChrome.updateLabel('info_code', ' (Observing)', true);
 		
 		CopperChrome.updateLabel('packet_payload', message.getPayload());
+		document.getElementById('info_payload').label='Payload ('+document.getElementById('packet_payload').value.length+')';
 	} else {
 		CopperChrome.updateLabel('info_code', 'Observing not supported');
 	}
@@ -714,6 +725,7 @@ CopperChrome.updateLabel = function(id, value, append) {
 CopperChrome.clearLabels = function() {
 	CopperChrome.updateLabel('info_code', '');
 	CopperChrome.updateLabel('packet_payload', '');
+	document.getElementById('info_payload').label='Payload';
 
 	document.getElementById('packet_header_type').setAttribute('label', '');
 	document.getElementById('packet_header_oc').setAttribute('label', '');
