@@ -144,9 +144,9 @@ CopperChrome.TransactionHandler.prototype = {
 			
 			dump('=re-sending CoAP message\n');
 			dump(' Transaction ID: '+tid+'\n');
-			dump(' Timeout: '+timeout+'\n');
+			dump(' New timeout: '+timeout+'\n');
 			dump(' =======================\n');
-			this.client.send( this.transactions[tid].packet.serialize() );
+			this.client.send( this.transactions[tid].message.serialize() );
 		} else {
 			dump('=timeout================\n');
 			dump(' Transaction ID: '+tid+'\n');
@@ -158,7 +158,7 @@ CopperChrome.TransactionHandler.prototype = {
 	},
 	
 	handle : function(datagram) {
-		// parse byte message to CoAP packet
+		// parse byte message to CoAP message
 		var message = new CopperChrome.CoapMessage();
 		message.parse(datagram);
 		
