@@ -100,6 +100,9 @@ CopperChrome.Observing.prototype = {
 			this.subscriptions[this.pending] = null;
 			this.pending = null;
 			dump('WARNING: Observerving not supported by server\n');
+			
+			// FIXME static call
+			CopperChrome.defaultHandler(message);
 		}
 	},
 
