@@ -118,6 +118,9 @@ CopperChrome.main = function() {
 			case 3:
 				Components.utils.import("resource://modules/CoapPacket03.jsm");
 				break;
+			case 6:
+				Components.utils.import("resource://modules/CoapPacket06.jsm");
+				break;
 			default:
 				window.setTimeout(
 						function() { window.alert('WARNING: CoAP version '+CopperChrome.coapVersion+' not implemented. Using 03.'); },
@@ -125,7 +128,7 @@ CopperChrome.main = function() {
 				Components.utils.import("resource://modules/CoapPacket03.jsm"); break;
 				CopperChrome.coapVersion = 3;
 		}
-		document.getElementById('toolbar_version').label = 'CoAP ' + CopperChrome.leadingZero(CopperChrome.coapVersion,2) + ' ';
+		document.getElementById('toolbar_version').label = 'CoAP ' + Copper.leadingZero(CopperChrome.coapVersion,2) + ' ';
 	} catch (ex) {
 		window.setTimeout(
 				function() { window.alert('ERROR: Could not load protocol module ['+ex+']'); },
@@ -141,8 +144,9 @@ CopperChrome.main = function() {
 		CopperChrome.parseUri(document.location.href);
 		
 		// debug options set by URI
-		document.getElementById('debug_option_uri_path').value = CopperChrome.path;
-		document.getElementById('debug_option_query').value = CopperChrome.query;
+		if (CopperChrome.port!=61616) document.getElementById('debug_option_uri_port').value = CopperChrome.port;
+		if (CopperChrome.path!='/') document.getElementById('debug_option_uri_path').value = CopperChrome.path;
+		document.getElementById('debug_option_uri_query').value = CopperChrome.query;
 		
 		// set up datagram and transaction layer
 		var temp = new CopperChrome.UdpClient(CopperChrome.hostname, CopperChrome.port);
@@ -229,6 +233,8 @@ CopperChrome.defaultHandler = function(message) {
 	if (message.isOption && message.isOption(Copper.OPTION_BLOCK)) {
 		return CopperChrome.blockwiseHandler(message);
 	}
+	
+	if (message.getRTT) document.getElementById('info_host').label = '' + CopperChrome.hostname + ':' + CopperChrome.port + ' (RTT: ' + message.getRTT() + 'ms)';
 	
 	CopperChrome.updateMessageInfo(message);
 	CopperChrome.updateLabel('packet_payload', message.getPayload());
@@ -487,8 +493,8 @@ CopperChrome.parseUri = function(uri) {
 		if (CopperChrome.hostname.indexOf(':')!=-1) CopperChrome.hostname = '['+CopperChrome.hostname+']';
 		
 		CopperChrome.port = url.port!=-1 ? url.port : CopperChrome.port;
-		CopperChrome.path = url.filePath;
-		CopperChrome.query = url.query;
+		CopperChrome.path = decodeURI(url.filePath); // as for 06 and as a server workaround for 03
+		CopperChrome.query = decodeURI(url.query); // as for 06 and as aserver workaround for 03
 		
 		document.title = CopperChrome.hostname + CopperChrome.path;
 		document.getElementById('info_host').label = '' + CopperChrome.hostname + ':' + CopperChrome.port;
@@ -529,28 +535,39 @@ CopperChrome.checkUri = function(uri, method, pl) {
 
 CopperChrome.checkDebugOptions = function(message) {
 	if (document.getElementById('chk_debug_options').checked) {
-		if (document.getElementById('debug_option_content_type').value!='') {
+		if (Copper.OPTION_CONTENT_TYPE && document.getElementById('debug_option_content_type').value!='') {
 			message.setContentType(parseInt(document.getElementById('debug_option_content_type').value));
 		}
-		if (document.getElementById('debug_option_max_age').value!='') {
+		if (Copper.OPTION_MAX_AGE && document.getElementById('debug_option_max_age').value!='') {
 			message.setMaxAge(parseInt(document.getElementById('debug_option_max_age').value));
 		}
-		if (document.getElementById('debug_option_etag').value!='') {
-			message.setETag(parseInt(document.getElementById('debug_option_etag').value));
+		if (Copper.OPTION_PROXY_URI && document.getElementById('debug_option_proxy_uri').value!='') {
+			message.setProxyUri(document.getElementById('debug_option_proxy_uri').value);
 		}
-		if (document.getElementById('debug_option_uri_host').value!='') {
+		if (Copper.OPTION_ETAG && document.getElementById('debug_option_etag').value!='') {
+			if (document.getElementById('debug_option_etag').value.substr(0,2)=='0x') {
+				message.setETag(Copper.hex2bytes(document.getElementById('debug_option_etag').value));
+			} else {
+				message.setETag(Copper.str2bytes(document.getElementById('debug_option_etag').value));
+			}
+		}
+		if (Copper.OPTION_URI_HOST && document.getElementById('debug_option_uri_host').value!='') {
 			message.setUriHost(document.getElementById('debug_option_uri_host').value);
 		}
-		if (document.getElementById('debug_option_location_path').value!='') {
+		if (Copper.OPTION_LOCATION_PATH && document.getElementById('debug_option_location_path').value!='') {
 			message.setLocationPath(document.getElementById('debug_option_location_path').value);
 		}
-		if (document.getElementById('debug_option_observe').value!='') {
+		if (Copper.OPTION_OBSERVE && document.getElementById('debug_option_observe').value!='') {
 			message.setObserve(parseInt(document.getElementById('debug_option_observe').value));
 		}
-		if (document.getElementById('debug_option_token').value!='') {
-			message.setToken(parseInt(document.getElementById('debug_option_token').value));
+		if (Copper.OPTION_TOKEN && document.getElementById('debug_option_token').value!='') {
+			if (document.getElementById('debug_option_token').value.substr(0,2)=='0x') {
+				message.setToken(Copper.hex2bytes(document.getElementById('debug_option_token').value));
+			} else {
+				message.setToken(Copper.str2bytes(document.getElementById('debug_option_token').value));
+			}
 		}
-		if (document.getElementById('debug_option_block').value!='') {
+		if (Copper.OPTION_BLOCK && document.getElementById('debug_option_block').value!='') {
 			message.setBlock(parseInt(document.getElementById('debug_option_block').value), CopperChrome.blockSize);
 		}
 	}
@@ -734,17 +751,6 @@ CopperChrome.clearLabels = function() {
 	
 	var optionList = document.getElementById('packet_options');
 	while (optionList.getRowCount()) optionList.removeItemAt(0);
-};
-
-CopperChrome.leadingZero = function(num, len) {
-	if (!len) len = 2;
-	num = ''+num;
-	while (num.length<len) num = '0'+num;
-	return num;
-};
-
-CopperChrome.isPowerOfTwo = function(i) {
-	return ((i & (i-1))==0);
 };
 
 // workaround for "this" losing scope when passing callback functions

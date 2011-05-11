@@ -43,3 +43,66 @@ var EXPORTED_SYMBOLS = ['Copper'];
 if ("undefined" == typeof(Copper)) {
 	var Copper = { };
 };
+
+//Helper functions
+////////////////////////////////////////////////////////////////////////////////
+
+Copper.isPowerOfTwo = function(i) {
+	return ((i & (i-1))==0);
+};
+
+Copper.leadingZero = function(num, len) {
+	if (!len) len = 2;
+	num = ''+num;
+	while (num.length<len) num = '0'+num;
+	return num;
+};
+
+Copper.str2bytes = function(str) {
+	var b = new Array(str.length);
+	for (var i=0; i<str.length; i++) {
+		b[i] = str.charCodeAt(i) & 0xFF;
+	}
+	return b;
+};
+
+Copper.bytes2str = function(b) {
+	var str = '';
+  for (var i in b) str += String.fromCharCode(b[i] & 0xFF);
+	return str;
+};
+
+Copper.int2bytes = function(i) {
+	var b = new Array();
+	do {
+		b.unshift(0xFF & i);
+		i >>>= 8;
+	} while (i>0);
+	return b;
+};
+
+Copper.bytes2int = function(b) {
+	var i = 0;
+	for (var k in b) {
+		i = (i << 8) | b[k];
+	}
+	//convert to unsigned int
+	return i>>>0;
+};
+
+Copper.hex2bytes = function(h) {
+	var b = new Array();
+	for (var i=h.length-2; i>0; i-=2) {
+		b.unshift(parseInt(('0x'+h.substr(i,2)).replace(/xx/, 'x')));
+	}
+	return b;
+};
+
+Copper.bytes2hex = function(b) {
+	var hex = '0x';
+	for (var k in b) {
+		hex += Copper.leadingZero(b[k].toString(16).toUpperCase());
+	}
+	//convert to unsigned int
+	return hex;
+};

@@ -41,11 +41,15 @@ CopperChrome.Transaction = function(myMessage, myTimer, myCB) {
 	this.cb = myCB;
 	
 	this.retries = 0;
+	
+	this.rttStart = new Date().getTime();
 };
 CopperChrome.Transaction.prototype = {
 	message : null,
 	timer : null,
 	cb : null,
+	
+	rttStart : 0,
 	
 	retries : 0
 };
@@ -59,6 +63,7 @@ CopperChrome.TransactionHandler = function(myClient, retrans) {
 	
 	this.retransmissions = retrans!=null ? retrans : true;
 	this.transactions = new Object();
+	this.dupFilter = new Array();
 };
 
 CopperChrome.TransactionHandler.prototype = {
@@ -69,6 +74,7 @@ CopperChrome.TransactionHandler.prototype = {
 	defaultCB : null,
 	
 	transactions : null,
+	dupFilter : null,
 	
 	retransmissions : true,
 	
@@ -173,11 +179,28 @@ CopperChrome.TransactionHandler.prototype = {
 			if (this.transactions[message.getTID()].timer) window.clearTimeout(this.transactions[message.getTID()].timer);
 			if (this.transactions[message.getTID()].cb) callback = this.transactions[message.getTID()].cb;
 			
+			// calculate round trip time
+			var ms = (new Date().getTime() - this.transactions[message.getTID()].rttStart);
+			
+			message.getRTT = function() { return ms; };
+			
 			// remove
 			this.transactions[message.getTID()] = null;
 			
+			// add to duplicates filter
+			this.dupFilter.unshift(message.getTID());
+			if (this.dupFilter.length>10) this.dupFilter.pop();
+			
+		// duplicates
+		} else if (this.dupFilter.indexOf(message.getTID()) !== -1) {
+		
+			// also ack duplicate confirmables, silently drop non-cons
+			if (message.getType()==Copper.MSG_TYPE_CON) {
+				this.ack(message.getTID());
+			}
+			
 		// handle observing
-		} else if (CopperChrome.observer && message.getToken() && CopperChrome.observer.isRegisteredToken(message.getToken())) {
+		} else if (CopperChrome.observer && message.getToken()!=null && CopperChrome.observer.isRegisteredToken(message.getToken())) {
 			dump('=observing==============\n');
 			callback = CopperChrome.observer.getSubscriberCallback(message.getToken());
 
@@ -185,15 +208,18 @@ CopperChrome.TransactionHandler.prototype = {
 			if (message.getType()==Copper.MSG_TYPE_CON) {
 				this.ack(message.getTID());
 			}
+
+			// add to duplicates filter
+			this.dupFilter.unshift(message.getTID());
+			if (this.dupFilter.length>10) this.dupFilter.pop();
 			
 		} else {
 			dump('WARNING: TransactionHandler.handle [unknown transaction and token]\n');
 			
 			var infoReset = '';
 			
-			// handle confirmables
-			if (message.getType()==Copper.MSG_TYPE_CON) {
-				this.reset(message.getTID());
+			if (message.getType()==Copper.MSG_TYPE_CON || message.getType()==Copper.MSG_TYPE_NON) {
+				this.reset(message.getTID(), message.getToken());
 				infoReset = ' (sent RST)';
 			}
 			
@@ -219,9 +245,12 @@ CopperChrome.TransactionHandler.prototype = {
 		CopperChrome.popup(CopperChrome.hostname+':'+CopperChrome.port, 'Sending ACK for transaction '+tid);
 	},
 	
-	reset : function(tid) {
+	reset : function(tid, token) {
 		var rst = new CopperChrome.CoapMessage(Copper.MSG_TYPE_RST);
 		rst.setTID( tid );
+		if (token!=null) {
+			rst.setToken(token);
+		}
 		
 		this.send( rst );
 		CopperChrome.popup(CopperChrome.hostname+':'+CopperChrome.port, 'Sending RST for transaction '+tid);

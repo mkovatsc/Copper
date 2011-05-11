@@ -63,23 +63,25 @@ CopperChrome.Observing.prototype = {
 			}
 		}
 		
-		var token = 0;
+		// internally use int token
+		var intToken = 0;
 		do {
-			token = parseInt(Math.random()*0x10000);
-		} while (token!=0 && this.subscriptions[token]!=null);
+			// 255 ongoing transactions should be sufficient
+			intToken = parseInt(Math.random()*0x100);
+		} while (intToken!=0 && this.subscriptions[intToken]!=null);
 		
-		this.pending = token;
+		this.pending = intToken;
 		
-		this.subscriptions[token] = new CopperChrome.ObserveEntry(uri, cb);
+		this.subscriptions[intToken] = new CopperChrome.ObserveEntry(uri, cb);
 		
 		var subscribe = new CopperChrome.CoapMessage(Copper.MSG_TYPE_CON, Copper.GET, uri);
 		subscribe.setObserve(60);
-		subscribe.setToken(token);
+		subscribe.setToken(Copper.int2bytes(intToken));
 		
 		var that = this;
 		CopperChrome.client.send(subscribe, CopperChrome.myBind(that,that.initSubscription));
 		
-		return token;
+		return intToken;
 	},
 	
 	initSubscription : function(message) {
@@ -106,12 +108,12 @@ CopperChrome.Observing.prototype = {
 		}
 	},
 
-	unsubscribe : function(token) {
-		if (this.subscriptions[token]!=null) {
-			this.subscriptions[token] = null;
+	unsubscribe : function(intToken) {
+		if (this.subscriptions[intToken]!=null) {
+			this.subscriptions[intToken] = null;
 			document.getElementById('toolbar_observe').image = 'chrome://copper/skin/tool_observe.png';
 			document.getElementById('toolbar_observe').label = 'Observe';
-		} else if (token==null) {
+		} else if (intToken==null) {
 			// cancel all subscriptions
 			this.subscriptions = new Object();
 			document.getElementById('toolbar_observe').image = 'chrome://copper/skin/tool_observe.png';
@@ -120,10 +122,10 @@ CopperChrome.Observing.prototype = {
 	},
 
 	isRegisteredToken : function(token) {
-		return (this.subscriptions[token]!=null);
+		return (this.subscriptions[Copper.bytes2int(token)]!=null);
 	},
 	
 	getSubscriberCallback : function(token) {
-		return this.subscriptions[token].callback;
+		return this.subscriptions[Copper.bytes2int(token)].callback;
 	}
 };

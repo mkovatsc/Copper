@@ -126,22 +126,26 @@
 					<textbox id="debug_option_content_type" emptytext="not set: use integer"/>
 				<label control="debug_option_max_age" value="Max-Age"/>
 					<textbox id="debug_option_max_age" emptytext="not set: use integer"/>
+				<label control="debug_option_proxy_uri" value="Proxy-Uri"/>
+					<textbox id="debug_option_proxy_uri" emptytext="not set"/>
 				<label control="debug_option_etag" value="ETag"/>
-					<textbox id="debug_option_etag" emptytext="not set: use hex"/>
+					<textbox id="debug_option_etag" emptytext="not set: use hex or string"/>
 				<label control="debug_option_uri_host" value="Uri-Host"/>
 					<textbox id="debug_option_uri_host" emptytext="not set"/>
 				<label control="debug_option_location_path" value="Location-Path"/>
 					<textbox id="debug_option_location_path" emptytext="not set"/>
+				<label control="debug_option_uri_port" value="Uri-Port"/>
+					<textbox id="debug_option_uri_port" emptytext="not set" disabled="true"/>
 				<label control="debug_option_uri_path" value="Uri-Path"/>
 					<textbox id="debug_option_uri_path" emptytext="not set" disabled="true"/>
 				<label control="debug_option_observe" value="Observe"/>
 					<textbox id="debug_option_observe" emptytext="not set: use integer"/>
 				<label control="debug_option_token" value="Token"/>
-					<textbox id="debug_option_token" emptytext="not set: use hex"/>
+					<textbox id="debug_option_token" emptytext="not set: use hex or string"/>
 				<label control="debug_option_block" value="Block number"/>
 					<textbox id="debug_option_block" emptytext="not set: use integer"/>
-				<label control="debug_option_block" value="Uri-Query"/>
-					<textbox id="debug_option_query" emptytext="not set" disabled="true"/>
+				<label control="debug_option_uri_query" value="Uri-Query"/>
+					<textbox id="debug_option_uri_query" emptytext="not set" disabled="true"/>
 			</vbox>
 		</groupbox>
 
