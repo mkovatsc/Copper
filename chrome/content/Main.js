@@ -35,9 +35,8 @@
  * \author  Matthias Kovatsch <kovatsch@inf.ethz.ch>\author
  */
 
+// namespace
 Components.utils.import("resource://modules/common.jsm");
-
-
 
 CopperChrome.mainWindow = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
 		.getInterface(Components.interfaces.nsIWebNavigation)
@@ -115,22 +114,22 @@ CopperChrome.main = function() {
 				0);
 	}
 	
-	
-	// load CoAP implementation
+	var loader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"].getService(Components.interfaces.mozIJSSubScriptLoader);
 	try {
 		switch (CopperChrome.coapVersion) {
 			case 3:
-				Components.utils.import("resource://modules/CoapPacket03.jsm");
+				loader.loadSubScript("resource://modules/CoapPacket03.jsm");
 				break;
 			case 6:
-				Components.utils.import("resource://modules/CoapPacket06.jsm");
+				loader.loadSubScript("resource://modules/CoapPacket06.jsm");
 				break;
 			default:
 				window.setTimeout(
 						function() { window.alert('WARNING: CoAP version '+CopperChrome.coapVersion+' not implemented. Using 03.'); },
-						0);			
-				Components.utils.import("resource://modules/CoapPacket03.jsm"); break;
+						0);
+				loader.loadSubScript("resource://modules/CoapPacket03.jsm");
 				CopperChrome.coapVersion = 3;
+				break;
 		}
 		document.getElementById('toolbar_version').label = 'CoAP ' + Copper.leadingZero(CopperChrome.coapVersion,2) + ' ';
 	} catch (ex) {
