@@ -278,6 +278,7 @@ CopperChrome.CoapMessage.prototype = {
 	setProxyUri : function(proxy) {
 		
 		if (CopperChrome.coapVersion < 4) {
+			dump('WARNING: CoapMessage.setProxyUri [Proxy-Uri only supported in coap-04+]\n');
 			return;
 		}
 		
@@ -338,6 +339,15 @@ CopperChrome.CoapMessage.prototype = {
 		} else {
 			return opt;
 		}
+	},
+	setUriPort : function(port) {
+		
+		if (CopperChrome.coapVersion < 4) {
+			dump('WARNING: CoapMessage.setUriPort [Uri-Port only supported in coap-04+]\n');
+			return;
+		}
+		
+		this.packet.setOption(Copper.OPTION_URI_PORT, port);
 	},
 	// multiple Copper.OPTION_URI_PATH:04+ / Copper.OPTION_URI_PATH:03+
 	getUriPath : function(readable) {
@@ -448,6 +458,17 @@ CopperChrome.CoapMessage.prototype = {
 			return opt;
 		}
 	},
+	setLocationQuery : function(query) {
+		
+		if (CopperChrome.coapVersion < 5) {
+			dump('WARNING: CoapMessage.setLocationQuery [Location-Query only supported in coap-05+]\n');
+			return;
+		}
+		
+		while (query.charAt(0)=='?') query = query.substr(1);
+		
+		this.packet.setOption(Copper.OPTION_LOCATION_QUERY, query);
+	},
 	// convenience function
 	getLocation : function(readable) {
 		var optLen = this.packet.getOptionLength(Copper.OPTION_LOCATION_PATH);
@@ -494,7 +515,7 @@ CopperChrome.CoapMessage.prototype = {
 		this.packet.setOption(Copper.OPTION_TOKEN, token);
 	},
 	
-	// Copper.OPTION_BLOCK2:06 / Copper.OPTION_BLOCK:03+
+	// Copper.OPTION_BLOCK2:06+ / Copper.OPTION_BLOCK:03+
 	getBlock : function(readable) {
 		var optLen = this.packet.getOptionLength(Copper.OPTION_BLOCK); // == Copper.OPTION_BLOCK2
 		var opt = this.packet.getOption(Copper.OPTION_BLOCK); // integer
@@ -546,6 +567,68 @@ CopperChrome.CoapMessage.prototype = {
 	getBlockMore : function() {
 		return (0x08 & this.getBlock());
 	},
+	
+	// Copper.OPTION_BLOCK1:06+
+	getBlock1 : function(readable) {
+		
+		if (CopperChrome.coapVersion < 6) {
+			dump('WARNING: CoapMessage.setBlock1 [Block1 only supported in coap-06+]\n');
+			return null;
+		}
+		
+		var optLen = this.packet.getOptionLength(Copper.OPTION_BLOCK1);
+		var opt = this.packet.getOption(Copper.OPTION_BLOCK1); // integer
+
+		if (optLen<=0) return null;
+		
+		if (readable) {
+			var ret = this.getBlock1Number();
+			if (this.getBlock1More()) ret += '+';
+			ret += ' ('+this.getBlock1Size()+' B/block)';
+			return new Array('Block1', ret, optLen+' byte(s)');
+		} else {
+			return opt;
+		}
+	},
+	setBlock1 : function(num, size) {
+		
+		if (CopperChrome.coapVersion < 6) {
+			dump('WARNING: CoapMessage.setBlock1 [Block1 only supported in coap-06+]\n');
+			return;
+		}
+		
+		var block = num << 4;
+		var szx = 0;
+		
+		// check for power of two and correct size
+		if (!Copper.isPowerOfTwo(size)) {
+			dump('WARNING: CoapMessage.setBlock1 ['+size+' not a power of two; using next smaller power]\n');
+		}
+		if (size<16) {
+			size = 16;
+			dump('WARNING: CoapMessage.setBlock1 [block size must be >=16; using 16]\n');
+		}
+		if (size>1024) {
+			size = 1024;
+			dump('WARNING: CoapMessage.setBlock1 [block size must be <=1024; using 1024]\n');
+		}
+		
+		size >>= 4;
+		for (szx = 0; size; ++szx) size >>= 1;
+		block |= szx - 1;
+		
+		this.packet.setOption(Copper.OPTION_BLOCK1, block);
+	},
+	// convenience functions for block option parts
+	getBlock1Number : function() {
+		return (this.getBlock1() >> 4);
+	},
+	getBlock1Size : function() {
+		return (16 << (0x07 & this.getBlock1()));
+	},
+	getBlock1More : function() {
+		return (0x08 & this.getBlock1());
+	},
 
 	// Copper.OPTION_SUB_LIFETIME:draft-ietf-core-observe-00*renamed
 	getObserve : function(readable) {
@@ -580,6 +663,7 @@ CopperChrome.CoapMessage.prototype = {
 			if (this.getObserve()!=null) ret += this.getObserve(true)[0] + ': ' + this.getObserve(true)[1] + ' ['+this.getObserve(true)[2]+']; ';
 			if (this.getToken()!=null) ret += this.getToken(true)[0] + ': ' + this.getToken(true)[1] + ' ['+this.getToken(true)[2]+']; ';
 			if (this.getBlock()!=null) ret += this.getBlock(true)[0] + ': ' + this.getBlock(true)[1] + ' ['+this.getBlock(true)[2]+']; ';
+			if (this.getBlock1()!=null) ret += this.getBlock1(true)[0] + ': ' + this.getBlock1(true)[1] + ' ['+this.getBlock1(true)[2]+']; ';
 			
 			return ret;
 		} else {
@@ -594,6 +678,7 @@ CopperChrome.CoapMessage.prototype = {
 			if (this.getObserve()!=null) ret.push( this.getObserve(true) );
 			if (this.getToken()!=null) ret.push( this.getToken(true) );
 			if (this.getBlock()!=null) ret.push( this.getBlock(true) );
+			if (this.getBlock1()!=null) ret.push( this.getBlock1(true) );
 			
 			return ret;
 		}

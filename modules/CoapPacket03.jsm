@@ -57,7 +57,7 @@ Copper.__defineGetter__("OPTION_URI_PATH", function() { return 9; });
 Copper.__defineGetter__("OPTION_OBSERVE", function() { return 10; }); // renamed
 Copper.__defineGetter__("OPTION_TOKEN", function() { return 11; });
 Copper.__defineGetter__("OPTION_BLOCK", function() { return 13; });
-Copper.__defineGetter__("OPTION_NOOP", function() { return 14; });
+Copper.__defineGetter__("OPTION_FENCE_POST", function() { return 14; });
 Copper.__defineGetter__("OPTION_URI_QUERY", function() { return 15; });
 
 Copper.__defineGetter__("CODE_100_CONTINUE", function() { return 40; });
@@ -125,7 +125,7 @@ Copper.CoapPacket = function() {
 	this.options[Copper.OPTION_OBSERVE] = new Array(0, null);
 	this.options[Copper.OPTION_TOKEN] = new Array(0, null);
 	this.options[Copper.OPTION_BLOCK] = new Array(0, null);
-	this.options[Copper.OPTION_NOOP] = new Array(0, null);
+	this.options[Copper.OPTION_FENCE_POST] = new Array(0, null);
 	this.options[Copper.OPTION_URI_QUERY] = new Array(0, null);
 
 	this.tid = parseInt(Math.random()*0x10000);
@@ -214,8 +214,8 @@ Copper.CoapPacket.prototype = {
 				return opt;
 				break;
 			
-			// noop
-			case Copper.OPTION_NOOP:
+			// delta fence post
+			case Copper.OPTION_FENCE_POST:
 				return 0;
 				break;
 			

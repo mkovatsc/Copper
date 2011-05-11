@@ -240,9 +240,9 @@ Copper.CoapPacket.prototype = {
 				return opt;
 				break;
 			
-			// noop
-			case Copper.OPTION_NOOP:
-				return 0;
+			// delta fence post
+			case Copper.OPTION_FENCE_POST:
+				return null;
 				break;
 			
 			// integers
@@ -283,7 +283,7 @@ Copper.CoapPacket.prototype = {
 				break;
 			
 			default:
-				throw 'ERROR: CoapPacket.setOption [Unknown option]';
+				throw 'ERROR: CoapPacket.setOption [Unknown option '+option+': '+value+']';
 		}
 	},
 	

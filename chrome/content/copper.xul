@@ -135,17 +135,21 @@
 				<label control="debug_option_location_path" value="Location-Path"/>
 					<textbox id="debug_option_location_path" emptytext="not set"/>
 				<label control="debug_option_uri_port" value="Uri-Port"/>
-					<textbox id="debug_option_uri_port" emptytext="not set" disabled="true"/>
+					<textbox id="debug_option_uri_port" emptytext="not set"/>
+				<label control="debug_option_location_query" value="Location-Query"/>
+					<textbox id="debug_option_location_query" emptytext="not set"/>
 				<label control="debug_option_uri_path" value="Uri-Path"/>
 					<textbox id="debug_option_uri_path" emptytext="not set" disabled="true"/>
 				<label control="debug_option_observe" value="Observe"/>
 					<textbox id="debug_option_observe" emptytext="not set: use integer"/>
 				<label control="debug_option_token" value="Token"/>
 					<textbox id="debug_option_token" emptytext="not set: use hex or string"/>
-				<label control="debug_option_block" value="Block number"/>
-					<textbox id="debug_option_block" emptytext="not set: use integer"/>
 				<label control="debug_option_uri_query" value="Uri-Query"/>
 					<textbox id="debug_option_uri_query" emptytext="not set" disabled="true"/>
+				<label control="debug_option_block2" value="Block/Block2 number"/>
+					<textbox id="debug_option_block2" emptytext="not set: use integer"/>
+				<label control="debug_option_block1" value="Block1 number"/>
+					<textbox id="debug_option_block1" emptytext="not set: use integer"/>
 			</vbox>
 		</groupbox>
 

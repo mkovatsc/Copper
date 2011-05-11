@@ -99,12 +99,16 @@ CopperChrome.main = function() {
 		
 		document.getElementById('debug_option_content_type').value = CopperChrome.prefManager.getCharPref('extensions.copper.debug.options.content-type');
 		document.getElementById('debug_option_max_age').value = CopperChrome.prefManager.getCharPref('extensions.copper.debug.options.max-age');
+		document.getElementById('debug_option_proxy_uri').value = CopperChrome.prefManager.getCharPref('extensions.copper.debug.options.proxy-uri');
 		document.getElementById('debug_option_etag').value = CopperChrome.prefManager.getCharPref('extensions.copper.debug.options.etag');
 		document.getElementById('debug_option_uri_host').value = CopperChrome.prefManager.getCharPref('extensions.copper.debug.options.uri-host');
 		document.getElementById('debug_option_location_path').value = CopperChrome.prefManager.getCharPref('extensions.copper.debug.options.location-path');
+		document.getElementById('debug_option_uri_port').value = CopperChrome.prefManager.getCharPref('extensions.copper.debug.options.uri-port');
+		document.getElementById('debug_option_location_query').value = CopperChrome.prefManager.getCharPref('extensions.copper.debug.options.location-query');
 		document.getElementById('debug_option_observe').value = CopperChrome.prefManager.getCharPref('extensions.copper.debug.options.observe');
 		document.getElementById('debug_option_token').value = CopperChrome.prefManager.getCharPref('extensions.copper.debug.options.token');
-		document.getElementById('debug_option_block').value = CopperChrome.prefManager.getCharPref('extensions.copper.debug.options.block');
+		document.getElementById('debug_option_block2').value = CopperChrome.prefManager.getCharPref('extensions.copper.debug.options.block2');
+		document.getElementById('debug_option_block1').value = CopperChrome.prefManager.getCharPref('extensions.copper.debug.options.block1');
 	} catch (ex) {
 		window.setTimeout(
 				function() { window.alert('WARNING: Could not load preferences; using hardcoded defauls.'+ex); },
@@ -211,14 +215,16 @@ CopperChrome.unload = function() {
 	CopperChrome.prefManager.setBoolPref('extensions.copper.debug.options-enabled', document.getElementById('chk_debug_options').checked);
 	CopperChrome.prefManager.setCharPref('extensions.copper.debug.options.content-type', document.getElementById('debug_option_content_type').value);
 	CopperChrome.prefManager.setCharPref('extensions.copper.debug.options.max-age', document.getElementById('debug_option_max_age').value);
+	CopperChrome.prefManager.setCharPref('extensions.copper.debug.options.proxy-uri', document.getElementById('debug_option_proxy_uri').value);
 	CopperChrome.prefManager.setCharPref('extensions.copper.debug.options.etag', document.getElementById('debug_option_etag').value);
 	CopperChrome.prefManager.setCharPref('extensions.copper.debug.options.uri-host', document.getElementById('debug_option_uri_host').value);
 	CopperChrome.prefManager.setCharPref('extensions.copper.debug.options.location-path', document.getElementById('debug_option_location_path').value);
+	CopperChrome.prefManager.setCharPref('extensions.copper.debug.options.uri-port', document.getElementById('debug_option_uri_port').value);
+	CopperChrome.prefManager.setCharPref('extensions.copper.debug.options.location-query', document.getElementById('debug_option_location_query').value);
 	CopperChrome.prefManager.setCharPref('extensions.copper.debug.options.observe', document.getElementById('debug_option_observe').value);
 	CopperChrome.prefManager.setCharPref('extensions.copper.debug.options.token', document.getElementById('debug_option_token').value);
-	CopperChrome.prefManager.setCharPref('extensions.copper.debug.options.block', document.getElementById('debug_option_block').value);
-	
-	CopperChrome.client.shutdown();
+	CopperChrome.prefManager.setCharPref('extensions.copper.debug.options.block2', document.getElementById('debug_option_block2').value);
+	CopperChrome.prefManager.setCharPref('extensions.copper.debug.options.block1', document.getElementById('debug_option_block1').value);
 };
 
 
@@ -557,6 +563,12 @@ CopperChrome.checkDebugOptions = function(message) {
 		if (Copper.OPTION_LOCATION_PATH && document.getElementById('debug_option_location_path').value!='') {
 			message.setLocationPath(document.getElementById('debug_option_location_path').value);
 		}
+		if (Copper.OPTION_URI_PORT && document.getElementById('debug_option_uri_port').value!='') {
+			message.setUriPort(parseInt(document.getElementById('debug_option_uri_port').value));
+		}
+		if (Copper.OPTION_LOCATION_QUERY && document.getElementById('debug_option_location_query').value!='') {
+			message.setLocationQuery(document.getElementById('debug_option_location_query').value);
+		}
 		if (Copper.OPTION_OBSERVE && document.getElementById('debug_option_observe').value!='') {
 			message.setObserve(parseInt(document.getElementById('debug_option_observe').value));
 		}
@@ -567,8 +579,11 @@ CopperChrome.checkDebugOptions = function(message) {
 				message.setToken(Copper.str2bytes(document.getElementById('debug_option_token').value));
 			}
 		}
-		if (Copper.OPTION_BLOCK && document.getElementById('debug_option_block').value!='') {
-			message.setBlock(parseInt(document.getElementById('debug_option_block').value), CopperChrome.blockSize);
+		if (Copper.OPTION_BLOCK && document.getElementById('debug_option_block2').value!='') {
+			message.setBlock(parseInt(document.getElementById('debug_option_block2').value), CopperChrome.blockSize);
+		}
+		if (Copper.OPTION_BLOCK1 && document.getElementById('debug_option_block1').value!='') {
+			message.setBlock1(parseInt(document.getElementById('debug_option_block1').value), CopperChrome.blockSize);
 		}
 	}
 };
