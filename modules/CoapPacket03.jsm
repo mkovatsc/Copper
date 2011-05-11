@@ -110,6 +110,8 @@ Copper.__defineGetter__("WELL_KNOWN_RESOURCES", function() { return '/.well-know
 Copper.__defineGetter__("RESPONSE_TIMEOUT", function() { return 1000; }); // ms
 Copper.__defineGetter__("MAX_RETRANSMIT", function() { return 5; });
 
+Copper.__defineGetter__("DEFAULT_PORT", function() { return 61616; });
+
 // CoAP draft-03 implementation
 ////////////////////////////////////////////////////////////////////////////////
 

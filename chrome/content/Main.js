@@ -52,7 +52,7 @@ CopperChrome.blockSize = 32;
 CopperChrome.showUnknownTransactions = true;
 
 CopperChrome.hostname = '';
-CopperChrome.port = 61616;
+CopperChrome.port = Copper.DEFAULT_PORT;
 CopperChrome.path = '/';
 CopperChrome.query = '';
 
@@ -147,7 +147,7 @@ CopperChrome.main = function() {
 		CopperChrome.parseUri(document.location.href);
 		
 		// debug options set by URI
-		if (CopperChrome.port!=61616) document.getElementById('debug_option_uri_port').value = CopperChrome.port;
+		if (CopperChrome.port!=Copper.DEFAULT_PORT) document.getElementById('debug_option_uri_port').value = CopperChrome.port;
 		if (CopperChrome.path!='/') document.getElementById('debug_option_uri_path').value = CopperChrome.path;
 		document.getElementById('debug_option_uri_query').value = CopperChrome.query;
 		

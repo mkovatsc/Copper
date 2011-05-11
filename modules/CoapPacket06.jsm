@@ -123,6 +123,8 @@ Copper.__defineGetter__("MAX_RETRANSMIT", function() { return 4; });
 Copper.__defineGetter__("ETAG_LENGTH", function() { return 8; });
 Copper.__defineGetter__("TOKEN_LENGTH", function() { return 8; });
 
+Copper.__defineGetter__("DEFAULT_PORT", function() { return 5683; });
+
 // CoAP draft-06 implementation
 ////////////////////////////////////////////////////////////////////////////////
 
