@@ -125,6 +125,38 @@ Copper.__defineGetter__("TOKEN_LENGTH", function() { return 8; });
 
 Copper.__defineGetter__("DEFAULT_PORT", function() { return 5683; });
 
+// General version-specific functions
+////////////////////////////////////////////////////////////////////////////////
+
+Copper.getContentTypeName = function(type) {
+	switch (type) {
+		case Copper.CONTENT_TYPE_TEXT_PLAIN: return 'text/plain'; break;
+		case Copper.CONTENT_TYPE_TEXT_XML: return 'text/xml'; break;
+		case Copper.CONTENT_TYPE_TEXT_CSV: return 'text/csv'; break;
+		case Copper.CONTENT_TYPE_TEXT_HTML: return 'text/html'; break;
+		case Copper.CONTENT_TYPE_IMAGE_GIF: return 'image/gif'; break;
+		case Copper.CONTENT_TYPE_IMAGE_JPEG: return 'image/jpeg'; break;
+		case Copper.CONTENT_TYPE_IMAGE_PNG: return 'image/png'; break;
+		case Copper.CONTENT_TYPE_IMAGE_TIFF: return 'image/tiff'; break;
+		case Copper.CONTENT_TYPE_AUDIO_RAW: return 'audio/raw'; break;
+		case Copper.CONTENT_TYPE_VIDEO_RAW: return 'video/raw'; break;
+		case Copper.CONTENT_TYPE_APPLICATION_LINK_FORMAT: return 'application/link-format'; break;
+		case Copper.CONTENT_TYPE_APPLICATION_XML: return 'application/xml'; break;
+		case Copper.CONTENT_TYPE_APPLICATION_OCTET_STREAM: return 'application/octet-stream'; break;
+		case Copper.CONTENT_TYPE_APPLICATION_RDF_XML: return 'application/rdf+xml'; break;
+		case Copper.CONTENT_TYPE_APPLICATION_SOAP_XML: return 'application/soap+xml'; break;
+		case Copper.CONTENT_TYPE_APPLICATION_ATOM_XML: return 'application/atom+xml'; break;
+		case Copper.CONTENT_TYPE_APPLICATION_XMPP_XML: return 'application/xmpp+xml'; break;
+		case Copper.CONTENT_TYPE_APPLICATION_EXI: return 'application/exi'; break;
+		case Copper.CONTENT_TYPE_APPLICATION_X_BXML: return 'application/x-bxml'; break;
+		case Copper.CONTENT_TYPE_APPLICATION_FASTINFOSET: return 'application/fastinfoset'; break;
+		case Copper.CONTENT_TYPE_APPLICATION_SOAP_FASTINFOSET: return 'application/soap+fastinfoset'; break;
+		case Copper.CONTENT_TYPE_APPLICATION_JSON: return 'application/json'; break;
+		case Copper.CONTENT_TYPE_APPLICATION_X_OBIX_BINARY: return 'application/x-obix-binary'; break;
+		default: return 'unknown';
+	}
+};
+
 // CoAP draft-06 implementation
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -349,14 +381,10 @@ Copper.CoapPacket.prototype = {
 	    this.optionCount = 0;
 	    var optionDelta = 0;
 	    for (var optTypeIt in this.options) {
-	    	dump('Checking option '+optTypeIt+'\n');
 	    	if (this.options[optTypeIt][0]==0) {
 				continue;
 			} else {
-		    	var optLen = this.options[optTypeIt][0];
 				var opt = this.options[optTypeIt][1];
-				dump('  len: '+optLen+'\n');
-				dump('  opt: '+opt+'\n');
 				
 				// fence posting
 				while (optTypeIt-optionDelta > 15) {
@@ -366,33 +394,46 @@ Copper.CoapPacket.prototype = {
 					optionDelta += fenceDelta;
 					
 					this.optionCount++;
-					dump('  fence-post: '+ fenceDelta);
+					dump('INFO: Serializing fence post (delta '+ fenceDelta+')\n');
 				}
 				
+				var splitOption = new Array();
 				if (optTypeIt==Copper.OPTION_LOCATION_PATH || optTypeIt==Copper.OPTION_URI_PATH) {
-					// TODO
+					
 					dump('SPLIT PATH\n');
-				}
-				
-				// delta type encoding
-				tempByte  = (0xFF & (optTypeIt-optionDelta)) << 4;
-				
-				// encode length
-				if (optLen<15) {
-					tempByte |= (0x0F & optLen);
-					byteArray.push(tempByte);
-				} else if (optLen<=270) {
-					tempByte |= 0x0F;
-					byteArray.push(tempByte);
-					byteArray.push(0xFF & (optLen-15));
+					
+					var splitString = Copper.bytes2str(opt).split('/');
+					for (s in splitString) {
+						dump(splitString[s]+'\n');
+						splitOption.push(Copper.str2bytes(splitString[s]));
+					}
 				} else {
-					throw 'ERROR: CoapPacket.serialize [Option length larger that 270 is not supported]';
+					splitOption.push(opt);
 				}
-				// add option value
-				for(var i in opt) byteArray.push(opt[i]);
-				this.optionCount++;
 				
-				optionDelta = optTypeIt;
+				while ((opt = splitOption.shift())) {
+					dump('INFO: Serializing option '+optTypeIt+' (delta '+(optTypeIt-optionDelta)+', len '+opt.length+')\n');
+			    	
+					// delta type encoding
+					tempByte  = (0xFF & (optTypeIt-optionDelta)) << 4;
+					
+					// encode length
+					if (opt.length<15) {
+						tempByte |= (0x0F & opt.length);
+						byteArray.push(tempByte);
+					} else if (opt.length<=270) {
+						tempByte |= 0x0F;
+						byteArray.push(tempByte);
+						byteArray.push(0xFF & (opt.length-15));
+					} else {
+						throw 'ERROR: CoapPacket.serialize [Option length larger that 270 is not supported]';
+					}
+					// add option value
+					for(var i in opt) byteArray.push(opt[i]);
+					
+					this.optionCount++;
+					optionDelta = optTypeIt;
+				} 
 			}
 		}
 	    

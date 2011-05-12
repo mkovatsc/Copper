@@ -52,7 +52,7 @@ CopperChrome.blockSize = 32;
 CopperChrome.showUnknownTransactions = true;
 
 CopperChrome.hostname = '';
-CopperChrome.port = Copper.DEFAULT_PORT;
+CopperChrome.port = -1;
 CopperChrome.path = '/';
 CopperChrome.query = '';
 
@@ -132,6 +132,8 @@ CopperChrome.main = function() {
 				break;
 		}
 		document.getElementById('toolbar_version').label = 'CoAP ' + Copper.leadingZero(CopperChrome.coapVersion,2) + ' ';
+		CopperChrome.initDebugContentTypes();
+		
 	} catch (ex) {
 		window.setTimeout(
 				function() { window.alert('ERROR: Could not load protocol module ['+ex+']'); },
@@ -153,6 +155,7 @@ CopperChrome.main = function() {
 		
 		// set up datagram and transaction layer
 		var temp = new CopperChrome.UdpClient(CopperChrome.hostname, CopperChrome.port);
+		temp.registerErrorCallback(CopperChrome.errorHandler);
 		CopperChrome.client = new CopperChrome.TransactionHandler(temp, document.getElementById('toolbar_retransmissions').checked);
 		CopperChrome.client.registerCallback(CopperChrome.defaultHandler);
 		
@@ -185,20 +188,7 @@ CopperChrome.main = function() {
 		}
 		
 	} catch( ex ) {
-		// disable the toolbar
-		var obj = document.getElementById('main_toolbar').firstChild;
-		do {
-			// children of toolbaritems need to be disabled manually
-			if (obj.nodeName=='toolbaritem') {
-				
-				var obj2 = obj.firstChild;
-				do {
-					obj2.setAttribute("disabled", "true");
-				} while ( obj2 = obj2.nextSibling);
-			} else {
-				obj.setAttribute("disabled", "true");
-			}
-		} while ( obj = obj.nextSibling);
+		CopperChrome.errorHandler({getCopperCode:function(){return ex;},getPayload:function(){return '';}});
 		
 	    dump('ERROR: Main.init ['+ex+']\n');
 	}
@@ -299,7 +289,7 @@ CopperChrome.observingHandler = function(message) {
 	}
 };
 
-// Handle messages with link format payload 
+// Handle messages with link format payload
 CopperChrome.discoverHandler = function(message) {
 	dump('INFO: discoverHandler()\n');
 	if (message.getContentType()==Copper.CONTENT_TYPE_APPLICATION_LINK_FORMAT) {
@@ -308,10 +298,34 @@ CopperChrome.discoverHandler = function(message) {
 		
 		CopperChrome.updateResourceLinks( CopperChrome.parseLinkFormat(message.getPayload()) );
 	} else {
-		alert('ERROR: Main.discoverHandler [no link format in payload]');
+		alert('ERROR: Main.discoverHandler [Content-Type is '+message.getContentType()+', not \'application/link-format\']');
 	}
 };
 
+CopperChrome.errorHandler = function(message) {
+	dump('INFO: errorHandler()\n');
+
+	// disable the toolbar
+	var obj = document.getElementById('main_toolbar').firstChild;
+	do {
+		// children of toolbaritems need to be disabled manually
+		if (obj.nodeName=='toolbaritem') {
+			
+			var obj2 = obj.firstChild;
+			do {
+				obj2.setAttribute("disabled", "true");
+			} while ( obj2 = obj2.nextSibling);
+		} else {
+			obj.setAttribute("disabled", "true");
+		}
+	} while ( obj = obj.nextSibling);
+	
+	document.getElementById('group_host').setAttribute('style', 'display: none;');
+	document.getElementById('group_head').setAttribute('style', 'display: none;');
+	document.getElementById('group_payload').setAttribute('style', 'display: none;');
+	
+	CopperChrome.updateLabel('info_code', 'Copper: '+ message.getCopperCode());
+};
 
 // Toolbar commands
 ////////////////////////////////////////////////////////////////////////////////
@@ -451,6 +465,21 @@ CopperChrome.settingRetransmissions = function() {
 // Helper functions
 ////////////////////////////////////////////////////////////////////////////////
 
+CopperChrome.initDebugContentTypes = function() {
+	for (var i = 0; i<100; ++i) {
+		var name = '';
+		if ( (name = Copper.getContentTypeName(i))!='unknown') {
+		
+			var menuitem = document.createElement('menuitem');
+			
+			menuitem.setAttribute('label', Copper.getContentTypeName(i));
+			menuitem.setAttribute('value', i);
+			
+			document.getElementById('popup_content_types').appendChild(menuitem);
+		}
+	}
+};
+
 CopperChrome.parseUri = function(uri) {
 
 /*	
@@ -460,58 +489,59 @@ CopperChrome.parseUri = function(uri) {
     ( '?'  Uri-Query ) only if Uri-Query is present
 */
 
+	var url;
+	
 	try {
 		var parsedUri = Components.classes["@mozilla.org/network/io-service;1"]
 	    	.getService(Components.interfaces.nsIIOService)
 	    	.newURI(uri, null, null);
 		
 		var url = parsedUri.QueryInterface(Components.interfaces.nsIURL);
-		
-		// redirect to omit subsequent slash, refs (#), and params (;) 
-		if (url.filePath!='/' && url.fileName=='') {
-			document.location.href = url.prePath + url.filePath.substring(0, url.filePath.length-1) + (url.query!='' ? '?'+url.query : '');
-			return;
-		} else if (url.ref!='' || url.param!='') {
-			document.location.href = url.prePath + url.filePath + (url.query!='' ? '?'+url.query : '');
-			return;
-		}
-		
-		if (url.port>0xFFFF) {
-			throw 'Illeagal port';
-		}
-		
-		// DNS lookup
-		try {
-			var ns = Components.classes["@mozilla.org/network/dns-service;1"].createInstance(Components.interfaces.nsIDNSService).resolve(url.host, 0);
-			
-			var addresses = '';
-			while (ns.hasMore()) {
-				addresses += ns.getNextAddrAsString()+'\n';
-			}
-			if (addresses!='') document.getElementById('info_host').setAttribute('tooltiptext', addresses);
-			
-		} catch (ex) {
-			throw 'Cannot resolve host';
-		}
-		
-		CopperChrome.hostname = url.host;
-		if (CopperChrome.hostname.indexOf(':')!=-1) CopperChrome.hostname = '['+CopperChrome.hostname+']';
-		
-		CopperChrome.port = url.port!=-1 ? url.port : CopperChrome.port;
-		CopperChrome.path = decodeURI(url.filePath); // as for 06 and as a server workaround for 03
-		CopperChrome.query = decodeURI(url.query); // as for 06 and as aserver workaround for 03
-		
-		document.title = CopperChrome.hostname + CopperChrome.path;
-		document.getElementById('info_host').label = '' + CopperChrome.hostname + ':' + CopperChrome.port;
-		
 	} catch(ex) {
 		// cannot parse URI
-		document.getElementById('group_host').setAttribute('style', 'display: none;');
-		document.getElementById('group_head').setAttribute('style', 'display: none;');
-		document.getElementById('group_payload').setAttribute('style', 'display: none;');
-		CopperChrome.updateLabel('info_code', 'Copper: '+ ex);
-		throw 'invalid URI: '+ex;
+		throw 'Invalid URI';
 	}
+	
+	// redirect to omit subsequent slash, refs (#), and params (;) 
+	if (url.filePath!='/' && url.fileName=='') {
+		document.location.href = url.prePath + url.filePath.substring(0, url.filePath.length-1) + (url.query!='' ? '?'+url.query : '');
+		return;
+	} else if (url.ref!='' || url.param!='') {
+		document.location.href = url.prePath + url.filePath + (url.query!='' ? '?'+url.query : '');
+		return;
+	} else if (url.filePath.match(/\/{2,}/)) {
+		document.location.href = url.prePath + url.filePath.replace(/\/{2,}/g, '/') + (url.query!='' ? '?'+url.query : '');
+		return;
+	}
+	
+	if (url.port>0xFFFF) {
+		throw 'Illeagal port';
+	}
+	
+	// DNS lookup
+	try {
+		var ns = Components.classes["@mozilla.org/network/dns-service;1"].createInstance(Components.interfaces.nsIDNSService).resolve(url.host.replace(/%.+$/, ''), 0);
+		
+		var addresses = '';
+		while (ns.hasMore()) {
+			addresses += ns.getNextAddrAsString()+'\n';
+		}
+		if (addresses!='') document.getElementById('info_host').setAttribute('tooltiptext', addresses);
+		
+	} catch (ex) {
+		throw 'Cannot resolve host';
+	}
+	
+	CopperChrome.hostname = url.host;
+	if (CopperChrome.hostname.indexOf(':')!=-1) CopperChrome.hostname = '['+CopperChrome.hostname+']';
+	
+	CopperChrome.port = url.port!=-1 ? url.port : Copper.DEFAULT_PORT;
+	CopperChrome.path = decodeURI(url.filePath); // as for 06 and as a server workaround for 03
+	CopperChrome.query = decodeURI(url.query); // as for 06 and as aserver workaround for 03
+
+	
+	document.title = CopperChrome.hostname + CopperChrome.path;
+	document.getElementById('info_host').label = '' + CopperChrome.hostname + ':' + CopperChrome.port;
 };
 
 // Set the default URI and also check for modified Firefox URL bar
@@ -541,7 +571,11 @@ CopperChrome.checkUri = function(uri, method, pl) {
 CopperChrome.checkDebugOptions = function(message) {
 	if (document.getElementById('chk_debug_options').checked) {
 		if (Copper.OPTION_CONTENT_TYPE && document.getElementById('debug_option_content_type').value!='') {
-			message.setContentType(parseInt(document.getElementById('debug_option_content_type').value));
+			if (document.getElementById('debug_option_content_type').selectedItem) {
+				message.setContentType(parseInt(document.getElementById('debug_option_content_type').selectedItem.value));
+			} else {
+				message.setContentType(parseInt(document.getElementById('debug_option_content_type').value));
+			}
 		}
 		if (Copper.OPTION_MAX_AGE && document.getElementById('debug_option_max_age').value!='') {
 			message.setMaxAge(parseInt(document.getElementById('debug_option_max_age').value));
@@ -582,6 +616,7 @@ CopperChrome.checkDebugOptions = function(message) {
 			message.setBlock(parseInt(document.getElementById('debug_option_block2').value), CopperChrome.blockSize);
 		}
 		if (Copper.OPTION_BLOCK1 && document.getElementById('debug_option_block1').value!='') {
+			alert('BLOCK1');
 			message.setBlock1(parseInt(document.getElementById('debug_option_block1').value), CopperChrome.blockSize);
 		}
 	}
@@ -679,11 +714,14 @@ CopperChrome.updateResourceLinks = function(add) {
 	sorted.sort();
 	
 	for (entry in sorted) {
-		var uri = sorted[entry];
+		let uri = sorted[entry];
 		
 		var button = document.createElement('button');
 		button.setAttribute('label', decodeURI(uri));
-		button.setAttribute('oncommand',"document.location.href='coap://" + CopperChrome.hostname + ':' + CopperChrome.port + uri + "';");
+		
+		button.addEventListener('click', function() {
+			document.location.href = 'coap://' + CopperChrome.hostname + ':' + CopperChrome.port + uri;
+        }, true);
 		
 		var tooltiptext = '';
 		for (var attrib in CopperChrome.resources[uri]) {

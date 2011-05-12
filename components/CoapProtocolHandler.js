@@ -39,7 +39,7 @@
 // Array allows for multiple schemes (e.g., coap and coaps for coap with DTLS)
 const CLASS_ID = [Components.ID("{6ffeeb10-91cc-0854-a554-81cf891ced50}")];
 const CLASS_SCHEME = ["coap"];
-const CLASS_DEFAULT_PORT = [61616];
+const CLASS_DEFAULT_PORT = [-1];
 const CLASS_NAME = ["CoAP protocol"];
 
 /**

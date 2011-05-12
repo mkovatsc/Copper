@@ -115,7 +115,7 @@
 	<splitter collapse="after" resizebefore="farthest">
 		<grippy/>
 	</splitter>
-	<vbox id="sidebar">
+	<vbox id="sidebar" style="width: 18em;">
 		<groupbox flex="1">
 			<caption>
 				<checkbox id="chk_debug_options" label="Debug options"/>
@@ -123,33 +123,71 @@
 			
 			<vbox flex="1" style="overflow: auto;">
 				<label control="debug_option_content_type" value="Content-Type"/>
-					<textbox id="debug_option_content_type" emptytext="not set: use integer"/>
-				<label control="debug_option_max_age" value="Max-Age"/>
-					<textbox id="debug_option_max_age" emptytext="not set: use integer"/>
+				<menulist id="debug_option_content_type" editable="true">
+					<menupopup id="popup_content_types">
+						<menuitem label="" value=""/>
+					</menupopup>
+				</menulist>
+					
 				<label control="debug_option_proxy_uri" value="Proxy-Uri"/>
-					<textbox id="debug_option_proxy_uri" emptytext="not set"/>
-				<label control="debug_option_etag" value="ETag"/>
-					<textbox id="debug_option_etag" emptytext="not set: use hex or string"/>
-				<label control="debug_option_uri_host" value="Uri-Host"/>
-					<textbox id="debug_option_uri_host" emptytext="not set"/>
-				<label control="debug_option_location_path" value="Location-Path"/>
-					<textbox id="debug_option_location_path" emptytext="not set"/>
-				<label control="debug_option_uri_port" value="Uri-Port"/>
-					<textbox id="debug_option_uri_port" emptytext="not set"/>
-				<label control="debug_option_location_query" value="Location-Query"/>
-					<textbox id="debug_option_location_query" emptytext="not set"/>
-				<label control="debug_option_uri_path" value="Uri-Path"/>
-					<textbox id="debug_option_uri_path" emptytext="not set" disabled="true"/>
-				<label control="debug_option_observe" value="Observe"/>
-					<textbox id="debug_option_observe" emptytext="not set: use integer"/>
+				<textbox id="debug_option_proxy_uri" emptytext="not set"/>
+					
 				<label control="debug_option_token" value="Token"/>
-					<textbox id="debug_option_token" emptytext="not set: use hex or string"/>
-				<label control="debug_option_uri_query" value="Uri-Query"/>
-					<textbox id="debug_option_uri_query" emptytext="not set" disabled="true"/>
-				<label control="debug_option_block2" value="Block/Block2 number"/>
-					<textbox id="debug_option_block2" emptytext="not set: use integer"/>
-				<label control="debug_option_block1" value="Block1 number"/>
-					<textbox id="debug_option_block1" emptytext="not set: use integer"/>
+				<textbox id="debug_option_token" emptytext="not set: use hex or string"/>
+				
+				<hbox>
+					<vbox flex="1">
+						<label control="debug_option_uri_host" value="Uri-Host"/>
+						<textbox id="debug_option_uri_host" emptytext="not set"/>
+					</vbox>
+					<vbox flex="4">
+						<label control="debug_option_uri_port" value="Uri-Port"/>
+						<textbox id="debug_option_uri_port" emptytext="not set"/>
+					</vbox>
+				</hbox>
+				
+				<hbox>
+					<vbox flex="1">
+						<label control="debug_option_uri_path" value="Uri-Path"/>
+						<textbox id="debug_option_uri_path" emptytext="not set" disabled="true"/>
+					</vbox>
+					<vbox flex="1">
+						<label control="debug_option_uri_query" value="Uri-Query"/>
+						<textbox id="debug_option_uri_query" emptytext="not set" disabled="true"/>
+					</vbox>
+				</hbox>
+				
+				<label control="debug_option_observe" value="Observe"/>
+				<textbox id="debug_option_observe" emptytext="not set: use integer"/>
+				
+				<hbox>
+					<vbox flex="1">
+						<label control="debug_option_block2" value="Block-Down"/>
+						<textbox id="debug_option_block2" emptytext="not set: use integer"/>
+					</vbox>
+					<vbox flex="1">
+						<label control="debug_option_block1" value="Block-Up"/>
+						<textbox id="debug_option_block1" emptytext="not set: use integer"/>
+					</vbox>
+				</hbox>
+				
+				<label value="Response options" style="text-align: center; margin-top: 5px;"/>
+				<label control="debug_option_max_age" value="Max-Age"/>
+				<textbox id="debug_option_max_age" emptytext="not set: use integer"/>
+					
+				<label control="debug_option_etag" value="ETag"/>
+				<textbox id="debug_option_etag" emptytext="not set: use hex or string"/>
+				
+				<hbox>
+					<vbox flex="1">
+						<label control="debug_option_location_path" value="Location-Path"/>
+						<textbox id="debug_option_location_path" emptytext="not set" style="width: 80px;"/>
+					</vbox>
+					<vbox flex="1">
+						<label control="debug_option_location_query" value="Location-Query"/>
+						<textbox id="debug_option_location_query" emptytext="not set" style="width: 80px;"/>
+					</vbox>
+				</hbox>
 			</vbox>
 		</groupbox>
 

@@ -1,5 +1,5 @@
-pref("extensions.copper.coap-version", 3);
-pref("extensions.copper.default-block-size", 32);
+pref("extensions.copper.coap-version", 6);
+pref("extensions.copper.default-block-size", 64);
 pref("extensions.copper.show-unknown-transactions", true);
 pref("extensions.copper.auto-discover", true);
 pref("extensions.copper.retransmissions", true);

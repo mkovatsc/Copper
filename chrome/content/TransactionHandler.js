@@ -174,6 +174,12 @@ CopperChrome.TransactionHandler.prototype = {
 		
 		var callback = this.defaultCB;
 		
+
+		// ack received CON messages
+		if (message.getType()==Copper.MSG_TYPE_CON) {
+			this.ack(message.getTID());
+		}
+		
 		// handle transaction
 		if (this.transactions[message.getTID()]) {
 			if (this.transactions[message.getTID()].timer) window.clearTimeout(this.transactions[message.getTID()].timer);
@@ -193,21 +199,12 @@ CopperChrome.TransactionHandler.prototype = {
 			
 		// duplicates
 		} else if (this.dupFilter.indexOf(message.getTID()) !== -1) {
-		
-			// also ack duplicate confirmables, silently drop non-cons
-			if (message.getType()==Copper.MSG_TYPE_CON) {
-				this.ack(message.getTID());
-			}
+			callback = null;
 			
 		// handle observing
 		} else if (CopperChrome.observer && message.getToken()!=null && CopperChrome.observer.isRegisteredToken(message.getToken())) {
 			dump('=observing==============\n');
 			callback = CopperChrome.observer.getSubscriberCallback(message.getToken());
-
-			// handle confirmables
-			if (message.getType()==Copper.MSG_TYPE_CON) {
-				this.ack(message.getTID());
-			}
 
 			// add to duplicates filter
 			this.dupFilter.unshift(message.getTID());

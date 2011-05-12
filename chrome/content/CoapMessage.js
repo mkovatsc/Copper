@@ -69,8 +69,8 @@ CopperChrome.CoapMessage.prototype = {
 		ret += ' Type: '+this.getType(true);
 		ret += '\n Code: '+this.getCode(true);
 		ret += '\n Transaction ID: '+this.getTID();
-		ret += '\n Options ('+this.packet.optionCount+'): '+this.getOptions(true);
-		ret += '\n Payload: '+this.getPayload();
+		ret += '\n Options ('+this.packet.optionCount+'):'+this.getOptions(true);
+		ret += '\n Payload:\n'+this.getPayload();
 		return ret;
 	},
 	
@@ -167,33 +167,7 @@ CopperChrome.CoapMessage.prototype = {
 		if (optLen<=0) return null;
 		
 		if (readable) {
-			var ret = 'unknown';
-			switch (opt) {
-				case Copper.CONTENT_TYPE_TEXT_PLAIN: ret = 'text/plain'; break;
-				case Copper.CONTENT_TYPE_TEXT_XML: ret = 'text/xml'; break;
-				case Copper.CONTENT_TYPE_TEXT_CSV: ret = 'text/csv'; break;
-				case Copper.CONTENT_TYPE_TEXT_HTML: ret = 'text/html'; break;
-				case Copper.CONTENT_TYPE_IMAGE_GIF: ret = 'image/gif'; break;
-				case Copper.CONTENT_TYPE_IMAGE_JPEG: ret = 'image/jpeg'; break;
-				case Copper.CONTENT_TYPE_IMAGE_PNG: ret = 'image/png'; break;
-				case Copper.CONTENT_TYPE_IMAGE_TIFF: ret = 'image/tiff'; break;
-				case Copper.CONTENT_TYPE_AUDIO_RAW: ret = 'audio/raw'; break;
-				case Copper.CONTENT_TYPE_VIDEO_RAW: ret = 'video/raw'; break;
-				case Copper.CONTENT_TYPE_APPLICATION_LINK_FORMAT: ret = 'application/link-format'; break;
-				case Copper.CONTENT_TYPE_APPLICATION_XML: ret = 'application/xml'; break;
-				case Copper.CONTENT_TYPE_APPLICATION_OCTET_STREAM: ret = 'application/octet-stream'; break;
-				case Copper.CONTENT_TYPE_APPLICATION_RDF_XML: ret = 'application/rdf+xml'; break;
-				case Copper.CONTENT_TYPE_APPLICATION_SOAP_XML: ret = 'application/soap+xml'; break;
-				case Copper.CONTENT_TYPE_APPLICATION_ATOM_XML: ret = 'application/atom+xml'; break;
-				case Copper.CONTENT_TYPE_APPLICATION_XMPP_XML: ret = 'application/xmpp+xml'; break;
-				case Copper.CONTENT_TYPE_APPLICATION_EXI: ret = 'application/exi'; break;
-				case Copper.CONTENT_TYPE_APPLICATION_X_BXML: ret = 'application/x-bxml'; break;
-				case Copper.CONTENT_TYPE_APPLICATION_FASTINFOSET: ret = 'application/fastinfoset'; break;
-				case Copper.CONTENT_TYPE_APPLICATION_SOAP_FASTINFOSET: ret = 'application/soap+fastinfoset'; break;
-				case Copper.CONTENT_TYPE_APPLICATION_JSON: ret = 'application/json'; break;
-				case Copper.CONTENT_TYPE_APPLICATION_X_OBIX_BINARY: ret = 'application/x-obix-binary'; break;
-			}
-			return new Array('Content-Type', ret, opt);
+			return new Array('Content-Type', Copper.getContentTypeName(opt), opt);
 		} else {
 			return opt;
 		}
@@ -572,7 +546,6 @@ CopperChrome.CoapMessage.prototype = {
 	getBlock1 : function(readable) {
 		
 		if (CopperChrome.coapVersion < 6) {
-			dump('WARNING: CoapMessage.setBlock1 [Block1 only supported in coap-06+]\n');
 			return null;
 		}
 		
@@ -654,16 +627,16 @@ CopperChrome.CoapMessage.prototype = {
 		if (readable) {
 			var ret = '';
 	
-			if (this.getContentType()!=null) ret += this.getContentType(true)[0] + ': ' + this.getContentType(true)[1] + ' ['+this.getContentType(true)[2]+']; ';
-			if (this.getMaxAge()!=null) ret += this.getMaxAge(true)[0] + ': ' + this.getMaxAge(true)[1] + ' ['+this.getMaxAge(true)[2]+']; ';
-			if (this.getProxyUri()!=null) ret += this.getProxyUri(true)[0] + ': ' + this.getProxyUri(true)[1] + ' ['+this.getProxyUri(true)[2]+']; ';
-			if (this.getETag()!=null) ret += this.getETag(true)[0] + ': ' + this.getETag(true)[1] + ' ['+this.getETag(true)[2]+']; ';
-			if (this.getUri()!=null) ret += this.getUri(true)[0] + ': ' + this.getUri(true)[1] + ' ['+this.getUri(true)[2]+']; ';
-			if (this.getLocation()!=null) ret += this.getLocation(true)[0] + ': ' + this.getLocation(true)[1] + ' ['+this.getLocation(true)[2]+']; ';
-			if (this.getObserve()!=null) ret += this.getObserve(true)[0] + ': ' + this.getObserve(true)[1] + ' ['+this.getObserve(true)[2]+']; ';
-			if (this.getToken()!=null) ret += this.getToken(true)[0] + ': ' + this.getToken(true)[1] + ' ['+this.getToken(true)[2]+']; ';
-			if (this.getBlock()!=null) ret += this.getBlock(true)[0] + ': ' + this.getBlock(true)[1] + ' ['+this.getBlock(true)[2]+']; ';
-			if (this.getBlock1()!=null) ret += this.getBlock1(true)[0] + ': ' + this.getBlock1(true)[1] + ' ['+this.getBlock1(true)[2]+']; ';
+			if (this.getContentType()!=null) ret += '\n  ' + this.getContentType(true)[0] + ': ' + this.getContentType(true)[1] + ' ['+this.getContentType(true)[2]+']';
+			if (this.getMaxAge()!=null) ret += '\n  ' + this.getMaxAge(true)[0] + ': ' + this.getMaxAge(true)[1] + ' ['+this.getMaxAge(true)[2]+']';
+			if (this.getProxyUri()!=null) ret += '\n  ' + this.getProxyUri(true)[0] + ': ' + this.getProxyUri(true)[1] + ' ['+this.getProxyUri(true)[2]+']';
+			if (this.getETag()!=null) ret += '\n  ' + this.getETag(true)[0] + ': ' + this.getETag(true)[1] + ' ['+this.getETag(true)[2]+']';
+			if (this.getUri()!=null) ret += '\n  ' + this.getUri(true)[0] + ': ' + this.getUri(true)[1] + ' ['+this.getUri(true)[2]+']';
+			if (this.getLocation()!=null) ret += '\n  ' + this.getLocation(true)[0] + ': ' + this.getLocation(true)[1] + ' ['+this.getLocation(true)[2]+']';
+			if (this.getObserve()!=null) ret += '\n  ' + this.getObserve(true)[0] + ': ' + this.getObserve(true)[1] + ' ['+this.getObserve(true)[2]+']';
+			if (this.getToken()!=null) ret += '\n  ' + this.getToken(true)[0] + ': ' + this.getToken(true)[1] + ' ['+this.getToken(true)[2]+']';
+			if (this.getBlock()!=null) ret += '\n  ' + this.getBlock(true)[0] + ': ' + this.getBlock(true)[1] + ' ['+this.getBlock(true)[2]+']';
+			if (this.getBlock1()!=null) ret += '\n  ' + this.getBlock1(true)[0] + ': ' + this.getBlock1(true)[1] + ' ['+this.getBlock1(true)[2]+']';
 			
 			return ret;
 		} else {

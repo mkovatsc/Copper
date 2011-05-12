@@ -43,6 +43,7 @@
 
 CopperChrome.UdpClient = function(myHost, myPort) {
 
+	// createTransport requires plain IPv6 address
 	this.host = myHost.replace(/\[/,'').replace(/\]/,'');
 	this.port = myPort;
 	
@@ -64,6 +65,7 @@ CopperChrome.UdpClient.prototype = {
 	port             : -1,
 	
 	callback         : null,
+	errorCallback    : null,
 	
 	transportService : null,
 	pump             : null,
@@ -76,6 +78,10 @@ CopperChrome.UdpClient.prototype = {
 		this.callback = myCB;
 	},
 	
+	registerErrorCallback : function(myCB) {
+		this.errorCallback = myCB;
+	},
+	
 	// stream observer functions
 	onStartRequest : function(request, context) {
 		;
@@ -84,6 +90,7 @@ CopperChrome.UdpClient.prototype = {
 	onStopRequest : function(request, context, status) {
 		this.outputStream.close();
 		this.inputStream.close();
+		CopperChrome.errorHandler({getCopperCode:function(){return 'Network is unreachable';}});
 	},
 	
 	onDataAvailable : function(request, context, inputStream, offset, count) {
@@ -134,7 +141,10 @@ CopperChrome.UdpClient.prototype = {
 			dump(' Length: '+datagram.length+'\n');
 			dump(' -----------------------\n');
 		} catch (ex) {
-			dump('WARNING: UdpClient.send [IO error]\n');
+			dump('WARNING: UdpClient.send [I/O error]\n');
+			if (this.errorCallback) {
+				this.errorCallback({getCopperCode:function(){return 'I/O error';}});
+			}
 		}
 	}
 };
