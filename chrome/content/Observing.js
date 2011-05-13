@@ -35,97 +35,103 @@
  * \author  Matthias Kovatsch <kovatsch@inf.ethz.ch>\author
  */
 
-CopperChrome.ObserveEntry = function(uri, cb) {
+CopperChrome.ObserveEntry = function(uri, cb, token) {
 	this.uri = uri;
 	this.callback = cb;
+	if (token!=null) {
+		this.token = token;
+	}
 };
 CopperChrome.ObserveEntry.prototype = {
 	uri : null,
-	callback: null
+	callback: null,
+	token : null
 };
 
 CopperChrome.Observing = function() {
 	// maybe support multiple subscriptions via sidebar in the future
-	this.subscriptions = new Object();
+	//this.subscriptions = new Object();
 };
 
 CopperChrome.Observing.prototype = {
-	subscriptions : null,
 	
 	pending : null,
+	subscription : null,
 	
 	subscribe : function(uri, cb) {
 		// check for existing subscriptions
-		for (t in this.subscriptions) {
-			if (this.subscriptions[t]!=null && this.subscriptions[t].uri==uri) {
-				this.unsubscribe(t);
-				return;
+		if (this.subscription) {
+			this.unsubscribe();
+			return;
+		}
+		
+		dump('INFO: Subscribe ' + uri + '\n');
+		
+		this.pending = new CopperChrome.ObserveEntry(uri, cb);
+		
+		dump("PENDING: "+this.pending.uri + '\n');
+		
+		try {
+			var subscribe = new CopperChrome.CoapMessage(Copper.MSG_TYPE_CON, Copper.GET, uri);
+			subscribe.setObserve(0);
+
+			var that = this;
+			CopperChrome.client.send(subscribe, CopperChrome.myBind(that, that.handle));
+		} catch (ex) {
+			alert('ERROR: Observing.subscribe ['+ex+']');
+		}
+	},
+
+	unsubscribe : function(token) {
+		if (this.subscription) {
+			dump('INFO: Unsibscribing' + this.subscription.uri + '\n');
+			CopperChrome.client.deRegisterToken(this.subscription.token);
+			try {
+				var rst = new CopperChrome.CoapMessage(Copper.MSG_TYPE_RST);
+				rst.setToken(this.subscription.token);
+				CopperChrome.client.send( rst );
+			} catch (ex) {
+				alert('ERROR: Observing.unsubscribe ['+ex+']');
 			}
+			this.subscription = null;
 		}
 		
-		// internally use int token
-		var intToken = 0;
-		do {
-			// 255 ongoing transactions should be sufficient
-			intToken = parseInt(Math.random()*0x100);
-		} while (intToken!=0 && this.subscriptions[intToken]!=null);
-		
-		this.pending = intToken;
-		
-		this.subscriptions[intToken] = new CopperChrome.ObserveEntry(uri, cb);
-		
-		var subscribe = new CopperChrome.CoapMessage(Copper.MSG_TYPE_CON, Copper.GET, uri);
-		subscribe.setObserve(60);
-		subscribe.setToken(Copper.int2bytes(intToken));
-		
-		var that = this;
-		CopperChrome.client.send(subscribe, CopperChrome.myBind(that,that.initSubscription));
-		
-		return intToken;
+		document.getElementById('toolbar_observe').image = 'chrome://copper/skin/tool_observe.png';
+		document.getElementById('toolbar_observe').label = 'Observe';
 	},
 	
-	initSubscription : function(message) {
-		dump('INFO: initSubscription()\n');
-		if (!this.pending) {
-			throw 'no subscription pending';
-		}
+	handle : function(message) {
+		dump('INFO: Observing.handle()\n');
+
 		
-		if (message.isOption(Copper.OPTION_OBSERVE) && message.getToken()==this.pending) {
-			// server supports observing this resource
-			this.subscriptions[this.pending].callback(message);
-			this.pending = null;
-			
-			document.getElementById('toolbar_observe').image = 'chrome://copper/skin/tool_unobserve.png';
-			document.getElementById('toolbar_observe').label = 'Cancel ';
-			
+		if (this.pending) {
+			// check if server supports observing this resource
+			if (message.isOption(Copper.OPTION_OBSERVE)) {
+				
+				this.subscription = new CopperChrome.ObserveEntry(this.pending.uri, this.pending.callback, message.getTokenDefault());
+				this.pending = null;
+				
+				var that = this;
+				CopperChrome.client.registerToken(this.subscription.token, CopperChrome.myBind(that, that.handle));
+				
+				document.getElementById('toolbar_observe').image = 'chrome://copper/skin/tool_unobserve.png';
+				document.getElementById('toolbar_observe').label = 'Cancel ';
+
+				this.subscription.callback(message);
+				
+			} else {
+				this.pending = null;
+				dump('WARNING: Observerving not supported by server\n');
+				
+				message.getCopperCode = function() { return 'Observerving not supported by server'; };
+				
+				// FIXME static call
+				CopperChrome.defaultHandler(message);
+			}
+		} else if (this.subscription!=null) {
+			this.subscription.callback(message);
 		} else {
-			this.subscriptions[this.pending] = null;
-			this.pending = null;
-			dump('WARNING: Observerving not supported by server\n');
-			
-			// FIXME static call
-			CopperChrome.defaultHandler(message);
+			throw 'Missing context for Observing.handle()';
 		}
-	},
-
-	unsubscribe : function(intToken) {
-		if (this.subscriptions[intToken]!=null) {
-			this.subscriptions[intToken] = null;
-			document.getElementById('toolbar_observe').image = 'chrome://copper/skin/tool_observe.png';
-			document.getElementById('toolbar_observe').label = 'Observe';
-		} else if (intToken==null) {
-			// cancel all subscriptions
-			this.subscriptions = new Object();
-			document.getElementById('toolbar_observe').image = 'chrome://copper/skin/tool_observe.png';
-			document.getElementById('toolbar_observe').label = 'Observe';
-		}
-	},
-
-	isRegisteredToken : function(token) {
-		return (this.subscriptions[Copper.bytes2int(token)]!=null);
-	},
-	
-	getSubscriberCallback : function(token) {
-		return this.subscriptions[Copper.bytes2int(token)].callback;
 	}
 };

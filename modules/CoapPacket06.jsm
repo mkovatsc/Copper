@@ -394,17 +394,14 @@ Copper.CoapPacket.prototype = {
 					optionDelta += fenceDelta;
 					
 					this.optionCount++;
-					dump('INFO: Serializing fence post (delta '+ fenceDelta+')\n');
+					//dump('INFO: Serializing fence post (delta '+ fenceDelta+')\n');
 				}
 				
 				var splitOption = new Array();
 				if (optTypeIt==Copper.OPTION_LOCATION_PATH || optTypeIt==Copper.OPTION_URI_PATH) {
-					
-					dump('SPLIT PATH\n');
-					
 					var splitString = Copper.bytes2str(opt).split('/');
 					for (s in splitString) {
-						dump(splitString[s]+'\n');
+						//dump(splitString[s]+'\n');
 						splitOption.push(Copper.str2bytes(splitString[s]));
 					}
 				} else {
@@ -412,7 +409,7 @@ Copper.CoapPacket.prototype = {
 				}
 				
 				while ((opt = splitOption.shift())) {
-					dump('INFO: Serializing option '+optTypeIt+' (delta '+(optTypeIt-optionDelta)+', len '+opt.length+')\n');
+					//dump('INFO: Serializing option '+optTypeIt+' (delta '+(optTypeIt-optionDelta)+', len '+opt.length+')\n');
 			    	
 					// delta type encoding
 					tempByte  = (0xFF & (optTypeIt-optionDelta)) << 4;
@@ -486,7 +483,7 @@ Copper.CoapPacket.prototype = {
 	    	var optType = ((0xF0 & tempByte) >>> 4) + optionDelta;
 	    	var optLen = (0x0F & tempByte);
 	    	
-	    	dump('INFO: parsing option '+optType+' (delta '+((0xF0 & tempByte) >>> 4)+', len '+optLen+')\n');
+	    	//dump('INFO: parsing option '+optType+' (delta '+((0xF0 & tempByte) >>> 4)+', len '+optLen+')\n');
 	    	
 	    	// when the length is 15 or more, another byte is added as an 8-bit unsigned integer
 	    	if (optLen==15) {

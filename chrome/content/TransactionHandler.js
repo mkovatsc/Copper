@@ -35,10 +35,9 @@
  * \author  Matthias Kovatsch <kovatsch@inf.ethz.ch>\author
  */
 
-CopperChrome.Transaction = function(myMessage, myTimer, myCB) {
+CopperChrome.Transaction = function(myMessage, myTimer) {
 	this.message = myMessage;
 	this.timer = myTimer;
-	this.cb = myCB;
 	
 	this.retries = 0;
 	
@@ -47,7 +46,6 @@ CopperChrome.Transaction = function(myMessage, myTimer, myCB) {
 CopperChrome.Transaction.prototype = {
 	message : null,
 	timer : null,
-	cb : null,
 	
 	rttStart : 0,
 	
@@ -63,6 +61,8 @@ CopperChrome.TransactionHandler = function(myClient, retrans) {
 	
 	this.retransmissions = retrans!=null ? retrans : true;
 	this.transactions = new Object();
+	this.requests = new Object();
+	this.registeredTokens = new Object();
 	this.dupFilter = new Array();
 };
 
@@ -74,6 +74,8 @@ CopperChrome.TransactionHandler.prototype = {
 	defaultCB : null,
 	
 	transactions : null,
+	requests : null,
+	registeredTokens : null,
 	dupFilter : null,
 	
 	retransmissions : true,
@@ -98,8 +100,9 @@ CopperChrome.TransactionHandler.prototype = {
 				if (this.transactions[t].timer) {
 					window.clearTimeout(this.transactions[t].timer);
 				}
-				this.transactions[t] = null;
+				delete this.transactions[t];
 				dump('INFO: TransactionHandler.cancelTransactions [cancelled transaction '+t+']\n');
+				dump('  value: '+this.transactions[t]+'\n');
 			}
 		}
 		
@@ -109,16 +112,32 @@ CopperChrome.TransactionHandler.prototype = {
 		}
 	},
 	
-	send : function(message, tidCB) {
+	registerToken : function(token, cb) {
+		dump('INFO: Registering token '+Copper.bytes2hex(token)+'\n');
+		this.registeredTokens[token] = cb;
+	},
+	
+	deRegisterToken : function(token) {
+		if (this.registeredTokens[token]) {
+			dump('INFO: Deregistering token '+Copper.bytes2hex(token)+'\n');
+			delete this.registeredTokens[token];
+		}
+		for (i in this.registeredTokens) {
+			if (this.registeredTokens[i]) dump('  '+i+'\n');
+		}
+	},
+	
+	send : function(message, reqCB) {
+		
 		// set transaction ID for message
-		if (message.getType()!=Copper.MSG_TYPE_ACK && message.getType()!=Copper.MSG_TYPE_RST) {
+		if (message.getType()==Copper.MSG_TYPE_CON || message.getType()==Copper.MSG_TYPE_NON) {
 			message.setTID( this.incTID() );
 		}
 		
-		var that = this; // yes, that is really necessary for JavaScript...
+		var that = this; // struggling with the JavaScript scope thing...
 		var timer = null;
 		
-		// store transaction if awaiting answer
+		// store reliable transaction
 		if (message.isConfirmable()) {
 			if (this.retransmissions) {
 				// schedule resend
@@ -127,7 +146,18 @@ CopperChrome.TransactionHandler.prototype = {
 				// also schedule 'not responding' timeout when retransmissions are disabled 
 				timer = window.setTimeout(function(){CopperChrome.myBind(that,that.resend(message.getTID()));}, 16000); // 16 seconds
 			}
-			this.transactions[message.getTID()] = new CopperChrome.Transaction(message, timer, tidCB);
+			this.transactions[message.getTID()] = new CopperChrome.Transaction(message, timer);
+		}
+		
+		// store request callback through token matching
+		if (message.getType()==Copper.MSG_TYPE_CON || message.getType()==Copper.MSG_TYPE_NON) {
+			while (this.requests[message.getTokenDefault()]!=null || this.registeredTokens[message.getTokenDefault()]!=null) {
+				dump('REQ: '+this.requests[message.getTokenDefault()]+'\n');
+				dump('REG: '+this.registeredTokens[message.getTokenDefault()]+'\n');
+				message.setToken(new Array([parseInt(Math.random()*0x100)]));
+			}
+			dump('SETTING REQ\n');
+			this.requests[message.getTokenDefault()] = reqCB==null ? this.defaultCB : reqCB;
 		}
 		
 		// and send
@@ -157,9 +187,9 @@ CopperChrome.TransactionHandler.prototype = {
 			dump('=timeout================\n');
 			dump(' Transaction ID: '+tid+'\n');
 			dump(' =======================\n');
-			this.transactions[tid] = null;
+			delete this.transactions[tid];
 			// TODO: find nicer way, maybe registered error CB
-			this.defaultCB( {getCopperCode:function(){return 'Server not responding';}});
+			this.client.errorCallback( {getCopperCode:function(){return 'Server not responding';}});
 		}
 	},
 	
@@ -172,10 +202,7 @@ CopperChrome.TransactionHandler.prototype = {
 		dump(message.getSummary()+'\n');
 		dump(' =======================\n');
 		
-		var callback = this.defaultCB;
-		
-
-		// ack received CON messages
+		// ack all successfully received CON messages
 		if (message.getType()==Copper.MSG_TYPE_CON) {
 			this.ack(message.getTID());
 		}
@@ -183,38 +210,37 @@ CopperChrome.TransactionHandler.prototype = {
 		// handle transaction
 		if (this.transactions[message.getTID()]) {
 			if (this.transactions[message.getTID()].timer) window.clearTimeout(this.transactions[message.getTID()].timer);
-			if (this.transactions[message.getTID()].cb) callback = this.transactions[message.getTID()].cb;
 			
 			// calculate round trip time
 			var ms = (new Date().getTime() - this.transactions[message.getTID()].rttStart);
-			
 			message.getRTT = function() { return ms; };
 			
-			// remove
-			this.transactions[message.getTID()] = null;
+			// clear transaction
+			delete this.transactions[message.getTID()];
 			
 			// add to duplicates filter
 			this.dupFilter.unshift(message.getTID());
 			if (this.dupFilter.length>10) this.dupFilter.pop();
 			
-		// duplicates
+		// filter duplicates
 		} else if (this.dupFilter.indexOf(message.getTID()) !== -1) {
-			callback = null;
-			
-		// handle observing
-		} else if (CopperChrome.observer && message.getToken()!=null && CopperChrome.observer.isRegisteredToken(message.getToken())) {
-			dump('=observing==============\n');
-			callback = CopperChrome.observer.getSubscriberCallback(message.getToken());
-
-			// add to duplicates filter
-			this.dupFilter.unshift(message.getTID());
-			if (this.dupFilter.length>10) this.dupFilter.pop();
-			
+			dump('INFO: Dropping duplicate (Transaction ID: '+message.getTID()+')\n');
+			return;
+		}
+		
+		// find callback
+		var callback = null;
+		if (this.requests[message.getTokenDefault()]) {
+			callback = this.requests[message.getTokenDefault()];
+			delete this.requests[message.getTokenDefault()];
+		} else if (this.registeredTokens[message.getTokenDefault()]) {
+			callback = this.registeredTokens[message.getTokenDefault()];
 		} else {
-			dump('WARNING: TransactionHandler.handle [unknown transaction and token]\n');
+			dump('WARNING: TransactionHandler.handle [unknown token]\n');
 			
 			var infoReset = '';
 			
+			// RST also allowed for NON since 06
 			if (message.getType()==Copper.MSG_TYPE_CON || message.getType()==Copper.MSG_TYPE_NON) {
 				this.reset(message.getTID(), message.getToken());
 				infoReset = ' (sent RST)';
@@ -222,15 +248,13 @@ CopperChrome.TransactionHandler.prototype = {
 			
 			if (CopperChrome.showUnknownTransactions) {
 				// hack for additional info
-				message.getCopperCode = function() { return 'Unknown transaction'+infoReset; };
-			} else {
-				return;
+				message.getCopperCode = function() { return 'Unknown token'+infoReset; };
+				
+				callback = this.defaultCB;
 			}
 		}
-		
-		// hand over to callback
 		if (callback) {
-			callback( message );
+			callback(message);
 		}
 	},
 	

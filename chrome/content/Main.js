@@ -195,6 +195,9 @@ CopperChrome.main = function() {
 };
 
 CopperChrome.unload = function() {
+	// shut down socket, required for refresh (F5)
+	this.client.shutdown();
+	
 	// save as pref as persist does not work
 	if (CopperChrome.hostname!='') CopperChrome.prefManager.setCharPref('extensions.copper.payloads.'+CopperChrome.hostname+':'+CopperChrome.port, document.getElementById('toolbar_payload').value);
 	CopperChrome.prefManager.setBoolPref('extensions.copper.auto-discover', document.getElementById('toolbar_auto_discovery').checked);
