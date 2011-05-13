@@ -63,6 +63,7 @@ CopperChrome.TransactionHandler = function(myClient, retrans) {
 	this.transactions = new Object();
 	this.requests = new Object();
 	this.registeredTokens = new Object();
+	this.registeredTIDs = new Object();
 	this.dupFilter = new Array();
 };
 
@@ -74,8 +75,11 @@ CopperChrome.TransactionHandler.prototype = {
 	defaultCB : null,
 	
 	transactions : null,
+	
 	requests : null,
 	registeredTokens : null,
+	registeredTIDs : null,
+	
 	dupFilter : null,
 	
 	retransmissions : true,
@@ -158,6 +162,9 @@ CopperChrome.TransactionHandler.prototype = {
 			}
 			dump('SETTING REQ\n');
 			this.requests[message.getTokenDefault()] = reqCB==null ? this.defaultCB : reqCB;
+			
+			// also save callback by TID
+			this.registeredTIDs[message.getTID()] = this.requests[message.getTokenDefault()];
 		}
 		
 		// and send
@@ -233,8 +240,12 @@ CopperChrome.TransactionHandler.prototype = {
 		if (this.requests[message.getTokenDefault()]) {
 			callback = this.requests[message.getTokenDefault()];
 			delete this.requests[message.getTokenDefault()];
+			delete this.registeredTIDs[message.getTID()];
 		} else if (this.registeredTokens[message.getTokenDefault()]) {
 			callback = this.registeredTokens[message.getTokenDefault()];
+		} else if (this.registeredTIDs[message.getTID()]) {
+			callback = this.registeredTIDs[message.getTID()];
+			delete this.registeredTIDs[message.getTID()];
 		} else {
 			dump('WARNING: TransactionHandler.handle [unknown token]\n');
 			
