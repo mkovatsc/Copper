@@ -16,6 +16,9 @@
 <script type="application/x-javascript" src="chrome://copper/content/namespace.js"/>
 
 <script type="application/x-javascript" src="chrome://copper/content/Main.js"/>
+<script type="application/x-javascript" src="chrome://copper/content/Handlers.js"/>
+<script type="application/x-javascript" src="chrome://copper/content/Helpers.js"/>
+<script type="application/x-javascript" src="chrome://copper/content/DebugOptions.js"/>
 <script type="application/x-javascript" src="chrome://copper/content/CoapMessage.js"/>
 <script type="application/x-javascript" src="chrome://copper/content/UdpClient.js"/>
 <script type="application/x-javascript" src="chrome://copper/content/TransactionHandler.js"/>
@@ -61,7 +64,9 @@
 				<button label="discovering..." disabled="true"/>
 			</description>
 		</groupbox>
-		<label id="info_code" value="" style="font-size: 24pt; font-weight: bold;"/>
+		<box style="overflow: hidden;">
+			<label id="info_code" value="" style="font-size: 24pt; font-weight: bold;"/>
+		</box>
 		<box id="group_head">
 			<hbox flex="1">
 				<listbox id="packet_header" flex="1" rows="4">
