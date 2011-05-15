@@ -14,7 +14,6 @@
 				onunload			= "CopperChrome.unload()">
 
 <script type="application/x-javascript" src="chrome://copper/content/namespace.js"/>
-
 <script type="application/x-javascript" src="chrome://copper/content/Main.js"/>
 <script type="application/x-javascript" src="chrome://copper/content/Handlers.js"/>
 <script type="application/x-javascript" src="chrome://copper/content/Helpers.js"/>
@@ -22,7 +21,6 @@
 <script type="application/x-javascript" src="chrome://copper/content/CoapMessage.js"/>
 <script type="application/x-javascript" src="chrome://copper/content/UdpClient.js"/>
 <script type="application/x-javascript" src="chrome://copper/content/TransactionHandler.js"/>
-
 <script type="application/x-javascript" src="chrome://copper/content/Observing.js"/>
 
 
@@ -120,7 +118,7 @@
 	<splitter collapse="after" resizebefore="farthest">
 		<grippy/>
 	</splitter>
-	<vbox id="sidebar" style="width: 18em;">
+	<vbox id="sidebar" style="width: 19em;">
 		<groupbox flex="1">
 			<caption>
 				<checkbox id="chk_debug_options" label="Debug options"/>
