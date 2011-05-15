@@ -209,11 +209,6 @@ CopperChrome.TransactionHandler.prototype = {
 		dump(message.getSummary()+'\n');
 		dump(' =======================\n');
 		
-		// ack all successfully received CON messages
-		if (message.getType()==Copper.MSG_TYPE_CON) {
-			this.ack(message.getTID());
-		}
-		
 		// handle transaction
 		if (this.transactions[message.getTID()]) {
 			if (this.transactions[message.getTID()].timer) window.clearTimeout(this.transactions[message.getTID()].timer);
@@ -261,9 +256,16 @@ CopperChrome.TransactionHandler.prototype = {
 				// hack for additional info
 				message.getCopperCode = function() { return 'Unknown token'+infoReset; };
 				
-				callback = this.defaultCB;
+				this.defaultCB(message);
 			}
+			return;
 		}
+		
+		// ack all successfully received CON messages
+		if (message.getType()==Copper.MSG_TYPE_CON) {
+			this.ack(message.getTID());
+		}
+		
 		if (callback) {
 			callback(message);
 		}
