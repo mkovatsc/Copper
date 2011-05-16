@@ -106,9 +106,11 @@ CopperChrome.TransactionHandler.prototype = {
 				}
 				delete this.transactions[t];
 				dump('INFO: TransactionHandler.cancelTransactions [cancelled transaction '+t+']\n');
-				dump('  value: '+this.transactions[t]+'\n');
 			}
 		}
+		this.requests = new Object();
+		this.registeredTokens = new Object();
+		this.registeredTIDs = new Object();
 		
 		// cancel subscriptions as well
 		if (CopperChrome.observer) {
@@ -238,7 +240,6 @@ CopperChrome.TransactionHandler.prototype = {
 			callback = this.registeredTIDs[message.getTID()];
 			delete this.registeredTIDs[message.getTID()];
 			
-			dump('CHECK '+message.getType()+'/'+message.getCode()+'\n');
 			message.getCopperCode = function() { return 'Separate response inbound'; };
 		
 		// request matching by token
