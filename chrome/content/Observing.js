@@ -74,6 +74,7 @@ CopperChrome.Observing.prototype = {
 		try {
 			var subscribe = new CopperChrome.CoapMessage(Copper.MSG_TYPE_CON, Copper.GET, uri);
 			subscribe.setObserve(0);
+			subscribe.setToken(new Array(Math.random()*0x100, Math.random()*0x100));
 
 			var that = this;
 			CopperChrome.client.send(subscribe, CopperChrome.myBind(that, that.handle));
