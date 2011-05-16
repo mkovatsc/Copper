@@ -89,7 +89,7 @@ CopperChrome.blockwiseHandler = function(message) {
 		}
 		
 	} else {
-		CopperChrome.updateLabel('packet_payload', message.getPayload());
+		//CopperChrome.updateLabel('packet_payload', message.getPayload());
 		document.getElementById('info_payload').label='Payload ('+document.getElementById('packet_payload').value.length+')';
 	}
 };

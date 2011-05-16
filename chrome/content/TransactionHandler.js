@@ -232,15 +232,31 @@ CopperChrome.TransactionHandler.prototype = {
 		
 		// find callback
 		var callback = null;
-		if (this.requests[message.getTokenDefault()]) {
+		
+		// check for separate response first
+		if (message.getType()==Copper.MSG_TYPE_ACK && message.getCode()==0) {
+			callback = this.registeredTIDs[message.getTID()];
+			delete this.registeredTIDs[message.getTID()];
+			
+			dump('CHECK '+message.getType()+'/'+message.getCode()+'\n');
+			message.getCopperCode = function() { return 'Separate response inbound'; };
+		
+		// request matching by token
+		} else if (this.requests[message.getTokenDefault()]) {
 			callback = this.requests[message.getTokenDefault()];
 			delete this.requests[message.getTokenDefault()];
 			delete this.registeredTIDs[message.getTID()];
+		
+		// check registered Tokens, e.g., subscriptions
 		} else if (this.registeredTokens[message.getTokenDefault()]) {
 			callback = this.registeredTokens[message.getTokenDefault()];
+
+		// fallback to TID
 		} else if (this.registeredTIDs[message.getTID()]) {
 			callback = this.registeredTIDs[message.getTID()];
 			delete this.registeredTIDs[message.getTID()];
+		
+		// error
 		} else {
 			dump('WARNING: TransactionHandler.handle [unknown token]\n');
 			

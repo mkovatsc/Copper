@@ -192,35 +192,41 @@ Copper.CoapPacket.prototype = {
 	payload :     '',
 	
 	// readable method or response code
-	getCode : function() {
-		switch (parseInt(this.code)) {
-			// methods
-			case Copper.GET: return 'GET';
-			case Copper.POST: return 'POST';
-			case Copper.PUT: return 'PUT';
-			case Copper.DELETE: return 'DELETE';
-			// response codes
-			case Copper.CODE_2_01_CREATED: return '2.01 Created';
-			case Copper.CODE_2_02_DELETED: return '2.02 Deleted';
-			case Copper.CODE_2_03_VALID: return '2.03 Valid';
-			case Copper.CODE_2_04_CHANGED: return '2.04 Changed';
-			case Copper.CODE_2_05_CONTENT: return '2.05 Content';
-			case Copper.CODE_4_00_BAD_REQUEST: return '4.00 Bad Request';
-			case Copper.CODE_4_01_UNAUTHORIZED: return '4.01 Unauthorized';
-			case Copper.CODE_4_02_BAD_OPTION: return '4.02 Bad Option';
-			case Copper.CODE_4_03_FORBIDDEN: return '4.03 Forbidden';
-			case Copper.CODE_4_04_NOT_FOUND: return '4.04 Not Found';
-			case Copper.CODE_4_05_METHOD_NOT_ALLOWED: return '4.05 Method Not Allowed';
-			case Copper.CODE_4_13_REQUEST_ENTITY_TOO_LARGE: return '4.13 Request Entity Too Large';
-			case Copper.CODE_4_15_UNSUPPORTED_MADIA_TYPE: return '4.15 Unsupported Madia Type';
-			case Copper.CODE_5_00_INTERNAL_SERVER_ERROR: return '5.00 Internal Server Error';
-			case Copper.CODE_5_01_NOT_IMPLEMENTED: return '5.01 Not Implemented';
-			case Copper.CODE_5_02_BAD_GATEWAY: return '5.02 Bad Gateway';
-			case Copper.CODE_5_03_SERVICE_UNAVAILABLE: return '5.03 Service Unavailable';
-			case Copper.CODE_5_04_GATEWAY_TIMEOUT: return '5.04 Gateway Timeout';
-			case Copper.CODE_5_05_PROXYING_NOT_SUPPORTED: return '5.05 Proxying Not Supported';
-			// ...
-			default: return Math.floor(this.code/32)+'.'+(this.code % 32)+' Unknown by Copper';
+	getCode : function(readable) {
+		if (readable) {
+			switch (parseInt(this.code)) {
+				// empty
+				case 0: return 'EMPTY';
+				// methods
+				case Copper.GET: return 'GET';
+				case Copper.POST: return 'POST';
+				case Copper.PUT: return 'PUT';
+				case Copper.DELETE: return 'DELETE';
+				// response codes
+				case Copper.CODE_2_01_CREATED: return '2.01 Created';
+				case Copper.CODE_2_02_DELETED: return '2.02 Deleted';
+				case Copper.CODE_2_03_VALID: return '2.03 Valid';
+				case Copper.CODE_2_04_CHANGED: return '2.04 Changed';
+				case Copper.CODE_2_05_CONTENT: return '2.05 Content';
+				case Copper.CODE_4_00_BAD_REQUEST: return '4.00 Bad Request';
+				case Copper.CODE_4_01_UNAUTHORIZED: return '4.01 Unauthorized';
+				case Copper.CODE_4_02_BAD_OPTION: return '4.02 Bad Option';
+				case Copper.CODE_4_03_FORBIDDEN: return '4.03 Forbidden';
+				case Copper.CODE_4_04_NOT_FOUND: return '4.04 Not Found';
+				case Copper.CODE_4_05_METHOD_NOT_ALLOWED: return '4.05 Method Not Allowed';
+				case Copper.CODE_4_13_REQUEST_ENTITY_TOO_LARGE: return '4.13 Request Entity Too Large';
+				case Copper.CODE_4_15_UNSUPPORTED_MADIA_TYPE: return '4.15 Unsupported Madia Type';
+				case Copper.CODE_5_00_INTERNAL_SERVER_ERROR: return '5.00 Internal Server Error';
+				case Copper.CODE_5_01_NOT_IMPLEMENTED: return '5.01 Not Implemented';
+				case Copper.CODE_5_02_BAD_GATEWAY: return '5.02 Bad Gateway';
+				case Copper.CODE_5_03_SERVICE_UNAVAILABLE: return '5.03 Service Unavailable';
+				case Copper.CODE_5_04_GATEWAY_TIMEOUT: return '5.04 Gateway Timeout';
+				case Copper.CODE_5_05_PROXYING_NOT_SUPPORTED: return '5.05 Proxying Not Supported';
+				// ...
+				default: return Math.floor(this.code/32)+'.'+(this.code % 32)+' Unknown by Copper';
+			}
+		} else {
+			return parseInt(this.code);
 		}
 	},
 	

@@ -259,7 +259,7 @@ CopperChrome.updateMessageInfo = function(message) {
 	if (message.getCopperCode) {
 		CopperChrome.updateLabel('info_code', 'Copper: '+message.getCopperCode());
 	} else {
-		CopperChrome.updateLabel('info_code', message.getCode());
+		CopperChrome.updateLabel('info_code', message.getCode(true));
 	}
 
 	document.getElementById('packet_header_type').setAttribute('label', message.getType(true));

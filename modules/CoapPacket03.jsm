@@ -173,31 +173,37 @@ Copper.CoapPacket.prototype = {
 	payload :     '',
 	
 	// readable method or response code
-	getCode : function() {
-		switch (parseInt(this.code)) {
-			// methods
-			case Copper.GET: return 'GET';
-			case Copper.POST: return 'POST';
-			case Copper.PUT: return 'PUT';
-			case Copper.DELETE: return 'DELETE';
-			// response codes
-			case Copper.CODE_100_CONTINUE: return '100 Continue';
-			case Copper.CODE_200_OK: return '200 OK';
-			case Copper.CODE_201_CREATED: return '201 Created';
-			case Copper.CODE_304_NOT_MODIFIED: return '304 Not Modified';
-			case Copper.CODE_400_BAD_REQUEST: return '400 Bad Request';
-			case Copper.CODE_404_NOT_FOUND: return '404 Not Found';
-			case Copper.CODE_405_METHOD_NOT_ALLOWED: return '405 Method Not Allowed';
-			case Copper.CODE_415_UNSUPPORTED_MADIA_TYPE: return '415 Unsupported Madia Type';
-			case Copper.CODE_500_INTERNAL_SERVER_ERROR: return '500 Internal Server Error';
-			case Copper.CODE_502_BAD_GATEWAY: return '502 Bad Gateway';
-			case Copper.CODE_503_SERVICE_UNAVAILABLE: return '503 Service Unavailable';
-			case Copper.CODE_504_GATEWAY_TIMEOUT: return '504 Gateway Timeout';
-			case Copper.CODE_TOKEN_OPTION_REQUIRED: return 'Token Option required by server';
-			case Copper.CODE_URI_AUTHORITY_OPTION_REQUIRED: return 'Uri-Authority Option required by server';
-			case Copper.CODE_CRITICAL_OPTION_NOT_SUPPORTED: return 'Critical Option not supported';
-			// ...
-			default: return 'unknown ('+this.code+')';
+	getCode : function(readable) {
+		if (readable) {
+			switch (parseInt(this.code)) {
+				// empty
+				case 0: return 'EMPTY';
+				// methods
+				case Copper.GET: return 'GET';
+				case Copper.POST: return 'POST';
+				case Copper.PUT: return 'PUT';
+				case Copper.DELETE: return 'DELETE';
+				// response codes
+				case Copper.CODE_100_CONTINUE: return '100 Continue';
+				case Copper.CODE_200_OK: return '200 OK';
+				case Copper.CODE_201_CREATED: return '201 Created';
+				case Copper.CODE_304_NOT_MODIFIED: return '304 Not Modified';
+				case Copper.CODE_400_BAD_REQUEST: return '400 Bad Request';
+				case Copper.CODE_404_NOT_FOUND: return '404 Not Found';
+				case Copper.CODE_405_METHOD_NOT_ALLOWED: return '405 Method Not Allowed';
+				case Copper.CODE_415_UNSUPPORTED_MADIA_TYPE: return '415 Unsupported Madia Type';
+				case Copper.CODE_500_INTERNAL_SERVER_ERROR: return '500 Internal Server Error';
+				case Copper.CODE_502_BAD_GATEWAY: return '502 Bad Gateway';
+				case Copper.CODE_503_SERVICE_UNAVAILABLE: return '503 Service Unavailable';
+				case Copper.CODE_504_GATEWAY_TIMEOUT: return '504 Gateway Timeout';
+				case Copper.CODE_TOKEN_OPTION_REQUIRED: return 'Token Option required by server';
+				case Copper.CODE_URI_AUTHORITY_OPTION_REQUIRED: return 'Uri-Authority Option required by server';
+				case Copper.CODE_CRITICAL_OPTION_NOT_SUPPORTED: return 'Critical Option not supported';
+				// ...
+				default: return 'unknown ('+this.code+')';
+			}
+		} else {
+			return parseInt(this.code);
 		}
 	},
 	

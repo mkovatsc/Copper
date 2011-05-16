@@ -100,7 +100,7 @@ CopperChrome.CoapMessage.prototype = {
 	// readable method or response code
 	getCode : function(readable) {
 		// codes are version specific
-		return this.packet.getCode();
+		return this.packet.getCode(readable);
 	},
 	setCode : function(code) {
 		this.packet.code = code;
