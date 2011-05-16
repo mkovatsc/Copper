@@ -23,8 +23,6 @@
 <script type="application/x-javascript" src="chrome://copper/content/TransactionHandler.js"/>
 <script type="application/x-javascript" src="chrome://copper/content/Observing.js"/>
 
-
-
 <toolbar id="main_toolbar"	align="center">
 
 	<toolbaritem id="toolbar_methods">
@@ -133,10 +131,13 @@
 				</menulist>
 					
 				<label control="debug_option_proxy_uri" value="Proxy-Uri"/>
-				<textbox id="debug_option_proxy_uri" emptytext="not set"/>
+				<textbox id="debug_option_proxy_uri" emptytext="use absolute URI"/>
+					
+				<label control="debug_option_etag" value="ETag"/>
+				<textbox id="debug_option_etag" emptytext="use hex (0x..) or string"/>
 					
 				<label control="debug_option_token" value="Token"/>
-				<textbox id="debug_option_token" emptytext="not set: use hex or string"/>
+				<textbox id="debug_option_token" emptytext="use hex (0x..) or string"/>
 				
 				<hbox>
 					<vbox flex="1">
@@ -161,25 +162,22 @@
 				</hbox>
 				
 				<label control="debug_option_observe" value="Observe"/>
-				<textbox id="debug_option_observe" emptytext="not set: use integer"/>
+				<textbox id="debug_option_observe" emptytext="use integer"/>
 				
 				<hbox>
 					<vbox flex="1">
 						<label control="debug_option_block2" value="Block-Down"/>
-						<textbox id="debug_option_block2" emptytext="not set: use integer"/>
+						<textbox id="debug_option_block2" emptytext="block number"/>
 					</vbox>
 					<vbox flex="1">
 						<label control="debug_option_block1" value="Block-Up"/>
-						<textbox id="debug_option_block1" emptytext="not set: use integer"/>
+						<textbox id="debug_option_block1" emptytext="block number"/>
 					</vbox>
 				</hbox>
 				
 				<label value="Response options" style="text-align: center; margin-top: 5px;"/>
 				<label control="debug_option_max_age" value="Max-Age"/>
-				<textbox id="debug_option_max_age" emptytext="not set: use integer"/>
-					
-				<label control="debug_option_etag" value="ETag"/>
-				<textbox id="debug_option_etag" emptytext="not set: use hex or string"/>
+				<textbox id="debug_option_max_age" emptytext="use integer"/>
 				
 				<hbox>
 					<vbox flex="1">
@@ -195,8 +193,6 @@
 		</groupbox>
 
 	</vbox>
-<!-- -->
 </hbox>
-
 
 </window>
