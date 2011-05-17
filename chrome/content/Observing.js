@@ -69,12 +69,15 @@ CopperChrome.Observing.prototype = {
 		
 		this.pending = new CopperChrome.ObserveEntry(uri, cb);
 		
-		dump("PENDING: "+this.pending.uri + '\n');
-		
 		try {
 			var subscribe = new CopperChrome.CoapMessage(Copper.MSG_TYPE_CON, Copper.GET, uri);
-			subscribe.setObserve(0);
-			subscribe.setToken(new Array(Math.random()*0x100, Math.random()*0x100));
+			
+			if (CopperChrome.coapVersion < 4) {
+				subscribe.setObserve(60);
+				subscribe.setToken(new Array(Math.random()*0x100, Math.random()*0x100));
+			} else {
+				subscribe.setObserve(0);
+			}
 
 			var that = this;
 			CopperChrome.client.send(subscribe, CopperChrome.myBind(that, that.handle));
@@ -104,7 +107,6 @@ CopperChrome.Observing.prototype = {
 	handle : function(message) {
 		dump('INFO: Observing.handle()\n');
 
-		
 		if (this.pending) {
 			// check if server supports observing this resource
 			if (message.isOption(Copper.OPTION_OBSERVE)) {
