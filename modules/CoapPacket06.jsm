@@ -36,7 +36,7 @@
  */
 
 var EXPORTED_SYMBOLS = [];
-Components.utils.import("resource://modules/common.jsm");
+Components.utils.import("resource://drafts/common.jsm");
 
 // Constants
 ////////////////////////////////////////////////////////////////////////////////

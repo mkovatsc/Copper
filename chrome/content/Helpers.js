@@ -35,10 +35,6 @@
  * \author  Matthias Kovatsch <kovatsch@inf.ethz.ch>\author
  */
 
-// namespace
-Components.utils.import("resource://modules/common.jsm");
-
-
 // Helper functions
 ////////////////////////////////////////////////////////////////////////////////
 

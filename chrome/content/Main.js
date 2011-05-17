@@ -36,7 +36,7 @@
  */
 
 // namespace
-Components.utils.import("resource://modules/common.jsm");
+Components.utils.import("resource://drafts/common.jsm");
 
 CopperChrome.mainWindow = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
 		.getInterface(Components.interfaces.nsIWebNavigation)
@@ -113,20 +113,20 @@ CopperChrome.main = function() {
 				0);
 	}
 	
-	var loader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"].getService(Components.interfaces.mozIJSSubScriptLoader);
+	let loader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"].getService(Components.interfaces.mozIJSSubScriptLoader);
 	try {
 		switch (CopperChrome.coapVersion) {
 			case 3:
-				loader.loadSubScript("resource://modules/CoapPacket03.jsm");
+				loader.loadSubScript("resource://drafts/CoapPacket03.jsm");
 				break;
 			case 6:
-				loader.loadSubScript("resource://modules/CoapPacket06.jsm");
+				loader.loadSubScript("resource://drafts/CoapPacket06.jsm");
 				break;
 			default:
 				window.setTimeout(
 						function() { window.alert('WARNING: CoAP version '+CopperChrome.coapVersion+' not implemented. Using 03.'); },
 						0);
-				loader.loadSubScript("resource://modules/CoapPacket03.jsm");
+				loader.loadSubScript("resource://drafts/CoapPacket03.jsm");
 				CopperChrome.coapVersion = 3;
 				break;
 		}

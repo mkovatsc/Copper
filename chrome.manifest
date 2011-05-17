@@ -8,4 +8,4 @@ locale	copper	en-US chrome/locale/en-US/
 
 skin  copper  classic chrome/skin/
 
-resource  modules modules/
+resource  drafts modules/
