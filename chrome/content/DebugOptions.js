@@ -74,6 +74,7 @@ CopperChrome.saveDebugContentTypes = function() {
 };
 
 CopperChrome.checkDebugOptions = function(message) {
+try {
 	if (document.getElementById('chk_debug_options').checked) {
 		if (Copper.OPTION_CONTENT_TYPE && document.getElementById('debug_option_content_type').value!='') {
 			if (document.getElementById('debug_option_content_type').selectedItem) {
@@ -85,9 +86,9 @@ CopperChrome.checkDebugOptions = function(message) {
 		if (Copper.OPTION_MAX_AGE && document.getElementById('debug_option_max_age').value!='') {
 			message.setMaxAge(parseInt(document.getElementById('debug_option_max_age').value));
 		}
-		if (Copper.OPTION_PROXY_URI && document.getElementById('debug_option_proxy_uri').value!='') {
-			message.setProxyUri(document.getElementById('debug_option_proxy_uri').value);
-		}
+//		if (Copper.OPTION_PROXY_URI && document.getElementById('debug_option_proxy_uri').value!='') {
+//			message.setProxyUri(document.getElementById('debug_option_proxy_uri').value);
+//		}
 		if (Copper.OPTION_ETAG && document.getElementById('debug_option_etag').value!='') {
 			if (document.getElementById('debug_option_etag').value.substr(0,2)=='0x') {
 				message.setETag(Copper.hex2bytes(document.getElementById('debug_option_etag').value));
@@ -101,12 +102,14 @@ CopperChrome.checkDebugOptions = function(message) {
 		if (Copper.OPTION_LOCATION_PATH && document.getElementById('debug_option_location_path').value!='') {
 			message.setLocationPath(document.getElementById('debug_option_location_path').value);
 		}
+try { // FIXME Find better solution for compile-and-go script error for undefined getters
 		if (Copper.OPTION_URI_PORT && document.getElementById('debug_option_uri_port').value!='') {
 			message.setUriPort(parseInt(document.getElementById('debug_option_uri_port').value));
 		}
 		if (Copper.OPTION_LOCATION_QUERY && document.getElementById('debug_option_location_query').value!='') {
 			message.setLocationQuery(document.getElementById('debug_option_location_query').value);
 		}
+} catch (ex) { }
 		if (Copper.OPTION_OBSERVE && document.getElementById('debug_option_observe').value!='') {
 			message.setObserve(parseInt(document.getElementById('debug_option_observe').value));
 		}
@@ -120,8 +123,13 @@ CopperChrome.checkDebugOptions = function(message) {
 		if (Copper.OPTION_BLOCK && document.getElementById('debug_option_block2').value!='') {
 			message.setBlock(parseInt(document.getElementById('debug_option_block2').value), CopperChrome.blockSize);
 		}
+try { // FIXME Find better solution for compile-and-go script error for undefined getters
 		if (Copper.OPTION_BLOCK1 && document.getElementById('debug_option_block1').value!='') {
 			message.setBlock1(parseInt(document.getElementById('debug_option_block1').value), CopperChrome.blockSize);
 		}
+} catch (ex) { }
 	}
+} catch (ex) {
+	alert('ERROR: CopperChrome.checkDebugOptions ['+ex+']');
+}
 };

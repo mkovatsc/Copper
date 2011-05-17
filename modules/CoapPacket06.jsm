@@ -42,6 +42,7 @@ Components.utils.import("resource://modules/common.jsm");
 ////////////////////////////////////////////////////////////////////////////////
 
 Copper.__defineGetter__("VERSION", function() { return 1; });
+Copper.__defineGetter__("DRAFT", function() { return 6; });
 
 Copper.__defineGetter__("MSG_TYPE_CON", function() { return 0; });
 Copper.__defineGetter__("MSG_TYPE_NON", function() { return 1; });
@@ -148,13 +149,13 @@ Copper.getContentTypeName = function(type) {
 		case Copper.CONTENT_TYPE_APPLICATION_ATOM_XML: return 'application/atom+xml'; break;
 		case Copper.CONTENT_TYPE_APPLICATION_XMPP_XML: return 'application/xmpp+xml'; break;
 		case Copper.CONTENT_TYPE_APPLICATION_EXI: return 'application/exi'; break;
-		case Copper.CONTENT_TYPE_APPLICATION_X_BXML: return 'application/x-bxml'; break;
 		case Copper.CONTENT_TYPE_APPLICATION_FASTINFOSET: return 'application/fastinfoset'; break;
 		case Copper.CONTENT_TYPE_APPLICATION_SOAP_FASTINFOSET: return 'application/soap+fastinfoset'; break;
 		case Copper.CONTENT_TYPE_APPLICATION_JSON: return 'application/json'; break;
 		case Copper.CONTENT_TYPE_APPLICATION_X_OBIX_BINARY: return 'application/x-obix-binary'; break;
 		default: return 'unknown';
 	}
+	return '';
 };
 
 // CoAP draft-06 implementation
@@ -289,6 +290,7 @@ Copper.CoapPacket.prototype = {
 			default:
 				return Copper.bytes2int(opt);
 		}
+		return null;
 	},
 	
 	setOption : function(option, value) {

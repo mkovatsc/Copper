@@ -66,6 +66,7 @@ CopperChrome.UdpClient.prototype = {
 	
 	callback         : null,
 	errorCallback    : null,
+	ended            : false,
 	
 	transportService : null,
 	pump             : null,
@@ -90,7 +91,9 @@ CopperChrome.UdpClient.prototype = {
 	onStopRequest : function(request, context, status) {
 		this.outputStream.close();
 		this.inputStream.close();
-		CopperChrome.errorHandler({getCopperCode:function(){return 'Network is unreachable';}});
+		if (!this.ended) {
+			this.errorCallback({getCopperCode:function(){return 'Network is unreachable';}});
+		}
 	},
 	
 	onDataAvailable : function(request, context, inputStream, offset, count) {
@@ -127,6 +130,7 @@ CopperChrome.UdpClient.prototype = {
 	// UdpClient functions
 	shutdown : function() {
 		// will also trigger onStopRequest()
+		this.ended = true;
 		this.outputStream.close();
 		this.inputStream.close();
 		this.socket.close(0);

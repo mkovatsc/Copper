@@ -482,7 +482,7 @@ CopperChrome.CoapMessage.prototype = {
 		}
 	},
 	setToken : function(token) {
-		while (token.length>Copper.TOKEN_LENGTH) {
+		while (token.length > Copper.TOKEN_LENGTH) {
 			token.pop();
 			dump('WARNING: CoapMessage.setToken [token must be 1-'+Copper.TOKEN_LENGTH+' bytes; masking to '+Copper.TOKEN_LENGTH+' bytes]\n');
 		}

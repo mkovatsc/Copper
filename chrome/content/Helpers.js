@@ -67,13 +67,13 @@ CopperChrome.parseUri = function(uri) {
 	// redirect to omit subsequent slash, refs (#), and params (;) 
 	if (url.filePath!='/' && url.fileName=='') {
 		document.location.href = url.prePath + url.filePath.substring(0, url.filePath.length-1) + (url.query!='' ? '?'+url.query : '');
-		return;
+		throw 'Redirect';
 	} else if (url.ref!='' || url.param!='') {
 		document.location.href = url.prePath + url.filePath + (url.query!='' ? '?'+url.query : '');
-		return;
+		throw 'Redirect';
 	} else if (url.filePath.match(/\/{2,}/)) {
 		document.location.href = url.prePath + url.filePath.replace(/\/{2,}/g, '/') + (url.query!='' ? '?'+url.query : '');
-		return;
+		throw 'Redirect';
 	}
 	
 	if (url.port>0xFFFF) {
@@ -100,10 +100,9 @@ CopperChrome.parseUri = function(uri) {
 	CopperChrome.port = url.port!=-1 ? url.port : Copper.DEFAULT_PORT;
 	CopperChrome.path = decodeURI(url.filePath); // as for 06 and as a server workaround for 03
 	CopperChrome.query = decodeURI(url.query); // as for 06 and as aserver workaround for 03
-
 	
 	document.title = CopperChrome.hostname + CopperChrome.path;
-	document.getElementById('info_host').label = '' + CopperChrome.hostname + ':' + CopperChrome.port;
+	document.getElementById('info_host').label = CopperChrome.hostname + ':' + CopperChrome.port;
 };
 
 // Set the default URI and also check for modified Firefox URL bar
@@ -202,7 +201,7 @@ CopperChrome.updateResourceLinks = function(add) {
 	
 	// merge links
 	if (add) {
-		for (uri in add) {
+		for (var uri in add) {
 			if (!CopperChrome.resources[uri]) {
 				CopperChrome.resources[uri] = add[uri];
 				dump('INFO: adding '+uri+' to host resources\n');
@@ -216,12 +215,12 @@ CopperChrome.updateResourceLinks = function(add) {
 	
 	// sort by path
 	var sorted = new Array();
-	for (uri in CopperChrome.resources) {
+	for (var uri in CopperChrome.resources) {
 		sorted.push(uri);
 	}
 	sorted.sort();
 	
-	for (entry in sorted) {
+	for (var entry in sorted) {
 		let uri = sorted[entry];
 		
 		var button = document.createElement('button');

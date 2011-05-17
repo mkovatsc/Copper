@@ -42,6 +42,7 @@ Components.utils.import("resource://modules/common.jsm");
 ////////////////////////////////////////////////////////////////////////////////
 
 Copper.__defineGetter__("VERSION", function() { return 1; });
+Copper.__defineGetter__("DRAFT", function() { return 3; });
 
 Copper.__defineGetter__("MSG_TYPE_CON", function() { return 0; });
 Copper.__defineGetter__("MSG_TYPE_NON", function() { return 1; });
@@ -108,6 +109,8 @@ Copper.__defineGetter__("WELL_KNOWN_RESOURCES", function() { return '/.well-know
 
 Copper.__defineGetter__("RESPONSE_TIMEOUT", function() { return 1000; }); // ms
 Copper.__defineGetter__("MAX_RETRANSMIT", function() { return 5; });
+Copper.__defineGetter__("ETAG_LENGTH", function() { return 4; });
+Copper.__defineGetter__("TOKEN_LENGTH", function() { return 2; });
 
 Copper.__defineGetter__("DEFAULT_PORT", function() { return 61616; });
 
@@ -140,6 +143,7 @@ Copper.getContentTypeName = function(type) {
 		case Copper.CONTENT_TYPE_APPLICATION_JSON: return 'application/json'; break;
 		default: return 'unknown';
 	}
+	return '';
 };
 
 // CoAP draft-03 implementation
@@ -261,6 +265,7 @@ Copper.CoapPacket.prototype = {
 			default:
 				return Copper.bytes2int(opt);
 		}
+		return null;
 	},
 	
 	setOption : function(option, value) {

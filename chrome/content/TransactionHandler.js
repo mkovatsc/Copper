@@ -158,11 +158,9 @@ CopperChrome.TransactionHandler.prototype = {
 		// store request callback through token matching
 		if (message.getType()==Copper.MSG_TYPE_CON || message.getType()==Copper.MSG_TYPE_NON) {
 			while (this.requests[message.getTokenDefault()]!=null || this.registeredTokens[message.getTokenDefault()]!=null) {
-				dump('REQ: '+this.requests[message.getTokenDefault()]+'\n');
-				dump('REG: '+this.registeredTokens[message.getTokenDefault()]+'\n');
+				dump('INFO: Default token already in use\n');
 				message.setToken(new Array([parseInt(Math.random()*0x100)]));
 			}
-			dump('SETTING REQ\n');
 			this.requests[message.getTokenDefault()] = reqCB==null ? this.defaultCB : reqCB;
 			
 			// also save callback by TID

@@ -40,7 +40,7 @@ var EXPORTED_SYMBOLS = ['Copper'];
 /**
  * Copper module namespace.
  */
-if ("undefined" == typeof(Copper)) {
+if ('undefined' == typeof(Copper)) {
 	var Copper = { };
 };
 

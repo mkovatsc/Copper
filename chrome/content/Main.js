@@ -47,7 +47,7 @@ CopperChrome.mainWindow = window.QueryInterface(Components.interfaces.nsIInterfa
 
 CopperChrome.prefManager = Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefBranch);
 
-CopperChrome.coapVersion = 3;
+CopperChrome.coapVersion = 6;
 CopperChrome.blockSize = 32;
 CopperChrome.showUnknownTransactions = true;
 
@@ -61,7 +61,6 @@ CopperChrome.observer = null;
 
 CopperChrome.resources = new Object();
 CopperChrome.resourcesCached = true;
-
 
 // Life cycle functions
 ////////////////////////////////////////////////////////////////////////////////
@@ -131,6 +130,7 @@ CopperChrome.main = function() {
 				CopperChrome.coapVersion = 3;
 				break;
 		}
+		
 		document.getElementById('toolbar_version').label = 'CoAP ' + Copper.leadingZero(CopperChrome.coapVersion,2) + ' ';
 		CopperChrome.initDebugContentTypes();
 		
@@ -149,7 +149,7 @@ CopperChrome.main = function() {
 		CopperChrome.parseUri(document.location.href);
 		
 		// debug options set by URI
-		if (CopperChrome.port!=Copper.DEFAULT_PORT) document.getElementById('debug_option_uri_port').value = CopperChrome.port;
+		//if (CopperChrome.port!=Copper.DEFAULT_PORT) document.getElementById('debug_option_uri_port').value = CopperChrome.port;
 		if (CopperChrome.path!='/') document.getElementById('debug_option_uri_path').value = CopperChrome.path;
 		document.getElementById('debug_option_uri_query').value = CopperChrome.query;
 		
@@ -195,8 +195,10 @@ CopperChrome.main = function() {
 };
 
 CopperChrome.unload = function() {
-	// shut down socket, required for refresh (F5)
-	this.client.shutdown();
+	// shut down socket required for refresh (F5), client might be null for parseUri() redirects
+	if (CopperChrome.client!=null) {
+		CopperChrome.client.shutdown();
+	}
 	
 	// save as pref as persist does not work
 	if (CopperChrome.hostname!='') CopperChrome.prefManager.setCharPref('extensions.copper.payloads.'+CopperChrome.hostname+':'+CopperChrome.port, document.getElementById('toolbar_payload').value);
