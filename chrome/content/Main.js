@@ -334,6 +334,20 @@ CopperChrome.discover = function() {
 		alert('ERROR: Main.discover ['+ex+']');
 	}
 };
+CopperChrome.discover = function(block, size) {
+	try {
+		var message = new CopperChrome.CoapMessage(Copper.MSG_TYPE_CON, Copper.GET, Copper.WELL_KNOWN_RESOURCES);
+		
+		if (block!=null) {
+			if (size==null) size = CopperChrome.blockSize;
+			message.setBlock(block, size);
+		} 
+		
+		CopperChrome.client.send( message, CopperChrome.discoverHandler );
+	} catch (ex) {
+		alert('ERROR: Main.discover ['+ex+']');
+	}
+};
 
 // like discover, but resets cached resources -- used for the button
 CopperChrome.reDiscover = function() {

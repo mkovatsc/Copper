@@ -72,8 +72,8 @@ CopperChrome.blockwiseHandler = function(message) {
 		
 		if (message.getBlockMore()) {
 			
-			// TODO: give in, as browser could request large blocks and server might be constrained
-			if (message.getBlockSize()>CopperChrome.blockSize) {
+			// give in, as browser could request large blocks and server might be constrained
+			if (message.getBlockSize() > CopperChrome.blockSize) {
 				CopperChrome.sendBlockwiseGet(0, CopperChrome.blockSize);
 			} else {
 				CopperChrome.sendBlockwiseGet(message.getBlockNumber()+1, message.getBlockSize());
@@ -88,9 +88,6 @@ CopperChrome.blockwiseHandler = function(message) {
 			}
 		}
 		
-	} else {
-		//CopperChrome.updateLabel('packet_payload', message.getPayload());
-		document.getElementById('info_payload').label='Payload ('+document.getElementById('packet_payload').value.length+')';
 	}
 };
 
@@ -111,13 +108,41 @@ CopperChrome.observingHandler = function(message) {
 };
 
 // Handle messages with link format payload
+CopperChrome.discoverCache = new String(); 
 CopperChrome.discoverHandler = function(message) {
 	dump('INFO: discoverHandler()\n');
 	if (message.getContentType()==Copper.CONTENT_TYPE_APPLICATION_LINK_FORMAT) {
-		// link-format
-		CopperChrome.resourcesCached = false;
 		
-		CopperChrome.updateResourceLinks( CopperChrome.parseLinkFormat(message.getPayload()) );
+		if (message.isOption(Copper.OPTION_BLOCK)) {
+			
+			if (message.getBlockMore()) {
+				
+				// give in, as browser could request large blocks and server might be constrained
+				if (message.getBlockSize() > CopperChrome.blockSize) {
+					CopperChrome.discover(0, CopperChrome.blockSize);
+				} else {
+					CopperChrome.discover(message.getBlockNumber()+1, message.getBlockSize());
+				}
+			}
+			
+			if (message.getBlockNumber()==0) {
+				dump('INFO: Starting new discover cache\n');
+				CopperChrome.discoverCache = new String(); 
+			}
+			
+			CopperChrome.discoverCache += message.getPayload();
+			
+			if (!message.getBlockMore()) {
+				dump('INFO: Appending discover cache\n');
+				// link-format
+				CopperChrome.resourcesCached = false;
+				CopperChrome.updateResourceLinks( CopperChrome.parseLinkFormat( CopperChrome.discoverCache ) );
+			}
+		} else {
+			// link-format
+			CopperChrome.resourcesCached = false;
+			CopperChrome.updateResourceLinks( CopperChrome.parseLinkFormat( message.getPayload() ) );
+		}
 	} else {
 		alert('ERROR: Main.discoverHandler [Content-Type is '+message.getContentType()+', not \'application/link-format\']');
 	}
