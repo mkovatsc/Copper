@@ -82,9 +82,11 @@ try {
 		if (Copper.OPTION_MAX_AGE && document.getElementById('debug_option_max_age').value!='') {
 			message.setMaxAge(parseInt(document.getElementById('debug_option_max_age').value));
 		}
-//		if (Copper.OPTION_PROXY_URI && document.getElementById('debug_option_proxy_uri').value!='') {
-//			message.setProxyUri(document.getElementById('debug_option_proxy_uri').value);
-//		}
+try { // FIXME Find better solution for compile-and-go script error for undefined getters
+		if (Copper.OPTION_PROXY_URI && document.getElementById('debug_option_proxy_uri').value!='') {
+			message.setProxyUri(document.getElementById('debug_option_proxy_uri').value);
+		}
+} catch (ex) { }
 		if (Copper.OPTION_ETAG && document.getElementById('debug_option_etag').value!='') {
 			if (document.getElementById('debug_option_etag').value.substr(0,2)=='0x') {
 				message.setETag(Copper.hex2bytes(document.getElementById('debug_option_etag').value));
