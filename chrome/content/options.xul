@@ -14,6 +14,7 @@
 			<preference id="copper-version" name="extensions.copper.coap-version" type="int"/>
 			<preference id="default-block-size" name="extensions.copper.default-block-size" type="int"/>
 			<preference id="default-payload" name="extensions.copper.default-payload" type="string"/>
+			<preference id="encode-utf-8" name="extensions.copper.encode-utf-8" type="bool"/>
 			<preference id="show-unknown" name="extensions.copper.show-unknown-transactions" type="bool"/>
 			<preference id="global-dumps" name="browser.dom.window.dump.enabled" type="bool"/>
 		</preferences>
@@ -64,6 +65,9 @@
 					<column flex="1"/>
 				</columns>
 				<rows>
+					<row>
+						<checkbox id="encode_utf_8" preference="encode-utf-8" label="Use UTF-8 encoding"/>
+					</row>
 					<row>
 						<checkbox id="debug_unknown" preference="show-unknown" label="Display messages with unknown transaction"/>
 					</row>

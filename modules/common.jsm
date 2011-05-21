@@ -58,17 +58,63 @@ Copper.leadingZero = function(num, len) {
 	return num;
 };
 
+// for the string-oriented socket interface
+Copper.bytes2data = function(b) {
+	var str = '';
+	for (var i in b) {
+		str += String.fromCharCode(b[i] & 0xFF);
+	}
+	return str;
+};
+
 Copper.str2bytes = function(str) {
-	var b = new Array(str.length);
+	var utf8 = Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefBranch).getBoolPref('extensions.copper.encode-utf-8');
+
+	var b = new Array(0);
+	
 	for (var i=0; i<str.length; i++) {
-		b[i] = str.charCodeAt(i) & 0xFF;
+		let c = str.charCodeAt(i);
+		
+		if (c < 128 || !utf8) {
+			b.push(0xFF & c);
+		} else if((c > 127) && (c < 2048)) {
+			b.push(0xFF & ((c >> 6) | 192));
+			b.push(0xFF & ((c & 63) | 128));
+		} else {
+			b.push(0xFF & ((c >> 12) | 224));
+			b.push(0xFF & (((c >> 6) & 63) | 128));
+			b.push(0xFF & ((c & 63) | 128));
+		}
 	}
 	return b;
 };
-
 Copper.bytes2str = function(b) {
+	var utf8 = Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefBranch).getBoolPref('extensions.copper.encode-utf-8');
+
 	var str = '';
-  for (var i in b) str += String.fromCharCode(b[i] & 0xFF);
+	for (var i=0; i<b.length; ++i) {
+		
+		let c = b[i] & 0xFF;
+		
+		if (c < 128 || !utf8) {
+			str += String.fromCharCode(c);
+		} else if((c > 191) && (c < 224) && (i+1 < b.length)) {
+			let c2 = b[i+1] & 0xFF;
+			str += String.fromCharCode(((c & 31) << 6) | (c2 & 63));
+			i += 1;
+		} else if (c < 240 && (i+2 < b.length)) {
+			let c2 = b[i+1] & 0xFF;
+			let c3 = b[i+2] & 0xFF;
+			str += String.fromCharCode(((c & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63));
+			i += 2;
+		} else if (i+3 < b.length) {
+			dump('WARNING: 4-byte UTF-8\n');
+			str += String.fromCharCode(2592); // ▒
+			i += 3;
+		} else {
+			dump('ERROR: Incomplete UTF-8 encoding\n');
+		}
+	}
 	return str;
 };
 

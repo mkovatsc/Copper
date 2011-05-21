@@ -1,6 +1,7 @@
 pref("extensions.copper.coap-version", 6);
 pref("extensions.copper.default-block-size", 64);
 pref("extensions.copper.show-unknown-transactions", true);
+pref("extensions.copper.encode-utf-8", false);
 pref("extensions.copper.auto-discover", true);
 pref("extensions.copper.retransmissions", true);
 pref("extensions.copper.default-payload", "Enter payload...");

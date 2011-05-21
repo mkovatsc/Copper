@@ -380,7 +380,7 @@ Copper.CoapPacket.prototype = {
 		}
 		
 	    // serialize as string
-	    var message = Copper.bytes2str(byteArray);
+	    var message = Copper.bytes2data(byteArray);
         
 	    // payload
 	    message += this.payload;
@@ -447,6 +447,7 @@ Copper.CoapPacket.prototype = {
         while (packet.length) {
 			payloadBytes.push(packet.shift());
 		}
+		//TODO use Content-Type
         this.payload = Copper.bytes2str(payloadBytes);
 	}
 };
