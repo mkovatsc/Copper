@@ -152,6 +152,7 @@ CopperChrome.TransactionHandler.prototype = {
 				// also schedule 'not responding' timeout when retransmissions are disabled 
 				timer = window.setTimeout(function(){CopperChrome.myBind(that,that.resend(message.getTID()));}, 16000); // 16 seconds
 			}
+			dump('INFO: Storing transaction '+ message.getTID()+ '\n');
 			this.transactions[message.getTID()] = new CopperChrome.Transaction(message, timer);
 		}
 		
@@ -211,6 +212,7 @@ CopperChrome.TransactionHandler.prototype = {
 		
 		// handle transaction
 		if (this.transactions[message.getTID()]) {
+			dump('INFO: Closing transaction ' + message.getTID() + '\n');
 			if (this.transactions[message.getTID()].timer) window.clearTimeout(this.transactions[message.getTID()].timer);
 			
 			// calculate round trip time

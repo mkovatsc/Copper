@@ -113,8 +113,10 @@ CopperChrome.main = function() {
 				0);
 	}
 	
-	let loader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"].getService(Components.interfaces.mozIJSSubScriptLoader);
 	try {
+		// keep dangerous object loader local
+		let loader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"].getService(Components.interfaces.mozIJSSubScriptLoader);
+		
 		switch (CopperChrome.coapVersion) {
 			case 3:
 				loader.loadSubScript("resource://drafts/CoapPacket03.jsm");
