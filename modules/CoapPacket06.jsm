@@ -453,7 +453,7 @@ Copper.CoapPacket.prototype = {
 	    var message = Copper.bytes2data(byteArray);
         
 	    // payload
-	    message += this.payload;
+	    message += Copper.bytes2data(Copper.str2bytes(this.payload));
 	    
 	    // finished
 	    return message;
