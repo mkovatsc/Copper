@@ -104,20 +104,25 @@ CopperChrome.parseUri = function(uri) {
 // Set the default URI and also check for modified Firefox URL bar
 CopperChrome.checkUri = function(uri, method, pl) {
 	if (!uri) {
-		var parsedUri = Components.classes["@mozilla.org/network/simple-uri;1"].getService(Components.interfaces.nsIURI);
+		// document.location.href uses different encoding than urlbar value; parse to nsIURI to compare
+		var uriParser = Components.classes["@mozilla.org/network/simple-uri;1"].getService(Components.interfaces.nsIURI);
 
-		parsedUri.spec = CopperChrome.mainWindow.document.getElementById('urlbar').value;
+		uriParser.spec = CopperChrome.mainWindow.document.getElementById('urlbar').value;
+		var uri1 = uriParser.spec;
+		
+		uriParser.spec = document.location.href;
+		var uri2 = uriParser.spec;
 		
 		// when urlbar was changed without pressing enter, redirect and perform request
-		if (method && (document.location.href!=parsedUri.spec)) {
-			//alert('You edited the URL bar:\n'+document.location.href+'\n'+parsedUri.spec);
+		if (method && (uri1!=uri2)) {
+			//alert('You edited the URL bar:\n'+uri1+'\n'+uri2);
 			
 			// schedule the request to start automatically at new location
 			CopperChrome.prefManager.setIntPref('extensions.copper.auto-request.method', method);
 			CopperChrome.prefManager.setCharPref('extensions.copper.auto-request.payload', String(pl));
 			
 			// redirect
-			document.location.href = parsedUri.spec;
+			document.location.href = uri1;
 		}
 		return CopperChrome.path + (CopperChrome.query ? '?'+CopperChrome.query : '');
 	} else {
