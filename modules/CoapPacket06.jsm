@@ -505,6 +505,14 @@ Copper.CoapPacket.prototype = {
 	    	
 	    	// ignore unsupported types
 	    	if (this.options[optType]) {
+	    		if (optType==Copper.OPTION_LOCATION_PATH || optType==Copper.OPTION_URI_PATH) {
+	    			if (this.options[optType][0]>0) {
+	    				optLen += 1 + this.options[optType][0];
+	    				opt = this.options[optType][1].concat(0x002F).concat(opt);
+	    			}
+	    			
+	    		}
+	    		
 	    		this.options[optType][0] = optLen;
 	    		this.options[optType][1] = opt;
 	    	}

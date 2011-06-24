@@ -372,7 +372,8 @@ CopperChrome.CoapMessage.prototype = {
 		}
 		if (path) {
 			uri += '/' + path;
-			++decoded;
+			var multiple = path.match(/\//g);
+			decoded += 1 + (multiple!=null ? multiple.length : 0);
 		}
 		if (query) {
 			uri += '?' + query;
@@ -460,9 +461,12 @@ CopperChrome.CoapMessage.prototype = {
 		
 		if (optLen+optLen2<=0) return null;
 		
+		
 		if (readable) {
+			var multiple = opt.match(/\//g);
+			var decoded = 1 + (multiple!=null ? multiple.length : 0) + (optLen2>0 ? 1 : 0);
 			if (opt.charAt(0)!='/') opt = '/' + opt;
-			return new Array('Location', opt, optLen2>0 ? '2 options' : '1 option');
+			return new Array('Location', opt, decoded+(decoded==1 ? ' option' : ' options'));
 		} else {
 			return opt;
 		}
