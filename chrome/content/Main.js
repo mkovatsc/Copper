@@ -77,7 +77,7 @@ CopperChrome.main = function() {
 	var tabbrowser = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator).getEnumerator("navigator:browser").getNext().gBrowser;  
 	for (var i=0; i<tabbrowser.browsers.length; ++i) {
 		if (tabbrowser.mTabs[i].label=='Copper CoAP Browser')
-		tabbrowser.setIcon(tabbrowser.mTabs[i], 'chrome://copper/skin/icon16.png');
+		tabbrowser.setIcon(tabbrowser.mTabs[i], 'chrome://copper/skin/Cu_16.png');
 	}
 	
 	// get settings from preferences
