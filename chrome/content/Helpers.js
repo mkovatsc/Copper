@@ -107,11 +107,13 @@ CopperChrome.checkUri = function(uri, method, pl) {
 		// document.location.href uses different encoding than urlbar value; parse to nsIURI to compare
 		var uriParser = Components.classes["@mozilla.org/network/simple-uri;1"].getService(Components.interfaces.nsIURI);
 
-		uriParser.spec = CopperChrome.mainWindow.document.getElementById('urlbar').value;
-		var uri1 = uriParser.spec;
+		//uriParser.spec = decodeURI(CopperChrome.mainWindow.document.getElementById('urlbar').value);
+		var uri1 = decodeURI(CopperChrome.mainWindow.document.getElementById('urlbar').value);
+		//uriParser.spec;
 		
-		uriParser.spec = document.location.href;
-		var uri2 = uriParser.spec;
+		//uriParser.spec = decodeURI(document.location.href);
+		var uri2 = decodeURI(document.location.href);
+		//uriParser.spec;
 		
 		// when urlbar was changed without pressing enter, redirect and perform request
 		if (method && (uri1!=uri2)) {
