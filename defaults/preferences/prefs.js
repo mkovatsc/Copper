@@ -1,4 +1,4 @@
-pref("extensions.copper.coap-version", 6);
+pref("extensions.copper.coap-version", 7);
 pref("extensions.copper.default-block-size", 64);
 pref("extensions.copper.show-unknown-transactions", true);
 pref("extensions.copper.encode-utf-8", false);

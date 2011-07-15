@@ -124,12 +124,15 @@ CopperChrome.main = function() {
 			case 6:
 				loader.loadSubScript("resource://drafts/CoapPacket06.jsm");
 				break;
+			case 7:
+				loader.loadSubScript("resource://drafts/CoapPacket07.jsm");
+				break;
 			default:
 				window.setTimeout(
-						function() { window.alert('WARNING: CoAP version '+CopperChrome.coapVersion+' not implemented. Using 03.'); },
+						function() { window.alert('WARNING: CoAP version '+CopperChrome.coapVersion+' not implemented. Using 07.'); },
 						0);
-				loader.loadSubScript("resource://drafts/CoapPacket03.jsm");
-				CopperChrome.coapVersion = 3;
+				loader.loadSubScript("resource://drafts/CoapPacket07.jsm");
+				CopperChrome.coapVersion = 7;
 				break;
 		}
 		
