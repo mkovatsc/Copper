@@ -42,7 +42,7 @@ Components.utils.import("resource://drafts/common.jsm");
 ////////////////////////////////////////////////////////////////////////////////
 
 Copper.__defineGetter__("VERSION", function() { return 1; });
-Copper.__defineGetter__("DRAFT", function() { return 6; });
+Copper.__defineGetter__("DRAFT", function() { return 7; });
 
 Copper.__defineGetter__("MSG_TYPE_CON", function() { return 0; });
 Copper.__defineGetter__("MSG_TYPE_NON", function() { return 1; });
@@ -60,11 +60,14 @@ Copper.__defineGetter__("OPTION_LOCATION_QUERY", function() { return 8; });
 Copper.__defineGetter__("OPTION_URI_PATH", function() { return 9; });
 Copper.__defineGetter__("OPTION_OBSERVE", function() { return 10; });
 Copper.__defineGetter__("OPTION_TOKEN", function() { return 11; });
+Copper.__defineGetter__("OPTION_ACCEPT", function() { return 12; });
+Copper.__defineGetter__("OPTION_IF_MATCH", function() { return 13; });
 Copper.__defineGetter__("OPTION_FENCE_POST", function() { return 14; });
 Copper.__defineGetter__("OPTION_URI_QUERY", function() { return 15; });
 Copper.__defineGetter__("OPTION_BLOCK", function() { return 17; }); // for API compatibility
 Copper.__defineGetter__("OPTION_BLOCK2", function() { return 17; });
 Copper.__defineGetter__("OPTION_BLOCK1", function() { return 19; });
+Copper.__defineGetter__("OPTION_IF_NONE_MATCH", function() { return 21; });
 
 Copper.__defineGetter__("CODE_2_01_CREATED", function() { return 65; });
 Copper.__defineGetter__("CODE_2_02_DELETED", function() { return 66; });
@@ -78,6 +81,7 @@ Copper.__defineGetter__("CODE_4_02_BAD_OPTION", function() { return 130; });
 Copper.__defineGetter__("CODE_4_03_FORBIDDEN", function() { return 131; });
 Copper.__defineGetter__("CODE_4_04_NOT_FOUND", function() { return 132; });
 Copper.__defineGetter__("CODE_4_05_METHOD_NOT_ALLOWED", function() { return 133; });
+Copper.__defineGetter__("CODE_4_12_PRECONDITION_FAILED", function() { return 140; });
 Copper.__defineGetter__("CODE_4_13_REQUEST_ENTITY_TOO_LARGE", function() { return 141; });
 Copper.__defineGetter__("CODE_4_15_UNSUPPORTED_MADIA_TYPE", function() { return 143; });
 
@@ -175,10 +179,13 @@ Copper.CoapPacket = function() {
 	this.options[Copper.OPTION_URI_PATH] = new Array(0, null);
 	this.options[Copper.OPTION_OBSERVE] = new Array(0, null);
 	this.options[Copper.OPTION_TOKEN] = new Array(0, null);
+	this.options[Copper.OPTION_ACCEPT] = new Array(0, null);
+	this.options[Copper.OPTION_IF_MATCH] = new Array(0, null);
 	this.options[Copper.OPTION_FENCE_POST] = new Array(0, null);
 	this.options[Copper.OPTION_URI_QUERY] = new Array(0, null);
 	this.options[Copper.OPTION_BLOCK2] = new Array(0, null);
 	this.options[Copper.OPTION_BLOCK1] = new Array(0, null);
+	this.options[Copper.OPTION_IF_NONE_MATCH] = new Array(0, null);
 
 	this.tid = parseInt(Math.random()*0x10000);
 };
@@ -215,6 +222,7 @@ Copper.CoapPacket.prototype = {
 				case Copper.CODE_4_03_FORBIDDEN: return '4.03 Forbidden';
 				case Copper.CODE_4_04_NOT_FOUND: return '4.04 Not Found';
 				case Copper.CODE_4_05_METHOD_NOT_ALLOWED: return '4.05 Method Not Allowed';
+				case Copper.CODE_4_12_PRECONDITION_FAILED: return '4.12 Precondition Failed';
 				case Copper.CODE_4_13_REQUEST_ENTITY_TOO_LARGE: return '4.13 Request Entity Too Large';
 				case Copper.CODE_4_15_UNSUPPORTED_MADIA_TYPE: return '4.15 Unsupported Madia Type';
 				case Copper.CODE_5_00_INTERNAL_SERVER_ERROR: return '5.00 Internal Server Error';
@@ -278,6 +286,7 @@ Copper.CoapPacket.prototype = {
 			// byte arrays
 			case Copper.OPTION_ETAG:
 			case Copper.OPTION_TOKEN:
+			case Copper.OPTION_IF_MATCH:
 				return opt;
 				break;
 			
@@ -309,8 +318,17 @@ Copper.CoapPacket.prototype = {
 			// byte arrays
 			case Copper.OPTION_ETAG:
 			case Copper.OPTION_TOKEN:
+			case Copper.OPTION_IF_MATCH:
 				this.options[option][0] = value.length;
 				this.options[option][1] = value;
+				break;
+				
+			// special arrays
+			case -1:
+				this.options[option][0] += 1;
+				if (this.options[option][1]==null) this.options[option][1] = new Array(0);
+				this.options[option][1][ this.options[option][0] ] = value;
+				this.options[option][0] += 1;
 				break;
 			
 			// integers
@@ -318,6 +336,7 @@ Copper.CoapPacket.prototype = {
 			case Copper.OPTION_MAX_AGE:
 			case Copper.OPTION_URI_PORT:
 			case Copper.OPTION_OBSERVE:
+			case Copper.OPTION_ACCEPT:
 			case Copper.OPTION_BLOCK2:
 			case Copper.OPTION_BLOCK1:
 				this.options[option][1] = Copper.int2bytes(value);
@@ -499,12 +518,20 @@ Copper.CoapPacket.prototype = {
 	    	}
 	    	
 	    	var opt = new Array();
-	    	for (var j=0; j<optLen; j++) {
-	    		opt.push(packet.shift());
+	    	if (optLen==0) {
+	    		optLen = 1;
+	    		opt.push(0);
+	    	} else {
+		    	for (var j=0; j<optLen; j++) {
+		    		opt.push(packet.shift());
+		    	}
 	    	}
 	    	
 	    	// ignore unsupported types
+	    	dump(optType+'\n');
 	    	if (this.options[optType]) {
+	    		dump('  in options\n')
+	    	
 	    		if (optType==Copper.OPTION_LOCATION_PATH || optType==Copper.OPTION_URI_PATH) {
 	    			if (this.options[optType][0]>0) {
 	    				optLen += 1 + this.options[optType][0];
@@ -515,6 +542,11 @@ Copper.CoapPacket.prototype = {
 	    		
 	    		this.options[optType][0] = optLen;
 	    		this.options[optType][1] = opt;
+	    		
+	    		if (optType==12) {
+	    			dump(this.options[optType][0] + '\n');
+	    			dump(this.options[optType][1] + '\n');
+	    		}
 	    	}
 				
 			optionDelta = optType;

@@ -173,10 +173,31 @@ CopperChrome.CoapMessage.prototype = {
 		}
 	},
 	setContentType : function(content) {
-		if (content>0xFF) {
-			dump('WARNING: CoapMessage.setContentType [must be 1 byte; ignoring]\n');
+		if (content>0xFFFF) {
+			dump('WARNING: CoapMessage.setContentType [must be 1 or 2 bytes; ignoring]\n');
 		} else {
 			this.packet.setOption(Copper.OPTION_CONTENT_TYPE, content);
+		}
+	},
+	
+	// Copper.OPTION_ACCEPT:07+
+	getAccept : function(readable) {
+		var optLen = this.packet.getOptionLength(Copper.OPTION_CONTENT_TYPE);
+		var opt = this.packet.getOption(Copper.OPTION_ACCEPT); // integer
+
+		if (optLen<=0) return null;
+		
+		if (readable) {
+			return new Array('Accept', Copper.getContentTypeName(opt), opt);
+		} else {
+			return opt;
+		}
+	},
+	setAccept : function(content) {
+		if (content>0xFFFF) {
+			dump('WARNING: CoapMessage.setContentType [must be 1 or 2 bytes; ignoring]\n');
+		} else {
+			this.packet.setOption(Copper.OPTION_ACCEPT, content);
 		}
 	},
 	
@@ -647,6 +668,7 @@ CopperChrome.CoapMessage.prototype = {
 			if (this.getLocation()!=null) ret += '\n  ' + this.getLocation(true)[0] + ': ' + this.getLocation(true)[1] + ' ['+this.getLocation(true)[2]+']';
 			if (this.getObserve()!=null) ret += '\n  ' + this.getObserve(true)[0] + ': ' + this.getObserve(true)[1] + ' ['+this.getObserve(true)[2]+']';
 			if (this.getToken()!=null) ret += '\n  ' + this.getToken(true)[0] + ': ' + this.getToken(true)[1] + ' ['+this.getToken(true)[2]+']';
+			if (this.getAccept()!=null) ret += '\n  ' + this.getAccept(true)[0] + ': ' + this.getAccept(true)[1] + ' ['+this.getAccept(true)[2]+']';
 			if (this.getBlock()!=null) ret += '\n  ' + this.getBlock(true)[0] + ': ' + this.getBlock(true)[1] + ' ['+this.getBlock(true)[2]+']';
 			if (this.getBlock1()!=null) ret += '\n  ' + this.getBlock1(true)[0] + ': ' + this.getBlock1(true)[1] + ' ['+this.getBlock1(true)[2]+']';
 			
@@ -661,7 +683,8 @@ CopperChrome.CoapMessage.prototype = {
 			if (this.getUri()!=null) ret.push( this.getUri(true) );
 			if (this.getLocation()!=null) ret.push( this.getLocation(true) );
 			if (this.getObserve()!=null) ret.push( this.getObserve(true) );
-			if (this.getToken()!=null) ret.push( this.getToken(true) );
+			if (this.getToken()!=null) ret.push( this.getToken(true) );			
+			if (this.getAccept()!=null) ret.push(this.getAccept(true));
 			if (this.getBlock()!=null) ret.push( this.getBlock(true) );
 			if (this.getBlock1()!=null) ret.push( this.getBlock1(true) );
 			

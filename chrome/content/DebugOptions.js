@@ -49,6 +49,7 @@ CopperChrome.initDebugContentTypes = function() {
 			menuitem.setAttribute('value', i);
 			
 			document.getElementById('popup_content_types').appendChild(menuitem);
+			document.getElementById('popup_accepts').appendChild(menuitem);
 		}
 	}
 };
@@ -72,6 +73,13 @@ CopperChrome.saveDebugContentTypes = function() {
 CopperChrome.checkDebugOptions = function(message) {
 try {
 	if (document.getElementById('chk_debug_options').checked) {
+		if (Copper.OPTION_ACCEPT && document.getElementById('debug_option_accept').value!='') {
+			if (document.getElementById('debug_option_accept').selectedItem) {
+				message.setAccept(parseInt(document.getElementById('debug_option_accept').selectedItem.value));
+			} else {
+				message.setAccept(parseInt(document.getElementById('debug_option_accept').value));
+			}
+		}
 		if (Copper.OPTION_CONTENT_TYPE && document.getElementById('debug_option_content_type').value!='') {
 			if (document.getElementById('debug_option_content_type').selectedItem) {
 				message.setContentType(parseInt(document.getElementById('debug_option_content_type').selectedItem.value));

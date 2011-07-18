@@ -123,6 +123,13 @@
 			</caption>
 			
 			<vbox flex="1" style="overflow: auto;">
+				<label control="debug_option_accept" value="Accept"/>
+				<menulist id="debug_option_accept" editable="true">
+					<menupopup id="popup_accepts">
+						<menuitem label="" value=""/>
+					</menupopup>
+				</menulist>
+				
 				<label control="debug_option_content_type" value="Content-Type"/>
 				<menulist id="debug_option_content_type" editable="true">
 					<menupopup id="popup_content_types">
