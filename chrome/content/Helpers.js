@@ -140,7 +140,6 @@ CopperChrome.loadCachedResources = function() {
 		CopperChrome.resources = JSON.parse( unescape(loadRes) );
 		
 	} catch( ex ) {
-		alert(CopperChrome.resources);
 	    dump('INFO: no cached links for '+CopperChrome.hostname+':'+CopperChrome.port+' yet\n');
 	}
 	
@@ -149,7 +148,6 @@ CopperChrome.loadCachedResources = function() {
 		CopperChrome.resources[Copper.WELL_KNOWN_RESOURCES] = new Object();
 		CopperChrome.resources[Copper.WELL_KNOWN_RESOURCES]['ct'] = '40';
 		CopperChrome.resources[Copper.WELL_KNOWN_RESOURCES]['title'] = 'Resource discovery';
-		alert(CopperChrome.resources);
 	}
 };
 
