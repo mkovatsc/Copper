@@ -129,13 +129,6 @@
 						<menuitem label="" value=""/>
 					</menupopup>
 				</menulist>
-				
-				<label control="debug_option_content_type" value="Content-Type"/>
-				<menulist id="debug_option_content_type" editable="true">
-					<menupopup id="popup_content_types">
-						<menuitem label="" value=""/>
-					</menupopup>
-				</menulist>
 					
 				<label control="debug_option_proxy_uri" value="Proxy-Uri"/>
 				<textbox id="debug_option_proxy_uri" emptytext="use absolute URI"/>
@@ -183,6 +176,14 @@
 				</hbox>
 				
 				<label value="Response options" style="text-align: center; margin-top: 5px;"/>
+				
+				<label control="debug_option_content_type" value="Content-Type"/>
+				<menulist id="debug_option_content_type" editable="true">
+					<menupopup id="popup_content_types">
+						<menuitem label="" value=""/>
+					</menupopup>
+				</menulist>
+				
 				<label control="debug_option_max_age" value="Max-Age"/>
 				<textbox id="debug_option_max_age" emptytext="use integer"/>
 				
