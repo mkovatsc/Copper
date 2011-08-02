@@ -93,20 +93,8 @@ CopperChrome.main = function() {
 		auto = CopperChrome.prefManager.getIntPref('extensions.copper.auto-request.method');
 		
 		// debug options
-		document.getElementById('chk_debug_options').checked = CopperChrome.prefManager.getBoolPref('extensions.copper.debug.options-enabled');
+		CopperChrome.loadDebugOptions();
 		
-		document.getElementById('debug_option_content_type').value = CopperChrome.prefManager.getCharPref('extensions.copper.debug.options.content-type');
-		document.getElementById('debug_option_max_age').value = CopperChrome.prefManager.getCharPref('extensions.copper.debug.options.max-age');
-		document.getElementById('debug_option_proxy_uri').value = CopperChrome.prefManager.getCharPref('extensions.copper.debug.options.proxy-uri');
-		document.getElementById('debug_option_etag').value = CopperChrome.prefManager.getCharPref('extensions.copper.debug.options.etag');
-		document.getElementById('debug_option_uri_host').value = CopperChrome.prefManager.getCharPref('extensions.copper.debug.options.uri-host');
-		document.getElementById('debug_option_location_path').value = CopperChrome.prefManager.getCharPref('extensions.copper.debug.options.location-path');
-		document.getElementById('debug_option_uri_port').value = CopperChrome.prefManager.getCharPref('extensions.copper.debug.options.uri-port');
-		document.getElementById('debug_option_location_query').value = CopperChrome.prefManager.getCharPref('extensions.copper.debug.options.location-query');
-		document.getElementById('debug_option_observe').value = CopperChrome.prefManager.getCharPref('extensions.copper.debug.options.observe');
-		document.getElementById('debug_option_token').value = CopperChrome.prefManager.getCharPref('extensions.copper.debug.options.token');
-		document.getElementById('debug_option_block2').value = CopperChrome.prefManager.getCharPref('extensions.copper.debug.options.block2');
-		document.getElementById('debug_option_block1').value = CopperChrome.prefManager.getCharPref('extensions.copper.debug.options.block1');
 	} catch (ex) {
 		window.setTimeout(
 				function() { window.alert('WARNING: Could not load preferences; using hardcoded defauls.'+ex); },
@@ -211,7 +199,7 @@ CopperChrome.unload = function() {
 	CopperChrome.prefManager.setBoolPref('extensions.copper.retransmissions', document.getElementById('toolbar_retransmissions').checked);
 	
 	// debug options
-	CopperChrome.saveDebugContentTypes();
+	CopperChrome.saveDebugOptions();
 };
 
 

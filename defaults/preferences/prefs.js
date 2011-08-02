@@ -1,8 +1,8 @@
 pref("extensions.copper.coap-version", 7);
 pref("extensions.copper.default-block-size", 64);
 pref("extensions.copper.show-unknown-transactions", true);
-pref("extensions.copper.encode-utf-8", false);
-pref("extensions.copper.auto-discover", true);
+pref("extensions.copper.encode-utf-8", true);
+pref("extensions.copper.auto-discover", false);
 pref("extensions.copper.retransmissions", true);
 pref("extensions.copper.default-payload", "Enter payload...");
 pref("extensions.copper.auto-request.method", 0);
@@ -18,5 +18,6 @@ pref("extensions.copper.debug.options.uri-port", "");
 pref("extensions.copper.debug.options.location-query", "");
 pref("extensions.copper.debug.options.observe", "");
 pref("extensions.copper.debug.options.token", "");
+pref("extensions.copper.debug.options.accept", "");
 pref("extensions.copper.debug.options.block2", "");
 pref("extensions.copper.debug.options.block1", "");
