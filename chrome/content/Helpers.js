@@ -136,8 +136,11 @@ CopperChrome.checkUri = function(uri, method, pl) {
 CopperChrome.loadCachedResources = function() {
 	try {
 		dump('INFO: loading cached resource links\n');
-		CopperChrome.resources = JSON.parse( CopperChrome.prefManager.getCharPref('extensions.copper.resources.'+CopperChrome.hostname+':'+CopperChrome.port) );
+		let loadRes = CopperChrome.prefManager.getCharPref('extensions.copper.resources.'+CopperChrome.hostname+':'+CopperChrome.port);
+		CopperChrome.resources = JSON.parse( unescape(loadRes) );
+		
 	} catch( ex ) {
+		alert(CopperChrome.resources);
 	    dump('INFO: no cached links for '+CopperChrome.hostname+':'+CopperChrome.port+' yet\n');
 	}
 	
@@ -146,6 +149,7 @@ CopperChrome.loadCachedResources = function() {
 		CopperChrome.resources[Copper.WELL_KNOWN_RESOURCES] = new Object();
 		CopperChrome.resources[Copper.WELL_KNOWN_RESOURCES]['ct'] = '40';
 		CopperChrome.resources[Copper.WELL_KNOWN_RESOURCES]['title'] = 'Resource discovery';
+		alert(CopperChrome.resources);
 	}
 };
 
@@ -253,7 +257,8 @@ CopperChrome.updateResourceLinks = function(add) {
 	}
 	
 	// save in cache
-	if (CopperChrome.hostname!='') CopperChrome.prefManager.setCharPref('extensions.copper.resources.'+CopperChrome.hostname+':'+CopperChrome.port, JSON.stringify(CopperChrome.resources) );
+	let saveRes = JSON.stringify(CopperChrome.resources);
+	if (CopperChrome.hostname!='') CopperChrome.prefManager.setCharPref('extensions.copper.resources.'+CopperChrome.hostname+':'+CopperChrome.port, escape(saveRes));
 };
 
 CopperChrome.updateMessageInfo = function(message) {
