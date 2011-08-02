@@ -528,9 +528,7 @@ Copper.CoapPacket.prototype = {
 	    	}
 	    	
 	    	// ignore unsupported types
-	    	dump(optType+'\n');
 	    	if (this.options[optType]) {
-	    		dump('  in options\n')
 	    	
 	    		if (optType==Copper.OPTION_LOCATION_PATH || optType==Copper.OPTION_URI_PATH) {
 	    			if (this.options[optType][0]>0) {
@@ -542,11 +540,6 @@ Copper.CoapPacket.prototype = {
 	    		
 	    		this.options[optType][0] = optLen;
 	    		this.options[optType][1] = opt;
-	    		
-	    		if (optType==12) {
-	    			dump(this.options[optType][0] + '\n');
-	    			dump(this.options[optType][1] + '\n');
-	    		}
 	    	}
 				
 			optionDelta = optType;
