@@ -226,7 +226,7 @@ CopperChrome.sendGet = function(uri) {
 		
 		CopperChrome.checkDebugOptions(message);
 		
-		CopperChrome.clearLabels();	
+		CopperChrome.clearLabels();
 		CopperChrome.client.send( message );
 	} catch (ex) {
 		alert('ERROR: Main.sendGet ['+ex+']');

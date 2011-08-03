@@ -255,8 +255,8 @@ Copper.CoapPacket.prototype = {
 	// retrieve option
 	getOptionLength : function(optType) {
 		//dump('getOptionLength: '+optType+'\n');
-		
-		if (this.options[optType][0]!=null) { 
+
+		if (this.options[optType]!=null && this.options[optType][0]!=null) {
 			return this.options[optType][0];
 		} else {
 			return -1;
