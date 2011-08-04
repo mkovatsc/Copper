@@ -108,9 +108,11 @@ try {
 		if (Copper.OPTION_MAX_AGE && document.getElementById('debug_option_max_age').value!='') {
 			message.setMaxAge(parseInt(document.getElementById('debug_option_max_age').value));
 		}
+try {
 		if (Copper.OPTION_PROXY_URI && document.getElementById('debug_option_proxy_uri').value!='') {
 			message.setProxyUri(document.getElementById('debug_option_proxy_uri').value);
 		}
+} catch (ex) {}
 		if (Copper.OPTION_ETAG && document.getElementById('debug_option_etag').value!='') {
 			if (document.getElementById('debug_option_etag').value.substr(0,2)=='0x') {
 				message.setETag(Copper.hex2bytes(document.getElementById('debug_option_etag').value));
@@ -124,12 +126,16 @@ try {
 		if (Copper.OPTION_LOCATION_PATH && document.getElementById('debug_option_location_path').value!='') {
 			message.setLocationPath(document.getElementById('debug_option_location_path').value);
 		}
+try {
 		if (Copper.OPTION_URI_PORT && document.getElementById('debug_option_uri_port').value!='') {
 			message.setUriPort(parseInt(document.getElementById('debug_option_uri_port').value));
 		}
+} catch (ex) {}
+try {
 		if (Copper.OPTION_LOCATION_QUERY && document.getElementById('debug_option_location_query').value!='') {
 			message.setLocationQuery(document.getElementById('debug_option_location_query').value);
 		}
+} catch (ex) {}
 		if (Copper.OPTION_OBSERVE && document.getElementById('debug_option_observe').value!='') {
 			message.setObserve(parseInt(document.getElementById('debug_option_observe').value));
 		}
@@ -140,6 +146,7 @@ try {
 				message.setToken(Copper.str2bytes(document.getElementById('debug_option_token').value));
 			}
 		}
+try {
 		if (Copper.OPTION_ACCEPT && document.getElementById('debug_option_accept').value!='') {
 			if (document.getElementById('debug_option_accept').selectedItem) {
 				message.setAccept(parseInt(document.getElementById('debug_option_accept').selectedItem.value));
@@ -147,6 +154,8 @@ try {
 				message.setAccept(parseInt(document.getElementById('debug_option_accept').value));
 			}
 		}
+} catch (ex) {}
+try {
 		if (Copper.OPTION_IF_MATCH && document.getElementById('debug_option_if_match').value!='') {
 			if (document.getElementById('debug_option_if_match').value.substr(0,2)=='0x') {
 				message.setIfMatch(Copper.hex2bytes(document.getElementById('debug_option_if_match').value));
@@ -154,15 +163,20 @@ try {
 				message.setIfMatch(Copper.str2bytes(document.getElementById('debug_option_if_match').value));
 			}
 		}
+} catch (ex) {}
 		if (Copper.OPTION_BLOCK && document.getElementById('debug_option_block2').value!='') {
 			message.setBlock(parseInt(document.getElementById('debug_option_block2').value), CopperChrome.blockSize);
 		}
+try {
 		if (Copper.OPTION_BLOCK1 && document.getElementById('debug_option_block1').value!='') {
 			message.setBlock1(parseInt(document.getElementById('debug_option_block1').value), CopperChrome.blockSize);
 		}
+} catch (ex) {}
+try {
 		if (Copper.OPTION_IF_NONE_MATCH && document.getElementById('debug_option_if_none_match').checked) {
 			message.setIfNoneMatch();
 		}
+} catch (ex) {}
 	}
 } catch (ex) {
 	alert('ERROR: CopperChrome.checkDebugOptions ['+ex+']');
