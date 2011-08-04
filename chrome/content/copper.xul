@@ -175,6 +175,11 @@
 					</vbox>
 				</hbox>
 				
+				<label control="debug_option_if_match" value="If-Match"/>
+				<textbox id="debug_option_if_match" emptytext="use an ETag"/>
+				
+				<checkbox id="debug_option_if_none_match" label="If-None-Match"/>
+				
 				<label value="Response options" style="text-align: center; margin-top: 5px;"/>
 				
 				<label control="debug_option_content_type" value="Content-Type"/>

@@ -180,27 +180,6 @@ CopperChrome.CoapMessage.prototype = {
 		}
 	},
 	
-	// Copper.OPTION_ACCEPT:07+
-	getAccept : function(readable) {
-		var optLen = this.packet.getOptionLength(Copper.OPTION_CONTENT_TYPE);
-		var opt = this.packet.getOption(Copper.OPTION_ACCEPT); // integer
-
-		if (optLen<=0) return null;
-		
-		if (readable) {
-			return new Array('Accept', Copper.getContentTypeName(opt), opt);
-		} else {
-			return opt;
-		}
-	},
-	setAccept : function(content) {
-		if (content>0xFFFF) {
-			dump('WARNING: CoapMessage.setContentType [must be 1 or 2 bytes; ignoring]\n');
-		} else {
-			this.packet.setOption(Copper.OPTION_ACCEPT, content);
-		}
-	},
-	
 	// Copper.OPTION_MAX_AGE:00+
 	getMaxAge : function(readable) {
 		var optLen = this.packet.getOptionLength(Copper.OPTION_MAX_AGE);
@@ -525,6 +504,76 @@ CopperChrome.CoapMessage.prototype = {
 		}
 	},
 	
+	// Copper.OPTION_ACCEPT:07+
+	getAccept : function(readable) {
+
+		if (CopperChrome.coapVersion < 7) {
+			return null;
+		}
+		
+		//FIXME support multiple options
+		
+		var optLen = this.packet.getOptionLength(Copper.OPTION_ACCEPT);
+		var opt = this.packet.getOption(Copper.OPTION_ACCEPT); // integer
+
+		if (optLen<=0) return null;
+		
+		if (readable) {
+			return new Array('Accept', Copper.getContentTypeName(opt), opt);
+		} else {
+			return opt;
+		}
+	},
+	setAccept : function(content) {
+		
+		//FIXME support multiple options
+
+		if (CopperChrome.coapVersion < 7) {
+			dump('WARNING: CoapMessage.setAccept [Accept only supported in coap-07+]\n');
+			return;
+		}
+		
+		if (content>0xFFFF) {
+			dump('WARNING: CoapMessage.setAccept [must be 1 or 2 bytes; ignoring]\n');
+		} else {
+			this.packet.setOption(Copper.OPTION_ACCEPT, content);
+		}
+	},
+	
+	// Copper.OPTION_IF_MATCH:07+
+	getIfMatch : function(readable) {
+
+		if (CopperChrome.coapVersion < 7) {
+			return null;
+		}
+		
+		//FIXME support multiple options
+		
+		var optLen = this.packet.getOptionLength(Copper.OPTION_IF_MATCH);
+		var opt = this.packet.getOption(Copper.OPTION_IF_MATCH); // byte array
+
+		if (optLen<=0) return null;
+
+		if (readable) {
+			return new Array('If-Match', Copper.bytes2hex(opt), optLen+' byte(s)');
+		} else {
+			return opt;
+		}
+	},
+	setIfMatch : function(tag) {
+
+		if (CopperChrome.coapVersion < 7) {
+			dump('WARNING: CoapMessage.setIfMatch [If-Match only supported in coap-07+]\n');
+			return;
+		}
+		
+		while (tag.length>Copper.ETAG_LENGTH) {
+			tag.pop();
+			dump('WARNING: CoapMessage.setIfMatch [ETag must be 1-'+Copper.ETAG_LENGTH+' bytes; cropping to '+Copper.ETAG_LENGTH+' bytes]\n');
+		}
+		this.packet.setOption(Copper.OPTION_IF_MATCH, tag);
+	},
+	
 	// Copper.OPTION_BLOCK2:06+ / Copper.OPTION_BLOCK:03+
 	getBlock : function(readable) {
 		var optLen = this.packet.getOptionLength(Copper.OPTION_BLOCK); // == Copper.OPTION_BLOCK2
@@ -638,6 +687,35 @@ CopperChrome.CoapMessage.prototype = {
 	getBlock1More : function() {
 		return (0x08 & this.getBlock1());
 	},
+	
+	// Copper.OPTION_IF_NONE_MATCH:07+
+	getIfNoneMatch : function(readable) {
+
+		if (CopperChrome.coapVersion < 7) {
+			return null;
+		}
+		
+		var optLen = this.packet.getOptionLength(Copper.OPTION_IF_NONE_MATCH);
+		var opt = this.packet.getOption(Copper.OPTION_IF_NONE_MATCH); // byte array
+
+		if (optLen<=0) return null;
+
+		if (readable) {
+			return new Array('If-None-Match', 'none', 'Option set');
+		} else {
+			return 'none';
+		}
+	},
+	setIfNoneMatch : function() {
+
+		if (CopperChrome.coapVersion < 7) {
+			dump('WARNING: CoapMessage.setIfNoneMatch [If-None-Match only supported in coap-07+]\n');
+			return;
+		}
+		
+		// only set option with length 0 (int=0)
+		this.packet.setOption(Copper.OPTION_IF_NONE_MATCH, 0);
+	},
 
 	// Copper.OPTION_SUB_LIFETIME:draft-ietf-core-observe-00*renamed
 	getObserve : function(readable) {
@@ -672,8 +750,10 @@ CopperChrome.CoapMessage.prototype = {
 			if (this.getObserve()!=null) ret += '\n  ' + this.getObserve(true)[0] + ': ' + this.getObserve(true)[1] + ' ['+this.getObserve(true)[2]+']';
 			if (this.getToken()!=null) ret += '\n  ' + this.getToken(true)[0] + ': ' + this.getToken(true)[1] + ' ['+this.getToken(true)[2]+']';
 			if (this.getAccept()!=null) ret += '\n  ' + this.getAccept(true)[0] + ': ' + this.getAccept(true)[1] + ' ['+this.getAccept(true)[2]+']';
+			if (this.getIfMatch()!=null) ret += '\n  ' + this.getIfMatch(true)[0] + ': ' + this.getIfMatch(true)[1] + ' ['+this.getIfMatch(true)[2]+']';
 			if (this.getBlock()!=null) ret += '\n  ' + this.getBlock(true)[0] + ': ' + this.getBlock(true)[1] + ' ['+this.getBlock(true)[2]+']';
 			if (this.getBlock1()!=null) ret += '\n  ' + this.getBlock1(true)[0] + ': ' + this.getBlock1(true)[1] + ' ['+this.getBlock1(true)[2]+']';
+			if (this.getIfNoneMatch()!=null) ret += '\n  ' + this.getIfNoneMatch(true)[0] + ': ' + this.getIfNoneMatch(true)[1] + ' ['+this.getIfNoneMatch(true)[2]+']';
 			
 			return ret;
 		} else {
@@ -688,8 +768,10 @@ CopperChrome.CoapMessage.prototype = {
 			if (this.getObserve()!=null) ret.push( this.getObserve(true) );
 			if (this.getToken()!=null) ret.push( this.getToken(true) );			
 			if (this.getAccept()!=null) ret.push(this.getAccept(true));
+			if (this.getIfMatch()!=null) ret.push(this.getIfMatch(true));
 			if (this.getBlock()!=null) ret.push( this.getBlock(true) );
 			if (this.getBlock1()!=null) ret.push( this.getBlock1(true) );
+			if (this.getIfNoneMatch()!=null) ret.push(this.getIfNoneMatch(true));
 			
 			return ret;
 		}

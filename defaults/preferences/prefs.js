@@ -19,5 +19,7 @@ pref("extensions.copper.debug.options.location-query", "");
 pref("extensions.copper.debug.options.observe", "");
 pref("extensions.copper.debug.options.token", "");
 pref("extensions.copper.debug.options.accept", "");
+pref("extensions.copper.debug.options.if-match", "");
 pref("extensions.copper.debug.options.block2", "");
 pref("extensions.copper.debug.options.block1", "");
+pref("extensions.copper.debug.options.if-none-match", false);
