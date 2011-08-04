@@ -34,24 +34,30 @@
  *
  * \author  Matthias Kovatsch <kovatsch@inf.ethz.ch>\author
  */
-                                
+
+/**
+ * CopperProtocolHandler namespace.
+ */
+if ("undefined" == typeof(CopperProtocol)) {
+  var CopperProtocol = {};
+};
 
 // Array allows for multiple schemes (e.g., coap and coaps for coap with DTLS)
-const CLASS_ID = [Components.ID("{6ffeeb10-91cc-0854-a554-81cf891ced50}")];
-const CLASS_SCHEME = ["coap"];
-const CLASS_DEFAULT_PORT = [-1];
-const CLASS_NAME = ["CoAP protocol"];
+CopperProtocol.__defineGetter__("CLASS_ID", function() { return [Components.ID('{6ffeeb10-91cc-0854-a554-81cf891ced50}')]; });
+CopperProtocol.__defineGetter__("CLASS_SCHEME", function() { return ['coap']; });
+CopperProtocol.__defineGetter__("CLASS_DEFAULT_PORT", function() { return [-1]; });
+CopperProtocol.__defineGetter__("CLASS_NAME", function() { return ['CoAP protocol']; });
 
 /**
  * Handles the CoAP protocol
  */
-function CoapProtocolHandler() {}
+CopperProtocol.Handler = function() {};
 
-CoapProtocolHandler.prototype = {
-	classID: CLASS_ID[0],
+CopperProtocol.Handler.prototype = {
+	classID: CopperProtocol.CLASS_ID[0],
 	
-	scheme: CLASS_SCHEME[0],
-	defaultPort : CLASS_DEFAULT_PORT[0],
+	scheme: CopperProtocol.CLASS_SCHEME[0],
+	defaultPort : CopperProtocol.CLASS_DEFAULT_PORT[0],
 
 	allowPort: function(port, scheme) {
 		return false;
@@ -76,7 +82,7 @@ CoapProtocolHandler.prototype = {
 			return uri;
 		
 		} catch (ex) {
-			dump('ERROR: CoapProtocolHandler.newURI ['+ex+']\n');
+			dump('ERROR: CopperProtocol.Handler.newURI ['+ex+']\n');
 			
 			// will cause an alert
 			return uri = Components.classes["@mozilla.org/network/simple-uri;1"].createInstance(Components.interfaces.nsIURI);
@@ -99,14 +105,12 @@ CoapProtocolHandler.prototype = {
    * @param aIID the IID of the requested interface.
    * @return the resulting interface pointer.
    */
-  QueryInterface : function(aIID) {
-    if (!aIID.equals(Components.interfaces.nsIProtocolHandler) &&
-        !aIID.equals(Components.interfaces.nsISupports)) {
-      throw Components.results.NS_ERROR_NO_INTERFACE;
-    }
-
-    return this;
-  }
+	QueryInterface : function(aIID) {
+		if (!aIID.equals(Components.interfaces.nsIProtocolHandler) && !aIID.equals(Components.interfaces.nsISupports)) {
+			throw Components.results.NS_ERROR_NO_INTERFACE;
+		}
+		return this;
+	}
 
 };
 
@@ -115,14 +119,14 @@ CoapProtocolHandler.prototype = {
  * classes without specifying a concrete class type.
  * More: http://developer.mozilla.org/en/docs/nsIFactory
  */
-var CoapProtocolHandlerFactory = function() {};
+CopperProtocol.HandlerFactory = function() {};
 
-CoapProtocolHandlerFactory.prototype = {
+CopperProtocol.HandlerFactory.prototype = {
 	createInstance: function (aOuter, aIID) {
 		if (null != aOuter) {
 			throw Components.results.NS_ERROR_NO_AGGREGATION;
 		}
-	    return (new CoapProtocolHandler()).QueryInterface(aIID);
+	    return (new CopperProtocol.Handler()).QueryInterface(aIID);
 	}
 };
 
@@ -132,7 +136,7 @@ CoapProtocolHandlerFactory.prototype = {
  * the main entry point by which the system accesses an XPCOM component.
  * More: http://developer.mozilla.org/en/docs/nsIModule
  */
-var CoapProtocolHandlerModule = {
+CopperProtocol.HandlerModule = {
 	/**
 	 * When the nsIModule is discovered, this method will be called so that any
 	 * setup registration can be preformed.
@@ -143,8 +147,8 @@ var CoapProtocolHandlerModule = {
 	 */
 	registerSelf : function(aCompMgr, aLocation, aLoaderStr, aType) {
 		aCompMgr.QueryInterface(Components.interfaces.nsIComponentRegistrar);
-		for (var i in CLASS_SCHEME) {
-			aCompMgr.registerFactoryLocation(CLASS_ID[i], CLASS_NAME[i], "@mozilla.org/network/protocol;1?name="+CLASS_SCHEME[i], aLocation, aLoaderStr, aType);
+		for (var i in CopperProtocol.CLASS_SCHEME) {
+			aCompMgr.registerFactoryLocation(CopperProtocol.CLASS_ID[i], CopperProtocol.CLASS_NAME[i], "@mozilla.org/network/protocol;1?name="+CopperProtocol.CLASS_SCHEME[i], aLocation, aLoaderStr, aType);
 		}
 	},
 
@@ -157,8 +161,8 @@ var CoapProtocolHandlerModule = {
 	 */
 	unregisterSelf : function (aCompMgr, aLocation, aLoaderStr) {
 		aCompMgr.QueryInterface(Components.interfaces.nsIComponentRegistrar);
-		for (var i in CLASS_SCHEME) {
-			aCompMgr.unregisterFactoryLocation(CLASS_ID[i], aLocation);
+		for (var i in CopperProtocol.CLASS_SCHEME) {
+			aCompMgr.unregisterFactoryLocation(CopperProtocol.CLASS_ID[i], aLocation);
 		}
 	},
 
@@ -176,8 +180,8 @@ var CoapProtocolHandlerModule = {
 			throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
 		}
 
-		if (aClass.equals(CLASS_ID[0])) {
-			return new CoapProtocolHandlerFactory();
+		if (aClass.equals(CopperProtocol.CLASS_ID[0])) {
+			return new CopperProtocol.HandlerFactory();
 		}
 
 		throw Components.results.NS_ERROR_NO_INTERFACE;
@@ -201,7 +205,7 @@ var CoapProtocolHandlerModule = {
  * @return the module for the service.
  */
 function NSGetModule(aCompMgr, aFileSpec) {
-	return CoapProtocolHandlerModule;
+	return CopperProtocol.HandlerModule;
 }
 
 /**
@@ -210,9 +214,9 @@ function NSGetModule(aCompMgr, aFileSpec) {
  * @return the module for the service.
  */
 function NSGetFactory (cid) {
-	for(var i in CLASS_ID) {
-		if (cid.equals(CLASS_ID[0])) {
-			return new CoapProtocolHandlerFactory();
+	for(var i in CopperProtocol.CLASS_ID) {
+		if (cid.equals(CopperProtocol.CLASS_ID[0])) {
+			return new CopperProtocol.HandlerFactory();
 		}
 	}
 }
