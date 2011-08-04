@@ -325,7 +325,7 @@ Copper.CoapPacket.prototype = {
 				break;
 			
 			default:
-				throw 'ERROR: CoapPacket.setOption [Unknown option '+option+': '+value+']';
+				dump('WARNING: CoapPacket.setOption [Ignoring unknown option '+option+': '+value+']\n');
 		}
 	},
 	
@@ -406,8 +406,17 @@ Copper.CoapPacket.prototype = {
 				}
 				
 				var splitOption = new Array();
-				if (optTypeIt==Copper.OPTION_LOCATION_PATH || optTypeIt==Copper.OPTION_URI_PATH) {
-					var splitString = Copper.bytes2str(opt).split('/');
+				if (optTypeIt==Copper.OPTION_LOCATION_PATH ||
+					optTypeIt==Copper.OPTION_LOCATION_QUERY ||
+					optTypeIt==Copper.OPTION_URI_PATH ||
+					optTypeIt==Copper.OPTION_URI_QUERY) {
+	    			
+	    			var separator = '/'; // 0x002F
+	    			if (optTypeIt==Copper.OPTION_LOCATION_QUERY || optTypeIt==Copper.OPTION_URI_QUERY) {
+	    				separator = '&'; // 0x0026
+	    			}
+				
+					var splitString = Copper.bytes2str(opt).split(separator);
 					for (s in splitString) {
 						//dump(splitString[s]+'\n');
 						splitOption.push(Copper.str2bytes(splitString[s]));
@@ -491,7 +500,7 @@ Copper.CoapPacket.prototype = {
 	    	var optType = ((0xF0 & tempByte) >>> 4) + optionDelta;
 	    	var optLen = (0x0F & tempByte);
 	    	
-	    	//dump('INFO: parsing option '+optType+' (delta '+((0xF0 & tempByte) >>> 4)+', len '+optLen+')\n');
+			//dump('INFO: parsing option '+optType+' (delta '+((0xF0 & tempByte) >>> 4)+', len '+optLen+')\n');
 	    	
 	    	// when the length is 15 or more, another byte is added as an 8-bit unsigned integer
 	    	if (optLen==15) {
@@ -499,18 +508,32 @@ Copper.CoapPacket.prototype = {
 	    	}
 	    	
 	    	var opt = new Array();
-	    	for (var j=0; j<optLen; j++) {
-	    		opt.push(packet.shift());
+	    	if (optLen==0) {
+	    		optLen = 1;
+	    		opt.push(0);
+	    	} else {
+		    	for (var j=0; j<optLen; j++) {
+		    		opt.push(packet.shift());
+		    	}
 	    	}
 	    	
-	    	// ignore unsupported types
+	    	// only supported types
 	    	if (this.options[optType]) {
-	    		if (optType==Copper.OPTION_LOCATION_PATH || optType==Copper.OPTION_URI_PATH) {
-	    			if (this.options[optType][0]>0) {
-	    				optLen += 1 + this.options[optType][0];
-	    				opt = this.options[optType][1].concat(0x002F).concat(opt);
+	    	
+				if (optType==Copper.OPTION_LOCATION_PATH ||
+	    			optType==Copper.OPTION_LOCATION_QUERY ||
+	    			optType==Copper.OPTION_URI_PATH ||
+	    			optType==Copper.OPTION_URI_QUERY) {
+	    			
+	    			var separator = 0x002F; // /
+	    			if (optType==Copper.OPTION_LOCATION_QUERY || optType==Copper.OPTION_URI_QUERY) {
+	    				separator = 0x0026; // &
 	    			}
 	    			
+	    			if (this.options[optType][0]>0) {
+	    				optLen += 1 + this.options[optType][0];
+	    				opt = this.options[optType][1].concat(separator).concat(opt);
+	    			}
 	    		}
 	    		
 	    		this.options[optType][0] = optLen;

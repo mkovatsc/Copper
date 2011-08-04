@@ -296,7 +296,7 @@ Copper.CoapPacket.prototype = {
 				break;
 			
 			default:
-				throw 'ERROR: CoapPacket.setOption [Unknown option '+option+': '+value+']';
+				dump('WARNING: CoapPacket.setOption [Ignoring unknown option '+option+': '+value+']\n');
 		}
 		
 		// recalculate option count
