@@ -67,7 +67,7 @@ CopperChrome.blockwiseHandler = function(message) {
 	
 	if (message.isOption(Copper.OPTION_BLOCK)) {
 		
-		if (message.getBlockMore()) {
+		if (message.getBlockMore() && !document.getElementById('chk_debug_options').checked) {
 			
 			// give in, as browser could request large blocks and server might be constrained
 			if (message.getBlockSize() > CopperChrome.blockSize) {
