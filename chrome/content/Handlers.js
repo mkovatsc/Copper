@@ -67,13 +67,17 @@ CopperChrome.blockwiseHandler = function(message) {
 	
 	if (message.isOption(Copper.OPTION_BLOCK)) {
 		
-		if (message.getBlockMore() && !document.getElementById('chk_debug_options').checked) {
-			
-			// give in, as browser could request large blocks and server might be constrained
-			if (message.getBlockSize() > CopperChrome.blockSize) {
-				CopperChrome.sendBlockwiseGet(0, CopperChrome.blockSize);
+		if (message.getBlockMore()) {
+			if ( document.getElementById('chk_debug_options').checked ) {
+				// automatically count up
+				document.getElementById('debug_option_block2').value++;
 			} else {
-				CopperChrome.sendBlockwiseGet(message.getBlockNumber()+1, message.getBlockSize());
+				// block size negotiation
+				if (message.getBlockSize() > CopperChrome.blockSize) {
+					CopperChrome.sendBlockwiseGet(0, CopperChrome.blockSize);
+				} else {
+					CopperChrome.sendBlockwiseGet(message.getBlockNumber()+1, message.getBlockSize());
+				}
 			}
 		}
 		CopperChrome.updateLabel('packet_payload', message.getPayload(), message.getBlockNumber()>0);

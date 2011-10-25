@@ -38,6 +38,9 @@
 // namespace
 Components.utils.import("resource://drafts/common.jsm");
 
+// file IO
+Components.utils.import("resource://gre/modules/NetUtil.jsm"); 
+
 CopperChrome.mainWindow = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
 		.getInterface(Components.interfaces.nsIWebNavigation)
 		.QueryInterface(Components.interfaces.nsIDocShellTreeItem)
@@ -61,6 +64,8 @@ CopperChrome.observer = null;
 
 CopperChrome.resources = new Object();
 CopperChrome.resourcesCached = true;
+
+CopperChrome.payloadFromFile = null;
 
 // Life cycle functions
 ////////////////////////////////////////////////////////////////////////////////
@@ -255,11 +260,22 @@ CopperChrome.sendBlockwiseGet = function(num, size, uri) {
 };
 
 //TODO: blockwise POST
-CopperChrome.sendPost = function(pl, uri) {
+CopperChrome.sendPost = function(uri) {
 	try {
 		CopperChrome.client.cancelTransactions();
 	
 		uri = CopperChrome.checkUri(uri, Copper.POST);
+		
+		var pl = '';
+		switch (document.getElementById('toolbar_payload_list').value) {
+			case 'line': pl = document.getElementById('toolbar_payload').value; break;
+			case 'page': pl = document.getElementById('toolbar_payload').value; break;
+			case 'file': pl = CopperChrome.payloadFromFile; break;
+		}
+		alert(pl);
+		
+		document.getElementById('toolbar_payload').value;
+		CopperChrome.payloadFromFile;
 		
 		var message = new CopperChrome.CoapMessage(Copper.MSG_TYPE_CON, Copper.POST, uri, pl);
 		
@@ -273,11 +289,18 @@ CopperChrome.sendPost = function(pl, uri) {
 };
 
 //TODO: blockwise PUT
-CopperChrome.sendPut = function(pl, uri) {
+CopperChrome.sendPut = function(uri) {
 	try {
 		CopperChrome.client.cancelTransactions();
 		
 		uri = CopperChrome.checkUri(uri, Copper.PUT);
+		
+		var pl = '';
+		switch (document.getElementById('toolbar_payload_list').value) {
+			case 'line': pl = document.getElementById('toolbar_payload').value; break;
+			case 'page': pl = document.getElementById('toolbar_payload').value; break;
+			case 'file': pl = CopperChrome.payloadFromFile; break;
+		}
 		
 		var message = new CopperChrome.CoapMessage(Copper.MSG_TYPE_CON, Copper.PUT, uri, pl);
 		
@@ -351,4 +374,31 @@ CopperChrome.reDiscover = function() {
 	CopperChrome.resources = new Object();
 	
 	CopperChrome.discover();
+};
+
+CopperChrome.payloadFile = function() {
+	const nsIFilePicker = Components.interfaces.nsIFilePicker;
+	
+	CopperChrome.payloadFromFile = null;
+
+
+	var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
+	fp.init(window, "Select payload file", nsIFilePicker.modeOpen);
+	fp.appendFilters(nsIFilePicker.filterAll | nsIFilePicker.filterText);
+
+	var rv = fp.show();
+	if (rv == nsIFilePicker.returnOK || rv == nsIFilePicker.returnReplace) {
+		
+		NetUtil.asyncFetch(fp.file,
+			function(inputStream, status) {
+				if (!Components.isSuccessCode(status)) {  
+					alert('ERROR: Main.payloadFile ['+status+']');
+					return;  
+				}
+				CopperChrome.payloadFromFile = NetUtil.readInputStreamToString(inputStream, inputStream.available());
+				document.getElementById('toolbar_payload_file').label = fp.file.leafName;
+				dump('INFO: loaded "' + fp.file.path + '"\n');
+			}
+		);
+	}
 };

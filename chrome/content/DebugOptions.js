@@ -169,7 +169,7 @@ try {
 		}
 try {
 		if (Copper.OPTION_BLOCK1 && document.getElementById('debug_option_block1').value!='') {
-			message.setBlock1(parseInt(document.getElementById('debug_option_block1').value), CopperChrome.blockSize);
+			message.setBlock1(parseInt(document.getElementById('debug_option_block1').value), CopperChrome.blockSize, document.getElementById('debug_option_block1').value.match(/\+/));
 		}
 } catch (ex) {}
 try {

@@ -648,7 +648,7 @@ CopperChrome.CoapMessage.prototype = {
 			return opt;
 		}
 	},
-	setBlock1 : function(num, size) {
+	setBlock1 : function(num, size, more) {
 		
 		if (CopperChrome.coapVersion < 6) {
 			dump('WARNING: CoapMessage.setBlock1 [Block1 only supported in coap-06+]\n');
@@ -674,6 +674,9 @@ CopperChrome.CoapMessage.prototype = {
 		size >>= 4;
 		for (szx = 0; size; ++szx) size >>= 1;
 		block |= szx - 1;
+		if (more) {
+			block |= 0x08;
+		}
 		
 		this.packet.setOption(Copper.OPTION_BLOCK1, block);
 	},

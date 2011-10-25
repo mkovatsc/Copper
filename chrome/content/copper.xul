@@ -27,15 +27,31 @@
 
 	<toolbaritem id="toolbar_methods">
 		<toolbarbutton id="toolbar_get" label="GET" image="chrome://copper/skin/tool_get.png" oncommand="CopperChrome.sendGet();"/>
-		<toolbarbutton id="toolbar_post" label="POST" image="chrome://copper/skin/tool_post.png" oncommand="CopperChrome.sendPost(document.getElementById('toolbar_payload').value);"/>
-		<toolbarbutton id="toolbar_put" label="PUT" image="chrome://copper/skin/tool_put.png" oncommand="CopperChrome.sendPut(document.getElementById('toolbar_payload').value);"/>
+		<toolbarbutton id="toolbar_post" label="POST" image="chrome://copper/skin/tool_post.png" oncommand="CopperChrome.sendPost();"/>
+		<toolbarbutton id="toolbar_put" label="PUT" image="chrome://copper/skin/tool_put.png" oncommand="CopperChrome.sendPut();"/>
 		<toolbarbutton id="toolbar_delete" label="DELETE" image="chrome://copper/skin/tool_delete.png" oncommand="CopperChrome.sendDelete();"/>
 	</toolbaritem>
 	
-  <label control="toolbar_payload" value="Payload"/><!-- sticks to the top if it is inside a toolbaritem -->
-	<toolbaritem>
-		<textbox id="toolbar_payload" onfocus="this.select()" />
-	</toolbaritem>
+  <label value="Payload"/><!-- sticks to the top if it is inside a toolbaritem -->
+	
+	
+	<menulist id="toolbar_payload_list">
+		<menupopup ignorekeys="true">
+	
+			<menuitem label="Line" value="line">
+				<label control="toolbar_payload" value="Line"/>
+				<textbox id="toolbar_payload" onfocus="this.select()" allowevents="true"/>
+			</menuitem>
+			<menuitem label="Page" value="page">
+				<label value="Page"/>
+			</menuitem>
+			<menuitem label="File" value="file">
+				<label control="toolbar_payload_file" value="File"/>
+				<button id="toolbar_payload_file" label="Select..." allowevents="true" oncommand="parentNode.click();CopperChrome.payloadFile();"/>
+			</menuitem>
+				
+		</menupopup>
+	</menulist>
 	
 	<toolbaritem id="toolbar_special">
 		<toolbarbutton id="toolbar_observe" label="Observe" tooltiptext="Subscribe to the resource" image="chrome://copper/skin/tool_observe.png" oncommand="CopperChrome.observe();"/>
