@@ -151,15 +151,37 @@ CopperChrome.loadCachedResources = function() {
 	}
 };
 
+CopperChrome.savePayload = function() {
+	if (CopperChrome.hostname!='') {
+		CopperChrome.prefManager.setIntPref('extensions.copper.payloads.'+CopperChrome.hostname+':'+CopperChrome.port+'.mode', document.getElementById('toolbar_payload_mode').selectedIndex);
+		
+		CopperChrome.prefManager.setCharPref('extensions.copper.payloads.'+CopperChrome.hostname+':'+CopperChrome.port+'.line', document.getElementById('payload_text_line').value);
+		CopperChrome.prefManager.setCharPref('extensions.copper.payloads.'+CopperChrome.hostname+':'+CopperChrome.port+'.page', document.getElementById('payload_text_page').value);
+		CopperChrome.prefManager.setCharPref('extensions.copper.payloads.'+CopperChrome.hostname+':'+CopperChrome.port+'.file', CopperChrome.payloadFile);
+	}
+};
+
 // Load last used payload from preferences, otherwise use default payload
 CopperChrome.loadDefaultPayload = function() {
-	var pl = CopperChrome.prefManager.getCharPref('extensions.copper.default-payload');
+	
+	document.getElementById('toolbar_payload_mode').selectedIndex = 0;
+	document.getElementById('payload_text_line').value = CopperChrome.prefManager.getCharPref('extensions.copper.default-payload');
+	
 	try {
-		pl = CopperChrome.prefManager.getCharPref('extensions.copper.payloads.'+CopperChrome.hostname+':'+CopperChrome.port);
+		document.getElementById('toolbar_payload_mode').selectedIndex = CopperChrome.prefManager.getIntPref('extensions.copper.payloads.'+CopperChrome.hostname+':'+CopperChrome.port+'.mode');
+		
+		document.getElementById('payload_text_line').value = CopperChrome.prefManager.getCharPref('extensions.copper.payloads.'+CopperChrome.hostname+':'+CopperChrome.port+'.line');
+		document.getElementById('payload_text_page').value = CopperChrome.prefManager.getCharPref('extensions.copper.payloads.'+CopperChrome.hostname+':'+CopperChrome.port+'.page');
+		CopperChrome.payloadFile = CopperChrome.prefManager.getCharPref('extensions.copper.payloads.'+CopperChrome.hostname+':'+CopperChrome.port+'.file');
+		
+		if (CopperChrome.payloadFile!='') {
+			CopperChrome.loadPayloadFileByName(CopperChrome.payloadFile);
+		}
+		
+		CopperChrome.checkPayload();
 	} catch( ex ) {
 	    dump('INFO: no default payload for '+CopperChrome.hostname+':'+CopperChrome.port+' yet\n');
 	}
-	document.getElementById('toolbar_payload').value = pl;
 };
 
 CopperChrome.parseLinkFormat = function(data) {
@@ -259,7 +281,7 @@ CopperChrome.updateResourceLinks = function(add) {
 	if (CopperChrome.hostname!='') CopperChrome.prefManager.setCharPref('extensions.copper.resources.'+CopperChrome.hostname+':'+CopperChrome.port, escape(saveRes));
 };
 
-CopperChrome.updateMessageInfo = function(message) {
+CopperChrome.displayMessageInfo = function(message) {
 	
 	if (message.getCopperCode) {
 		CopperChrome.updateLabel('info_code', 'Copper: '+message.getCopperCode());
@@ -295,6 +317,43 @@ CopperChrome.updateMessageInfo = function(message) {
         optionList.appendChild(row);
     }
 };
+
+CopperChrome.displayPayload = function(message) {
+	
+	if (message.getPayload().length<1) {
+		return;
+	}
+	
+	switch (message.getContentType()) {
+		case Copper.CONTENT_TYPE_IMAGE_GIF:
+		case Copper.CONTENT_TYPE_IMAGE_JPEG:
+		case Copper.CONTENT_TYPE_IMAGE_PNG:
+		case Copper.CONTENT_TYPE_IMAGE_TIFF:
+			CopperChrome.renderImage(message);
+			break;
+		case Copper.CONTENT_TYPE_AUDIO_RAW:
+		case Copper.CONTENT_TYPE_VIDEO_RAW:
+		case Copper.CONTENT_TYPE_APPLICATION_OCTET_STREAM:
+		case Copper.CONTENT_TYPE_APPLICATION_X_OBIX_BINARY:
+			CopperChrome.renderBinary(message);
+			break;
+		case Copper.CONTENT_TYPE_APPLICATION_EXI:
+			CopperChrome.renderEXI(message);
+			break;
+		default:
+			CopperChrome.renderText(message);
+	}
+
+	if (message.isOption(Copper.OPTION_BLOCK)) {
+		// convert back to get number of bytes (UTF-8 chars)
+		document.getElementById('info_payload').label='Combined Payload ('+ document.getElementById('packet_payload').value.length +')';
+	} else {
+		document.getElementById('info_payload').label='Payload ('+message.getPayload().length+')';
+	}
+};
+
+
+
 
 CopperChrome.updateLabel = function(id, value, append) {
 	if (append) {

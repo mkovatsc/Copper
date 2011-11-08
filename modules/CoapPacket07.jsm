@@ -30,7 +30,7 @@
  */
 /**
  * \file
- *         Implementation of draft-ietf-core-coap-03
+ *         Implementation of draft-ietf-core-coap-07/08
  *
  * \author  Matthias Kovatsch <kovatsch@inf.ethz.ch>\author
  */
@@ -81,6 +81,7 @@ Copper.__defineGetter__("CODE_4_02_BAD_OPTION", function() { return 130; });
 Copper.__defineGetter__("CODE_4_03_FORBIDDEN", function() { return 131; });
 Copper.__defineGetter__("CODE_4_04_NOT_FOUND", function() { return 132; });
 Copper.__defineGetter__("CODE_4_05_METHOD_NOT_ALLOWED", function() { return 133; });
+Copper.__defineGetter__("CODE_4_06_NOT_ACCEPTABLE", function() { return 134; });
 Copper.__defineGetter__("CODE_4_12_PRECONDITION_FAILED", function() { return 140; });
 Copper.__defineGetter__("CODE_4_13_REQUEST_ENTITY_TOO_LARGE", function() { return 141; });
 Copper.__defineGetter__("CODE_4_15_UNSUPPORTED_MADIA_TYPE", function() { return 143; });
@@ -222,6 +223,7 @@ Copper.CoapPacket.prototype = {
 				case Copper.CODE_4_03_FORBIDDEN: return '4.03 Forbidden';
 				case Copper.CODE_4_04_NOT_FOUND: return '4.04 Not Found';
 				case Copper.CODE_4_05_METHOD_NOT_ALLOWED: return '4.05 Method Not Allowed';
+				case Copper.CODE_4_06_NOT_ACCEPTABLE: return '4.06 Not Acceptable';
 				case Copper.CODE_4_12_PRECONDITION_FAILED: return '4.12 Precondition Failed';
 				case Copper.CODE_4_13_REQUEST_ENTITY_TOO_LARGE: return '4.13 Request Entity Too Large';
 				case Copper.CODE_4_15_UNSUPPORTED_MADIA_TYPE: return '4.15 Unsupported Madia Type';
@@ -563,12 +565,10 @@ Copper.CoapPacket.prototype = {
 			optionDelta = optType;
 		}
 		
-        // read payload
-        var payloadBytes = new Array();
+        // read payload, treat as raw data, convert later
+	    this.payload = new Array();
         while (packet.length) {
-			payloadBytes.push(packet.shift());
+        	this.payload.push(packet.shift());
 		}
-		//TODO use Content-Type
-        this.payload = Copper.bytes2str(payloadBytes);
 	}
 };

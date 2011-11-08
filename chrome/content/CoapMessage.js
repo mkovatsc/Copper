@@ -70,7 +70,7 @@ CopperChrome.CoapMessage.prototype = {
 		ret += '\n Code: '+this.getCode(true);
 		ret += '\n Transaction ID: '+this.getTID();
 		ret += '\n Options:'+this.getOptions(true);
-		ret += '\n Payload:\n'+this.getPayload();
+		ret += '\n Payload:\n'+Copper.bytes2data(this.getPayload());
 		return ret;
 	},
 	

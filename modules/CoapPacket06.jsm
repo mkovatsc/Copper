@@ -30,7 +30,7 @@
  */
 /**
  * \file
- *         Implementation of draft-ietf-core-coap-03
+ *         Implementation of draft-ietf-core-coap-06
  *
  * \author  Matthias Kovatsch <kovatsch@inf.ethz.ch>\author
  */

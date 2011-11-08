@@ -49,12 +49,11 @@ CopperChrome.defaultHandler = function(message) {
 	
 	if (message.getRTT) document.getElementById('info_host').label = '' + CopperChrome.hostname + ':' + CopperChrome.port + ' (RTT: ' + message.getRTT() + 'ms)';
 	
-	CopperChrome.updateMessageInfo(message);
-	CopperChrome.updateLabel('packet_payload', message.getPayload());
-	document.getElementById('info_payload').label='Payload ('+document.getElementById('packet_payload').value.length+')';
+	CopperChrome.displayMessageInfo(message);
+	CopperChrome.displayPayload(message);
 	
 	if (message.getContentType()==Copper.CONTENT_TYPE_APPLICATION_LINK_FORMAT) {
-		CopperChrome.updateResourceLinks( CopperChrome.parseLinkFormat(message.getPayload()) );
+		CopperChrome.updateResourceLinks( CopperChrome.parseLinkFormat( document.getElementById('packet_payload').value ) );
 	}
 };
 
@@ -62,10 +61,11 @@ CopperChrome.defaultHandler = function(message) {
 CopperChrome.blockwiseHandler = function(message) {
 	dump('INFO: blockwiseHandler()\n');
 	
-	CopperChrome.updateMessageInfo(message);
-	CopperChrome.updateLabel('info_code', ' (Blockwise)', true);
+	CopperChrome.displayMessageInfo(message);
+	CopperChrome.updateLabel('info_code', ' (Blockwise)', true); // call after displayMessageInfo()
 	
-	if (message.isOption(Copper.OPTION_BLOCK)) {
+	//FIXME check non-blockwise message received
+	//if (message.isOption(Copper.OPTION_BLOCK)) {
 		
 		if (message.getBlockMore()) {
 			if ( document.getElementById('chk_debug_options').checked ) {
@@ -80,8 +80,7 @@ CopperChrome.blockwiseHandler = function(message) {
 				}
 			}
 		}
-		CopperChrome.updateLabel('packet_payload', message.getPayload(), message.getBlockNumber()>0);
-		document.getElementById('info_payload').label='Payload ('+document.getElementById('packet_payload').value.length+')';
+		CopperChrome.displayPayload(message);
 		
 		if (!message.getBlockMore()) {
 			if (message.getContentType()==Copper.CONTENT_TYPE_APPLICATION_LINK_FORMAT) {
@@ -89,7 +88,7 @@ CopperChrome.blockwiseHandler = function(message) {
 			}
 		}
 		
-	}
+	//}
 };
 
 //Handle messages with block-wise transfer
@@ -98,11 +97,10 @@ CopperChrome.observingHandler = function(message) {
 	
 	if (message.isOption(Copper.OPTION_OBSERVE)) {
 		
-		CopperChrome.updateMessageInfo(message);
-		CopperChrome.updateLabel('info_code', ' (Observing)', true);
+		CopperChrome.displayMessageInfo(message);
+		CopperChrome.updateLabel('info_code', ' (Observing)', true); // call after displayMessageInfo()
+		CopperChrome.displayPayload(message);
 		
-		CopperChrome.updateLabel('packet_payload', message.getPayload());
-		document.getElementById('info_payload').label='Payload ('+document.getElementById('packet_payload').value.length+')';
 	} else {
 		CopperChrome.updateLabel('info_code', 'Observing not supported');
 	}
@@ -131,7 +129,7 @@ CopperChrome.discoverHandler = function(message) {
 				CopperChrome.discoverCache = new String(); 
 			}
 			
-			CopperChrome.discoverCache += message.getPayload();
+			CopperChrome.discoverCache += Copper.bytes2str( message.getPayload() );
 			
 			if (!message.getBlockMore()) {
 				dump('INFO: Appending discover cache\n');
@@ -142,7 +140,7 @@ CopperChrome.discoverHandler = function(message) {
 		} else {
 			// link-format
 			CopperChrome.resourcesCached = false;
-			CopperChrome.updateResourceLinks( CopperChrome.parseLinkFormat( message.getPayload() ) );
+			CopperChrome.updateResourceLinks( CopperChrome.parseLinkFormat( Copper.bytes2str( message.getPayload() ) ) );
 		}
 	} else {
 		alert('ERROR: Main.discoverHandler [Content-Type is '+message.getContentType()+', not \'application/link-format\']');

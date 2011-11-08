@@ -17,6 +17,7 @@
 <script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/Main.js"/>
 <script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/Helpers.js"/>
 <script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/Handlers.js"/>
+<script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/Renderers.js"/>
 <script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/DebugOptions.js"/>
 <script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/Observing.js"/>
 <script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/CoapMessage.js"/>
@@ -35,19 +36,19 @@
   <label value="Payload"/><!-- sticks to the top if it is inside a toolbaritem -->
 	
 	
-	<menulist id="toolbar_payload_list">
+	<menulist id="toolbar_payload_mode" sizetopopup="none" oncommand="CopperChrome.checkPayload();">
 		<menupopup ignorekeys="true">
 	
-			<menuitem label="Line" value="line">
-				<label control="toolbar_payload" value="Line"/>
-				<textbox id="toolbar_payload" onfocus="this.select()" allowevents="true"/>
+			<menuitem label="Line" value="line" width="130px">
+				<label control="payload_text_line" value="Line"/>
+				<textbox id="payload_text_line" onfocus="this.select()" allowevents="true"/>
 			</menuitem>
 			<menuitem label="Page" value="page">
 				<label value="Page"/>
 			</menuitem>
 			<menuitem label="File" value="file">
 				<label control="toolbar_payload_file" value="File"/>
-				<button id="toolbar_payload_file" label="Select..." allowevents="true" oncommand="parentNode.click();CopperChrome.payloadFile();"/>
+				<button id="toolbar_payload_file" label="Select..." allowevents="true" oncommand="parentNode.click();CopperChrome.selectPayloadFile();"/>
 			</menuitem>
 				
 		</menupopup>
@@ -122,9 +123,29 @@
 				</listbox>
 			</hbox>
 		</box>
+		
 		<groupbox id="group_payload" flex="1">
 			<caption id="info_payload" label="Payload"/>
-			<textbox flex="1" id="packet_payload" readonly="true" multiline="true" style="background-color: white; width: 100%; height: 100%; font-family: monospace;"/>
+		
+			<tabbox id="tabs_payload" flex="1">
+			  <tabs>
+			    <tab label="Incoming"/>
+			    <tab label="Rendered"/>
+			    <tab label="Outgoing"/>
+			  </tabs>
+			  <tabpanels flex="1" style="padding: 0px;">
+			    <tabpanel id="tab_incoming">
+			    	<textbox flex="1" id="packet_payload" readonly="true" multiline="true" style="background-color: white; width: 100%; height: 100%; font-family: monospace;"/>
+			    </tabpanel>
+			    <tabpanel id="tab_rendered" pack="center" align="center" border="1">
+			    	<image id="test_img" src="" inherits="validate,src=image"/>
+			    </tabpanel>
+			    <tabpanel id="tab_outgoing">
+			    	<textbox flex="1" id="payload_text_page" multiline="true" style="background-color: white; width: 100%; height: 100%; font-family: monospace;"/>
+			    </tabpanel>
+			  </tabpanels>
+			</tabbox>
+			
 		</groupbox>
 	</vbox>
 

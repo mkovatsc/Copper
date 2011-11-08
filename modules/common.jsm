@@ -109,7 +109,7 @@ Copper.bytes2str = function(b) {
 			i += 2;
 		} else if (i+3 < b.length) {
 			dump('WARNING: 4-byte UTF-8\n');
-			str += String.fromCharCode(2592); // ▒
+			str += String.fromCharCode(2592); // char ▒
 			i += 3;
 		} else {
 			dump('ERROR: Incomplete UTF-8 encoding\n');
