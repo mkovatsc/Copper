@@ -68,7 +68,7 @@ CopperChrome.blockwiseHandler = function(message) {
 	//if (message.isOption(Copper.OPTION_BLOCK)) {
 		
 		if (message.getBlockMore()) {
-			if ( document.getElementById('chk_debug_options').checked ) {
+			if ( document.getElementById('debug_option_block_manual').checked ) {
 				// automatically count up
 				document.getElementById('debug_option_block2').value++;
 			} else {

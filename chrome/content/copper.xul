@@ -210,6 +210,10 @@
 						<label control="debug_option_block1" value="Block-Up"/>
 						<textbox id="debug_option_block1" emptytext="block number"/>
 					</vbox>
+					<vbox flex="1">
+						<label control="debug_option_block1" value="Stop"/>
+						<checkbox id="debug_option_block_manual" tooltiptext="Get each block manually"/>
+					</vbox>
 				</hbox>
 				
 				<label control="debug_option_if_match" value="If-Match"/>
