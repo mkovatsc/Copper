@@ -63,9 +63,28 @@ CopperChrome.blockwiseHandler = function(message) {
 	
 	CopperChrome.displayMessageInfo(message);
 	CopperChrome.updateLabel('info_code', ' (Blockwise)', true); // call after displayMessageInfo()
-	
-	if (message.isOption(Copper.OPTION_BLOCK)) {
 		
+	if (message.isOption(Copper.OPTION_BLOCK1)) {
+		if (message.getBlock1More()) {
+			
+			if ( document.getElementById('chk_debug_options').checked && document.getElementById('chk_debug_option_block_manual').checked ) {
+				document.getElementById('debug_option_block1').value = message.getBlock1Number()+1;
+			
+				if (CopperChrome.uploadBlocks.length > document.getElementById('debug_option_block1').value * CopperChrome.blockSize) {
+					document.getElementById('debug_option_block1').value += '+';
+				}
+			} else {
+				CopperChrome.sendBlockwisePut(message.getBlock1Number()+1, message.getBlock1Size());
+			}
+			return;
+		} else {
+			CopperChrome.uploadBlocks = null;
+			document.getElementById('debug_option_block1').value = '';
+			CopperChrome.updateLabel('info_code', ' (Upload finished)', true); // call after displayMessageInfo()
+		}
+	}
+
+	if (message.isOption(Copper.OPTION_BLOCK)) {
 		if (message.getBlockMore()) {
 			if ( document.getElementById('chk_debug_options').checked && document.getElementById('chk_debug_option_block_manual').checked ) {
 				// automatically count up

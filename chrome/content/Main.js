@@ -68,6 +68,8 @@ CopperChrome.resourcesCached = true;
 CopperChrome.payloadFile = '';
 CopperChrome.payloadFileData = null;
 
+CopperChrome.uploadBlocks = null;
+
 // Life cycle functions
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -285,7 +287,6 @@ CopperChrome.sendPost = function(uri) {
 	}
 };
 
-//TODO: blockwise PUT
 CopperChrome.sendPut = function(uri) {
 	try {
 		CopperChrome.client.cancelTransactions();
@@ -299,9 +300,58 @@ CopperChrome.sendPut = function(uri) {
 			case 'file': pl = Copper.data2bytes(CopperChrome.payloadFileData); break;
 		}
 		
+		// store payload in case server requests blockwise upload
+		CopperChrome.uploadBlocks = pl;
+		
+		// blockwise uploads
+		if (document.getElementById('chk_debug_options').checked && document.getElementById('debug_option_block1').value!='' && pl.length > CopperChrome.blockSize) {
+
+			CopperChrome.sendBlockwisePut(parseInt(document.getElementById('debug_option_block1').value), CopperChrome.blockSize, uri);
+			return;
+		}
+		
 		var message = new CopperChrome.CoapMessage(Copper.MSG_TYPE_CON, Copper.PUT, uri, pl);
 		
 		CopperChrome.checkDebugOptions(message);
+		
+		CopperChrome.clearLabels();
+		CopperChrome.client.send( message );
+	} catch (ex) {
+		alert('ERROR: Main.sendPut ['+ex+']');
+	}
+};
+
+CopperChrome.sendBlockwisePut = function(num, size, uri) {
+	
+	if (CopperChrome.uploadBlocks==null) {
+		alert("WARNING: Main.sendBlockwisePut [no upload in progress, sending normal PUT]");
+		CopperChrome.sendPut(uri);
+		return;
+	}
+	
+	try {
+		CopperChrome.client.cancelTransactions();
+		
+		uri = CopperChrome.checkUri(uri, Copper.PUT);
+		let more = false;
+					
+		if ( CopperChrome.blockSize*(num-1) > CopperChrome.uploadBlocks.length) {
+			alert('ERROR: Main.sendPut [debug Block1 out of payload scope]');
+		}
+		
+		document.getElementById('debug_option_block1').value = num;
+		if (CopperChrome.uploadBlocks.length > num * CopperChrome.blockSize) {
+			document.getElementById('debug_option_block1').value += '+';
+			more = true;
+		}
+		
+		let pl = CopperChrome.uploadBlocks.slice(CopperChrome.blockSize * num, CopperChrome.blockSize * (num+1));
+		
+		var message = new CopperChrome.CoapMessage(Copper.MSG_TYPE_CON, Copper.PUT, uri, pl);
+		
+		CopperChrome.checkDebugOptions(message);
+		
+		message.setBlock1(num, CopperChrome.blockSize, more);
 		
 		CopperChrome.clearLabels();
 		CopperChrome.client.send( message );
