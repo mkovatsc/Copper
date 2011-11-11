@@ -82,6 +82,7 @@ Copper.__defineGetter__("CODE_4_03_FORBIDDEN", function() { return 131; });
 Copper.__defineGetter__("CODE_4_04_NOT_FOUND", function() { return 132; });
 Copper.__defineGetter__("CODE_4_05_METHOD_NOT_ALLOWED", function() { return 133; });
 Copper.__defineGetter__("CODE_4_06_NOT_ACCEPTABLE", function() { return 134; });
+Copper.__defineGetter__("CODE_4_08_REQUEST_ENTITY_INCOMPLETE", function() { return 136; });
 Copper.__defineGetter__("CODE_4_12_PRECONDITION_FAILED", function() { return 140; });
 Copper.__defineGetter__("CODE_4_13_REQUEST_ENTITY_TOO_LARGE", function() { return 141; });
 Copper.__defineGetter__("CODE_4_15_UNSUPPORTED_MADIA_TYPE", function() { return 143; });
@@ -224,6 +225,7 @@ Copper.CoapPacket.prototype = {
 				case Copper.CODE_4_04_NOT_FOUND: return '4.04 Not Found';
 				case Copper.CODE_4_05_METHOD_NOT_ALLOWED: return '4.05 Method Not Allowed';
 				case Copper.CODE_4_06_NOT_ACCEPTABLE: return '4.06 Not Acceptable';
+				case Copper.CODE_4_08_REQUEST_ENTITY_INCOMPLETE: return '4.08 Request Entity Incomplete';
 				case Copper.CODE_4_12_PRECONDITION_FAILED: return '4.12 Precondition Failed';
 				case Copper.CODE_4_13_REQUEST_ENTITY_TOO_LARGE: return '4.13 Request Entity Too Large';
 				case Copper.CODE_4_15_UNSUPPORTED_MADIA_TYPE: return '4.15 Unsupported Madia Type';
@@ -484,7 +486,7 @@ Copper.CoapPacket.prototype = {
 	    var message = Copper.bytes2data(byteArray);
         
 	    // payload
-	    message += Copper.bytes2data(Copper.str2bytes(this.payload));
+	    message += Copper.bytes2data(this.payload);
 	    
 	    // finished
 	    return message;
@@ -557,9 +559,14 @@ Copper.CoapPacket.prototype = {
 	    				opt = this.options[optType][1].concat(separator).concat(opt);
 	    			}
 	    		}
+				
+				if (optType==Copper.OPTION_FENCE_POST) {
+					this.options[optType][0] += 1;
+				} else {
 	    		
 	    		this.options[optType][0] = optLen;
 	    		this.options[optType][1] = opt;
+				}
 	    	}
 				
 			optionDelta = optType;

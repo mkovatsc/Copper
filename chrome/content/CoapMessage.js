@@ -757,6 +757,8 @@ CopperChrome.CoapMessage.prototype = {
 			if (this.getBlock()!=null) ret += '\n  ' + this.getBlock(true)[0] + ': ' + this.getBlock(true)[1] + ' ['+this.getBlock(true)[2]+']';
 			if (this.getBlock1()!=null) ret += '\n  ' + this.getBlock1(true)[0] + ': ' + this.getBlock1(true)[1] + ' ['+this.getBlock1(true)[2]+']';
 			if (this.getIfNoneMatch()!=null) ret += '\n  ' + this.getIfNoneMatch(true)[0] + ': ' + this.getIfNoneMatch(true)[1] + ' ['+this.getIfNoneMatch(true)[2]+']';
+			// number of fenceposts for info
+			if (this.packet.getOptionLength(Copper.OPTION_FENCE_POST)>0) ret += '\n  Fenceposts: ' + this.packet.getOptionLength(Copper.OPTION_FENCE_POST);
 			
 			return ret;
 		} else {
@@ -775,6 +777,8 @@ CopperChrome.CoapMessage.prototype = {
 			if (this.getBlock()!=null) ret.push( this.getBlock(true) );
 			if (this.getBlock1()!=null) ret.push( this.getBlock1(true) );
 			if (this.getIfNoneMatch()!=null) ret.push(this.getIfNoneMatch(true));
+			
+			if (this.packet.getOptionLength(Copper.OPTION_FENCE_POST)>0) ret.push(new Array('Fenceposts', this.packet.getOptionLength(Copper.OPTION_FENCE_POST), 'count'));
 			
 			return ret;
 		}

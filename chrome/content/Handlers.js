@@ -43,10 +43,10 @@ CopperChrome.defaultHandler = function(message) {
 	dump('INFO: defaultHandler()\n');
 	
 	// if message turns out to be block-wise transfer dispatch to corresponding handler
-	if (message.isOption && message.isOption(Copper.OPTION_BLOCK)) {
+	if (message.isOption && (message.isOption(Copper.OPTION_BLOCK) || message.isOption(Copper.OPTION_BLOCK1))) {
 		return CopperChrome.blockwiseHandler(message);
 	}
-	
+
 	if (message.getRTT) document.getElementById('info_host').label = '' + CopperChrome.hostname + ':' + CopperChrome.port + ' (RTT: ' + message.getRTT() + 'ms)';
 	
 	CopperChrome.displayMessageInfo(message);
@@ -64,11 +64,10 @@ CopperChrome.blockwiseHandler = function(message) {
 	CopperChrome.displayMessageInfo(message);
 	CopperChrome.updateLabel('info_code', ' (Blockwise)', true); // call after displayMessageInfo()
 	
-	//FIXME check non-blockwise message received
-	//if (message.isOption(Copper.OPTION_BLOCK)) {
+	if (message.isOption(Copper.OPTION_BLOCK)) {
 		
 		if (message.getBlockMore()) {
-			if ( document.getElementById('debug_option_block_manual').checked ) {
+			if ( document.getElementById('chk_debug_options').checked && document.getElementById('chk_debug_option_block_manual').checked ) {
 				// automatically count up
 				document.getElementById('debug_option_block2').value++;
 			} else {
@@ -88,7 +87,7 @@ CopperChrome.blockwiseHandler = function(message) {
 			}
 		}
 		
-	//}
+	}
 };
 
 //Handle messages with block-wise transfer

@@ -269,9 +269,9 @@ CopperChrome.sendPost = function(uri) {
 		
 		var pl = '';
 		switch (document.getElementById('toolbar_payload_mode').value) {
-			case 'line': pl = document.getElementById('payload_text_line').value; break;
-			case 'page': pl = document.getElementById('payload_text_page').value; break;
-			case 'file': pl = CopperChrome.payloadFileData; break;
+			case 'line': pl = Copper.str2bytes(document.getElementById('payload_text_line').value); break;
+			case 'page': pl = Copper.str2bytes(document.getElementById('payload_text_page').value); break;
+			case 'file': pl = Copper.data2bytes(CopperChrome.payloadFileData); break;
 		}
 		
 		var message = new CopperChrome.CoapMessage(Copper.MSG_TYPE_CON, Copper.POST, uri, pl);
@@ -294,9 +294,9 @@ CopperChrome.sendPut = function(uri) {
 		
 		var pl = '';
 		switch (document.getElementById('toolbar_payload_mode').value) {
-			case 'line': pl = document.getElementById('payload_text_line').value; break;
-			case 'page': pl = document.getElementById('payload_text_page').value; break;
-			case 'file': pl = CopperChrome.payloadFileData; break;
+			case 'line': pl = Copper.str2bytes(document.getElementById('payload_text_line').value); break;
+			case 'page': pl = Copper.str2bytes(document.getElementById('payload_text_page').value); break;
+			case 'file': pl = Copper.data2bytes(CopperChrome.payloadFileData); break;
 		}
 		
 		var message = new CopperChrome.CoapMessage(Copper.MSG_TYPE_CON, Copper.PUT, uri, pl);

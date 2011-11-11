@@ -352,9 +352,6 @@ CopperChrome.displayPayload = function(message) {
 	}
 };
 
-
-
-
 CopperChrome.updateLabel = function(id, value, append) {
 	if (append) {
 		document.getElementById(id).value += value;

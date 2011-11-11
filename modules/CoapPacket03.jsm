@@ -100,6 +100,8 @@ Copper.__defineGetter__("CONTENT_TYPE_APPLICATION_FASTINFOSET", function() { ret
 Copper.__defineGetter__("CONTENT_TYPE_APPLICATION_SOAP_FASTINFOSET", function() { return 50; });
 Copper.__defineGetter__("CONTENT_TYPE_APPLICATION_JSON", function() { return 51; });
 
+Copper.__defineGetter__("CONTENT_TYPE_APPLICATION_X_OBIX_BINARY", function() { return -1; }); // 04
+
 Copper.__defineGetter__("GET", function() { return 1; });
 Copper.__defineGetter__("POST", function() { return 2; });
 Copper.__defineGetter__("PUT", function() { return 3; });
@@ -383,7 +385,7 @@ Copper.CoapPacket.prototype = {
 	    var message = Copper.bytes2data(byteArray);
         
 	    // payload
-	    message += this.payload;
+	    message += Copper.bytes2data(this.payload);
 	    
 	    // finished
 	    return message;
@@ -442,12 +444,10 @@ Copper.CoapPacket.prototype = {
 			optionDelta = optType;
 		}
 		
-        // read payload
-        var payloadBytes = new Array();
+	    // read payload, treat as raw data, convert later
+	    this.payload = new Array();
         while (packet.length) {
-			payloadBytes.push(packet.shift());
+        	this.payload.push(packet.shift());
 		}
-		//TODO use Content-Type
-        this.payload = Copper.bytes2str(payloadBytes);
 	}
 };

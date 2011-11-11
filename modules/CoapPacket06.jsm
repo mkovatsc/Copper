@@ -462,7 +462,7 @@ Copper.CoapPacket.prototype = {
 	    var message = Copper.bytes2data(byteArray);
         
 	    // payload
-	    message += Copper.bytes2data(Copper.str2bytes(this.payload));
+	    message += Copper.bytes2data(this.payload);
 	    
 	    // finished
 	    return message;
@@ -543,12 +543,10 @@ Copper.CoapPacket.prototype = {
 			optionDelta = optType;
 		}
 		
-        // read payload
-        var payloadBytes = new Array();
+	    // read payload, treat as raw data, convert later
+	    this.payload = new Array();
         while (packet.length) {
-			payloadBytes.push(packet.shift());
+        	this.payload.push(packet.shift());
 		}
-		//TODO use Content-Type
-        this.payload = Copper.bytes2str(payloadBytes);
 	}
 };

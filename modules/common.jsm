@@ -66,6 +66,13 @@ Copper.bytes2data = function(b) {
 	}
 	return str;
 };
+Copper.data2bytes = function(data) {
+	var b = new Array(0);
+	for (var i=0; i<data.length; i++) {
+		b.push(0xFF & data.charCodeAt(i));
+	}
+	return b;
+};
 
 Copper.str2bytes = function(str) {
 	var utf8 = Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefBranch).getBoolPref('extensions.copper.encode-utf-8');
