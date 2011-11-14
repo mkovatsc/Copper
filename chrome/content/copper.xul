@@ -48,7 +48,7 @@
 			</menuitem>
 			<menuitem label="File" value="file">
 				<label control="toolbar_payload_file" value="File"/>
-				<button id="toolbar_payload_file" label="Select..." allowevents="true" oncommand="parentNode.click();CopperChrome.selectPayloadFile();"/>
+				<button id="toolbar_payload_file" label="Select..." allowevents="true" oncommand="CopperChrome.selectPayloadFile();"/>
 			</menuitem>
 				
 		</menupopup>
@@ -60,7 +60,7 @@
 	</toolbaritem>
 	
 	<toolbaritem id="toolbar_settings">
-		<checkbox id="toolbar_auto_discovery" label="Auto discovery" tooltiptext="Automatically GET link-formats when opening a location"/>
+		<!--<checkbox id="toolbar_auto_discovery" label="Auto discovery" tooltiptext="Automatically GET link-formats when opening a location"/>-->
 		<checkbox id="toolbar_retransmissions" label="Retransmissions" tooltiptext="Retransmit unconfirmed packets" checked="false" oncommand="CopperChrome.settingRetransmissions();"/>
 	</toolbaritem>
 	

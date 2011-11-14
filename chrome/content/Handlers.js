@@ -81,10 +81,11 @@ CopperChrome.blockwiseHandler = function(message) {
 					document.getElementById('debug_option_block1').value += '+';
 				}
 			} else {
-				CopperChrome.sendBlockwisePut(num+1, size);
+				CopperChrome.doBlockwiseUpload(num+1, size);
 			}
 			return;
 		} else {
+			CopperChrome.uploadMethod = null;
 			CopperChrome.uploadBlocks = null;
 			document.getElementById('debug_option_block1').value = '';
 			CopperChrome.updateLabel('info_code', ' (Upload finished)', true); // call after displayMessageInfo()

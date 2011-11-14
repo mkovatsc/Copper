@@ -102,7 +102,7 @@ CopperChrome.parseUri = function(uri) {
 };
 
 // Set the default URI and also check for modified Firefox URL bar
-CopperChrome.checkUri = function(uri, method, pl) {
+CopperChrome.checkUri = function(uri, method) {
 	if (!uri) {
 		// document.location.href uses different encoding than urlbar value; parse to nsIURI to compare
 		var uriParser = Components.classes["@mozilla.org/network/simple-uri;1"].getService(Components.interfaces.nsIURI);
@@ -121,7 +121,6 @@ CopperChrome.checkUri = function(uri, method, pl) {
 			
 			// schedule the request to start automatically at new location
 			CopperChrome.prefManager.setIntPref('extensions.copper.auto-request.method', method);
-			CopperChrome.prefManager.setCharPref('extensions.copper.auto-request.payload', String(pl));
 			
 			// redirect
 			document.location.href = uri1;
