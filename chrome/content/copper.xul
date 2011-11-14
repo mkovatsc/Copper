@@ -212,7 +212,7 @@
 					</vbox>
 					<vbox flex="1">
 						<label control="debug_option_block1" value="Stop"/>
-						<checkbox id="chk_debug_option_block_manual" tooltiptext="Get each block manually"/>
+						<checkbox id="chk_debug_option_block_manual" tooltiptext="Transmit each block manually"/>
 					</vbox>
 				</hbox>
 				

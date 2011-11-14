@@ -340,7 +340,7 @@ CopperChrome.sendBlockwisePut = function(num, size, uri) {
 		}
 		
 		document.getElementById('debug_option_block1').value = num;
-		if (CopperChrome.uploadBlocks.length > num * CopperChrome.blockSize) {
+		if (CopperChrome.uploadBlocks.length > (num+1) * size) {
 			document.getElementById('debug_option_block1').value += '+';
 			more = true;
 		}

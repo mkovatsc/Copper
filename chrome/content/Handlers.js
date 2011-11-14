@@ -67,14 +67,21 @@ CopperChrome.blockwiseHandler = function(message) {
 	if (message.isOption(Copper.OPTION_BLOCK1)) {
 		if (message.getBlock1More()) {
 			
-			if ( document.getElementById('chk_debug_options').checked && document.getElementById('chk_debug_option_block_manual').checked ) {
-				document.getElementById('debug_option_block1').value = message.getBlock1Number()+1;
+			CopperChrome.updateLabel('info_code', ' (Uploading...)', true);
 			
-				if (CopperChrome.uploadBlocks.length > document.getElementById('debug_option_block1').value * CopperChrome.blockSize) {
+			// block size negotiation
+			let size = Math.min(message.getBlock1Size(), CopperChrome.blockSize);
+			let offset = message.getBlock1Size()*message.getBlock1Number();
+			let num = offset / size;
+			
+			if ( document.getElementById('chk_debug_options').checked && document.getElementById('chk_debug_option_block_manual').checked ) {
+				document.getElementById('debug_option_block1').value = num+1;
+			
+				if (CopperChrome.uploadBlocks.length > offset ) {
 					document.getElementById('debug_option_block1').value += '+';
 				}
 			} else {
-				CopperChrome.sendBlockwisePut(message.getBlock1Number()+1, message.getBlock1Size());
+				CopperChrome.sendBlockwisePut(num+1, size);
 			}
 			return;
 		} else {
@@ -82,20 +89,22 @@ CopperChrome.blockwiseHandler = function(message) {
 			document.getElementById('debug_option_block1').value = '';
 			CopperChrome.updateLabel('info_code', ' (Upload finished)', true); // call after displayMessageInfo()
 		}
+		CopperChrome.displayPayload(message);
 	}
 
 	if (message.isOption(Copper.OPTION_BLOCK)) {
 		if (message.getBlockMore()) {
+			
+			// block size negotiation
+			let size = Math.min(message.getBlockSize(), CopperChrome.blockSize);
+			let offset = message.getBlockSize()*(message.getBlockNumber()+1);
+			let num = offset / size;
+			
 			if ( document.getElementById('chk_debug_options').checked && document.getElementById('chk_debug_option_block_manual').checked ) {
 				// automatically count up
-				document.getElementById('debug_option_block2').value++;
+				document.getElementById('debug_option_block2').value = num;
 			} else {
-				// block size negotiation
-				if (message.getBlockSize() > CopperChrome.blockSize) {
-					CopperChrome.sendBlockwiseGet(0, CopperChrome.blockSize);
-				} else {
-					CopperChrome.sendBlockwiseGet(message.getBlockNumber()+1, message.getBlockSize());
-				}
+				CopperChrome.sendBlockwiseGet(num, size);
 			}
 		}
 		CopperChrome.displayPayload(message);
