@@ -289,6 +289,7 @@ CopperChrome.doUpload = function(method, uri) {
 			case 'page': pl = Copper.str2bytes(document.getElementById('payload_text_page').value); break;
 			case 'file':
 				if (!CopperChrome.payloadFileLoaded) {
+					// file loading as async, wait until done
 					window.setTimeout(function() {CopperChrome.doUpload(method,uri);}, 50);
 					return;
 				}
@@ -475,7 +476,6 @@ CopperChrome.loadPayloadFile = function(file) {
 				}
 				CopperChrome.payloadFileData = NetUtil.readInputStreamToString(inputStream, inputStream.available());
 				document.getElementById('toolbar_payload_file').label = file.leafName;
-				document.getElementById('toolbar_payload_mode').selectedIndex = 2;
 				CopperChrome.payloadFileLoaded = true;
 				dump('INFO: loaded "' + file.path + '"\n');
 			}

@@ -314,6 +314,10 @@ CopperChrome.displayMessageInfo = function(message) {
         row.appendChild(cell);
 
         optionList.appendChild(row);
+        
+        if (options[i][0]=='Location') {
+        	CopperChrome.updateResourceLinks( CopperChrome.parseLinkFormat( '<'+options[i][1]+'>' ) );
+        }
     }
 };
 
