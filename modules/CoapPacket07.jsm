@@ -85,7 +85,7 @@ Copper.__defineGetter__("CODE_4_06_NOT_ACCEPTABLE", function() { return 134; });
 Copper.__defineGetter__("CODE_4_08_REQUEST_ENTITY_INCOMPLETE", function() { return 136; });
 Copper.__defineGetter__("CODE_4_12_PRECONDITION_FAILED", function() { return 140; });
 Copper.__defineGetter__("CODE_4_13_REQUEST_ENTITY_TOO_LARGE", function() { return 141; });
-Copper.__defineGetter__("CODE_4_15_UNSUPPORTED_MADIA_TYPE", function() { return 143; });
+Copper.__defineGetter__("CODE_4_15_UNSUPPORTED_MEDIA_TYPE", function() { return 143; });
 
 Copper.__defineGetter__("CODE_5_00_INTERNAL_SERVER_ERROR", function() { return 160; });
 Copper.__defineGetter__("CODE_5_01_NOT_IMPLEMENTED", function() { return 161; });
@@ -228,7 +228,7 @@ Copper.CoapPacket.prototype = {
 				case Copper.CODE_4_08_REQUEST_ENTITY_INCOMPLETE: return '4.08 Request Entity Incomplete';
 				case Copper.CODE_4_12_PRECONDITION_FAILED: return '4.12 Precondition Failed';
 				case Copper.CODE_4_13_REQUEST_ENTITY_TOO_LARGE: return '4.13 Request Entity Too Large';
-				case Copper.CODE_4_15_UNSUPPORTED_MADIA_TYPE: return '4.15 Unsupported Madia Type';
+				case Copper.CODE_4_15_UNSUPPORTED_MEDIA_TYPE: return '4.15 Unsupported Media Type';
 				case Copper.CODE_5_00_INTERNAL_SERVER_ERROR: return '5.00 Internal Server Error';
 				case Copper.CODE_5_01_NOT_IMPLEMENTED: return '5.01 Not Implemented';
 				case Copper.CODE_5_02_BAD_GATEWAY: return '5.02 Bad Gateway';

@@ -216,7 +216,7 @@ Copper.CoapPacket.prototype = {
 				case Copper.CODE_4_04_NOT_FOUND: return '4.04 Not Found';
 				case Copper.CODE_4_05_METHOD_NOT_ALLOWED: return '4.05 Method Not Allowed';
 				case Copper.CODE_4_13_REQUEST_ENTITY_TOO_LARGE: return '4.13 Request Entity Too Large';
-				case Copper.CODE_4_15_UNSUPPORTED_MADIA_TYPE: return '4.15 Unsupported Madia Type';
+				case Copper.CODE_4_15_UNSUPPORTED_MEDIA_TYPE: return '4.15 Unsupported Media Type';
 				case Copper.CODE_5_00_INTERNAL_SERVER_ERROR: return '5.00 Internal Server Error';
 				case Copper.CODE_5_01_NOT_IMPLEMENTED: return '5.01 Not Implemented';
 				case Copper.CODE_5_02_BAD_GATEWAY: return '5.02 Bad Gateway';
