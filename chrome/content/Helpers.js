@@ -133,6 +133,7 @@ CopperChrome.checkUri = function(uri, method) {
 
 // Load cached resource links from preferences
 CopperChrome.loadCachedResources = function() {
+	
 	try {
 		dump('INFO: loading cached resource links\n');
 		let loadRes = CopperChrome.prefManager.getCharPref('extensions.copper.resources.'+CopperChrome.hostname+':'+CopperChrome.port);
@@ -235,9 +236,9 @@ CopperChrome.updateResourceLinks = function(add) {
 		}
 	}
 	
-	// button container
-	var list = document.getElementById('info_resources');
-	while (list.hasChildNodes()) list.removeChild(list.firstChild);
+	// clear views
+	CopperChrome.clearList();
+	CopperChrome.clearTree();
 	
 	// sort by path
 	var sorted = new Array();
@@ -247,32 +248,16 @@ CopperChrome.updateResourceLinks = function(add) {
 	sorted.sort();
 	
 	for (var entry in sorted) {
+
 		let uri = sorted[entry];
-		
-		var button = document.createElement('button');
-		button.setAttribute('label', decodeURI(uri));
-		
-		button.addEventListener('click', function() {
-			document.location.href = 'coap://' + CopperChrome.hostname + ':' + CopperChrome.port + uri;
-        }, true);
-		
-		var tooltiptext = '';
-		for (var attrib in CopperChrome.resources[uri]) {
-			if (tooltiptext) tooltiptext += ', ';
-			tooltiptext += attrib + '=' + CopperChrome.resources[uri][attrib];
+
+		if (CopperChrome.prefManager.getBoolPref('extensions.copper.use-tree')) {
+			// add to tree view
+			CopperChrome.addTreeResource( decodeURI(uri), CopperChrome.resources[uri] );
+		} else {
+			// add to list view
+			CopperChrome.addListResource( decodeURI(uri), CopperChrome.resources[uri] );
 		}
-		button.setAttribute('tooltiptext', tooltiptext);
-		
-		if (CopperChrome.resourcesCached) {
-			button.setAttribute('style', 'color: red;');
-		}
-		
-		// highlight current resource
-		if (uri==CopperChrome.path) {
-			button.setAttribute('style', 'font-weight: bold; text-shadow: 2px 2px 3px #666666;');
-		}
-		
-		list.appendChild(button);
 	}
 	
 	// save in cache
@@ -297,7 +282,7 @@ CopperChrome.displayMessageInfo = function(message) {
 	while (optionList.getRowCount()) optionList.removeItemAt(0);
 	var options = message.getOptions();
 	
-	for (var i = 0; i < options.length; i++)
+	for (var i=0; i < options.length; i++)
     {
         var row = document.createElement('listitem');
         

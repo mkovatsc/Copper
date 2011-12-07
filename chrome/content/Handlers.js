@@ -74,7 +74,7 @@ CopperChrome.blockwiseHandler = function(message) {
 			let offset = message.getBlock1Size()*message.getBlock1Number();
 			let num = offset / size;
 			
-			if ( document.getElementById('chk_debug_options').checked && document.getElementById('chk_debug_option_block_manual').checked ) {
+			if ( document.getElementById('chk_debug_options').checked && !document.getElementById('chk_debug_option_block_auto').checked ) {
 				document.getElementById('debug_option_block1').value = num+1;
 			
 				if (CopperChrome.uploadBlocks.length > offset ) {
@@ -101,7 +101,7 @@ CopperChrome.blockwiseHandler = function(message) {
 			let offset = message.getBlockSize()*(message.getBlockNumber()+1);
 			let num = offset / size;
 			
-			if ( document.getElementById('chk_debug_options').checked && document.getElementById('chk_debug_option_block_manual').checked ) {
+			if ( document.getElementById('chk_debug_options').checked && !document.getElementById('chk_debug_option_block_auto').checked ) {
 				// automatically count up
 				document.getElementById('debug_option_block2').value = num;
 			} else {

@@ -73,7 +73,7 @@ CopperChrome.loadDebugOptions = function() {
 	document.getElementById('debug_option_if_match').value = CopperChrome.prefManager.getCharPref('extensions.copper.debug.options.if-match');
 	document.getElementById('debug_option_block2').value = CopperChrome.prefManager.getCharPref('extensions.copper.debug.options.block2');
 	document.getElementById('debug_option_block1').value = CopperChrome.prefManager.getCharPref('extensions.copper.debug.options.block1');
-	document.getElementById('chk_debug_option_block_manual').checked = CopperChrome.prefManager.getBoolPref('extensions.copper.debug.options.block-manual');
+	document.getElementById('chk_debug_option_block_auto').checked = CopperChrome.prefManager.getBoolPref('extensions.copper.debug.options.block-auto');
 	document.getElementById('debug_option_if_none_match').checked = CopperChrome.prefManager.getBoolPref('extensions.copper.debug.options.if-none-match');
 };
 
@@ -93,7 +93,7 @@ CopperChrome.saveDebugOptions = function() {
 	CopperChrome.prefManager.setCharPref('extensions.copper.debug.options.if-match', document.getElementById('debug_option_if_match').value);
 	CopperChrome.prefManager.setCharPref('extensions.copper.debug.options.block2', document.getElementById('debug_option_block2').value);
 	CopperChrome.prefManager.setCharPref('extensions.copper.debug.options.block1', document.getElementById('debug_option_block1').value);
-	CopperChrome.prefManager.setBoolPref('extensions.copper.debug.options.block-manual', document.getElementById('chk_debug_option_block_manual').checked);
+	CopperChrome.prefManager.setBoolPref('extensions.copper.debug.options.block-auto', document.getElementById('chk_debug_option_block_auto').checked);
 	CopperChrome.prefManager.setBoolPref('extensions.copper.debug.options.if-none-match', document.getElementById('debug_option_if_none_match').checked);
 };
 

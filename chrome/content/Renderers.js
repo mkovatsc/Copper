@@ -50,11 +50,11 @@ CopperChrome.renderImage = function(message) {
 	
 	// TODO block management
 	if (message.getBlockNumber()==0 || !message.isOption(Copper.OPTION_BLOCK)) {
-		CopperChrome.partialImage='';
+		CopperChrome.partialImage = '';
 	}
 	CopperChrome.partialImage += Copper.bytes2data(message.getPayload());
-	
-	document.getElementById('test_img').src='data:'+Copper.getContentTypeName(message.getContentType())+';base64,'+btoa( CopperChrome.partialImage );
+	// causes flickering, but partially added data does not draw
+	document.getElementById('img_rendered').src = 'data:'+Copper.getContentTypeName(message.getContentType())+';base64,'+btoa( CopperChrome.partialImage );
 	document.getElementById('tabs_payload').selectedIndex = 1;
 };
 

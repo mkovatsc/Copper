@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?xml-stylesheet href="chrome://global/skin/global.css" stype="text/css"?>
-<?xml-stylesheet href="chrome://copper/skin/classic.css" type="text/css"?> 
+<?xml-stylesheet href="chrome://copper/skin/classic.css" type="text/css"?>
 
 <!DOCTYPE copper SYSTEM "chrome://copper/locale/translations.dtd">
 
@@ -15,6 +15,7 @@
 
 <script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/namespace.js"/>
 <script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/Main.js"/>
+<script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/ResourceViews.js"/>
 <script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/Helpers.js"/>
 <script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/Handlers.js"/>
 <script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/Renderers.js"/>
@@ -24,136 +25,173 @@
 <script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/UdpClient.js"/>
 <script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/TransactionHandler.js"/>
 
+
 <toolbar id="main_toolbar"	align="center">
 
+	<toolbaritem>
+		<toolbarbutton id="toolbar_discover" label="Discover" tooltiptext="GET link-formats from the well-known URI (cached resources are displayed in red)" image="chrome://copper/skin/tool_discover.png" oncommand="CopperChrome.reDiscover();"/>
+	</toolbaritem>
 	<toolbaritem id="toolbar_methods">
+		<toolbarseparator/>
 		<toolbarbutton id="toolbar_get" label="GET" image="chrome://copper/skin/tool_get.png" oncommand="CopperChrome.sendGet();"/>
 		<toolbarbutton id="toolbar_post" label="POST" image="chrome://copper/skin/tool_post.png" oncommand="CopperChrome.sendPost();"/>
 		<toolbarbutton id="toolbar_put" label="PUT" image="chrome://copper/skin/tool_put.png" oncommand="CopperChrome.sendPut();"/>
 		<toolbarbutton id="toolbar_delete" label="DELETE" image="chrome://copper/skin/tool_delete.png" oncommand="CopperChrome.sendDelete();"/>
-	</toolbaritem>
-	
-  <label value="Payload"/><!-- sticks to the top if it is inside a toolbaritem -->
-	
-	
-	<menulist id="toolbar_payload_mode" sizetopopup="none" oncommand="CopperChrome.checkPayload();">
-		<menupopup ignorekeys="true">
-	
-			<menuitem label="Line" value="line" width="130px">
-				<label control="payload_text_line" value="Line"/>
-				<textbox id="payload_text_line" onfocus="this.select()" allowevents="true"/>
-			</menuitem>
-			<menuitem label="Page" value="page">
-				<label value="Page"/>
-			</menuitem>
-			<menuitem label="File" value="file">
-				<label control="toolbar_payload_file" value="File"/>
-				<button id="toolbar_payload_file" label="Select..." allowevents="true" oncommand="CopperChrome.selectPayloadFile();"/>
-			</menuitem>
-				
-		</menupopup>
-	</menulist>
-	
-	<toolbaritem id="toolbar_special">
+		<toolbarspacer/>
 		<toolbarbutton id="toolbar_observe" label="Observe" tooltiptext="Subscribe to the resource" image="chrome://copper/skin/tool_observe.png" oncommand="CopperChrome.observe();"/>
-		<toolbarbutton id="toolbar_discover" label="Discover" tooltiptext="GET link-formats from the well-known URI (cached resources are displayed in red)" image="chrome://copper/skin/tool_discover.png" oncommand="CopperChrome.reDiscover();"/>
+		<toolbarseparator/>
 	</toolbaritem>
 	
-	<toolbaritem id="toolbar_settings">
+	
+	<toolbaritem align="center">
+	  <label value="Payload"/>
+		
+		<menulist id="toolbar_payload_mode" sizetopopup="none" oncommand="CopperChrome.checkPayload();">
+			<menupopup ignorekeys="true">
+		
+				<menuitem label="Line" value="line" width="130px">
+					<label control="payload_text_line" value="Line"/>
+					<textbox id="payload_text_line" onfocus="this.select()" allowevents="true"/>
+				</menuitem>
+				<menuitem label="Page" value="page">
+					<label value="Page"/>
+				</menuitem>
+				<menuitem label="File" value="file">
+					<label control="toolbar_payload_file" value="File"/>
+					<button id="toolbar_payload_file" label="Select..." allowevents="true" oncommand="CopperChrome.selectPayloadFile();"/>
+				</menuitem>
+					
+			</menupopup>
+		</menulist>
 		<!--<checkbox id="toolbar_auto_discovery" label="Auto discovery" tooltiptext="Automatically GET link-formats when opening a location"/>-->
-		<checkbox id="toolbar_retransmissions" label="Retransmissions" tooltiptext="Retransmit unconfirmed packets" checked="false" oncommand="CopperChrome.settingRetransmissions();"/>
+		
+	  <label value="Retransmissions" control="toolbar_retransmissions"/>
+		<checkbox id="toolbar_retransmissions" tooltiptext="Retransmit unconfirmed messages" checked="false" oncommand="CopperChrome.settingRetransmissions();"/>
 	</toolbaritem>
-	
 	<toolbarspacer flex="1"/>
 	
 	<toolbarbutton id="toolbar_version" label="CoAP version" oncommand="window.openDialog('chrome://copper/content/options.xul', 'Prefs', 'chrome,titlebar,toolbar,centerscreen,modal');document.location.reload();"/>
 </toolbar>
 
-<hbox flex="1">
-	<vbox flex="1">
-		<groupbox id="group_host" style="margin-bottom: -3px;">
+
+
+<hbox flex="1"><!-- top container -->
+
+	<vbox flex="1"><!-- title + content -->
+	
+		<groupbox id="group_host">
 			<caption id="info_host" label="Host" style="font-size: 14pt; font-weight: bold;"/>
-			<description id="info_resources">
+			
+			<box style="overflow: hidden;">
+				<label id="info_code" value="" style="font-size: 24pt; font-weight: bold; margin-top: -4px;"/>
+			</box>
+
+		</groupbox>
+
+			<description id="resource_list">
 				<button label="discovering..." disabled="true"/>
 			</description>
-		</groupbox>
-		<box style="overflow: hidden;">
-			<label id="info_code" value="" style="font-size: 24pt; font-weight: bold;"/>
-		</box>
-		<box id="group_head">
-			<hbox flex="1">
-				<listbox id="packet_header" flex="1" rows="4">
-				    <listhead>
-				        <listheader label="Header"/>
-				        <listheader label="Value"/>
-				    </listhead>
-				    <listcols>
-				        <listcol flex="1" width="10"/>
-				        <listcol flex="2"/>
-				    </listcols>
-				    <listitem>
-				        <listcell label="Type"/>
-				        <listcell id="packet_header_type"/>
-				    </listitem>
-				    <listitem>
-				        <listcell label="Code"/>
-				        <listcell id="packet_header_code"/>
-				    </listitem>
-				    <listitem>
-				        <listcell label="TransID"/>
-				        <listcell id="packet_header_tid"/>
-				    </listitem>
-				    <listitem>
-				        <listcell label="Options"/>
-				        <listcell id="packet_header_oc"/>
-				    </listitem>
-				</listbox>
+	
+		<hbox flex="1"><!-- content = resource tree + message pane -->
+	
+<!-- resource tree -->
+	
+			<vbox style="width: 16em;">
+				<tree id="resource_tree" flex="1" treelines="true" seltype="single" hidecolumnpicker="true" onclick="CopperChrome.onTreeClicked(event)" onmousemove="CopperChrome.onTreeHover(event)">
+					<treecols>
+						<treecol primary="true" hideheader="true" flex="1"/>
+						<treecol hideheader="true" hidden="true" flex="1"/>
+					</treecols>
+					<treechildren id="resource_elems" tooltiptext="Loading..."/>
+				</tree>
+			</vbox>
 			
-				<listbox id="packet_options" flex="3" rows="4">
-				    <listhead>
-				        <listheader label="Option"/>
-				        <listheader label="Value"/>
-				        <listheader label="Info"/>
-				    </listhead>
-				    <listcols>
-				        <listcol flex="1"/>
-				        <listcol flex="2"/>
-				        <listcol flex="1"/>
-				    </listcols>
-				</listbox>
-			</hbox>
-		</box>
+			<splitter collapse="before" resizebefore="farthest" id="resource_split">
+				<grippy style="width: 1px;"/>
+			</splitter>
+	
+<!-- message pane -->
 		
-		<groupbox id="group_payload" flex="1">
-			<caption id="info_payload" label="Payload"/>
-		
-			<tabbox id="tabs_payload" flex="1">
-			  <tabs>
-			    <tab label="Incoming"/>
-			    <tab label="Rendered"/>
-			    <tab label="Outgoing"/>
-			  </tabs>
-			  <tabpanels flex="1" style="padding: 0px;">
-			    <tabpanel id="tab_incoming">
-			    	<textbox flex="1" id="packet_payload" readonly="true" multiline="true" style="background-color: white; width: 100%; height: 100%; font-family: monospace;"/>
-			    </tabpanel>
-			    <tabpanel id="tab_rendered" pack="center" align="center" border="1">
-			    	<image id="test_img" src="" inherits="validate,src=image"/>
-			    </tabpanel>
-			    <tabpanel id="tab_outgoing">
-			    	<textbox flex="1" id="payload_text_page" multiline="true" style="background-color: white; width: 100%; height: 100%; font-family: monospace;"/>
-			    </tabpanel>
-			  </tabpanels>
-			</tabbox>
-			
-		</groupbox>
-	</vbox>
+			<vbox flex="1">
+				
+				<box id="group_head">
+					<hbox flex="1">
+						<listbox id="packet_header" flex="1" rows="4">
+						    <listhead>
+						        <listheader label="Header"/>
+						        <listheader label="Value"/>
+						    </listhead>
+						    <listcols>
+						        <listcol flex="1" width="10"/>
+						        <listcol flex="2"/>
+						    </listcols>
+						    <listitem>
+						        <listcell label="Type"/>
+						        <listcell id="packet_header_type"/>
+						    </listitem>
+						    <listitem>
+						        <listcell label="Code"/>
+						        <listcell id="packet_header_code"/>
+						    </listitem>
+						    <listitem>
+						        <listcell label="TransID"/>
+						        <listcell id="packet_header_tid"/>
+						    </listitem>
+						    <listitem>
+						        <listcell label="Options"/>
+						        <listcell id="packet_header_oc"/>
+						    </listitem>
+						</listbox>
+					
+						<listbox id="packet_options" flex="3" rows="4">
+						    <listhead>
+						        <listheader label="Option"/>
+						        <listheader label="Value"/>
+						        <listheader label="Info"/>
+						    </listhead>
+						    <listcols>
+						        <listcol flex="1"/>
+						        <listcol flex="2"/>
+						        <listcol flex="1"/>
+						    </listcols>
+						</listbox>
+					</hbox>
+				</box>
+				
+				<groupbox id="group_payload" flex="1">
+					<caption id="info_payload" label="Payload"/>
+				
+					<tabbox id="tabs_payload" flex="1">
+					  <tabs>
+					    <tab label="Incoming"/>
+					    <tab label="Rendered"/>
+					    <tab label="Outgoing"/>
+					  </tabs>
+					  <tabpanels flex="1" style="padding: 0px;">
+					    <tabpanel id="tab_incoming">
+					    	<textbox flex="1" id="packet_payload" readonly="true" multiline="true" style="background-color: white; width: 100%; height: 100%; font-family: monospace;"/>
+					    </tabpanel>
+					    <tabpanel id="tab_rendered" pack="center" align="center" border="1">
+					    	<image id="img_rendered" src="" inherits="validate,src=image"/>
+					    </tabpanel>
+					    <tabpanel id="tab_outgoing">
+					    	<textbox flex="1" id="payload_text_page" multiline="true" style="background-color: white; width: 100%; height: 100%; font-family: monospace;"/>
+					    </tabpanel>
+					  </tabpanels>
+					</tabbox>
+					
+				</groupbox>
+			</vbox>
+	
+		</hbox><!-- content = resource tree + message pane -->
+	</vbox><!-- title + content -->
 
-<!-- collapsable sidebar -->
+<!-- collapsable debug sidebar -->
+
 	<splitter collapse="after" resizebefore="farthest">
 		<grippy/>
 	</splitter>
-	<vbox id="sidebar" style="width: 19em;">
+	<vbox id="sidebar" style="width: 18.5em;"><!-- 18.5em to avoid scrollbar on Linux (at least InstantContiki) -->
 		<groupbox flex="1">
 			<caption>
 				<checkbox id="chk_debug_options" label="Debug options"/>
@@ -168,22 +206,31 @@
 				</menulist>
 					
 				<label control="debug_option_proxy_uri" value="Proxy-Uri"/>
-				<textbox id="debug_option_proxy_uri" emptytext="use absolute URI"/>
-					
+				<textbox id="debug_option_proxy_uri" emptytext="use absolute URI" dir="reverse">
+					<image class="copper-clear-button" onclick="parentNode.value='';"/>
+				</textbox>
 				<label control="debug_option_etag" value="ETag"/>
-				<textbox id="debug_option_etag" emptytext="use hex (0x..) or string"/>
+				<textbox id="debug_option_etag" emptytext="use hex (0x..) or string" dir="reverse">
+					<image class="copper-clear-button" onclick="parentNode.value='';"/>
+				</textbox>
 					
 				<label control="debug_option_token" value="Token"/>
-				<textbox id="debug_option_token" emptytext="use hex (0x..) or string"/>
+				<textbox id="debug_option_token" emptytext="use hex (0x..) or string" dir="reverse">
+					<image class="copper-clear-button" onclick="parentNode.value='';"/>
+				</textbox>
 				
 				<hbox>
 					<vbox flex="1">
 						<label control="debug_option_uri_host" value="Uri-Host"/>
-						<textbox id="debug_option_uri_host" emptytext="not set"/>
+						<textbox id="debug_option_uri_host" emptytext="not set" dir="reverse">
+							<image class="copper-clear-button" onclick="parentNode.value='';"/>
+						</textbox>
 					</vbox>
-					<vbox flex="4">
+					<vbox>
 						<label control="debug_option_uri_port" value="Uri-Port"/>
-						<textbox id="debug_option_uri_port" emptytext="not set"/>
+						<textbox id="debug_option_uri_port" emptytext="n/s" maxlength="5" style="width: 4em;" dir="reverse">
+							<image class="copper-clear-button" onclick="parentNode.value='';"/>
+						</textbox>
 					</vbox>
 				</hbox>
 				
@@ -199,25 +246,33 @@
 				</hbox>
 				
 				<label control="debug_option_observe" value="Observe"/>
-				<textbox id="debug_option_observe" emptytext="use integer"/>
+				<textbox id="debug_option_observe" emptytext="use integer" dir="reverse">
+					<image class="copper-clear-button" onclick="parentNode.value='';"/>
+				</textbox>
 				
 				<hbox>
 					<vbox flex="1">
 						<label control="debug_option_block2" value="Block-Down"/>
-						<textbox id="debug_option_block2" emptytext="block number"/>
+						<textbox id="debug_option_block2" emptytext="block no." dir="reverse">
+							<image class="copper-clear-button" onclick="parentNode.value='';"/>
+						</textbox>
 					</vbox>
 					<vbox flex="1">
-						<label control="debug_option_block1" value="Block-Up"/>
-						<textbox id="debug_option_block1" emptytext="block number"/>
+						<label control="debug_option_block1" value="Block-Up  "/>
+						<textbox id="debug_option_block1" emptytext="block no." dir="reverse">
+							<image class="copper-clear-button" onclick="parentNode.value='';"/>
+						</textbox>
 					</vbox>
 					<vbox flex="1">
-						<label control="debug_option_block1" value="Stop"/>
-						<checkbox id="chk_debug_option_block_manual" tooltiptext="Transmit each block manually"/>
+						<label control="debug_option_block1" value="Auto" style="margin-left: -4px;"/>
+						<box pack="center"><checkbox id="chk_debug_option_block_auto" tooltiptext="Automatically transmit all blocks" style="margin-right:0px; padding-right:0px;"/></box>
 					</vbox>
 				</hbox>
 				
 				<label control="debug_option_if_match" value="If-Match"/>
-				<textbox id="debug_option_if_match" emptytext="use an ETag"/>
+				<textbox id="debug_option_if_match" emptytext="use an ETag" dir="reverse">
+					<image class="copper-clear-button" onclick="parentNode.value='';"/>
+				</textbox>
 				
 				<checkbox id="debug_option_if_none_match" label="If-None-Match"/>
 				
@@ -231,16 +286,22 @@
 				</menulist>
 				
 				<label control="debug_option_max_age" value="Max-Age"/>
-				<textbox id="debug_option_max_age" emptytext="use integer"/>
+				<textbox id="debug_option_max_age" emptytext="use integer" dir="reverse">
+					<image class="copper-clear-button" onclick="parentNode.value='';"/>
+				</textbox>
 				
 				<hbox>
 					<vbox flex="1">
 						<label control="debug_option_location_path" value="Location-Path"/>
-						<textbox id="debug_option_location_path" emptytext="not set" style="width: 80px;"/>
+						<textbox id="debug_option_location_path" emptytext="not set" style="width: 80px;" dir="reverse">
+					<image class="copper-clear-button" onclick="parentNode.value='';"/>
+				</textbox>
 					</vbox>
 					<vbox flex="1">
 						<label control="debug_option_location_query" value="Location-Query"/>
-						<textbox id="debug_option_location_query" emptytext="not set" style="width: 80px;"/>
+						<textbox id="debug_option_location_query" emptytext="not set" style="width: 80px;" dir="reverse">
+					<image class="copper-clear-button" onclick="parentNode.value='';"/>
+				</textbox>
 					</vbox>
 				</hbox>
 			</vbox>

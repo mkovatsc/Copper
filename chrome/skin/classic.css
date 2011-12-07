@@ -3,3 +3,74 @@ toolbar {
 	border-bottom: 1px solid ThreeDShadow;
 	-moz-appearance: none;
 }
+
+/* removes lines next to checkboxes (border of empty labels) */
+checkbox:focus:not([label]) .checkbox-label-box {
+	-moz-appearance: none;
+	border: none;
+}
+
+/* the X button to clear textboxes */
+.copper-clear-button {
+	cursor: default;
+	opacity: 0.8;
+	
+	list-style-image: url('chrome://copper/skin/text_clear_6.png');
+	padding: 5px 2px 4px 1px;
+/*
+	list-style-image: url('chrome://browser/skin/Toolbar.png');
+	-moz-image-region: rect(3px 51px 15px 39px);
+	padding: 2px 0 1px 0;
+
+	list-style-image: url('chrome://browser/skin/reload-stop-go.png');
+	-moz-image-region: rect(0px 40px 14px 29px);
+	padding-top:1px;
+*/
+}
+
+/* default resource icon */
+treechildren {
+	list-style-image: url('chrome://copper/skin/resource_circle.png');
+}
+
+/* special resource icon */
+treechildren::-moz-tree-image(wellknown) {
+  list-style-image: url("chrome://copper/skin/resource_world.png");
+}
+treechildren::-moz-tree-image(discovery) {
+  list-style-image: url("chrome://copper/skin/resource_discovery.png");
+}
+treechildren::-moz-tree-image(observable) {
+  list-style-image: url("chrome://copper/skin/resource_observable.png");
+}
+
+/* resource node appearance */
+treechildren::-moz-tree-image() {
+  margin: 0px 4px 0px 2px;
+  width: 16px;
+	cursor: pointer;
+}
+treechildren::-moz-tree-row() {
+	height: 24px;
+}
+treechildren::-moz-tree-cell-text() {
+	cursor: pointer;
+}
+treechildren::-moz-tree-indentation() {
+	width: 20px;
+}
+
+/* highlight current resource */
+treechildren::-moz-tree-cell(active) {
+	background-color: #99CCFF;
+}
+treechildren::-moz-tree-cell-text(active) {
+	font-weight: bold;
+	color: black;
+}
+treechildren::-moz-tree-cell-text(cached) {
+	color: red;
+}
+treechildren::-moz-tree-cell-text(cached active) {
+	color: darkred;
+}

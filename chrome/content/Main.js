@@ -100,6 +100,10 @@ CopperChrome.main = function() {
 		//document.getElementById('toolbar_auto_discovery').checked = CopperChrome.prefManager.getBoolPref('extensions.copper.auto-discover');
 		document.getElementById('toolbar_retransmissions').checked = CopperChrome.prefManager.getBoolPref('extensions.copper.retransmissions');
 		
+		//document.getElementById('resource_list').hidden = CopperChrome.prefManager.getBoolPref('extensions.copper.use-tree');
+		document.getElementById('resource_split').setAttribute('state', CopperChrome.prefManager.getBoolPref('extensions.copper.use-tree') ? 'open' : 'collapsed');
+		document.getElementById('resource_split').hidden = !CopperChrome.prefManager.getBoolPref('extensions.copper.use-tree');
+		
 		auto = CopperChrome.prefManager.getIntPref('extensions.copper.auto-request.method');
 		
 		// debug options
@@ -388,15 +392,6 @@ CopperChrome.observe = function(uri) {
 	}
 };
 
-CopperChrome.discover = function() {
-	try {
-		var message = new CopperChrome.CoapMessage(Copper.MSG_TYPE_CON, Copper.GET, Copper.WELL_KNOWN_RESOURCES);
-		
-		CopperChrome.client.send( message, CopperChrome.discoverHandler );
-	} catch (ex) {
-		alert('ERROR: Main.discover ['+ex+']');
-	}
-};
 CopperChrome.discover = function(block, size) {
 	try {
 		var message = new CopperChrome.CoapMessage(Copper.MSG_TYPE_CON, Copper.GET, Copper.WELL_KNOWN_RESOURCES);

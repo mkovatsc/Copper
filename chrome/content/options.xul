@@ -14,11 +14,25 @@
 			<preference id="copper-version" name="extensions.copper.coap-version" type="int"/>
 			<preference id="default-block-size" name="extensions.copper.default-block-size" type="int"/>
 			<preference id="default-payload" name="extensions.copper.default-payload" type="string"/>
+			<preference id="use-tree" name="extensions.copper.use-tree" type="bool"/>
 			<preference id="encode-utf-8" name="extensions.copper.encode-utf-8" type="bool"/>
 			<preference id="show-unknown" name="extensions.copper.show-unknown-transactions" type="bool"/>
 			<preference id="global-dumps" name="browser.dom.window.dump.enabled" type="bool"/>
 		</preferences>
 		
+		<groupbox>
+			<caption label="Appearance"/>
+			<grid>
+				<columns>
+					<column flex="1"/>
+				</columns>
+				<rows>
+					<row>
+						<checkbox id="use_tree" preference="use-tree" label="Use tree view for resources"/>
+					</row>
+				</rows>
+			</grid>
+		</groupbox>
 		<groupbox>
 			<caption label="Settings"/>
 			<grid>
@@ -58,7 +72,7 @@
 					</row>
 				</rows>
 			</grid>
-		</groupbox>	
+		</groupbox>
 		<groupbox>
 			<caption label="Debug"/>
 			<grid>
