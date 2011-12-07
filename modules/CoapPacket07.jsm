@@ -441,7 +441,7 @@ Copper.CoapPacket.prototype = {
 	    			}
 				
 					var splitString = Copper.bytes2str(opt).split(separator);
-					for (s in splitString) {
+					for (var s in splitString) {
 						//dump(splitString[s]+'\n');
 						splitOption.push(Copper.str2bytes(splitString[s]));
 					}
