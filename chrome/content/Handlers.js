@@ -85,6 +85,7 @@ CopperChrome.blockwiseHandler = function(message) {
 			}
 			return;
 		} else {
+			// finished
 			CopperChrome.uploadMethod = null;
 			CopperChrome.uploadBlocks = null;
 			document.getElementById('debug_option_block1').value = '';

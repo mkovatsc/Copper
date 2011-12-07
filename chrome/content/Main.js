@@ -273,17 +273,18 @@ CopperChrome.sendBlockwiseGet = function(num, size, uri) {
 };
 
 CopperChrome.sendPost = function(uri) {
+	CopperChrome.client.cancelTransactions();
 	CopperChrome.doUpload(Copper.POST, uri);
 };
 
 CopperChrome.sendPut = function(uri) {
+	CopperChrome.client.cancelTransactions();
 	CopperChrome.doUpload(Copper.PUT, uri);
 };
 
 CopperChrome.doUpload = function(method, uri) {
 	dump('doUpload\n');
 	try {
-		CopperChrome.client.cancelTransactions();
 		
 		uri = CopperChrome.checkUri(uri, method, document.getElementById('toolbar_payload_mode').value);
 		
@@ -302,13 +303,13 @@ CopperChrome.doUpload = function(method, uri) {
 		}
 		
 		// store payload in case server requests blockwise upload
-		CopperChrome.uploadMethod = method;
+		CopperChrome.uploadMethod = method; // POST or PUT
 		CopperChrome.uploadBlocks = pl;
 		
 		// blockwise uploads
 		if (document.getElementById('chk_debug_options').checked && document.getElementById('debug_option_block1').value!='' && pl.length > CopperChrome.blockSize) {
 
-			CopperChrome.doBlockwiseUpload(method, parseInt(document.getElementById('debug_option_block1').value), CopperChrome.blockSize, uri);
+			CopperChrome.doBlockwiseUpload(parseInt(document.getElementById('debug_option_block1').value), CopperChrome.blockSize, uri);
 			return;
 		}
 		
@@ -323,7 +324,7 @@ CopperChrome.doUpload = function(method, uri) {
 	}
 }
 
-CopperChrome.doBlockwiseUpload = function(num, size) {
+CopperChrome.doBlockwiseUpload = function(num, size, uri) {
 
 	let uri = CopperChrome.checkUri(uri, CopperChrome.uploadMethod);
 	
@@ -333,17 +334,13 @@ CopperChrome.doBlockwiseUpload = function(num, size) {
 	}
 	
 	try {
-		CopperChrome.client.cancelTransactions();
-		
 		let more = false;
-					
+		
 		if ( CopperChrome.blockSize*(num-1) > CopperChrome.uploadBlocks.length) {
 			alert('ERROR: Main.doBlockwiseUpload [debug Block1 out of payload scope]');
 		}
-		
-		document.getElementById('debug_option_block1').value = num;
+
 		if (CopperChrome.uploadBlocks.length > (num+1) * size) {
-			document.getElementById('debug_option_block1').value += '+';
 			more = true;
 		}
 		
@@ -355,7 +352,7 @@ CopperChrome.doBlockwiseUpload = function(num, size) {
 		
 		message.setBlock1(num, CopperChrome.blockSize, more);
 		
-		CopperChrome.clearLabels();
+		if (num=0) CopperChrome.clearLabels();
 		CopperChrome.client.send( message );
 	} catch (ex) {
 		alert('ERROR: Main.doBlockwiseUpload ['+ex+']');
