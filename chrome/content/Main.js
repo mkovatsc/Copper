@@ -39,7 +39,7 @@
 Components.utils.import("resource://drafts/common.jsm");
 
 // file IO
-Components.utils.import("resource://gre/modules/NetUtil.jsm"); 
+Components.utils.import("resource://gre/modules/NetUtil.jsm");
 
 CopperChrome.mainWindow = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
 		.getInterface(Components.interfaces.nsIWebNavigation)
@@ -460,7 +460,8 @@ CopperChrome.loadPayloadFileByName = function(filename) {
 };
 
 CopperChrome.loadPayloadFile = function(file) {
-	NetUtil.asyncFetch(file,
+	var channel = NetUtil.newChannel(file);
+	NetUtil.asyncFetch(channel,
 			function(inputStream, status) {
 				if (!Components.isSuccessCode(status)) {  
 					alert('ERROR: Main.payloadFile ['+status+']');
