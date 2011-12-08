@@ -91,7 +91,6 @@ CopperChrome.blockwiseHandler = function(message) {
 			document.getElementById('debug_option_block1').value = '';
 			CopperChrome.updateLabel('info_code', ' (Upload finished)', true); // call after displayMessageInfo()
 		}
-		CopperChrome.displayPayload(message);
 	}
 
 	if (message.isOption(Copper.OPTION_BLOCK)) {
@@ -109,15 +108,15 @@ CopperChrome.blockwiseHandler = function(message) {
 				CopperChrome.sendBlockwiseGet(num, size);
 			}
 		}
-		CopperChrome.displayPayload(message);
 		
 		if (!message.getBlockMore()) {
 			if (message.getContentType()==Copper.CONTENT_TYPE_APPLICATION_LINK_FORMAT) {
 				CopperChrome.updateResourceLinks( CopperChrome.parseLinkFormat( document.getElementById('packet_payload').value ) );
 			}
 		}
-		
 	}
+	
+	CopperChrome.displayPayload(message);
 };
 
 //Handle messages with block-wise transfer

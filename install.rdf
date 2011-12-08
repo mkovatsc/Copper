@@ -5,7 +5,7 @@
 	<Description about="urn:mozilla:install-manifest">
 		<em:id>copper@vs.inf.ethz.ch</em:id>
 		<em:name>Copper</em:name>
-		<em:version>0.8.0</em:version>
+		<em:version>0.8.1</em:version>
 		<em:type>2</em:type>
 		<em:creator>Matthias Kovatsch - ETH Zurich</em:creator>
 		<em:description>A CoAP protocol handler extension for Firefox</em:description>
