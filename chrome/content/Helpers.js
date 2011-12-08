@@ -193,7 +193,7 @@ CopperChrome.parseLinkFormat = function(data) {
 	dump('-parsing link-format----------------------------\n');
 	for (var i in format) {
 		//dump(links[i]+'\n');
-		var elems = format[i].match(/^<([^>]+)>\s*(;.+)?\s*$/);
+		var elems = format[i].match(/^<([^>\?]+)[^>]*>\s*(;.+)?\s*$/);
 				
 		var uri = elems[1];
 		// fix for Contiki implementation and others which omit the leading '/' in the link format
