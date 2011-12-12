@@ -423,6 +423,14 @@ CopperChrome.checkPayload = function() {
 	}
 }
 
+CopperChrome.selectPayloadLine = function(event) {
+	if(event.keyCode==13) {
+		var mode = document.getElementById('toolbar_payload_mode');
+		mode.firstChild.hidePopup();
+		mode.value = 'line';
+	}
+}
+
 CopperChrome.selectPayloadFile = function() {
 	const nsIFilePicker = Components.interfaces.nsIFilePicker;
 	

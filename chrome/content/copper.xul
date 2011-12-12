@@ -51,7 +51,7 @@
 		
 				<menuitem label="Line" value="line" width="130px">
 					<label control="payload_text_line" value="Line"/>
-					<textbox id="payload_text_line" onfocus="this.select()" allowevents="true"/>
+					<textbox id="payload_text_line" onfocus="this.select()" allowevents="true" onkeypress="CopperChrome.selectPayloadLine(event);"/>
 				</menuitem>
 				<menuitem label="Page" value="page">
 					<label value="Page"/>

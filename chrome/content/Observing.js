@@ -124,9 +124,8 @@ CopperChrome.Observing.prototype = {
 				
 			} else {
 				this.pending = null;
-				dump('WARNING: Observerving not supported by server\n');
 				
-				message.getCopperCode = function() { return 'Observerving not supported by server'; };
+				message.getCopperCode = function() { return 'Resource not observable'; };
 				
 				// FIXME static call
 				CopperChrome.defaultHandler(message);

@@ -154,8 +154,13 @@ CopperChrome.onTreeClicked = function(event){
 	var row = { }, col = { }, child = { };
 	tbo.getCellAt(event.clientX, event.clientY, row, col, child);
 	
-	if (child.value=='image' || child.value=='text') {
-		document.location.href = 'coap://' + CopperChrome.hostname + ':' + CopperChrome.port + tree.view.getCellValue(row.value, col.value);
+	if (child.value=='image' || child.value=='text' ) {
+		if(event.which == 2 ) {
+			event.preventDefault();
+			CopperChrome.mainWindow.gBrowser.addTab( 'coap://' + CopperChrome.hostname + ':' + CopperChrome.port + tree.view.getCellValue(row.value, col.value) ); 
+		} else {
+			document.location.href = 'coap://' + CopperChrome.hostname + ':' + CopperChrome.port + tree.view.getCellValue(row.value, col.value);
+		}
 	}
 };
 
