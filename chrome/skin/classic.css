@@ -45,17 +45,23 @@ treechildren::-moz-tree-image(observable) {
 }
 
 /* resource node appearance */
-treechildren::-moz-tree-image() {
-  margin: 0px 4px 0px 2px;
-  width: 16px;
-	cursor: pointer;
-}
 treechildren::-moz-tree-row() {
 	height: 24px;
 }
-treechildren::-moz-tree-cell-text() {
+treechildren::-moz-tree-cell() {
 	cursor: pointer;
 }
+treechildren::-moz-tree-image() {
+	cursor: pointer;
+  margin: 0px 4px 0px 2px;
+  width: 16px;
+}
+treechildren::-moz-tree-cell-text(hover) {
+	cursor: pointer;
+	text-decoration: underline;
+	color: pink;
+}
+
 treechildren::-moz-tree-indentation() {
 	width: 20px;
 }
