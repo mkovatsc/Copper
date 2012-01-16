@@ -60,11 +60,11 @@ CopperChrome.parseUri = function(uri) {
 		throw 'Invalid URI';
 	}
 	
-	// redirect to omit subsequent slash, refs (#), and params (;) 
+	// redirect to omit subsequent slash, refs (#), and params (;)
 	if (url.filePath!='/' && url.fileName=='') {
 		document.location.href = url.prePath + url.filePath.substring(0, url.filePath.length-1) + (url.query!='' ? '?'+url.query : '');
 		throw 'Redirect';
-	} else if (url.ref!='' || url.param!='') {
+	} else if (url.ref!='') {
 		document.location.href = url.prePath + url.filePath + (url.query!='' ? '?'+url.query : '');
 		throw 'Redirect';
 	} else if (url.filePath.match(/\/{2,}/)) {
