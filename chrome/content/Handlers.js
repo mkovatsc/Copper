@@ -181,6 +181,9 @@ CopperChrome.errorHandler = function(message) {
 	// disable the toolbar
 	var obj = document.getElementById('main_toolbar').firstChild;
 	do {
+		
+		if (obj.id=='toolbar_version') continue;
+		
 		// children of toolbaritems need to be disabled manually
 		if (obj.nodeName=='toolbaritem') {
 			
@@ -193,9 +196,11 @@ CopperChrome.errorHandler = function(message) {
 		}
 	} while ( obj = obj.nextSibling);
 	
-	document.getElementById('group_host').setAttribute('style', 'display: none;');
+	//document.getElementById('group_host').setAttribute('style', 'display: none;');
 	document.getElementById('group_head').setAttribute('style', 'display: none;');
 	document.getElementById('group_payload').setAttribute('style', 'display: none;');
 	
 	CopperChrome.updateLabel('info_code', 'Copper: '+ message.getCopperCode());
+	
+	CopperChrome.client.cancelTransactions();
 };

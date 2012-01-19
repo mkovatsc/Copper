@@ -92,7 +92,7 @@ CopperChrome.UdpClient.prototype = {
 		this.outputStream.close();
 		this.inputStream.close();
 		if (!this.ended) {
-			this.errorCallback({getCopperCode:function(){return 'Network is unreachable';}});
+			this.errorCallback({getCopperCode:function(){return 'Host/network unreachable';}});
 		}
 	},
 	
