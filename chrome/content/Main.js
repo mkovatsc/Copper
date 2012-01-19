@@ -336,7 +336,7 @@ CopperChrome.doBlockwiseUpload = function(num, size, uri) {
 	try {
 		let more = false;
 		
-		if ( CopperChrome.blockSize*(num-1) > CopperChrome.uploadBlocks.length) {
+		if ( size*(num-1) > CopperChrome.uploadBlocks.length) {
 			alert('ERROR: Main.doBlockwiseUpload [debug Block1 out of payload scope]');
 		}
 
@@ -344,13 +344,13 @@ CopperChrome.doBlockwiseUpload = function(num, size, uri) {
 			more = true;
 		}
 		
-		let pl = CopperChrome.uploadBlocks.slice(CopperChrome.blockSize * num, CopperChrome.blockSize * (num+1));
+		let pl = CopperChrome.uploadBlocks.slice(size * num, size * (num+1));
 		
 		var message = new CopperChrome.CoapMessage(Copper.MSG_TYPE_CON, CopperChrome.uploadMethod, uri, pl);
 		
 		CopperChrome.checkDebugOptions(message);
 		
-		message.setBlock1(num, CopperChrome.blockSize, more);
+		message.setBlock1(num, size, more);
 		
 		if (num=0) CopperChrome.clearLabels();
 		CopperChrome.client.send( message );
