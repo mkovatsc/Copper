@@ -50,7 +50,7 @@ CopperChrome.mainWindow = window.QueryInterface(Components.interfaces.nsIInterfa
 
 CopperChrome.prefManager = Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefBranch);
 
-CopperChrome.coapVersion = 6;
+CopperChrome.coapVersion = 7;
 CopperChrome.blockSize = 32;
 CopperChrome.showUnknownTransactions = true;
 
@@ -127,6 +127,7 @@ CopperChrome.main = function() {
 				loader.loadSubScript("resource://drafts/CoapPacket06.jsm");
 				break;
 			case 7:
+			case 8:
 				loader.loadSubScript("resource://drafts/CoapPacket07.jsm");
 				break;
 			default:
@@ -134,7 +135,7 @@ CopperChrome.main = function() {
 						function() { window.alert('WARNING: CoAP version '+CopperChrome.coapVersion+' not implemented. Using 07/08.'); },
 						0);
 				loader.loadSubScript("resource://drafts/CoapPacket07.jsm");
-				CopperChrome.coapVersion = 7;
+				CopperChrome.coapVersion = 8;
 				break;
 		}
 		

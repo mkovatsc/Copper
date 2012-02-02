@@ -42,7 +42,7 @@ Components.utils.import("resource://drafts/common.jsm");
 ////////////////////////////////////////////////////////////////////////////////
 
 Copper.__defineGetter__("VERSION", function() { return 1; });
-Copper.__defineGetter__("DRAFT", function() { return 7; });
+Copper.__defineGetter__("DRAFT", function() { return 8; });
 
 Copper.__defineGetter__("MSG_TYPE_CON", function() { return 0; });
 Copper.__defineGetter__("MSG_TYPE_NON", function() { return 1; });

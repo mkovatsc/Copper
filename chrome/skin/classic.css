@@ -59,7 +59,6 @@ treechildren::-moz-tree-image() {
 treechildren::-moz-tree-cell-text(hover) {
 	cursor: pointer;
 	text-decoration: underline;
-	color: pink;
 }
 
 treechildren::-moz-tree-indentation() {
