@@ -328,6 +328,9 @@ CopperChrome.displayPayload = function(message) {
 		case Copper.CONTENT_TYPE_APPLICATION_EXI:
 			CopperChrome.renderEXI(message);
 			break;
+		case Copper.CONTENT_TYPE_APPLICATION_JSON:
+			CopperChrome.renderJSON(message);
+			break;
 		default:
 			CopperChrome.renderText(message);
 	}

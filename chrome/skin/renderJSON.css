@@ -1,0 +1,68 @@
+/* Containers */
+
+.json_object {
+  list-style-type: none;
+  padding-left: 20px;
+  margin-bottom: 10px;
+}
+.json_object:before {
+	font-weight: bold;
+	margin-left: -20px;
+	content: '{';
+}
+.json_object:after {
+	font-weight: bold;
+	margin-left: -20px;
+	content: '}';
+}
+
+.json_array {
+  list-style-type: none;
+  padding-left: 20px;
+  margin-bottom: 10px;
+}
+.json_array:before {
+	font-weight: bold;
+	margin-left: -20px;
+	content: '[';
+}
+.json_array:after {
+	font-weight: bold;
+	margin-left: -20px;
+	content: ']';
+}
+
+/* Types */
+.json_value {
+  list-style-type: none;
+}
+
+.json_string {
+  color: green;
+  white-space: pre;
+}
+
+.json_null {
+  color: black;
+	font-weight: bold;
+}
+
+.json_int {
+  color: red;
+}
+
+.json_float {
+  color: purple;
+}
+
+.json_bool {
+  color: blue;
+}
+
+
+
+.json_label {
+  margin: 0px;
+  font-weight: bold;
+}
+
