@@ -107,9 +107,7 @@ CopperChrome.blockwiseHandler = function(message) {
 			} else {
 				CopperChrome.sendBlockwiseGet(num, size);
 			}
-		}
-		
-		if (!message.getBlockMore()) {
+		} else {
 			if (message.getContentType()==Copper.CONTENT_TYPE_APPLICATION_LINK_FORMAT) {
 				CopperChrome.updateResourceLinks( CopperChrome.parseLinkFormat( document.getElementById('packet_payload').value ) );
 			}
@@ -129,8 +127,25 @@ CopperChrome.observingHandler = function(message) {
 		CopperChrome.updateLabel('info_code', ' (Observing)', true); // call after displayMessageInfo()
 		CopperChrome.displayPayload(message);
 		
+		//TODO duplicated code from blockwise handler
+		if (message.isOption(Copper.OPTION_BLOCK) && message.getBlockMore()) {
+				
+			// block size negotiation
+			let size = Math.min(message.getBlockSize(), CopperChrome.blockSize);
+			let offset = message.getBlockSize()*(message.getBlockNumber()+1);
+			let num = offset / size;
+			
+			if ( document.getElementById('chk_debug_options').checked && !document.getElementById('chk_debug_option_block_auto').checked ) {
+				// automatically count up
+				document.getElementById('debug_option_block2').value = num;
+			} else {
+				CopperChrome.sendBlockwiseGet(num, size);
+			}
+		}
+		
 	} else {
 		CopperChrome.updateLabel('info_code', 'Observing not supported');
+		CopperChrome.displayPayload(message);
 	}
 };
 
