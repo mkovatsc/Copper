@@ -46,16 +46,10 @@
 	
 	<toolbaritem align="center">
 	  <label value="Payload"/>
-		
 		<menulist id="toolbar_payload_mode" sizetopopup="none" oncommand="CopperChrome.checkPayload();">
 			<menupopup ignorekeys="true">
-		
-				<menuitem label="Line" value="line" width="130px">
-					<label control="payload_text_line" value="Line"/>
-					<textbox id="payload_text_line" onfocus="this.select()" allowevents="true" onkeypress="CopperChrome.selectPayloadLine(event);"/>
-				</menuitem>
-				<menuitem label="Page" value="page">
-					<label value="Page"/>
+				<menuitem label="Text" value="page">
+					<label value="Text"/>
 				</menuitem>
 				<menuitem label="File" value="file">
 					<label control="toolbar_payload_file" value="File"/>
@@ -64,7 +58,6 @@
 					
 			</menupopup>
 		</menulist>
-		<!--<checkbox id="toolbar_auto_discovery" label="Auto discovery" tooltiptext="Automatically GET link-formats when opening a location"/>-->
 		
 	  <label value="Retransmissions" control="toolbar_retransmissions"/>
 		<checkbox id="toolbar_retransmissions" tooltiptext="Retransmit unconfirmed messages" checked="false" oncommand="CopperChrome.settingRetransmissions();"/>
@@ -164,9 +157,10 @@
 				
 					<tabbox id="tabs_payload" flex="1">
 					  <tabs>
-					    <tab label="Incoming"/>
-					    <tab label="Rendered"/>
-					    <tab label="Outgoing"/>
+					    <tab label=" Incoming" image="chrome://copper/skin/payload_in.png"/>
+					    <tab label=" Rendered" image="chrome://copper/skin/payload_rendered.png"/>
+					    <spacer width="10px"/>
+					    <tab label=" Outgoing" image="chrome://copper/skin/payload_out.png"/>
 					  </tabs>
 					  <tabpanels flex="1" style="padding: 0px;">
 					    <tabpanel id="tab_incoming">
@@ -176,6 +170,7 @@
 					    	<image id="rendered_img" src="" inherits="validate,src=image"/>
 					    	<div id="rendered_div"></div>
 					    </tabpanel>
+					    <tabpanel/>
 					    <tabpanel id="tab_outgoing">
 					    	<textbox flex="1" id="payload_text_page" multiline="true" style="background-color: white; width: 100%; height: 100%; font-family: monospace;"/>
 					    </tabpanel>

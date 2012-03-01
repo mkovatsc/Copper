@@ -284,23 +284,21 @@ CopperChrome.sendPut = function(uri) {
 };
 
 CopperChrome.doUpload = function(method, uri) {
-	dump('doUpload\n');
 	try {
 		
 		uri = CopperChrome.checkUri(uri, method, document.getElementById('toolbar_payload_mode').value);
 		
 		let pl = '';
-		switch (document.getElementById('toolbar_payload_mode').value) {
-			case 'line': pl = Copper.str2bytes(document.getElementById('payload_text_line').value); break;
-			case 'page': pl = Copper.str2bytes(document.getElementById('payload_text_page').value); break;
-			case 'file':
-				if (!CopperChrome.payloadFileLoaded) {
-					// file loading as async, wait until done
-					window.setTimeout(function() {CopperChrome.doUpload(method,uri);}, 50);
-					return;
-				}
-				pl = Copper.data2bytes(CopperChrome.payloadFileData);
-				break;
+		
+		if (document.getElementById('toolbar_payload_mode').value=='page') {
+			pl = Copper.str2bytes(document.getElementById('payload_text_page').value);
+		} else {
+			if (!CopperChrome.payloadFileLoaded) {
+				// file loading as async, wait until done
+				window.setTimeout(function() {CopperChrome.doUpload(method,uri);}, 50);
+				return;
+			}
+			pl = Copper.data2bytes(CopperChrome.payloadFileData);
 		}
 		
 		// store payload in case server requests blockwise upload
@@ -417,7 +415,7 @@ CopperChrome.reDiscover = function() {
 
 CopperChrome.checkPayload = function() {
 	if (document.getElementById('toolbar_payload_mode').value=='page') {
-		document.getElementById('tabs_payload').selectedIndex = 2;
+		document.getElementById('tabs_payload').selectedIndex = 3;
 		document.getElementById('payload_text_page').focus();
 	} else if (document.getElementById('toolbar_payload_mode').value=='file' && CopperChrome.payloadFile=='') {
 		CopperChrome.selectPayloadFile();
