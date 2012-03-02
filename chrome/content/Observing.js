@@ -74,10 +74,12 @@ CopperChrome.Observing.prototype = {
 			
 			if (CopperChrome.coapVersion < 4) {
 				subscribe.setObserve(60);
-				subscribe.setToken(new Array(Math.random()*0x100, Math.random()*0x100));
 			} else {
 				subscribe.setObserve(0);
 			}
+			
+			// enforce random token, although unnecessary because of one port per tab
+			subscribe.setToken(new Array(Math.random()*0x100, Math.random()*0x100));
 
 			var that = this;
 			CopperChrome.client.send(subscribe, CopperChrome.myBind(that, that.handle));
