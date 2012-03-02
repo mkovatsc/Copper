@@ -269,12 +269,12 @@ CopperChrome.TransactionHandler.prototype = {
 			var infoReset = '';
 			
 			// RST also allowed for NON since 06
-			if (message.getType()==Copper.MSG_TYPE_CON || message.getType()==Copper.MSG_TYPE_NON) {
-				this.reset(message.getTID(), message.getToken());
+			if (CopperChrome.behavior.rejectUnknown) {
+				this.reset(message.getTID());
 				infoReset = ' (sent RST)';
 			}
 			
-			if (CopperChrome.showUnknownTransactions) {
+			if (CopperChrome.behavior.showUnknown) {
 				// hack for additional info
 				message.getCopperCode = function() { return 'Unknown token'+infoReset; };
 				
@@ -301,13 +301,9 @@ CopperChrome.TransactionHandler.prototype = {
 		CopperChrome.popup(CopperChrome.hostname+':'+CopperChrome.port, 'Sending ACK for transaction '+tid);
 	},
 	
-	reset : function(tid, token) {
+	reset : function(tid) {
 		var rst = new CopperChrome.CoapMessage(Copper.MSG_TYPE_RST);
 		rst.setTID( tid );
-		if (token!=null) {
-			rst.setToken(token);
-		}
-		
 		this.send( rst );
 		CopperChrome.popup(CopperChrome.hostname+':'+CopperChrome.port, 'Sending RST for transaction '+tid);
 	},

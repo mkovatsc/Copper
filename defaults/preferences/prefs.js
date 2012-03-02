@@ -1,10 +1,13 @@
 pref("extensions.copper.coap-version", 7);
-pref("extensions.copper.default-block-size", 64);
-pref("extensions.copper.show-unknown-transactions", true);
 pref("extensions.copper.encode-utf-8", true);
 pref("extensions.copper.use-tree", true);
-pref("extensions.copper.auto-discover", false);
-pref("extensions.copper.retransmissions", true);
+pref("extensions.copper.behavior.auto-discover", false);
+pref("extensions.copper.behavior.retransmissions", true);
+pref("extensions.copper.behavior.show-unknown", false);
+pref("extensions.copper.behavior.reject-unknown", true);
+pref("extensions.copper.behavior.block-size", 64);
+pref("extensions.copper.behavior.observe-token", true);
+pref("extensions.copper.behavior.observe-cancellation", "lazy");
 pref("extensions.copper.default-payload", "Enter payload...");
 pref("extensions.copper.auto-request.method", 0);
 pref("extensions.copper.debug.options-enabled", false);

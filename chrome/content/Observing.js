@@ -78,8 +78,9 @@ CopperChrome.Observing.prototype = {
 				subscribe.setObserve(0);
 			}
 			
-			// enforce random token, although unnecessary because of one port per tab
-			subscribe.setToken(new Array(Math.random()*0x100, Math.random()*0x100));
+			if (CopperChrome.behavior.observeToken) {
+				subscribe.setToken(new Array(Math.random()*0x100, Math.random()*0x100));
+			}
 
 			var that = this;
 			CopperChrome.client.send(subscribe, CopperChrome.myBind(that, that.handle));
@@ -92,15 +93,29 @@ CopperChrome.Observing.prototype = {
 		if (this.subscription) {
 			dump('INFO: Unsibscribing' + this.subscription.uri + '\n');
 			CopperChrome.client.deRegisterToken(this.subscription.token);
-			try {
-				var rst = new CopperChrome.CoapMessage(Copper.MSG_TYPE_RST);
-				rst.setToken(this.subscription.token);
-				CopperChrome.client.send( rst );
-			} catch (ex) {
-				alert('ERROR: Observing.unsubscribe ['+ex+']');
+			
+			if (CopperChrome.behavior.observeCancellation=='rst') {
+				// Send a RST (with new message ID)
+				try {
+					var rst = new CopperChrome.CoapMessage(Copper.MSG_TYPE_RST);
+					CopperChrome.client.send( rst );
+				} catch (ex) {
+					alert('ERROR: Observing.unsubscribe ['+ex+']');
+				}
+			} else if (CopperChrome.behavior.observeCancellation=='get') {
+				try {
+					let uri = CopperChrome.checkUri(); // get current URI
+					var get = new CopperChrome.CoapMessage(Copper.MSG_TYPE_CON, Copper.GET, uri);
+					get.setToken(this.subscription.token);
+					CopperChrome.client.send( get );
+				} catch (ex) {
+					alert('ERROR: Observing.unsubscribe ['+ex+']');
+				}
 			}
+			
 			this.subscription = null;
 		}
+		
 		
 		document.getElementById('toolbar_observe').image = 'chrome://copper/skin/tool_observe.png';
 		document.getElementById('toolbar_observe').label = 'Observe';
@@ -113,7 +128,7 @@ CopperChrome.Observing.prototype = {
 			// check if server supports observing this resource
 			if (message.isOption(Copper.OPTION_OBSERVE)) {
 				
-				this.subscription = new CopperChrome.ObserveEntry(this.pending.uri, this.pending.callback, message.getTokenDefault());
+				this.subscription = new CopperChrome.ObserveEntry(this.pending.uri, this.pending.callback, message.getToken());
 				this.pending = null;
 				
 				var that = this;

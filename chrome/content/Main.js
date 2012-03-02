@@ -51,8 +51,6 @@ CopperChrome.mainWindow = window.QueryInterface(Components.interfaces.nsIInterfa
 CopperChrome.prefManager = Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefBranch);
 
 CopperChrome.coapVersion = 7;
-CopperChrome.blockSize = 32;
-CopperChrome.showUnknownTransactions = true;
 
 CopperChrome.hostname = '';
 CopperChrome.port = -1;
@@ -72,12 +70,21 @@ CopperChrome.payloadFileData = null;
 CopperChrome.uploadMethod = 0;
 CopperChrome.uploadBlocks = null;
 
+CopperChrome.behavior = {
+	retransmission: true,
+	showUnknown: false,
+	rejectUnknown: true,
+	blockSize: 64,
+	observeToken: true,
+	observeCancellation: 'lazy'
+};
+
 // Life cycle functions
 ////////////////////////////////////////////////////////////////////////////////
 
 CopperChrome.main = function() {
 	
-	dump('\n\n\n\n\n');
+	dump(Array(5).join('\n'));
 	dump('==============================================================================\n');
 	dump('=INITIALIZING COPPER==========================================================\n');
 	dump('==============================================================================\n');
@@ -94,19 +101,13 @@ CopperChrome.main = function() {
 	var auto = null; // auto-method
 	try {
 		CopperChrome.coapVersion = CopperChrome.prefManager.getIntPref('extensions.copper.coap-version');
-		CopperChrome.blockSize = CopperChrome.prefManager.getIntPref('extensions.copper.default-block-size');
-		CopperChrome.showUnknownTransactions = CopperChrome.prefManager.getBoolPref('extensions.copper.show-unknown-transactions');
 		
-		//document.getElementById('toolbar_auto_discovery').checked = CopperChrome.prefManager.getBoolPref('extensions.copper.auto-discover');
-		document.getElementById('toolbar_retransmissions').checked = CopperChrome.prefManager.getBoolPref('extensions.copper.retransmissions');
-		
-		//document.getElementById('resource_list').hidden = CopperChrome.prefManager.getBoolPref('extensions.copper.use-tree');
 		document.getElementById('resource_split').setAttribute('state', CopperChrome.prefManager.getBoolPref('extensions.copper.use-tree') ? 'open' : 'collapsed');
 		document.getElementById('resource_split').hidden = !CopperChrome.prefManager.getBoolPref('extensions.copper.use-tree');
 		
 		auto = CopperChrome.prefManager.getIntPref('extensions.copper.auto-request.method');
 		
-		// debug options
+		CopperChrome.loadBehavior();
 		CopperChrome.loadDebugOptions();
 		
 	} catch (ex) {
@@ -164,7 +165,7 @@ CopperChrome.main = function() {
 		// set up datagram and transaction layer
 		var temp = new CopperChrome.UdpClient(CopperChrome.hostname, CopperChrome.port);
 		temp.registerErrorCallback(CopperChrome.errorHandler);
-		CopperChrome.client = new CopperChrome.TransactionHandler(temp, document.getElementById('toolbar_retransmissions').checked);
+		CopperChrome.client = new CopperChrome.TransactionHandler(temp, CopperChrome.behavior.retransmissions);
 		CopperChrome.client.registerCallback(CopperChrome.defaultHandler);
 		
 		// enable observing
@@ -212,13 +213,8 @@ CopperChrome.unload = function() {
 		CopperChrome.client.shutdown();
 	}
 	
-	// save as pref as persist does not work
-	//CopperChrome.prefManager.setBoolPref('extensions.copper.auto-discover', document.getElementById('toolbar_auto_discovery').checked);
-	CopperChrome.prefManager.setBoolPref('extensions.copper.retransmissions', document.getElementById('toolbar_retransmissions').checked);
-	
+	CopperChrome.saveBehavior();
 	CopperChrome.savePayload();
-	
-	// debug options
 	CopperChrome.saveDebugOptions();
 };
 
@@ -226,9 +222,21 @@ CopperChrome.unload = function() {
 // Settings callbacks
 ////////////////////////////////////////////////////////////////////////////////
 
-CopperChrome.settingRetransmissions = function() {
-	// a click must notify client to update behavior
-	CopperChrome.client.setRetransmissions(document.getElementById('toolbar_retransmissions').checked);
+CopperChrome.behaviorUpdate = function(target) {
+	if (target.id=='menu_behavior_retransmissions') {
+		CopperChrome.behavior.retransmissions = target.getAttribute('checked')=='true'; 
+		CopperChrome.client.setRetransmissions(CopperChrome.behavior.retransmissions);
+	} else if (target.id=='menu_behavior_show_unknown') {
+		CopperChrome.behavior.showUnknown = target.getAttribute('checked')=='true';
+	} else if (target.id=='menu_behavior_reject_unknown') {
+		CopperChrome.behavior.rejectUnknown = target.getAttribute('checked')=='true';
+	} else if (target.id.substr(0,24)=='menu_behavior_block_size') {
+		CopperChrome.behavior.blockSize = target.value;
+	} else if (target.id=='menu_behavior_token_observe') {
+		CopperChrome.behavior.observeToken = target.getAttribute('checked')=='true';
+	} else if (target.id.substr(0,21)=='menu_behavior_observe') {
+		CopperChrome.behavior.observeCancellation = target.value;
+	}
 };
 
 
@@ -253,10 +261,10 @@ CopperChrome.sendGet = function(uri) {
 };
 CopperChrome.sendBlockwiseGet = function(num, size, uri) {
 	try {
-		CopperChrome.client.cancelTransactions();
+		//CopperChrome.client.cancelTransactions();
 	
 		if (!num) num = 0;
-		if (!size) size = CopperChrome.blockSize;
+		if (!size) size = CopperChrome.behavior.blockSize;
 		uri = CopperChrome.checkUri(uri, Copper.GET);
 		
 		var message = new CopperChrome.CoapMessage(Copper.MSG_TYPE_CON, Copper.GET, uri);
@@ -265,6 +273,8 @@ CopperChrome.sendBlockwiseGet = function(num, size, uri) {
 		
 		// (re)set to useful block option
 		message.setBlock(num, size);
+		
+		// token indicates a blockwise get for
 		
 		if (num=0) CopperChrome.clearLabels();
 		CopperChrome.client.send( message, CopperChrome.blockwiseHandler );
@@ -306,9 +316,9 @@ CopperChrome.doUpload = function(method, uri) {
 		CopperChrome.uploadBlocks = pl;
 		
 		// blockwise uploads
-		if (document.getElementById('chk_debug_options').checked && document.getElementById('debug_option_block1').value!='' && pl.length > CopperChrome.blockSize) {
+		if (document.getElementById('chk_debug_options').checked && document.getElementById('debug_option_block1').value!='' && pl.length > CopperChrome.behavior.blockSize) {
 
-			CopperChrome.doBlockwiseUpload(parseInt(document.getElementById('debug_option_block1').value), CopperChrome.blockSize, uri);
+			CopperChrome.doBlockwiseUpload(parseInt(document.getElementById('debug_option_block1').value), CopperChrome.behavior.blockSize, uri);
 			return;
 		}
 		
@@ -393,7 +403,7 @@ CopperChrome.discover = function(block, size) {
 		var message = new CopperChrome.CoapMessage(Copper.MSG_TYPE_CON, Copper.GET, Copper.WELL_KNOWN_RESOURCES);
 		
 		if (block!=null) {
-			if (size==null) size = CopperChrome.blockSize;
+			if (size==null) size = CopperChrome.behavior.blockSize;
 			message.setBlock(block, size);
 		} 
 		
@@ -410,74 +420,4 @@ CopperChrome.reDiscover = function() {
 	CopperChrome.resources = new Object();
 	
 	CopperChrome.discover();
-};
-
-
-CopperChrome.checkPayload = function() {
-	if (document.getElementById('toolbar_payload_mode').value=='page') {
-		document.getElementById('tabs_payload').selectedIndex = 3;
-		document.getElementById('payload_text_page').focus();
-	} else if (document.getElementById('toolbar_payload_mode').value=='file' && CopperChrome.payloadFile=='') {
-		CopperChrome.selectPayloadFile();
-	}
-}
-
-CopperChrome.selectPayloadLine = function(event) {
-	if(event.keyCode==13) {
-		var mode = document.getElementById('toolbar_payload_mode');
-		mode.firstChild.hidePopup();
-		mode.value = 'line';
-	}
-}
-
-CopperChrome.selectPayloadFile = function() {
-	const nsIFilePicker = Components.interfaces.nsIFilePicker;
-	
-	CopperChrome.payloadFile = '';
-	CopperChrome.payloadFileData = null;
-
-	var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
-	fp.init(window, "Select payload file", nsIFilePicker.modeOpen);
-	fp.appendFilters(nsIFilePicker.filterAll | nsIFilePicker.filterText);
-
-	var rv = fp.show();
-	if (rv == nsIFilePicker.returnOK || rv == nsIFilePicker.returnReplace) {
-		CopperChrome.payloadFile = fp.file.path;
-		CopperChrome.loadPayloadFile(fp.file);
-	} else {
-		CopperChrome.payloadFile = '';
-		CopperChrome.payloadFileData = null;
-		CopperChrome.payloadFileLoaded = false;
-		document.getElementById('toolbar_payload_file').label = "Select...";
-		document.getElementById('toolbar_payload_mode').selectedIndex = 0;
-	}
-};
-
-CopperChrome.loadPayloadFileByName = function(filename) {
-	
-	try {
-	
-		var file = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);  
-		file.initWithPath(filename);
-		
-		CopperChrome.loadPayloadFile(file);
-	} catch (ex) {
-		alert('ERROR: Main.loadPayloadFileByName [' + ex + ']');
-	}
-};
-
-CopperChrome.loadPayloadFile = function(file) {
-	var channel = NetUtil.newChannel(file);
-	NetUtil.asyncFetch(channel,
-			function(inputStream, status) {
-				if (!Components.isSuccessCode(status)) {  
-					alert('ERROR: Main.payloadFile ['+status+']');
-					return;  
-				}
-				CopperChrome.payloadFileData = NetUtil.readInputStreamToString(inputStream, inputStream.available());
-				document.getElementById('toolbar_payload_file').label = file.leafName;
-				CopperChrome.payloadFileLoaded = true;
-				dump('INFO: loaded "' + file.path + '"\n');
-			}
-		);
 };

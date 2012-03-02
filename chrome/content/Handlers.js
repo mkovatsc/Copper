@@ -70,7 +70,7 @@ CopperChrome.blockwiseHandler = function(message) {
 			CopperChrome.updateLabel('info_code', ' (Uploading...)', true);
 			
 			// block size negotiation
-			let size = Math.min(message.getBlock1Size(), CopperChrome.blockSize);
+			let size = Math.min(message.getBlock1Size(), CopperChrome.behavior.blockSize);
 			let offset = message.getBlock1Size()*message.getBlock1Number();
 			let num = offset / size;
 			
@@ -97,7 +97,7 @@ CopperChrome.blockwiseHandler = function(message) {
 		if (message.getBlockMore()) {
 			
 			// block size negotiation
-			let size = Math.min(message.getBlockSize(), CopperChrome.blockSize);
+			let size = Math.min(message.getBlockSize(), CopperChrome.behavior.blockSize);
 			let offset = message.getBlockSize()*(message.getBlockNumber()+1);
 			let num = offset / size;
 			
@@ -131,7 +131,7 @@ CopperChrome.observingHandler = function(message) {
 		if (message.isOption(Copper.OPTION_BLOCK) && message.getBlockMore()) {
 				
 			// block size negotiation
-			let size = Math.min(message.getBlockSize(), CopperChrome.blockSize);
+			let size = Math.min(message.getBlockSize(), CopperChrome.behavior.blockSize);
 			let offset = message.getBlockSize()*(message.getBlockNumber()+1);
 			let num = offset / size;
 			
@@ -160,8 +160,8 @@ CopperChrome.discoverHandler = function(message) {
 			if (message.getBlockMore()) {
 				
 				// give in, as browser could request large blocks and server might be constrained
-				if (message.getBlockSize() > CopperChrome.blockSize) {
-					CopperChrome.discover(0, CopperChrome.blockSize);
+				if (message.getBlockSize() > CopperChrome.behavior.blockSize) {
+					CopperChrome.discover(0, CopperChrome.behavior.blockSize);
 				} else {
 					CopperChrome.discover(message.getBlockNumber()+1, message.getBlockSize());
 				}

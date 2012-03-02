@@ -167,11 +167,11 @@ try {
 		}
 } catch (ex) {}
 		if (Copper.OPTION_BLOCK && document.getElementById('debug_option_block2').value!='') {
-			message.setBlock(parseInt(document.getElementById('debug_option_block2').value), CopperChrome.blockSize);
+			message.setBlock(parseInt(document.getElementById('debug_option_block2').value), CopperChrome.behavior.blockSize);
 		}
 try {
 		if (Copper.OPTION_BLOCK1 && document.getElementById('debug_option_block1').value!='') {
-			message.setBlock1(parseInt(document.getElementById('debug_option_block1').value), CopperChrome.blockSize, document.getElementById('debug_option_block1').value.match(/\+/));
+			message.setBlock1(parseInt(document.getElementById('debug_option_block1').value), CopperChrome.behavior.blockSize, document.getElementById('debug_option_block1').value.match(/\+/));
 		}
 } catch (ex) {}
 try {

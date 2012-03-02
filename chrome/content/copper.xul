@@ -58,10 +58,34 @@
 					
 			</menupopup>
 		</menulist>
-		
-	  <label value="Retransmissions" control="toolbar_retransmissions"/>
-		<checkbox id="toolbar_retransmissions" tooltiptext="Retransmit unconfirmed messages" checked="false" oncommand="CopperChrome.settingRetransmissions();"/>
 	</toolbaritem>
+	
+	<toolbaritem>
+	  <menu id="menu_behavior" label="Behavior" oncommand="CopperChrome.behaviorUpdate(event.target);">
+	    <menupopup>
+	    	<menuitem id="menu_behavior_retransmissions" label="Retransmissions" type="checkbox" tooltiptext="Retransmit unconfirmed messages"/>
+	    	<menuseparator/>
+	    	<menuitem id="menu_behavior_show_unknown" label="Display unknown" type="checkbox" tooltiptext="Display messages from unknown transactions"/>
+	    	<menuitem id="menu_behavior_reject_unknown" label="Reject unkown" type="checkbox" tooltiptext="Send a RST for unknown transactions"/>
+	    	<menuseparator/>
+	      <menuitem id="menu_behavior_block_size_16" label="Block size 16" type="radio" name="block" value="16"/>
+	      <menuitem id="menu_behavior_block_size_32" label="Block size 32" type="radio" name="block" value="32"/>
+	      <menuitem id="menu_behavior_block_size_64" label="Block size 64" type="radio" name="block" value="64"/>
+	      <menuitem id="menu_behavior_block_size_128" label="Block size 128" type="radio" name="block" value="128"/>
+	      <menuitem id="menu_behavior_block_size_256" label="Block size 256" type="radio" name="block" value="256"/>
+	      <menuitem id="menu_behavior_block_size_512" label="Block size 512" type="radio" name="block" value="512"/>
+	      <menuitem id="menu_behavior_block_size_1024" label="Block size 1024" type="radio" name="block" value="1024"/>
+	    	<menuseparator/>
+	    	<!-- keep inversed id to enable substr-matching for the last three -->
+	    	<menuitem id="menu_behavior_token_observe" label="Observe Token" type="checkbox" tooltiptext="Enforce non-default Token option for observing"/>
+	    	<menuseparator/>
+	      <menuitem id="menu_behavior_observe_lazy" label="Lazy Observe cancel" type="radio" name="observe" value="lazy" tooltiptext="Only remove subscription, send lazy RST later (can be used for MID matching at server)"/>
+	      <menuitem id="menu_behavior_observe_get" label="GET Observe cancel" type="radio" name="observe" value="get" tooltiptext="Send a GET without Observe option to notify server"/>
+	      <menuitem id="menu_behavior_observe_rst" label="RST Observe cancel" type="radio" name="observe" value="rst" tooltiptext="Send a RST right away (does not work with MID matching as new MID is used)"/>
+	    </menupopup>
+	  </menu>
+	</toolbaritem>
+	
 	<toolbarspacer flex="1"/>
 	
 	<toolbarbutton id="toolbar_version" label="CoAP version" oncommand="window.openDialog('chrome://copper/content/options.xul', 'Prefs', 'chrome,titlebar,toolbar,centerscreen,modal');document.location.reload();"/>
