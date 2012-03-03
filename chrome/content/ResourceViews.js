@@ -1,7 +1,7 @@
-/*
- * Copyright (c) 2011, Institute for Pervasive Computing, ETH Zurich.
+/*******************************************************************************
+ * Copyright (c) 2012, Institute for Pervasive Computing, ETH Zurich.
  * All rights reserved.
- *
+ * 
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
@@ -13,8 +13,8 @@
  * 3. Neither the name of the Institute nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE INSTITUTE AND CONTRIBUTORS ``AS IS'' AND
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE INSTITUTE AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
  * ARE DISCLAIMED.  IN NO EVENT SHALL THE INSTITUTE OR CONTRIBUTORS BE LIABLE
@@ -25,9 +25,9 @@
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
- *
- * This file is part of the Copper CoAP Browser.
- */
+ * 
+ * This file is part of the Copper CoAP browser.
+ ******************************************************************************/
 /**
  * \file
  *         Views for resources
@@ -146,7 +146,7 @@ CopperChrome.addTreeResource = function(uri, attributes) {
 
 };
 
-CopperChrome.onTreeClicked = function(event){
+CopperChrome.onTreeClicked = function(event) {
 	var tree = document.getElementById("resource_tree");
 	var tbo = tree.treeBoxObject;
 
@@ -166,16 +166,16 @@ CopperChrome.onTreeClicked = function(event){
 };
 
 // used to have per node tooltips
-CopperChrome.onTreeHover = function(event){
+CopperChrome.onTreeHover = function(event) {
 	var tree = document.getElementById("resource_tree");
 	var tbo = tree.treeBoxObject;
 
 	// get the row, col and child element at the point
 	var row = { }, col = { }, child = { };
 	tbo.getCellAt(event.clientX, event.clientY, row, col, child);
-	if (col.value)
-	document.getElementById('resource_elems').setAttribute('tooltiptext', tree.view.getCellValue(row.value, col.value.getNext()));
-
+	if (col.value) {
+		document.getElementById('resource_elems').setAttribute('tooltiptext', tree.view.getCellValue(row.value, col.value.getNext()));
+	}
 };
 
 
