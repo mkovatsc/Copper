@@ -157,11 +157,6 @@ CopperChrome.main = function() {
 		
 		CopperChrome.parseUri(document.location.href);
 		
-		// debug options set by URI
-		//if (CopperChrome.port!=Copper.DEFAULT_PORT) document.getElementById('debug_option_uri_port').value = CopperChrome.port;
-		if (CopperChrome.path!='/') document.getElementById('debug_option_uri_path').value = CopperChrome.path;
-		document.getElementById('debug_option_uri_query').value = CopperChrome.query;
-		
 		// set up datagram and transaction layer
 		var temp = new CopperChrome.UdpClient(CopperChrome.hostname, CopperChrome.port);
 		temp.registerErrorCallback(CopperChrome.errorHandler);

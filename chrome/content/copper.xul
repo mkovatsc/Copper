@@ -30,11 +30,11 @@
   This file is part of the Copper CoAP browser.
 -->
 
+<!DOCTYPE copper SYSTEM "chrome://copper/locale/translations.dtd">
+
 <?xml-stylesheet href="chrome://global/skin/global.css" stype="text/css"?>
 <?xml-stylesheet href="chrome://copper/skin/classic.css" type="text/css"?>
 <?xml-stylesheet href="chrome://copper/skin/renderJSON.css" type="text/css"?>
-
-<!DOCTYPE copper SYSTEM "chrome://copper/locale/translations.dtd">
 
 <window id						= "copper-main-window"
 				title				  = "Copper CoAP Browser"
@@ -255,51 +255,13 @@
 						<menuitem label="" value=""/>
 					</menupopup>
 				</menulist>
-					
-				<label control="debug_option_proxy_uri" value="Proxy-Uri"/>
-				<textbox id="debug_option_proxy_uri" emptytext="use absolute URI" dir="reverse">
-					<image class="copper-clear-button" onclick="parentNode.value='';"/>
-				</textbox>
-				<label control="debug_option_etag" value="ETag"/>
-				<textbox id="debug_option_etag" emptytext="use hex (0x..) or string" dir="reverse">
-					<image class="copper-clear-button" onclick="parentNode.value='';"/>
-				</textbox>
-					
-				<label control="debug_option_token" value="Token"/>
-				<textbox id="debug_option_token" emptytext="use hex (0x..) or string" dir="reverse">
-					<image class="copper-clear-button" onclick="parentNode.value='';"/>
-				</textbox>
 				
-				<hbox>
-					<vbox flex="1">
-						<label control="debug_option_uri_host" value="Uri-Host"/>
-						<textbox id="debug_option_uri_host" emptytext="not set" dir="reverse">
-							<image class="copper-clear-button" onclick="parentNode.value='';"/>
-						</textbox>
-					</vbox>
-					<vbox>
-						<label control="debug_option_uri_port" value="Uri-Port"/>
-						<textbox id="debug_option_uri_port" emptytext="n/s" maxlength="5" style="width: 4em;" dir="reverse">
-							<image class="copper-clear-button" onclick="parentNode.value='';"/>
-						</textbox>
-					</vbox>
-				</hbox>
-				
-				<hbox>
-					<vbox flex="1">
-						<label control="debug_option_uri_path" value="Uri-Path"/>
-						<textbox id="debug_option_uri_path" emptytext="not set" disabled="true"/>
-					</vbox>
-					<vbox flex="1">
-						<label control="debug_option_uri_query" value="Uri-Query"/>
-						<textbox id="debug_option_uri_query" emptytext="not set" disabled="true"/>
-					</vbox>
-				</hbox>
-				
-				<label control="debug_option_observe" value="Observe"/>
-				<textbox id="debug_option_observe" emptytext="use integer" dir="reverse">
-					<image class="copper-clear-button" onclick="parentNode.value='';"/>
-				</textbox>
+				<label control="debug_option_content_type" value="Content-Type"/>
+				<menulist id="debug_option_content_type" editable="true">
+					<menupopup id="popup_content_types">
+						<menuitem label="" value=""/>
+					</menupopup>
+				</menulist>
 				
 				<hbox>
 					<vbox flex="1">
@@ -319,6 +281,21 @@
 						<box pack="center"><checkbox id="chk_debug_option_block_auto" tooltiptext="Automatically transmit all blocks" style="margin-right:0px; padding-right:0px;"/></box>
 					</vbox>
 				</hbox>
+					
+				<label control="debug_option_token" value="Token"/>
+				<textbox id="debug_option_token" emptytext="use hex (0x..) or string" dir="reverse">
+					<image class="copper-clear-button" onclick="parentNode.value='';"/>
+				</textbox>
+				
+				<label control="debug_option_observe" value="Observe"/>
+				<textbox id="debug_option_observe" emptytext="use integer" dir="reverse">
+					<image class="copper-clear-button" onclick="parentNode.value='';"/>
+				</textbox>
+				
+				<label control="debug_option_etag" value="ETag"/>
+				<textbox id="debug_option_etag" emptytext="use hex (0x..) or string" dir="reverse">
+					<image class="copper-clear-button" onclick="parentNode.value='';"/>
+				</textbox>
 				
 				<label control="debug_option_if_match" value="If-Match"/>
 				<textbox id="debug_option_if_match" emptytext="use an ETag" dir="reverse">
@@ -327,14 +304,40 @@
 				
 				<checkbox id="debug_option_if_none_match" label="If-None-Match"/>
 				
-				<label value="Response options" style="text-align: center; margin-top: 5px;"/>
+				<hbox>
+					<vbox flex="1">
+						<label control="debug_option_uri_host" value="Uri-Host"/>
+						<textbox id="debug_option_uri_host" emptytext="not set" dir="reverse">
+							<image class="copper-clear-button" onclick="parentNode.value='';"/>
+						</textbox>
+					</vbox>
+					<vbox>
+						<label control="debug_option_uri_port" value="Uri-Port"/>
+						<textbox id="debug_option_uri_port" emptytext="n/s" maxlength="5" style="width: 4em;" dir="reverse">
+							<image class="copper-clear-button" onclick="parentNode.value='';"/>
+						</textbox>
+					</vbox>
+				</hbox>
+					
+				<label control="debug_option_proxy_uri" value="Proxy-Uri"/>
+				<textbox id="debug_option_proxy_uri" emptytext="use absolute URI" dir="reverse">
+					<image class="copper-clear-button" onclick="parentNode.value='';"/>
+				</textbox>
 				
-				<label control="debug_option_content_type" value="Content-Type"/>
-				<menulist id="debug_option_content_type" editable="true">
-					<menupopup id="popup_content_types">
-						<menuitem label="" value=""/>
-					</menupopup>
-				</menulist>
+				<!--
+				<hbox>
+					<vbox flex="1">
+						<label control="debug_option_uri_path" value="Uri-Path"/>
+						<textbox id="debug_option_uri_path" emptytext="not set" disabled="true"/>
+					</vbox>
+					<vbox flex="1">
+						<label control="debug_option_uri_query" value="Uri-Query"/>
+						<textbox id="debug_option_uri_query" emptytext="not set" disabled="true"/>
+					</vbox>
+				</hbox>
+				-->
+				
+				<label value="Response options" style="text-align: center; margin-top: 5px;"/>
 				
 				<label control="debug_option_max_age" value="Max-Age"/>
 				<textbox id="debug_option_max_age" emptytext="use integer" dir="reverse">
