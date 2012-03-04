@@ -65,9 +65,13 @@ CopperChrome.Observing.prototype = {
 			return;
 		}
 		
-		dump('INFO: Subscribe ' + uri + '\n');
+		dump('INFO: Subscribing to ' + uri + '\n');
 		
-		this.pending = new CopperChrome.ObserveEntry(uri, cb);
+		var token = CopperChrome.behavior.observeToken ? new Array(parseInt(Math.random()*0x100), parseInt(Math.random()*0x100)) : null;
+		this.pending = new CopperChrome.ObserveEntry(uri, cb, token);
+
+		var that = this;
+		CopperChrome.client.registerToken(token, CopperChrome.myBind(that, that.handle));
 		
 		try {
 			var subscribe = new CopperChrome.CoapMessage(Copper.MSG_TYPE_CON, Copper.GET, uri);
@@ -78,9 +82,7 @@ CopperChrome.Observing.prototype = {
 				subscribe.setObserve(0);
 			}
 			
-			if (CopperChrome.behavior.observeToken) {
-				subscribe.setToken(new Array(Math.random()*0x100, Math.random()*0x100));
-			}
+			subscribe.setToken(token);
 
 			var that = this;
 			CopperChrome.client.send(subscribe, CopperChrome.myBind(that, that.handle));
@@ -91,7 +93,7 @@ CopperChrome.Observing.prototype = {
 
 	unsubscribe : function(token) {
 		if (this.subscription) {
-			dump('INFO: Unsibscribing' + this.subscription.uri + '\n');
+			dump('INFO: Unsibscribing ' + this.subscription.uri + '\n');
 			CopperChrome.client.deRegisterToken(this.subscription.token);
 			
 			if (CopperChrome.behavior.observeCancellation=='rst') {
@@ -122,17 +124,14 @@ CopperChrome.Observing.prototype = {
 	},
 	
 	handle : function(message) {
-		dump('INFO: Observing.handle()\n');
 
 		if (this.pending) {
+			
 			// check if server supports observing this resource
 			if (message.isOption(Copper.OPTION_OBSERVE)) {
 				
 				this.subscription = new CopperChrome.ObserveEntry(this.pending.uri, this.pending.callback, message.getToken());
 				this.pending = null;
-				
-				var that = this;
-				CopperChrome.client.registerToken(this.subscription.token, CopperChrome.myBind(that, that.handle));
 				
 				document.getElementById('toolbar_observe').image = 'chrome://copper/skin/tool_unobserve.png';
 				document.getElementById('toolbar_observe').label = 'Cancel ';
@@ -140,16 +139,20 @@ CopperChrome.Observing.prototype = {
 				this.subscription.callback(message);
 				
 			} else {
+				
+				CopperChrome.client.deRegisterToken(this.pending.token);
 				this.pending = null;
 				
 				message.getCopperCode = function() { return 'Resource not observable'; };
 				
-				// FIXME static call
 				CopperChrome.defaultHandler(message);
 			}
 		} else if (this.subscription!=null) {
 			this.subscription.callback(message);
 		} else {
+			// somehow it must have gotten here
+			CopperChrome.client.deRegisterToken(message.getToken());
+			
 			throw 'Missing context for Observing.handle()';
 		}
 	}

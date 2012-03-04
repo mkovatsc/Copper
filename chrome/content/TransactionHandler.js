@@ -157,8 +157,9 @@ CopperChrome.TransactionHandler.prototype = {
 		}
 		
 		// store request callback through token matching
-		if (message.getType()==Copper.MSG_TYPE_CON || message.getType()==Copper.MSG_TYPE_NON) {
-			while (this.requests[message.getTokenDefault()]!=null || this.registeredTokens[message.getTokenDefault()]!=null) {
+		if (message.isRequest()) {
+			
+			while (this.requests[message.getTokenDefault()]!=null && this.registeredTokens[message.getTokenDefault()]==null) {
 				dump('INFO: Default token already in use\n');
 				message.setToken(new Array([parseInt(Math.random()*0x100)]));
 			}
@@ -169,9 +170,9 @@ CopperChrome.TransactionHandler.prototype = {
 		}
 		
 		// and send
-		dump('=sending CoAP message===\n');
-		dump(message.getSummary()+'\n');
-		dump(' =======================\n');
+		dump(Array('=sending CoAP message===',
+				   message.getSummary(),
+				   ' =======================').join('\n'));
 		this.client.send( message.serialize() );
 	},
 	
@@ -186,15 +187,15 @@ CopperChrome.TransactionHandler.prototype = {
 			var timeout = Copper.RESPONSE_TIMEOUT*Math.pow(2,this.transactions[tid].retries);
 			this.transactions[tid].timer = window.setTimeout(function(){CopperChrome.myBind(that,that.resend(tid));}, timeout);
 			
-			dump('=re-sending CoAP message\n');
-			dump(' Transaction ID: '+tid+'\n');
-			dump(' New timeout: '+timeout+'\n');
-			dump(' =======================\n');
+			dump(Array('=re-sending CoAP message',
+					   ' Transaction ID: '+tid,
+					   ' New timeout: '+timeout,
+					   ' =======================').join('\n'));
 			this.client.send( this.transactions[tid].message.serialize() );
 		} else {
-			dump('=timeout================\n');
-			dump(' Transaction ID: '+tid+'\n');
-			dump(' =======================\n');
+			dump(Array('=timeout================',
+					   ' Transaction ID: '+tid,
+					   ' =======================').join('\n'));
 			delete this.transactions[tid];
 			// TODO: find nicer way, maybe registered error CB
 			this.client.errorCallback( {getCopperCode:function(){return 'Server not responding';}});
@@ -206,9 +207,9 @@ CopperChrome.TransactionHandler.prototype = {
 		var message = new CopperChrome.CoapMessage();
 		message.parse(datagram);
 		
-		dump('=received CoAP message==\n');
-		dump(message.getSummary()+'\n');
-		dump(' =======================\n');
+		dump(Array('=received CoAP message==',
+				   message.getSummary(),
+				   ' =======================').join('\n'));
 		
 		// handle transaction
 		if (this.transactions[message.getTID()]) {

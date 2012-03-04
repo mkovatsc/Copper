@@ -113,6 +113,14 @@ CopperChrome.CoapMessage.prototype = {
 		this.packet.tid = id;
 	},
 	
+	isRequest: function() {
+		//FIXME official range draft-08: 1-31, define range in .jsm
+		return this.getCode()<=31;
+	},
+	isResponse: function() {
+		return this.getCode()>31;
+	},
+	
 	
 	/*
 	 * Option definitions for different versions

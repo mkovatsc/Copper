@@ -128,18 +128,18 @@ CopperChrome.observingHandler = function(message) {
 		CopperChrome.displayPayload(message);
 		
 		//TODO duplicated code from blockwise handler
-		if (message.isOption(Copper.OPTION_BLOCK) && message.getBlockMore()) {
-				
-			// block size negotiation
-			let size = Math.min(message.getBlockSize(), CopperChrome.behavior.blockSize);
-			let offset = message.getBlockSize()*(message.getBlockNumber()+1);
-			let num = offset / size;
+		if (message.isOption(Copper.OPTION_BLOCK)) {
 			
-			if ( document.getElementById('chk_debug_options').checked && !document.getElementById('chk_debug_option_block_auto').checked ) {
-				// automatically count up
-				document.getElementById('debug_option_block2').value = num;
-			} else {
-				CopperChrome.sendBlockwiseGet(num, size);
+			CopperChrome.updateLabel('info_code', ' (Blockwise)', true); // call after displayMessageInfo()
+			
+			if (message.getBlockMore()) {
+				
+				// block size negotiation
+				let size = Math.min(message.getBlockSize(), CopperChrome.behavior.blockSize);
+				let offset = message.getBlockSize()*(message.getBlockNumber()+1);
+				let num = offset / size;
+				
+				CopperChrome.sendBlockwiseObserveGet(num, size, message.getToken());
 			}
 		}
 		
