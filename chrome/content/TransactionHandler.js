@@ -172,7 +172,8 @@ CopperChrome.TransactionHandler.prototype = {
 		// and send
 		dump(Array('=sending CoAP message===',
 				   message.getSummary(),
-				   ' =======================').join('\n'));
+				   ' =======================',
+				   '').join('\n'));
 		this.client.send( message.serialize() );
 	},
 	
@@ -190,12 +191,14 @@ CopperChrome.TransactionHandler.prototype = {
 			dump(Array('=re-sending CoAP message',
 					   ' Transaction ID: '+tid,
 					   ' New timeout: '+timeout,
-					   ' =======================').join('\n'));
+					   ' =======================',
+					   '').join('\n'));
 			this.client.send( this.transactions[tid].message.serialize() );
 		} else {
 			dump(Array('=timeout================',
 					   ' Transaction ID: '+tid,
-					   ' =======================').join('\n'));
+					   ' =======================',
+					   '').join('\n'));
 			delete this.transactions[tid];
 			// TODO: find nicer way, maybe registered error CB
 			this.client.errorCallback( {getCopperCode:function(){return 'Server not responding';}});
@@ -209,7 +212,8 @@ CopperChrome.TransactionHandler.prototype = {
 		
 		dump(Array('=received CoAP message==',
 				   message.getSummary(),
-				   ' =======================').join('\n'));
+				   ' =======================',
+				   '').join('\n'));
 		
 		// handle transaction
 		if (this.transactions[message.getTID()]) {
