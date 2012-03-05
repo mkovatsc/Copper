@@ -93,6 +93,9 @@
 	<toolbaritem>
 	  <menu id="menu_behavior" label="Behavior" oncommand="CopperChrome.behaviorUpdate(event.target);">
 	    <menupopup>
+	      <menuitem id="menu_behavior_requests_con" label="CON requests" type="radio" name="request" value="con"/>
+	      <menuitem id="menu_behavior_requests_non" label="NON requests" type="radio" name="request" value="non"/>
+	    	<menuseparator/>
 	    	<menuitem id="menu_behavior_retransmissions" label="Retransmissions" type="checkbox" tooltiptext="Retransmit unconfirmed messages"/>
 	    	<menuseparator/>
 	    	<menuitem id="menu_behavior_show_unknown" label="Display unknown" type="checkbox" tooltiptext="Display messages from unknown transactions"/>

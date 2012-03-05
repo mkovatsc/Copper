@@ -33,6 +33,7 @@ pref("extensions.copper.coap-version", 7);
 pref("extensions.copper.encode-utf-8", true);
 pref("extensions.copper.use-tree", true);
 pref("extensions.copper.behavior.auto-discover", false);
+pref("extensions.copper.behavior.requests", "con");
 pref("extensions.copper.behavior.retransmissions", true);
 pref("extensions.copper.behavior.show-unknown", false);
 pref("extensions.copper.behavior.reject-unknown", true);

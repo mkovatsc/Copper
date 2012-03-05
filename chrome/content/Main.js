@@ -71,6 +71,7 @@ CopperChrome.uploadMethod = 0;
 CopperChrome.uploadBlocks = null;
 
 CopperChrome.behavior = {
+	requests: 'con',
 	retransmission: true,
 	showUnknown: false,
 	rejectUnknown: true,
@@ -218,7 +219,9 @@ CopperChrome.unload = function() {
 ////////////////////////////////////////////////////////////////////////////////
 
 CopperChrome.behaviorUpdate = function(target) {
-	if (target.id=='menu_behavior_retransmissions') {
+	if (target.id.substr(0,22)=='menu_behavior_requests') {
+		CopperChrome.behavior.requests = target.value;
+	} else if (target.id=='menu_behavior_retransmissions') {
 		CopperChrome.behavior.retransmissions = target.getAttribute('checked')=='true'; 
 		CopperChrome.client.setRetransmissions(CopperChrome.behavior.retransmissions);
 	} else if (target.id=='menu_behavior_show_unknown') {
@@ -244,7 +247,7 @@ CopperChrome.sendGet = function(uri) {
 		
 		uri = CopperChrome.checkUri(uri, Copper.GET);
 		
-		var message = new CopperChrome.CoapMessage(Copper.MSG_TYPE_CON, Copper.GET, uri);
+		var message = new CopperChrome.CoapMessage(CopperChrome.getRequestType(), Copper.GET, uri);
 		
 		CopperChrome.checkDebugOptions(message);
 		
@@ -262,7 +265,7 @@ CopperChrome.sendBlockwiseGet = function(num, size, uri) {
 		if (!size) size = CopperChrome.behavior.blockSize;
 		uri = CopperChrome.checkUri(uri, Copper.GET);
 		
-		var message = new CopperChrome.CoapMessage(Copper.MSG_TYPE_CON, Copper.GET, uri);
+		var message = new CopperChrome.CoapMessage(CopperChrome.getRequestType(), Copper.GET, uri);
 		
 		CopperChrome.checkDebugOptions(message);
 		
@@ -285,7 +288,7 @@ CopperChrome.sendBlockwiseObserveGet = function(num, size, token) {
 		if (!size) size = CopperChrome.behavior.blockSize;
 		uri = CopperChrome.checkUri(null, Copper.GET);
 		
-		var message = new CopperChrome.CoapMessage(Copper.MSG_TYPE_CON, Copper.GET, uri);
+		var message = new CopperChrome.CoapMessage(CopperChrome.getRequestType(), Copper.GET, uri);
 		
 		message.setObserve(0);
 		
@@ -342,7 +345,7 @@ CopperChrome.doUpload = function(method, uri) {
 			return;
 		}
 		
-		var message = new CopperChrome.CoapMessage(Copper.MSG_TYPE_CON, method, uri, pl);
+		var message = new CopperChrome.CoapMessage(CopperChrome.getRequestType(), method, uri, pl);
 		
 		CopperChrome.checkDebugOptions(message);
 		
@@ -376,7 +379,7 @@ CopperChrome.doBlockwiseUpload = function(num, size, uri) {
 		
 		let pl = CopperChrome.uploadBlocks.slice(size*num, size*(num+1));
 		
-		var message = new CopperChrome.CoapMessage(Copper.MSG_TYPE_CON, CopperChrome.uploadMethod, uri, pl);
+		var message = new CopperChrome.CoapMessage(CopperChrome.getRequestType(), CopperChrome.uploadMethod, uri, pl);
 		
 		CopperChrome.checkDebugOptions(message);
 		
@@ -395,7 +398,7 @@ CopperChrome.sendDelete = function(uri) {
 		
 		uri = CopperChrome.checkUri(uri, Copper.DELETE);
 		
-		var message = new CopperChrome.CoapMessage(Copper.MSG_TYPE_CON, Copper.DELETE, uri);
+		var message = new CopperChrome.CoapMessage(CopperChrome.getRequestType(), Copper.DELETE, uri);
 		
 		CopperChrome.checkDebugOptions(message);
 		
@@ -421,7 +424,7 @@ CopperChrome.observe = function(uri) {
 
 CopperChrome.discover = function(block, size) {
 	try {
-		var message = new CopperChrome.CoapMessage(Copper.MSG_TYPE_CON, Copper.GET, Copper.WELL_KNOWN_RESOURCES);
+		var message = new CopperChrome.CoapMessage(CopperChrome.getRequestType(), Copper.GET, Copper.WELL_KNOWN_RESOURCES);
 		
 		if (block!=null) {
 			if (size==null) size = CopperChrome.behavior.blockSize;

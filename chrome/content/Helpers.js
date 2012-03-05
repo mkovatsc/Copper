@@ -38,8 +38,13 @@
 // Helper functions
 ////////////////////////////////////////////////////////////////////////////////
 
+CopperChrome.getRequestType = function() {
+	return CopperChrome.behavior.requests=='con' ? Copper.MSG_TYPE_CON : Copper.MSG_TYPE_NON;
+};
+
 // Load behavior options from preferences and init menu
 CopperChrome.loadBehavior = function() {
+	CopperChrome.behavior.requests = CopperChrome.prefManager.getCharPref('extensions.copper.behavior.requests');
 	CopperChrome.behavior.retransmissions = CopperChrome.prefManager.getBoolPref('extensions.copper.behavior.retransmissions');
 	CopperChrome.behavior.showUnknown = CopperChrome.prefManager.getBoolPref('extensions.copper.behavior.show-unknown');
 	CopperChrome.behavior.rejectUnknown = CopperChrome.prefManager.getBoolPref('extensions.copper.behavior.reject-unknown');
@@ -47,6 +52,7 @@ CopperChrome.loadBehavior = function() {
 	CopperChrome.behavior.observeToken = CopperChrome.prefManager.getBoolPref('extensions.copper.behavior.observe-token');
 	CopperChrome.behavior.observeCancellation = CopperChrome.prefManager.getCharPref('extensions.copper.behavior.observe-cancellation');
 	
+	document.getElementById('menu_behavior_requests_' + CopperChrome.behavior.requests).setAttribute('checked', 'true');
 	document.getElementById('menu_behavior_retransmissions').setAttribute('checked', CopperChrome.behavior.retransmissions);
 	document.getElementById('menu_behavior_show_unknown').setAttribute('checked', CopperChrome.behavior.showUnknown);
 	document.getElementById('menu_behavior_reject_unknown').setAttribute('checked', CopperChrome.behavior.rejectUnknown);
@@ -57,6 +63,7 @@ CopperChrome.loadBehavior = function() {
 };
 
 CopperChrome.saveBehavior = function() {
+	CopperChrome.prefManager.setCharPref('extensions.copper.behavior.requests', CopperChrome.behavior.requests);
 	CopperChrome.prefManager.setBoolPref('extensions.copper.behavior.retransmissions', CopperChrome.behavior.retransmissions);
 	CopperChrome.prefManager.setBoolPref('extensions.copper.behavior.show-unknown', CopperChrome.behavior.showUnknown);
 	CopperChrome.prefManager.setBoolPref('extensions.copper.behavior.reject-unknown', CopperChrome.behavior.rejectUnknown);

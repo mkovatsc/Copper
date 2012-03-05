@@ -74,7 +74,7 @@ CopperChrome.Observing.prototype = {
 		CopperChrome.client.registerToken(token, CopperChrome.myBind(that, that.handle));
 		
 		try {
-			var subscribe = new CopperChrome.CoapMessage(Copper.MSG_TYPE_CON, Copper.GET, uri);
+			var subscribe = new CopperChrome.CoapMessage(Copper.MSG_TYPE_CON, Copper.GET, uri); // always use CON
 			
 			if (CopperChrome.coapVersion < 4) {
 				subscribe.setObserve(60);
@@ -107,7 +107,7 @@ CopperChrome.Observing.prototype = {
 			} else if (CopperChrome.behavior.observeCancellation=='get') {
 				try {
 					let uri = CopperChrome.checkUri(); // get current URI
-					var get = new CopperChrome.CoapMessage(Copper.MSG_TYPE_CON, Copper.GET, uri);
+					var get = new CopperChrome.CoapMessage(Copper.MSG_TYPE_CON, Copper.GET, uri); // always use CON
 					get.setToken(this.subscription.token);
 					CopperChrome.client.send( get );
 				} catch (ex) {
