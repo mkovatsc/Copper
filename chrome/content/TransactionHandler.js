@@ -89,7 +89,9 @@ CopperChrome.TransactionHandler.prototype = {
 	},
 	
 	incTID : function() {
-		this.tid = 0xFFFF & (this.tid+1); 
+		if (!CopperChrome.behavior.sendDuplicates) {
+			this.tid = 0xFFFF & (this.tid+1);
+		}
 		return this.tid;
 	},
 	

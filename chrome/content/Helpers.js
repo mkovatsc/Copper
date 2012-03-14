@@ -46,6 +46,7 @@ CopperChrome.getRequestType = function() {
 CopperChrome.loadBehavior = function() {
 	CopperChrome.behavior.requests = CopperChrome.prefManager.getCharPref('extensions.copper.behavior.requests');
 	CopperChrome.behavior.retransmissions = CopperChrome.prefManager.getBoolPref('extensions.copper.behavior.retransmissions');
+	CopperChrome.behavior.sendDuplicates = CopperChrome.prefManager.getBoolPref('extensions.copper.behavior.send-duplicates');
 	CopperChrome.behavior.showUnknown = CopperChrome.prefManager.getBoolPref('extensions.copper.behavior.show-unknown');
 	CopperChrome.behavior.rejectUnknown = CopperChrome.prefManager.getBoolPref('extensions.copper.behavior.reject-unknown');
 	CopperChrome.behavior.blockSize = CopperChrome.prefManager.getIntPref('extensions.copper.behavior.block-size');
@@ -54,6 +55,7 @@ CopperChrome.loadBehavior = function() {
 	
 	document.getElementById('menu_behavior_requests_' + CopperChrome.behavior.requests).setAttribute('checked', 'true');
 	document.getElementById('menu_behavior_retransmissions').setAttribute('checked', CopperChrome.behavior.retransmissions);
+	document.getElementById('menu_behavior_send_duplicates').setAttribute('checked', CopperChrome.behavior.sendDuplicates);
 	document.getElementById('menu_behavior_show_unknown').setAttribute('checked', CopperChrome.behavior.showUnknown);
 	document.getElementById('menu_behavior_reject_unknown').setAttribute('checked', CopperChrome.behavior.rejectUnknown);
 	document.getElementById('menu_behavior_block_size_' + CopperChrome.behavior.blockSize).setAttribute('checked', 'true');
@@ -65,6 +67,7 @@ CopperChrome.loadBehavior = function() {
 CopperChrome.saveBehavior = function() {
 	CopperChrome.prefManager.setCharPref('extensions.copper.behavior.requests', CopperChrome.behavior.requests);
 	CopperChrome.prefManager.setBoolPref('extensions.copper.behavior.retransmissions', CopperChrome.behavior.retransmissions);
+	CopperChrome.prefManager.setBoolPref('extensions.copper.behavior.send-duplicates', CopperChrome.behavior.sendDuplicates);
 	CopperChrome.prefManager.setBoolPref('extensions.copper.behavior.show-unknown', CopperChrome.behavior.showUnknown);
 	CopperChrome.prefManager.setBoolPref('extensions.copper.behavior.reject-unknown', CopperChrome.behavior.rejectUnknown);
 	CopperChrome.prefManager.setIntPref('extensions.copper.behavior.block-size', CopperChrome.behavior.blockSize);

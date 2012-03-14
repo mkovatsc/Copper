@@ -73,6 +73,7 @@ CopperChrome.uploadBlocks = null;
 CopperChrome.behavior = {
 	requests: 'con',
 	retransmission: true,
+	sendDuplicates: false,
 	showUnknown: false,
 	rejectUnknown: true,
 	blockSize: 64,
@@ -224,6 +225,8 @@ CopperChrome.behaviorUpdate = function(target) {
 	} else if (target.id=='menu_behavior_retransmissions') {
 		CopperChrome.behavior.retransmissions = target.getAttribute('checked')=='true'; 
 		CopperChrome.client.setRetransmissions(CopperChrome.behavior.retransmissions);
+	} else if (target.id=='menu_behavior_send_duplicates') {
+		CopperChrome.behavior.sendDuplicates = target.getAttribute('checked')=='true';
 	} else if (target.id=='menu_behavior_show_unknown') {
 		CopperChrome.behavior.showUnknown = target.getAttribute('checked')=='true';
 	} else if (target.id=='menu_behavior_reject_unknown') {
