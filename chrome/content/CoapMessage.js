@@ -115,10 +115,10 @@ CopperChrome.CoapMessage.prototype = {
 	
 	isRequest: function() {
 		//FIXME official range draft-08: 1-31, define range in .jsm
-		return this.getCode()<=31;
+		return this.getCode()>=1 && this.getCode()<=31;
 	},
 	isResponse: function() {
-		return this.getCode()>31;
+		return this.getCode()>=64;
 	},
 	
 	
@@ -809,6 +809,9 @@ CopperChrome.CoapMessage.prototype = {
 	setPayload : function(pl) {
 		this.packet.payload = pl;
 	},
+	appendPayload : function(pl) {
+		this.packet.payload.concat(pl);
+	}, 
 	
 	
 	// convert message into datagram bytes
