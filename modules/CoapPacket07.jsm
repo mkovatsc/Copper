@@ -190,6 +190,8 @@ Copper.CoapPacket = function() {
 	this.options[Copper.OPTION_IF_NONE_MATCH] = new Array(0, null);
 
 	this.tid = parseInt(Math.random()*0x10000);
+	
+	this.payload = new Array(0);
 };
 
 Copper.CoapPacket.prototype = {
@@ -199,7 +201,7 @@ Copper.CoapPacket.prototype = {
 	code :        Copper.GET,
 	tid :         0,
 	options :     null,
-	payload :     '',
+	payload :     null,
 	
 	// readable method or response code
 	getCode : function(readable) {
@@ -573,7 +575,7 @@ Copper.CoapPacket.prototype = {
 		}
 		
         // read payload, treat as raw data, convert later
-	    this.payload = new Array();
+	    this.payload = new Array(0);
         while (packet.length) {
         	this.payload.push(packet.shift());
 		}

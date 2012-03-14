@@ -810,7 +810,9 @@ CopperChrome.CoapMessage.prototype = {
 		this.packet.payload = pl;
 	},
 	appendPayload : function(pl) {
-		this.packet.payload.concat(pl);
+		for (var b in pl) {
+			this.packet.payload.push(pl[b]);
+		}
 	}, 
 	
 	

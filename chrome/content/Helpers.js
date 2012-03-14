@@ -283,7 +283,7 @@ CopperChrome.parseLinkFormat = function(data) {
 	var links = new Object();
 	
 	// totally complicated but supports ',' and '\n' to seperate links and ',' as well as '\"' within quoted strings
-	var format = data.match(/(<[^>]+>\s*(;\s*[^<"\s;,]+\s*=\s*([^<"\s;,]+|"([^"\\]*(\\.[^"\\]*)*)")\s*)*)/g);
+	var format = data.match(/(<[^>]+>\s*(;\s*\w+\s*(=\s*(\w+|"([^"\\]*(\\.[^"\\]*)*)")\s*)?)*)/g);
 	dump('-parsing link-format----------------------------\n');
 	for (var i in format) {
 		//dump(links[i]+'\n');
@@ -297,16 +297,31 @@ CopperChrome.parseLinkFormat = function(data) {
 		
 		if (elems[2]) {
 		
-			var tokens = elems[2].match(/(;\s*[^<"\s;,]+\s*=\s*([^<"\s;,]+|"([^"\\]*(\\.[^"\\]*)*)"))/g);
+			var tokens = elems[2].match(/(;\s*\w+\s*(=\s*(\w+|"([^\\"]*(\\.[^"\\]*)*)"))?)/g);
 		
 			dump(' '+uri+' ('+tokens.length+')\n');
 		
 			for (var j in tokens) {
 				//dump('  '+tokens[j]+'\n');
-				var keyVal = tokens[j].match(/;\s*([^<"\s;,]+)\s*=\s*(([^<"\s;,]+)|"([^"\\]*(\\.[^"\\]*)*)")/);
+				var keyVal = tokens[j].match(/;\s*([^<"\s;,=]+)\s*(=\s*(([^<"\s;,]+)|"([^"\\]*(\\.[^"\\]*)*)"))?/);
 				if (keyVal) {
-					dump('   '+keyVal[1]+': '+(keyVal[3] ? keyVal[3] : keyVal[4].replace(/\\/g,''))+'\n');
-					links[uri][keyVal[1]] = keyVal[3] ? keyVal[3] : keyVal[4].replace(/\\/g,'');
+					dump(keyVal[0]+'\n');
+					dump('   '+keyVal[1] + (keyVal[2] ? (': '+ (keyVal[4] ? keyVal[4] : keyVal[5].replace(/\\/g,''))) : '') + '\n');
+					
+					if (links[uri][keyVal[1]]!=null) {
+						
+						if (!Array.isArray(links[uri][keyVal[1]])) {
+							let temp = links[uri][keyVal[1]]; 
+							links[uri][keyVal[1]] = new Array(0);
+							links[uri][keyVal[1]].push(temp);
+						}
+						
+						links[uri][keyVal[1]].push(keyVal[2] ? (keyVal[4] ? parseInt(keyVal[4]) : keyVal[5].replace(/\\/g,'')) : true);
+						
+					} else {
+						
+						links[uri][keyVal[1]] = keyVal[2] ? (keyVal[4] ? parseInt(keyVal[4]) : keyVal[5].replace(/\\/g,'')) : true;
+					}
 				}
 			}
 		} else {
@@ -314,6 +329,13 @@ CopperChrome.parseLinkFormat = function(data) {
 		}
 	}
 	dump(' -----------------------------------------------\n');
+	
+	// add well-known resource to resource cache
+	if (!links[Copper.WELL_KNOWN_RESOURCES]) {
+		links[Copper.WELL_KNOWN_RESOURCES] = new Object();
+		links[Copper.WELL_KNOWN_RESOURCES]['ct'] = 40;
+		links[Copper.WELL_KNOWN_RESOURCES]['title'] = 'Resource discovery';
+	}
 	
 	return links;
 };
@@ -400,40 +422,57 @@ CopperChrome.displayMessageInfo = function(message) {
     }
 };
 
+CopperChrome.displayCache = null;
+
 CopperChrome.displayPayload = function(message) {
 	
 	if (message.getPayload().length<1) {
 		return;
 	}
 	
-	switch (message.getContentType()) {
+	// TODO block management
+	if (!message.isOption(Copper.OPTION_BLOCK) || message.getBlockNumber()==0) {
+		CopperChrome.displayCache = new CopperChrome.CoapMessage(0,0);
+		CopperChrome.displayCache.setContentType(message.getContentType());
+		document.getElementById('info_payload').label='Payload ('+message.getPayload().length+')';
+	} else {
+		document.getElementById('info_payload').label='Combined Payload ('+ (CopperChrome.displayCache.getPayload().length + message.getPayload().length)  +')';
+	}
+		
+	CopperChrome.displayCache.appendPayload(message.getPayload());
+	
+	switch (CopperChrome.displayCache.getContentType()) {
 		case Copper.CONTENT_TYPE_IMAGE_GIF:
 		case Copper.CONTENT_TYPE_IMAGE_JPEG:
 		case Copper.CONTENT_TYPE_IMAGE_PNG:
 		case Copper.CONTENT_TYPE_IMAGE_TIFF:
-			CopperChrome.renderImage(message);
+			CopperChrome.renderBinary(CopperChrome.displayCache);
+			CopperChrome.renderImage(CopperChrome.displayCache);
 			break;
 		case Copper.CONTENT_TYPE_AUDIO_RAW:
 		case Copper.CONTENT_TYPE_VIDEO_RAW:
 		case Copper.CONTENT_TYPE_APPLICATION_OCTET_STREAM:
 		case Copper.CONTENT_TYPE_APPLICATION_X_OBIX_BINARY:
-			CopperChrome.renderBinary(message);
+			CopperChrome.renderBinary(CopperChrome.displayCache);
 			break;
 		case Copper.CONTENT_TYPE_APPLICATION_EXI:
-			CopperChrome.renderEXI(message);
+			CopperChrome.renderBinary(CopperChrome.displayCache);
+			CopperChrome.renderEXI(CopperChrome.displayCache);
 			break;
 		case Copper.CONTENT_TYPE_APPLICATION_JSON:
-			CopperChrome.renderJSON(message);
+			CopperChrome.renderText(CopperChrome.displayCache);
+			CopperChrome.renderJSON(CopperChrome.displayCache);
+			break;
+		case Copper.CONTENT_TYPE_APPLICATION_LINK_FORMAT:
+			CopperChrome.renderText(CopperChrome.displayCache);
+			CopperChrome.renderLinkFormat(CopperChrome.displayCache);
 			break;
 		default:
-			CopperChrome.renderText(message);
+			CopperChrome.renderText(CopperChrome.displayCache);
 	}
-
-	if (message.isOption(Copper.OPTION_BLOCK)) {
-		// convert back to get number of bytes (UTF-8 chars)
-		document.getElementById('info_payload').label='Combined Payload ('+ document.getElementById('packet_payload').value.length +')';
-	} else {
-		document.getElementById('info_payload').label='Payload ('+message.getPayload().length+')';
+	
+	if (!message.getBlockMore()) {
+		delete CopperChrome.displayCache;
 	}
 };
 

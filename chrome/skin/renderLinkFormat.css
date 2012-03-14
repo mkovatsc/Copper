@@ -29,69 +29,65 @@
  * This file is part of the Copper CoAP browser.
  ******************************************************************************/
 
-.json-content li {
+.link-content ul {
 	list-style-type: none;
 }
 
+.link-content .uri {
+	font-size: 16px;
+  font-weight: bold;
+  margin-left: -20px;
+	}
+
 /* Containers */
 
-.json-content .label {
-  margin: 0px;
-  font-weight: bold;
-}
-
-.json-content .object {
+.link-content .object {
+	list-style-type: square;
   padding-left: 20px;
   margin: 5px 0px 5px 0px;
 }
-.json-content .object:before {
-	font-weight: bold;
-	margin-left: -20px;
-	content: '{';
-}
-.json-content .object:after {
-	font-weight: bold;
-	margin-left: -20px;
-	content: '}';
-}
 
-.json-content .array {
+.link-content .array {
+	list-style-type: circle;
   padding-left: 20px;
   margin: 5px 0px 5px 0px;
+	color: black;
 }
-.json-content .array:before {
+.link-content .array:before {
 	font-weight: bold;
-	margin-left: -20px;
-	content: '[';
-}
-.json-content .array:after {
-	font-weight: bold;
-	margin-left: -20px;
-	content: ']';
+	margin-top: -20px;
 }
 
 /* Types */
-.json-content .value {
+.link-content .value {
 }
 
-.json-content .string {
+.link-content .string {
   color: green;
   white-space: pre;
 }
 
-.json-content .null {
+.link-content .null {
   color: black;
 	font-weight: bold;
 }
 
-.json-content .int {
+.link-content .int {
   color: red;
 }
 
-.json-content .float {
+.link-content .float {
   color: purple;
 }
 
-.json-content .bool {
+.link-content .bool {
   color: blue;
 }
+
+
+
+.link-content .label {
+  margin: 0px;
+  font-weight: bold;
+}
+

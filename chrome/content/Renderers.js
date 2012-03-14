@@ -39,11 +39,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 CopperChrome.renderText = function(message) {
-	CopperChrome.updateLabel('packet_payload', Copper.bytes2str(message.getPayload()), message.getBlockNumber()>0);
+	CopperChrome.updateLabel('packet_payload', Copper.bytes2str(message.getPayload()), false);
 	document.getElementById('tabs_payload').selectedIndex = 0;
 };
-
-CopperChrome.partialImage = '';
 
 CopperChrome.renderImage = function(message) {
 	
@@ -51,16 +49,8 @@ CopperChrome.renderImage = function(message) {
 	document.getElementById('rendered_div').style.display = 'none';
 	document.getElementById('rendered_img').style.display = 'block';
 	
-	
-	CopperChrome.updateLabel('packet_payload', Copper.bytes2data(message.getPayload()), message.getBlockNumber()>0);
-	
-	// TODO block management
-	if (message.getBlockNumber()==0 || !message.isOption(Copper.OPTION_BLOCK)) {
-		CopperChrome.partialImage = '';
-	}
-	CopperChrome.partialImage += Copper.bytes2data(message.getPayload());
-	// causes flickering, but partially added data does not draw
-	document.getElementById('rendered_img').src = 'data:'+Copper.getContentTypeName(message.getContentType())+';base64,'+btoa( CopperChrome.partialImage );
+	// causes flickering, but partially added data does not draw anyway
+	document.getElementById('rendered_img').src = 'data:'+Copper.getContentTypeName(message.getContentType())+';base64,'+btoa( Copper.bytes2data(message.getPayload()) );
 	document.getElementById('tabs_payload').selectedIndex = 1;
 };
 
@@ -104,6 +94,145 @@ CopperChrome.renderBinary = function(message) {
 	}
 	
 	document.getElementById('tabs_payload').selectedIndex = 0;
+};
+
+
+CopperChrome.renderLinkFormat = function(message) {
+	
+	// Print raw JSON in case parsing fails
+	CopperChrome.renderText(message);
+	
+	// The box for output at the top-level
+	document.getElementById('rendered_img').style.display = 'none';
+    var view = document.getElementById('rendered_div');
+    view.style.display = 'block';
+    
+    while (view.hasChildNodes()) {
+    	view.removeChild(view.firstChild);
+    }
+    view.setAttribute("class", "link-content");
+    
+	var parsedObj = CopperChrome.parseLinkFormat( Copper.bytes2str(message.getPayload()) );
+	
+	view.appendChild( CopperChrome.renderLinkFormatUtils.getXulLinks(parsedObj) );
+	
+	document.getElementById('tabs_payload').selectedIndex = 1;
+};
+
+CopperChrome.renderLinkFormatUtils = {
+	
+	htmlns: "http://www.w3.org/1999/xhtml",
+	
+	getXulLinks: function(value) {
+		if (typeof value != 'object') {
+			return null;
+		}
+
+		var xulObj = document.createElementNS(this.htmlns, "ul");
+		for (var uri in value) {
+			this.addXulLink(xulObj, value[uri], uri);
+		}
+		
+		return xulObj;
+	},
+	 
+	addXulLink: function(xulObj, attribs, key) {
+
+		var xulChild = document.createElementNS(this.htmlns, "li");
+
+		var label = document.createElement("label");
+		label.setAttribute("class", "uri");
+		label.setAttribute("value", key);
+		xulChild.appendChild(label);
+		xulChild.appendChild( this.getXulObject(attribs) );
+
+		xulObj.appendChild(xulChild);
+	},
+ 
+	getXulObject: function(value) {
+		
+		if (typeof value != 'object') {
+			return null;
+		}
+
+		var xulObj = document.createElementNS(this.htmlns, "ul");
+
+		if (Array.isArray(value)) {
+			xulObj.setAttribute("class", "array");
+			for (var i = 0; i < value.length; i ++) {
+				this.addXulChild(xulObj, value[i]);
+			}
+		} else {
+			// object
+			xulObj.setAttribute("class", "object");
+			for (var prop in value) {
+				this.addXulChild(xulObj, value[prop], prop);
+			}
+		}
+		
+		return xulObj;
+	},
+	 
+	addXulChild: function(xulObj, value, key) {
+
+		var xulChild = document.createElementNS(this.htmlns, "li");
+
+		// If the value has a label (object properties will have labels)
+		if (key != null) {
+			var label = document.createElement("label");
+			label.setAttribute("class", "label");
+			label.setAttribute("value", key + ":");
+			xulChild.appendChild(label);
+		}
+
+		if (typeof value == 'object' && value != null) {
+			xulChild.appendChild( this.getXulObject(value) );
+		} else {
+			xulChild.appendChild( this.getXulValue(value) );
+		}
+
+		xulObj.appendChild(xulChild);
+	},
+
+	getXulValue: function(value) {
+		var xulObj = document.createElement("description");
+		switch (typeof value) {
+			case 'object':
+				if (!value) {
+					xulObj.setAttribute("value", 'null');
+					xulObj.setAttribute("class", "null");
+					return xulObj;
+				}
+				return null;
+	
+			case 'string':
+				xulObj.appendChild( document.createTextNode(String(value)) );
+				xulObj.setAttribute("class", "string");
+				return xulObj;
+	
+			case 'number':
+				xulObj.setAttribute("value", isFinite(value) ? String(value) : 'null');
+				if (Math.floor(value) == value) {
+					xulObj.setAttribute("class", "int");
+				} else {
+					xulObj.setAttribute("class", "float");
+				}
+				return xulObj;
+	
+			case 'boolean':
+				xulObj.setAttribute("value", String(value));
+				xulObj.setAttribute("class", "bool");
+				return xulObj;
+	
+			case 'null':
+				xulObj.setAttribute("value", String(value));
+				xulObj.setAttribute("class", "null");
+				return xulObj;
+				
+			default:
+				return null;
+		}
+	}
 };
 
 CopperChrome.renderJSON = function(message) {
@@ -151,13 +280,13 @@ CopperChrome.renderJSONutils = {
 		var xulObj = document.createElementNS(this.htmlns, "ul");
 
 		if (Array.isArray(value)) {
-			xulObj.setAttribute("class", "json_array");
+			xulObj.setAttribute("class", "array");
 			for (var i = 0; i < value.length; i ++) {
 				this.addXulChild(xulObj, value[i]);
 			}
 		} else {
 			// object
-			xulObj.setAttribute("class", "json_object");
+			xulObj.setAttribute("class", "object");
 			for (var prop in value) {
 				this.addXulChild(xulObj, value[prop], prop);
 			}
@@ -173,7 +302,7 @@ CopperChrome.renderJSONutils = {
 		// If the value has a label (object properties will have labels)
 		if (key != null) {
 			var label = document.createElement("label");
-			label.setAttribute("class", "json_label");
+			label.setAttribute("class", "label");
 			label.setAttribute("value", key + ":");
 			xulChild.appendChild(label);
 		}
@@ -193,39 +322,38 @@ CopperChrome.renderJSONutils = {
 			case 'object':
 				if (!value) {
 					xulObj.setAttribute("value", 'null');
-					xulObj.setAttribute("class", "json_null");
+					xulObj.setAttribute("class", "null");
 					return xulObj;
 				}
 				return null;
 	
 			case 'string':
 				xulObj.appendChild( document.createTextNode(String(value)) );
-				xulObj.setAttribute("class", "json_string");
+				xulObj.setAttribute("class", "string");
 				return xulObj;
 	
 			case 'number':
 				xulObj.setAttribute("value", isFinite(value) ? String(value) : 'null');
 				if (Math.floor(value) == value) {
-					xulObj.setAttribute("class", "json_int");
+					xulObj.setAttribute("class", "int");
 				} else {
-					xulObj.setAttribute("class", "json_float");
+					xulObj.setAttribute("class", "float");
 				}
 				return xulObj;
 	
 			case 'boolean':
 				xulObj.setAttribute("value", String(value));
-				xulObj.setAttribute("class", "json_bool");
+				xulObj.setAttribute("class", "bool");
 				return xulObj;
 	
 			case 'null':
 				xulObj.setAttribute("value", String(value));
-				xulObj.setAttribute("class", "json_null");
+				xulObj.setAttribute("class", "null");
 				return xulObj;
 				
 			default:
 				return null;
 		}
-		
 	}
 };
 

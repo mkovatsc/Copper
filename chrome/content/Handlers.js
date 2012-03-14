@@ -90,6 +90,8 @@ CopperChrome.blockwiseHandler = function(message) {
 			CopperChrome.updateLabel('info_code', ' (Upload finished)', true); // call after displayMessageInfo()
 		}
 	}
+	
+	CopperChrome.displayPayload(message);
 
 	if (message.isOption(Copper.OPTION_BLOCK)) {
 		if (message.getBlockMore()) {
@@ -112,7 +114,6 @@ CopperChrome.blockwiseHandler = function(message) {
 		}
 	}
 	
-	CopperChrome.displayPayload(message);
 };
 
 //Handle messages with block-wise transfer
