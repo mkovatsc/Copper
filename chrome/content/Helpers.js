@@ -434,7 +434,7 @@ CopperChrome.displayPayload = function(message) {
 	}
 	
 	// TODO block management
-	if (!message.isOption(Copper.OPTION_BLOCK) || message.getBlockNumber()==0) {
+	if (!message.isOption(Copper.OPTION_BLOCK) || message.getBlockNumber()==0 || CopperChrome.displayCache==null) {
 		CopperChrome.displayCache = new CopperChrome.CoapMessage(0,0);
 		CopperChrome.displayCache.setContentType(message.getContentType());
 		document.getElementById('info_payload').label='Payload ('+message.getPayload().length+')';
