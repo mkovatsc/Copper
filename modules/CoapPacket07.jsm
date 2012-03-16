@@ -580,9 +580,6 @@ Copper.CoapPacket.prototype = {
 		}
 		
         // read payload, treat as raw data, convert later
-	    this.payload = new Array(0);
-        while (packet.length) {
-        	this.payload.push(packet.shift());
-		}
+	    this.payload = packet;
 	}
 };
