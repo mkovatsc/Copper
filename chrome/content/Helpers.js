@@ -178,13 +178,6 @@ CopperChrome.loadCachedResources = function() {
 	} catch( ex ) {
 	    dump('INFO: no cached links for '+CopperChrome.hostname+':'+CopperChrome.port+' yet\n');
 	}
-	
-	// add well-known resource to resource cache
-	if (!CopperChrome.resources[Copper.WELL_KNOWN_RESOURCES]) {
-		CopperChrome.resources[Copper.WELL_KNOWN_RESOURCES] = new Object();
-		CopperChrome.resources[Copper.WELL_KNOWN_RESOURCES]['ct'] = '40';
-		CopperChrome.resources[Copper.WELL_KNOWN_RESOURCES]['title'] = 'Resource discovery';
-	}
 };
 
 
@@ -333,13 +326,6 @@ CopperChrome.parseLinkFormat = function(data) {
 	}
 	dump(' -----------------------------------------------\n');
 	
-	// add well-known resource to resource cache
-	if (!links[Copper.WELL_KNOWN_RESOURCES]) {
-		links[Copper.WELL_KNOWN_RESOURCES] = new Object();
-		links[Copper.WELL_KNOWN_RESOURCES]['ct'] = 40;
-		links[Copper.WELL_KNOWN_RESOURCES]['title'] = 'Resource discovery';
-	}
-	
 	return links;
 };
 
@@ -353,6 +339,13 @@ CopperChrome.updateResourceLinks = function(add) {
 				dump('INFO: adding '+uri+' to host resources\n');
 			}
 		}
+	}
+	
+	// add well-known resource to resource cache
+	if (!CopperChrome.resources[Copper.WELL_KNOWN_RESOURCES]) {
+		CopperChrome.resources[Copper.WELL_KNOWN_RESOURCES] = new Object();
+		CopperChrome.resources[Copper.WELL_KNOWN_RESOURCES]['ct'] = 40;
+		CopperChrome.resources[Copper.WELL_KNOWN_RESOURCES]['title'] = 'Resource discovery';
 	}
 	
 	// clear views
