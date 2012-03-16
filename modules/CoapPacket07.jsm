@@ -346,8 +346,13 @@ Copper.CoapPacket.prototype = {
 			case Copper.OPTION_BLOCK2:
 			case Copper.OPTION_BLOCK1:
 			case Copper.OPTION_IF_NONE_MATCH:
-				this.options[option][1] = Copper.int2bytes(value);
-				this.options[option][0] = this.options[option][1].length;
+				if (value==0) {
+					this.options[option][1] = new Array(0);
+					this.options[option][0] = 0;
+				} else {
+					this.options[option][1] = Copper.int2bytes(value);
+					this.options[option][0] = this.options[option][1].length;
+				}
 				break;
 			
 			default:
@@ -415,7 +420,7 @@ Copper.CoapPacket.prototype = {
 	    this.optionCount = 0;
 	    var optionDelta = 0;
 	    for (var optTypeIt in this.options) {
-	    	if (this.options[optTypeIt][0]==0) {
+	    	if (!Array.isArray(this.options[optTypeIt][1])) {
 				continue;
 			} else {
 				var opt = this.options[optTypeIt][1];

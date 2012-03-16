@@ -509,5 +509,5 @@ CopperChrome.myBind = function(scope, fn) {
 };
 
 CopperChrome.popup = function(title, str) {
-	Components.classes['@mozilla.org/alerts-service;1'].getService(Components.interfaces.nsIAlertsService).showAlertNotification('chrome://copper/skin/Cu_24.png',title,str);
+	Components.classes['@mozilla.org/alerts-service;1'].getService(Components.interfaces.nsIAlertsService).showAlertNotification('chrome://copper/skin/Cu_32.png',title,str);
 };
