@@ -71,7 +71,7 @@ CopperChrome.blockwiseHandler = function(message) {
 		let num = message.getBlock1Number() + 1;
 		let offset = message.getBlock1Size() * num;
 		
-		if (offset < CopperChrome.uploadBlocks.length) {
+		if (CopperChrome.uploadBlocks!=null && offset < CopperChrome.uploadBlocks.length) {
 			
 			CopperChrome.updateLabel('info_code', ' (Uploading...)', true);
 			
