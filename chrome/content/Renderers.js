@@ -45,6 +45,11 @@ CopperChrome.renderText = function(message) {
 
 CopperChrome.renderImage = function(message) {
 	
+	if (!message.getBlockMore()) {
+		// only render binary when transfer is complete (binary is heavy)
+		CopperChrome.renderBinary(message);
+	}
+	
 	// view corresponding render element
 	document.getElementById('rendered_div').style.display = 'none';
 	document.getElementById('rendered_img').style.display = 'block';
@@ -57,6 +62,8 @@ CopperChrome.renderImage = function(message) {
 CopperChrome.renderBinary = function(message) {
 	
 	var pl = message.getPayload();
+	
+	// TODO: loop is too heavy for large payloads, alternatives?
 	for (var i in pl) {
 		
 		CopperChrome.updateLabel('packet_payload', Copper.leadingZero(pl[i].toString(16).toUpperCase()), true);

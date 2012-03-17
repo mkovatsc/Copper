@@ -70,7 +70,13 @@ CopperChrome.CoapMessage.prototype = {
 		ret += '\n Code: '+this.getCode(true);
 		ret += '\n Transaction ID: '+this.getTID();
 		ret += '\n Options:'+this.getOptions(true);
-		ret += '\n Payload:\n'+Copper.bytes2data(this.getPayload());
+		if (this.getPayload().length>0) {
+			if (this.isPrintable(this.getContentType())) {
+				ret += '\n Payload:\n'+Copper.bytes2data(this.getPayload());
+			} else {
+				ret += '\n Payload: '+this.getPayload().length+' bytes';
+			}
+		}
 		return ret;
 	},
 	
@@ -601,28 +607,39 @@ CopperChrome.CoapMessage.prototype = {
 			return opt;
 		}
 	},
-	setBlock : function(num, size) {
-		var block = num << 4;
-		var szx = 0;
+	setBlock : function(num, size, more) {
 		
-		// check for power of two and correct size
-		if (!Copper.isPowerOfTwo(size)) {
-			dump('WARNING: CoapMessage.setBlock ['+size+' not a power of two; using next smaller power]\n');
-		}
-		if (size<16) {
-			size = 16;
-			dump('WARNING: CoapMessage.setBlock [block size must be >=16; using 16]\n');
-		}
-		if (size>1024) {
-			size = 1024;
-			dump('WARNING: CoapMessage.setBlock [block size must be <=1024; using 1024]\n');
-		}
+		if (size!=null) {
 		
-		size >>= 4;
-		for (szx = 0; size; ++szx) size >>= 1;
-		block |= szx - 1;
-		
-		this.packet.setOption(Copper.OPTION_BLOCK, block);
+			var block = num << 4;
+			var szx = 0;
+			
+			// check for power of two and correct size
+			if (!Copper.isPowerOfTwo(size)) {
+				dump('WARNING: CoapMessage.setBlock ['+size+' not a power of two; using next smaller power]\n');
+			}
+			if (size<16) {
+				size = 16;
+				dump('WARNING: CoapMessage.setBlock [block size must be >=16; using 16]\n');
+			}
+			if (size>1024) {
+				size = 1024;
+				dump('WARNING: CoapMessage.setBlock [block size must be <=1024; using 1024]\n');
+			}
+			
+			size >>= 4;
+			for (szx = 0; size; ++szx) size >>= 1;
+			block |= szx - 1;
+			
+			if (more!=null) {
+				block |= more ? 0x08 : 0x00;
+			}
+			
+			this.packet.setOption(Copper.OPTION_BLOCK, block);
+			
+		} else {
+			this.packet.setOption(Copper.OPTION_BLOCK, num);
+		}
 	},
 	// convenience functions for block option parts
 	getBlockNumber : function() {
@@ -632,7 +649,7 @@ CopperChrome.CoapMessage.prototype = {
 		return (16 << (0x07 & this.getBlock()));
 	},
 	getBlockMore : function() {
-		return (0x08 & this.getBlock());
+		return (parseInt(0x08 & this.getBlock())!=0);
 	},
 	
 	// Copper.OPTION_BLOCK1:06+
@@ -811,7 +828,39 @@ CopperChrome.CoapMessage.prototype = {
 	},
 	appendPayload : function(pl) {
 		this.packet.payload = this.packet.payload.concat(pl);
-	}, 
+	},
+	isPrintable : function(ct) {
+		switch (ct) {
+			case Copper.CONTENT_TYPE_TEXT_PLAIN:
+			case Copper.CONTENT_TYPE_TEXT_XML:
+			case Copper.CONTENT_TYPE_TEXT_CSV:
+			case Copper.CONTENT_TYPE_TEXT_HTML:
+			case Copper.CONTENT_TYPE_APPLICATION_LINK_FORMAT:
+			case Copper.CONTENT_TYPE_APPLICATION_XML:
+			case Copper.CONTENT_TYPE_APPLICATION_RDF_XML:
+			case Copper.CONTENT_TYPE_APPLICATION_SOAP_XML:
+			case Copper.CONTENT_TYPE_APPLICATION_ATOM_XML:
+			case Copper.CONTENT_TYPE_APPLICATION_XMPP_XML:
+			case Copper.CONTENT_TYPE_APPLICATION_JSON:
+			
+			case null:
+				return true;
+				
+			case Copper.CONTENT_TYPE_IMAGE_GIF:
+			case Copper.CONTENT_TYPE_IMAGE_JPEG:
+			case Copper.CONTENT_TYPE_IMAGE_PNG:
+			case Copper.CONTENT_TYPE_IMAGE_TIFF:
+			case Copper.CONTENT_TYPE_AUDIO_RAW:
+			case Copper.CONTENT_TYPE_VIDEO_RAW:
+			case Copper.CONTENT_TYPE_APPLICATION_OCTET_STREAM:
+			case Copper.CONTENT_TYPE_APPLICATION_EXI:
+			case Copper.CONTENT_TYPE_APPLICATION_FASTINFOSET:
+			case Copper.CONTENT_TYPE_APPLICATION_SOAP_FASTINFOSET:
+			case Copper.CONTENT_TYPE_APPLICATION_X_OBIX_BINARY:
+			default:
+				return false;
+		}
+	},
 	
 	
 	// convert message into datagram bytes

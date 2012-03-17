@@ -434,7 +434,8 @@ CopperChrome.displayPayload = function(message) {
 	} else {
 		document.getElementById('info_payload').label='Combined Payload ('+ (CopperChrome.displayCache.getPayload().length + message.getPayload().length)  +')';
 	}
-		
+	
+	CopperChrome.displayCache.setBlock(message.getBlock());
 	CopperChrome.displayCache.appendPayload(message.getPayload());
 	
 	switch (CopperChrome.displayCache.getContentType()) {
@@ -442,7 +443,6 @@ CopperChrome.displayPayload = function(message) {
 		case Copper.CONTENT_TYPE_IMAGE_JPEG:
 		case Copper.CONTENT_TYPE_IMAGE_PNG:
 		case Copper.CONTENT_TYPE_IMAGE_TIFF:
-			CopperChrome.renderBinary(CopperChrome.displayCache);
 			CopperChrome.renderImage(CopperChrome.displayCache);
 			break;
 		case Copper.CONTENT_TYPE_AUDIO_RAW:
