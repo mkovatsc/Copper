@@ -45,7 +45,8 @@ CopperChrome.ObserveEntry = function(uri, cb, token) {
 CopperChrome.ObserveEntry.prototype = {
 	uri : null,
 	callback: null,
-	token : null
+	token : null,
+	lastTID: -1
 };
 
 CopperChrome.Observing = function() {
@@ -96,10 +97,11 @@ CopperChrome.Observing.prototype = {
 			dump('INFO: Unsibscribing ' + this.subscription.uri + '\n');
 			CopperChrome.client.deRegisterToken(this.subscription.token);
 			
-			if (CopperChrome.behavior.observeCancellation=='rst') {
+			if (CopperChrome.behavior.observeCancellation=='rst' && this.subscription.lastTID!=-1) {
 				// Send a RST (with new message ID)
 				try {
 					var rst = new CopperChrome.CoapMessage(Copper.MSG_TYPE_RST);
+					rst.setTID(this.subscription.lastTID);
 					CopperChrome.client.send( rst );
 				} catch (ex) {
 					alert('ERROR: Observing.unsubscribe ['+ex+']');
@@ -136,6 +138,7 @@ CopperChrome.Observing.prototype = {
 				document.getElementById('toolbar_observe').image = 'chrome://copper/skin/tool_unobserve.png';
 				document.getElementById('toolbar_observe').label = 'Cancel ';
 
+				this.subscription.lastTID = message.getTID();
 				this.subscription.callback(message);
 				
 			} else {
@@ -148,6 +151,7 @@ CopperChrome.Observing.prototype = {
 				CopperChrome.defaultHandler(message);
 			}
 		} else if (this.subscription!=null) {
+			this.subscription.lastTID = message.getTID();
 			this.subscription.callback(message);
 		} else {
 			// somehow it must have gotten here
