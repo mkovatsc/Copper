@@ -490,6 +490,8 @@ CopperChrome.clearLabels = function() {
 	document.getElementById('packet_header_code').setAttribute('label', '');
 	document.getElementById('packet_header_tid').setAttribute('label', '');
 	
+	document.getElementById('tabs_payload').selectedIndex = 0;
+	
 	var optionList = document.getElementById('packet_options');
 	while (optionList.getRowCount()) optionList.removeItemAt(0);
 };

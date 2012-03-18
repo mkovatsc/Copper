@@ -196,6 +196,8 @@ CopperChrome.TransactionHandler.prototype = {
 					   ' =======================',
 					   '').join('\n'));
 			this.client.send( this.transactions[tid].message.serialize() );
+			
+			CopperChrome.popup(CopperChrome.hostname+':'+CopperChrome.port, 'Re-transmitting transaction '+tid+' ('+this.transactions[tid].retries+'/'+Copper.MAX_RETRANSMIT+')');
 		} else {
 			dump(Array('=timeout================',
 					   ' Transaction ID: '+tid,
