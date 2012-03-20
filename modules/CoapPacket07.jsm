@@ -271,12 +271,12 @@ Copper.CoapPacket.prototype = {
 	getOption : function(optType) {
 		//dump('getOption: '+optType+'\n');
 		
-		if (this.getOptionLength(optType)<=0) {
+		var opt = this.options[optType][1];
+		
+		// only set options are arrays
+		if (!Array.isArray(opt)) {
 			return null;
 		}
-		
-    	//var optLen = this.options[optType][0];
-		var opt = this.options[optType][1];
 
 		switch (parseInt(optType)) {
 			// strings
@@ -346,13 +346,8 @@ Copper.CoapPacket.prototype = {
 			case Copper.OPTION_BLOCK2:
 			case Copper.OPTION_BLOCK1:
 			case Copper.OPTION_IF_NONE_MATCH:
-				if (value==0) {
-					this.options[option][1] = new Array(0);
-					this.options[option][0] = 0;
-				} else {
-					this.options[option][1] = Copper.int2bytes(value);
-					this.options[option][0] = this.options[option][1].length;
-				}
+				this.options[option][1] = Copper.int2bytes(value);
+				this.options[option][0] = this.options[option][1].length;
 				break;
 			
 			default:
@@ -538,15 +533,11 @@ Copper.CoapPacket.prototype = {
 	    		optLen += packet.shift();
 	    	}
 	    	
-	    	var opt = new Array();
-	    	if (optLen==0) {
-	    		optLen = 1;
-	    		opt.push(0);
-	    	} else {
-		    	for (var j=0; j<optLen; j++) {
-		    		opt.push(packet.shift());
-		    	}
-	    	}
+	    	var opt = new Array(0);
+	    	
+		    for (var j=0; j<optLen; j++) {
+		    	opt.push(packet.shift());
+		    }
 	    	
 	    	// only supported types
 	    	if (this.options[optType]) {

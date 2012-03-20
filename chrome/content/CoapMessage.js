@@ -178,7 +178,7 @@ CopperChrome.CoapMessage.prototype = {
 		var optLen = this.packet.getOptionLength(Copper.OPTION_CONTENT_TYPE);
 		var opt = this.packet.getOption(Copper.OPTION_CONTENT_TYPE); // integer
 
-		if (optLen<=0) return null;
+		if (opt==null) return null;
 		
 		if (readable) {
 			return new Array('Content-Type', Copper.getContentTypeName(opt), opt);
@@ -199,7 +199,7 @@ CopperChrome.CoapMessage.prototype = {
 		var optLen = this.packet.getOptionLength(Copper.OPTION_MAX_AGE);
 		var opt = this.packet.getOption(Copper.OPTION_MAX_AGE); // integer
 		
-		if (optLen<=0) return null;
+		if (opt==null) return null;
 
 		if (readable) {
 			
@@ -255,7 +255,7 @@ CopperChrome.CoapMessage.prototype = {
 		var optLen = this.packet.getOptionLength(Copper.OPTION_PROXY_URI);
 		var opt = this.packet.getOption(Copper.OPTION_PROXY_URI); // string
 
-		if (optLen<=0) return null;
+		if (opt==null) return null;
 		
 		if (readable) {
 			return new Array('Proxy-Uri', opt, optLen+' byte(s)');
@@ -278,7 +278,7 @@ CopperChrome.CoapMessage.prototype = {
 		var optLen = this.packet.getOptionLength(Copper.OPTION_ETAG);
 		var opt = this.packet.getOption(Copper.OPTION_ETAG); // byte array
 
-		if (optLen<=0) return null;
+		if (opt==null) return null;
 
 		if (readable) {
 			return new Array('ETag', Copper.bytes2hex(opt), optLen+' byte(s)');
@@ -299,7 +299,7 @@ CopperChrome.CoapMessage.prototype = {
 		var optLen = this.packet.getOptionLength(Copper.OPTION_URI_HOST);
 		var opt = this.packet.getOption(Copper.OPTION_URI_HOST); // string
 		
-		if (optLen<=0) return null;
+		if (opt==null) return null;
 		
 		if (readable) {
 			return new Array('Uri-Host', opt, optLen+' byte(s)');
@@ -320,7 +320,7 @@ CopperChrome.CoapMessage.prototype = {
 		var optLen = this.packet.getOptionLength(Copper.OPTION_URI_PORT);
 		var opt = this.packet.getOption(Copper.OPTION_URI_PORT); // int
 
-		if (optLen<=0) return null;
+		if (opt==null) return null;
 		
 		if (readable) {
 			return new Array('Uri-Port', opt, optLen+' byte(s)');
@@ -345,7 +345,7 @@ CopperChrome.CoapMessage.prototype = {
 		var optLen = this.packet.getOptionLength(Copper.OPTION_URI_PATH);
 		var opt = this.packet.getOption(Copper.OPTION_URI_PATH); // string
 
-		if (optLen<=0) return null;
+		if (opt==null) return null;
 		
 		if (readable) {
 			return new Array('Uri-Path', opt, optLen+' byte(s)');
@@ -358,7 +358,7 @@ CopperChrome.CoapMessage.prototype = {
 		var optLen = this.packet.getOptionLength(Copper.OPTION_URI_QUERY);
 		var opt = this.packet.getOption(Copper.OPTION_URI_QUERY); // string
 
-		if (optLen<=0) return null;
+		if (opt==null) return null;
 		
 		if (readable) {
 			return new Array('Uri-Query', opt, optLen+' byte(s)');
@@ -418,7 +418,7 @@ CopperChrome.CoapMessage.prototype = {
 		var optLen = this.packet.getOptionLength(Copper.OPTION_LOCATION_PATH);
 		var opt = this.packet.getOption(Copper.OPTION_LOCATION_PATH); // string
 
-		if (optLen<=0) return null;
+		if (opt==null) return null;
 		
 		if (readable) {
 			if (opt.charAt(0)!='/') opt = '/' + opt;
@@ -442,7 +442,7 @@ CopperChrome.CoapMessage.prototype = {
 		var optLen = this.packet.getOptionLength(Copper.OPTION_LOCATION_QUERY);
 		var opt = this.packet.getOption(Copper.OPTION_LOCATION_QUERY); // string
 
-		if (optLen<=0) return null;
+		if (opt==null) return null;
 		
 		if (readable) {
 			return new Array('Location-Query', opt, optLen+' byte(s)');
@@ -494,7 +494,7 @@ CopperChrome.CoapMessage.prototype = {
 		var optLen = this.packet.getOptionLength(Copper.OPTION_TOKEN);
 		var opt = this.packet.getOption(Copper.OPTION_TOKEN); // byte array, treat as int
 		
-		if (optLen<=0) return null;
+		if (opt==null) return null;
 		
 		if (readable) {
 			return new Array('Token', Copper.bytes2hex(opt), optLen+' byte(s)'); 
@@ -530,7 +530,7 @@ CopperChrome.CoapMessage.prototype = {
 		var optLen = this.packet.getOptionLength(Copper.OPTION_ACCEPT);
 		var opt = this.packet.getOption(Copper.OPTION_ACCEPT); // integer
 
-		if (optLen<=0) return null;
+		if (opt==null) return null;
 		
 		if (readable) {
 			return new Array('Accept', Copper.getContentTypeName(opt), opt);
@@ -566,7 +566,7 @@ CopperChrome.CoapMessage.prototype = {
 		var optLen = this.packet.getOptionLength(Copper.OPTION_IF_MATCH);
 		var opt = this.packet.getOption(Copper.OPTION_IF_MATCH); // byte array
 
-		if (optLen<=0) return null;
+		if (opt==null) return null;
 
 		if (readable) {
 			return new Array('If-Match', Copper.bytes2hex(opt), optLen+' byte(s)');
@@ -593,7 +593,7 @@ CopperChrome.CoapMessage.prototype = {
 		var optLen = this.packet.getOptionLength(Copper.OPTION_BLOCK); // == Copper.OPTION_BLOCK2
 		var opt = this.packet.getOption(Copper.OPTION_BLOCK); // integer
 
-		if (optLen<=0) return null;
+		if (opt==null) return null;
 		
 		if (readable) {
 			var ret = this.getBlockNumber();
@@ -662,7 +662,7 @@ CopperChrome.CoapMessage.prototype = {
 		var optLen = this.packet.getOptionLength(Copper.OPTION_BLOCK1);
 		var opt = this.packet.getOption(Copper.OPTION_BLOCK1); // integer
 
-		if (optLen<=0) return null;
+		if (opt==null) return null;
 		
 		if (readable) {
 			var ret = this.getBlock1Number();
@@ -726,7 +726,7 @@ CopperChrome.CoapMessage.prototype = {
 		var optLen = this.packet.getOptionLength(Copper.OPTION_IF_NONE_MATCH);
 		var opt = this.packet.getOption(Copper.OPTION_IF_NONE_MATCH); // byte array
 
-		if (optLen<=0) return null;
+		if (opt==null) return null;
 
 		if (readable) {
 			return new Array('If-None-Match', 'none', 'Option set');
@@ -749,8 +749,8 @@ CopperChrome.CoapMessage.prototype = {
 	getObserve : function(readable) {
 		var optLen = this.packet.getOptionLength(Copper.OPTION_OBSERVE);
 		var opt = this.packet.getOption(Copper.OPTION_OBSERVE); // int
-
-		if (optLen<=0) return null;
+		
+		if (opt==null) return null;
 		
 		if (readable) {
 			return new Array('Observe', opt, optLen+' byte(s)'); 
@@ -768,7 +768,6 @@ CopperChrome.CoapMessage.prototype = {
 		
 		if (readable) {
 			var ret = '';
-	
 			if (this.getContentType()!=null) ret += '\n  ' + this.getContentType(true)[0] + ': ' + this.getContentType(true)[1] + ' ['+this.getContentType(true)[2]+']';
 			if (this.getMaxAge()!=null) ret += '\n  ' + this.getMaxAge(true)[0] + ': ' + this.getMaxAge(true)[1] + ' ['+this.getMaxAge(true)[2]+']';
 			if (this.getProxyUri()!=null) ret += '\n  ' + this.getProxyUri(true)[0] + ': ' + this.getProxyUri(true)[1] + ' ['+this.getProxyUri(true)[2]+']';

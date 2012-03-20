@@ -126,11 +126,11 @@ Copper.bytes2str = function(b) {
 };
 
 Copper.int2bytes = function(i) {
-	var b = new Array();
-	do {
+	var b = new Array(0);
+	while (i>0) {
 		b.unshift(0xFF & i);
 		i >>>= 8;
-	} while (i>0);
+	}
 	return b;
 };
 
@@ -153,9 +153,13 @@ Copper.hex2bytes = function(h) {
 
 Copper.bytes2hex = function(b) {
 	var hex = '0x';
-	for (var k in b) {
-		hex += Copper.leadingZero(b[k].toString(16).toUpperCase());
+	if (Array.isArray(b) && b.length==0) {
+		hex += '00';
+	} else {
+		for (var k in b) {
+			hex += Copper.leadingZero(b[k].toString(16).toUpperCase());
+		}
 	}
-	//convert to unsigned int
+	
 	return hex;
 };
