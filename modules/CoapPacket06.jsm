@@ -181,6 +181,8 @@ Copper.CoapPacket = function() {
 	this.options[Copper.OPTION_BLOCK1] = new Array(0, null);
 
 	this.tid = parseInt(Math.random()*0x10000);
+	
+	return this;
 };
 
 Copper.CoapPacket.prototype = {

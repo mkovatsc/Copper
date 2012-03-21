@@ -41,6 +41,8 @@ CopperChrome.ObserveEntry = function(uri, cb, token) {
 	if (token!=null) {
 		this.token = token;
 	}
+	
+	return this;
 };
 CopperChrome.ObserveEntry.prototype = {
 	uri : null,
@@ -52,6 +54,8 @@ CopperChrome.ObserveEntry.prototype = {
 CopperChrome.Observing = function() {
 	// maybe support multiple subscriptions via sidebar in the future
 	//this.subscriptions = new Object();
+	
+	return this;
 };
 
 CopperChrome.Observing.prototype = {

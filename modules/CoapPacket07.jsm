@@ -192,6 +192,8 @@ Copper.CoapPacket = function() {
 	this.tid = parseInt(Math.random()*0x10000);
 	
 	this.payload = new Array(0);
+	
+	return this;
 };
 
 Copper.CoapPacket.prototype = {

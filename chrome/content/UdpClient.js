@@ -57,6 +57,8 @@ CopperChrome.UdpClient = function(myHost, myPort) {
 	
     this.pump.init(this.inputStream, -1, -1, 0, 0, false);
 	this.pump.asyncRead(this, null);
+	
+	return this;
 };
 
 CopperChrome.UdpClient.prototype = {

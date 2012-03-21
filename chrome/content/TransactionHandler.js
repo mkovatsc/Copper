@@ -42,6 +42,8 @@ CopperChrome.Transaction = function(myMessage, myTimer) {
 	this.retries = 0;
 	
 	this.rttStart = new Date().getTime();
+	
+	return this;
 };
 CopperChrome.Transaction.prototype = {
 	message : null,
@@ -65,6 +67,8 @@ CopperChrome.TransactionHandler = function(myClient, retrans) {
 	this.registeredTokens = new Object();
 	this.registeredTIDs = new Object();
 	this.dupFilter = new Array();
+	
+	return this;
 };
 
 CopperChrome.TransactionHandler.prototype = {

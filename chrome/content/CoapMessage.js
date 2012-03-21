@@ -58,6 +58,8 @@ CopperChrome.CoapMessage = function(type, code, uri, pl) {
 	if (pl!=null) {
 		this.setPayload(pl);
 	}
+	
+	return this;
 };
 
 CopperChrome.CoapMessage.prototype = {
