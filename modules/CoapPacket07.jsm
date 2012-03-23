@@ -251,9 +251,7 @@ Copper.CoapPacket.prototype = {
 	getOptions : function() {
 		var list = new Array();
 		for (var optTypeIt in this.options) {
-	    	if (this.options[optTypeIt][0]==0) {
-				continue;
-			} else {
+	    	if (Array.isArray(this.options[optTypeIt][1])) {
 				list.push(optTypeIt);
 			}
 		}

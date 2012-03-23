@@ -73,16 +73,18 @@ CopperChrome.Observing.prototype = {
 		dump('INFO: Subscribing to ' + uri + '\n');
 		
 		var subscribe = new CopperChrome.CoapMessage(Copper.MSG_TYPE_CON, Copper.GET, uri); // always use CON
-		
-		// set token depending on the behavior config
-		if (CopperChrome.behavior.observeToken) {
-			subscribe.setToken( new Array(parseInt(Math.random()*0x100), parseInt(Math.random()*0x100)) );
-			// update debug options
-			document.getElementById('debug_option_token').value = subscribe.getToken(true)[1];
-		}
-		
+
 		// add all debug options
 		CopperChrome.checkDebugOptions(subscribe);
+		
+		// set token depending on the behavior config
+		if (CopperChrome.behavior.observeToken && !subscribe.getToken()) {
+			subscribe.setToken( new Array(parseInt(Math.random()*0x100), parseInt(Math.random()*0x100)) );
+			// update debug options
+			if (document.getElementById('chk_debug_options').checked) {
+				document.getElementById('debug_option_token').value = subscribe.getToken(true)[1];
+			}
+		}
 		
 		this.pending = new CopperChrome.ObserveEntry(uri, cb, subscribe.getToken());
 
