@@ -71,12 +71,13 @@ CopperChrome.CoapMessage.prototype = {
 		ret += ' Type: '+this.getType(true);
 		ret += '\n Code: '+this.getCode(true);
 		ret += '\n Transaction ID: '+this.getTID();
-		ret += '\n Options:'+this.getOptions(true);
+		if (this.getOptions().length>0) {
+			ret += '\n Options:'+this.getOptions(true);
+		}
 		if (this.getPayload().length>0) {
+			ret += '\n Payload: '+this.getPayload().length+' bytes';
 			if (this.isPrintable(this.getContentType())) {
-				ret += '\n Payload:\n'+Copper.bytes2data(this.getPayload());
-			} else {
-				ret += '\n Payload: '+this.getPayload().length+' bytes';
+				ret += '\n'+Copper.bytes2str(this.getPayload());
 			}
 		}
 		return ret;
