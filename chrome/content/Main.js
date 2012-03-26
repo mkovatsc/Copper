@@ -168,16 +168,10 @@ CopperChrome.main = function() {
 		// enable observing
 		CopperChrome.observer = new CopperChrome.Observing();
 		
-		// handle auto discover
 		CopperChrome.loadCachedResources();
-		/*
-		if (document.getElementById('toolbar_auto_discovery').checked) {
-			CopperChrome.discover();
-		}
-		*/
 		CopperChrome.updateResourceLinks();
 		
-		CopperChrome.loadDefaultPayload();
+		CopperChrome.loadLastPayload();
 		
 		// handle auto-request after redirect
 		if (auto) {

@@ -76,15 +76,13 @@ CopperChrome.saveBehavior = function() {
 };
 
 //Load last used payload from preferences, otherwise use default payload
-CopperChrome.loadDefaultPayload = function() {
+CopperChrome.loadLastPayload = function() {
 	
 	document.getElementById('toolbar_payload_mode').selectedIndex = 0;
 	//document.getElementById('payload_text_line').value = CopperChrome.prefManager.getCharPref('extensions.copper.default-payload');
 	
 	try {
-		document.getElementById('toolbar_payload_mode').selectedIndex = CopperChrome.prefManager.getIntPref('extensions.copper.payloads.'+CopperChrome.hostname+':'+CopperChrome.port+'.mode');
-		
-		//document.getElementById('payload_text_line').value = CopperChrome.prefManager.getCharPref('extensions.copper.payloads.'+CopperChrome.hostname+':'+CopperChrome.port+'.line');
+		document.getElementById('toolbar_payload_mode').selectedIndex = CopperChrome.prefManager.getIntPref('extensions.copper.payloads.'+CopperChrome.hostname+':'+CopperChrome.port+'.mode');		
 		document.getElementById('payload_text_page').value = CopperChrome.prefManager.getCharPref('extensions.copper.payloads.'+CopperChrome.hostname+':'+CopperChrome.port+'.page');
 		CopperChrome.payloadFile = CopperChrome.prefManager.getCharPref('extensions.copper.payloads.'+CopperChrome.hostname+':'+CopperChrome.port+'.file');
 		
@@ -247,16 +245,9 @@ CopperChrome.parseUri = function(uri) {
 // Set the default URI and also check for modified Firefox URL bar
 CopperChrome.checkUri = function(uri, method) {
 	if (!uri) {
-		// document.location.href uses different encoding than urlbar value; parse to nsIURI to compare
-		var uriParser = Components.classes["@mozilla.org/network/simple-uri;1"].getService(Components.interfaces.nsIURI);
 
-		//uriParser.spec = decodeURI(CopperChrome.mainWindow.document.getElementById('urlbar').value);
 		var uri1 = decodeURI(CopperChrome.mainWindow.document.getElementById('urlbar').value);
-		//uriParser.spec;
-		
-		//uriParser.spec = decodeURI(document.location.href);
 		var uri2 = decodeURI(document.location.href);
-		//uriParser.spec;
 		
 		// when urlbar was changed without pressing enter, redirect and perform request
 		if (method && (uri1!=uri2)) {
@@ -267,8 +258,10 @@ CopperChrome.checkUri = function(uri, method) {
 			
 			// redirect
 			document.location.href = uri1;
+			// will not continue after location change
+		} else {
+			return CopperChrome.path + (CopperChrome.query ? '?'+CopperChrome.query : '');
 		}
-		return CopperChrome.path + (CopperChrome.query ? '?'+CopperChrome.query : '');
 	} else {
 		return uri;
 	}
@@ -286,7 +279,7 @@ CopperChrome.parseLinkFormat = function(data) {
 		var elems = format[i].match(/^<([^>\?]+)[^>]*>\s*(;.+)?\s*$/);
 				
 		var uri = elems[1];
-		// fix for Contiki implementation and others which omit the leading '/' in the link format
+		// fix for old Contiki implementation and others which omit the leading '/' in the link format
 		if (uri.charAt(0)!='/') uri = '/'+uri;
 		
 		links[uri] = new Object();

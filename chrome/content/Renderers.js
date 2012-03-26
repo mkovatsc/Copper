@@ -267,10 +267,10 @@ CopperChrome.renderJSON = function(message) {
 			view.appendChild( CopperChrome.renderJSONutils.getXulObject(parsedObj) );
 			document.getElementById('tabs_payload').selectedIndex = 1;
 		} else {
-			view.innerHTML = 'Parse error: Top level element is not a JSON object';
+			alert('ERROR: Renderers.renderJSON [Top level element is not a JSON object]');
 		}
 	} catch (ex) {
-		view.innerHTML = 'Parse error: JSON is invalid ['+ex+']';
+		alert('ERROR: Renderers.renderJSON ['+ex+']');
 	}
 	
 };

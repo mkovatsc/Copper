@@ -29,7 +29,7 @@
  * This file is part of the Copper CoAP browser.
  ******************************************************************************/
 
-pref("extensions.copper.coap-version", 7);
+pref("extensions.copper.coap-version", 8);
 pref("extensions.copper.encode-utf-8", true);
 pref("extensions.copper.use-tree", true);
 pref("extensions.copper.behavior.auto-discover", false);

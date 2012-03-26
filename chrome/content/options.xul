@@ -43,11 +43,8 @@
 	<prefpane label="Copper Preferences">
 		<preferences>
 			<preference id="copper-version" name="extensions.copper.coap-version" type="int"/>
-			<preference id="default-block-size" name="extensions.copper.default-block-size" type="int"/>
-			<preference id="default-payload" name="extensions.copper.default-payload" type="string"/>
 			<preference id="use-tree" name="extensions.copper.use-tree" type="bool"/>
 			<preference id="encode-utf-8" name="extensions.copper.encode-utf-8" type="bool"/>
-			<preference id="show-unknown" name="extensions.copper.show-unknown-transactions" type="bool"/>
 			<preference id="global-dumps" name="browser.dom.window.dump.enabled" type="bool"/>
 		</preferences>
 		
@@ -82,25 +79,6 @@
 							</menupopup>
 						</menulist>
 					</row>
-					<row>
-						<label control="default_block_size" value="Default block size"/>
-						<menulist id="default_block_size" preference="default-block-size">
-							<menupopup>
-								<menuitem label="16" value="16"/>
-								<menuitem label="32" value="32"/>
-								<menuitem label="64" value="64"/>
-								<menuitem label="128" value="128"/>
-								<menuitem label="256" value="256"/>
-								<menuitem label="512" value="512"/>
-								<menuitem label="1024" value="1024"/>
-								<menuitem label="2048" value="2048"/>
-							</menupopup>
-						</menulist>
-					</row>
-					<row>
-						<label control="default_payload" value="Default payload"/>
-						<textbox id="default_payload" preference="default-payload"/>
-					</row>
 				</rows>
 			</grid>
 		</groupbox>
@@ -113,9 +91,6 @@
 				<rows>
 					<row>
 						<checkbox id="encode_utf_8" preference="encode-utf-8" label="Use UTF-8 encoding"/>
-					</row>
-					<row>
-						<checkbox id="debug_unknown" preference="show-unknown" label="Display messages with unknown transaction"/>
 					</row>
 					<row>
 						<checkbox id="debug_dumps" preference="global-dumps" label="Print debug output to the console"/>
