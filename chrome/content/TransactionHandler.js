@@ -258,13 +258,17 @@ CopperChrome.TransactionHandler.prototype = {
 		// request matching by token
 		} else if (this.requests[message.getTokenDefault()]) {
 			
-			if (message.getType()!=Copper.MSG_TYPE_ACK || this.registeredTIDs[message.getTID()]) {
-				callback = this.requests[message.getTokenDefault()];
-				delete this.requests[message.getTokenDefault()];
-				delete this.registeredTIDs[message.getTID()];
-			} else {
-				dump('WARNING: TransactionHandler.handle [wrong TID from server: '+message.getTID()+']\n');
+			if (!this.registeredTIDs[message.getTID()]) {
+				if (message.getType()!=Copper.MSG_TYPE_CON && message.getType()!=Copper.MSG_TYPE_NON) {
+					dump('WARNING: TransactionHandler.handle [wrong type for separate from server: '+message.getType(true)+']\n');
+				} else {
+					dump('INFO: Incoming separate reponse (Token: '+message.getTokenDefault()+')\n');
+				}
 			}
+
+			callback = this.requests[message.getTokenDefault()];
+			delete this.requests[message.getTokenDefault()];
+			delete this.registeredTIDs[message.getTID()];
 		
 		// check registered Tokens, e.g., subscriptions
 		} else if (this.registeredTokens[message.getTokenDefault()]) {
