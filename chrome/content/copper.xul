@@ -226,8 +226,28 @@
 					    	<textbox flex="1" id="packet_payload" readonly="true" multiline="true" style="background-color: white; width: 100%; height: 100%; font-family: monospace;"/>
 					    </tabpanel>
 					    <tabpanel id="tab_rendered" pack="center" align="center" border="1" style="overflow:auto">
-					    	<image id="rendered_img" src="" inherits="validate,src=image"/>
-					    	<div id="rendered_div"></div>
+					    	<image id="rendered_img" style="display: none;" src="" inherits="validate,src=image"/>
+					    	<div id="rendered_div" style="display: none;"></div>
+					    	<div id="visualized_div" style="display: none;">
+					    		<div style="float: left;">
+					    		<stack>
+						    		<vbox flex="1">
+						    			<box flex="1"/>
+						    			<box height="100px" id="vis_fill" style="background-color: red;"/>
+					    			</vbox>
+					    			
+					    			<image src="chrome://copper/skin/thermometer.png"/>
+					    		</stack>
+					    		</div>
+					    		<div style="float: left;">
+					    		<vbox align="center" width="220px">
+					    			<box height="20px"/>
+						    		<description id="" style="font-size: 48pt; font-weight: bold;" value="▲" onmousedown="CopperChrome.periodicJob = window.setInterval('CopperChrome.confTemp(0.1)', 50);" onmouseup="window.clearInterval(CopperChrome.periodicJob);" onmouseout="window.clearInterval(CopperChrome.periodicJob);"/>
+						    		<hbox><description id="vis_value" style="font-size: 48pt; font-weight: bold;" value="TEMP"/><description id="vis_unit" style="font-size: 48pt; font-weight: bold;" value="°C"/></hbox>
+						    		<description id="" style="font-size: 48pt; font-weight: bold;" value="▼" onmousedown="CopperChrome.periodicJob = window.setInterval('CopperChrome.confTemp(-0.1)', 50);" onmouseup="window.clearInterval(CopperChrome.periodicJob);" onmouseout="window.clearInterval(CopperChrome.periodicJob);"/>
+					    		</vbox>
+					    		</div>
+					    	</div>
 					    </tabpanel>
 					    <tabpanel/>
 					    <tabpanel id="tab_outgoing">

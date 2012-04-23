@@ -430,6 +430,14 @@ CopperChrome.displayPayload = function(message) {
 	
 	CopperChrome.displayCache.setBlock(message.getBlock());
 	CopperChrome.displayCache.appendPayload(message.getPayload());
+
+	// Hook for special visualization
+	if (CopperChrome.resources[CopperChrome.path]!=null && CopperChrome.resources[CopperChrome.path]['rt']!=null) {
+		if (CopperChrome.resources[CopperChrome.path]['rt']=='ucum:cel' || CopperChrome.resources[CopperChrome.path]['rt'].indexOf('ucum:cel')!=-1) {
+			CopperChrome.renderTemperature(CopperChrome.displayCache);
+			return;
+		}
+	}
 	
 	switch (CopperChrome.displayCache.getContentType()) {
 		case Copper.CONTENT_TYPE_IMAGE_GIF:

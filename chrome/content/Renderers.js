@@ -52,6 +52,7 @@ CopperChrome.renderImage = function(message) {
 	
 	// view corresponding render element
 	document.getElementById('rendered_div').style.display = 'none';
+	document.getElementById('visualized_div').style.display = 'none';
 	document.getElementById('rendered_img').style.display = 'block';
 	
 	// causes flickering, but partially added data does not draw anyway
@@ -111,6 +112,7 @@ CopperChrome.renderLinkFormat = function(message) {
 	
 	// The box for output at the top-level
 	document.getElementById('rendered_img').style.display = 'none';
+	document.getElementById('visualized_div').style.display = 'none';
     var view = document.getElementById('rendered_div');
     view.style.display = 'block';
     
@@ -249,6 +251,7 @@ CopperChrome.renderJSON = function(message) {
 	
 	// The box for output at the top-level
 	document.getElementById('rendered_img').style.display = 'none';
+	document.getElementById('visualized_div').style.display = 'none';
     var view = document.getElementById('rendered_div');
     view.style.display = 'block';
     
@@ -367,4 +370,37 @@ CopperChrome.renderJSONutils = {
 CopperChrome.renderEXI = function(message) {
 	CopperChrome.updateLabel('packet_payload', Copper.bytes2data(message.getPayload()), message.getBlockNumber()>0);
 	document.getElementById('tabs_payload').selectedIndex = 0;
+};
+
+CopperChrome.renderTemperature = function(message) {
+
+	// Print raw JSON in case parsing fails
+	CopperChrome.renderText(message);
+	
+	// The box for output at the top-level
+	document.getElementById('rendered_img').style.display = 'none';
+    document.getElementById('rendered_div').style.display = 'none';
+    
+    document.getElementById('visualized_div').style.display = 'block';
+    
+    document.getElementById('vis_value').setAttribute('value', Copper.bytes2str(message.getPayload()));
+    CopperChrome.confTemp(0);
+
+	document.getElementById('tabs_payload').selectedIndex = 1;
+};
+
+CopperChrome.confTemp = function(change) {
+	
+	var val = document.getElementById('vis_value');
+	var value = val.value;
+	var vis = document.getElementById('vis_fill');
+	
+	value = ''+parseInt(value*10.0+change*10.0)/10.0;
+	if (value.indexOf('.')==-1) value += '.0';
+	
+	val.value = value;
+	document.getElementById('payload_text_page').value = value;
+	
+	vis.setAttribute('height', parseInt(parseFloat(value)/35.0*300.0));
+	
 };
