@@ -497,5 +497,9 @@ CopperChrome.myBind = function(scope, fn) {
 };
 
 CopperChrome.popup = function(title, str) {
-	Components.classes['@mozilla.org/alerts-service;1'].getService(Components.interfaces.nsIAlertsService).showAlertNotification('chrome://copper/skin/Cu_32.png',title,str);
+	try {
+		Components.classes['@mozilla.org/alerts-service;1'].getService(Components.interfaces.nsIAlertsService).showAlertNotification('chrome://copper/skin/Cu_32.png',title,str);
+	} catch (ex) {
+		dump("WARNING: You are probably running Mac OS without Growl, which is required for notifications.\n")
+	}
 };

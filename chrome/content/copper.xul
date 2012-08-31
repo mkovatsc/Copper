@@ -223,7 +223,7 @@
 					  </tabs>
 					  <tabpanels flex="1" style="padding: 0px;">
 					    <tabpanel id="tab_incoming">
-					    	<textbox flex="1" id="packet_payload" readonly="true" multiline="true" style="background-color: white; width: 100%; height: 100%; font-family: monospace;"/>
+					    	<textbox flex="1" id="packet_payload" readonly="true" multiline="true" style="background-color: white; width: 100%; height: 100%; font-family: monospace; padding: 5px;"/>
 					    </tabpanel>
 					    <tabpanel id="tab_rendered" pack="center" align="center" border="1" style="overflow:auto">
 					    	<image id="rendered_img" src="" inherits="validate,src=image"/>
@@ -231,7 +231,7 @@
 					    </tabpanel>
 					    <tabpanel/>
 					    <tabpanel id="tab_outgoing">
-					    	<textbox flex="1" id="payload_text_page" multiline="true" style="background-color: white; width: 100%; height: 100%; font-family: monospace;"/>
+					    	<textbox flex="1" id="payload_text_page" multiline="true" style="background-color: white; width: 100%; height: 100%; font-family: monospace; padding: 5px;"/>
 					    </tabpanel>
 					  </tabpanels>
 					</tabbox>
