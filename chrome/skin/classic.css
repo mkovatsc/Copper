@@ -65,6 +65,12 @@ treechildren {
 }
 
 /* special resource icon */
+treechildren::-moz-tree-image(host) {
+  list-style-image: url("chrome://copper/skin/resource_home.png");
+}
+treechildren::-moz-tree-image(link) {
+  list-style-image: url("chrome://copper/skin/resource_link.png");
+}
 treechildren::-moz-tree-image(wellknown) {
   list-style-image: url("chrome://copper/skin/resource_world.png");
 }

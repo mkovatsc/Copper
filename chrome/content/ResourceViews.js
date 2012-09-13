@@ -49,7 +49,26 @@ CopperChrome.clearTree = function() {
 CopperChrome.addTreeResource = function(uri, attributes) {
 
 	var tree = document.getElementById('resource_tree');
-	var segments = uri.split('/');
+	var segments;
+	
+	var uriTokens = uri.match(/([a-zA-Z]+:\/\/)([^\/]+)(.*)/);
+	
+	if (uriTokens) {
+		// absolute URI
+		
+		if (uriTokens[1]=='coap://') {
+			segments = uriTokens[3].split('/');
+			segments.shift();
+			segments.unshift(uriTokens[2]);
+		} else {
+			dump('WARNING: Non-CoAP resource ['+uri+']\n');
+			return;
+		}
+	} else {
+		segments = uri.split('/');
+		segments.shift();
+		segments.unshift(CopperChrome.hostname + ':' + CopperChrome.port);
+	}
 	
 	var node = tree;
 	//dump('Children: '+node.getElementsByTagName('treechildren')[0].childNodes.length+'\n');
@@ -89,8 +108,14 @@ CopperChrome.addTreeResource = function(uri, attributes) {
 			itemCell.setAttribute('value', path);
 			
 			// special icon
-			if (path=='/.well-known') {
+			if (path.match(/\/\.well-known$/)) {
 				properties += 'wellknown ';
+			} else if (path==CopperChrome.hostname+':'+CopperChrome.port) {
+				properties += 'host ';
+			} else if (i==0) {
+				properties += 'link ';
+			} else if (attributes['obs']) {
+				properties += 'observable ';
 			}
 			// highlight current location
 			if (path==CopperChrome.path) {
@@ -156,11 +181,12 @@ CopperChrome.onTreeClicked = function(event) {
 	
 	// child.value: {image, text}
 	if (child.value!='twisty') {
+		
 		if(event.which == 2 ) {
 			event.preventDefault();
-			CopperChrome.mainWindow.gBrowser.addTab( 'coap://' + CopperChrome.hostname + ':' + CopperChrome.port + tree.view.getCellValue(row.value, col.value) ); 
+			CopperChrome.mainWindow.gBrowser.addTab( 'coap://' + tree.view.getCellValue(row.value, col.value) ); 
 		} else {
-			document.location.href = 'coap://' + CopperChrome.hostname + ':' + CopperChrome.port + tree.view.getCellValue(row.value, col.value);
+			document.location.href = 'coap://' + tree.view.getCellValue(row.value, col.value);
 		}
 	}
 };
@@ -192,13 +218,29 @@ CopperChrome.clearList = function() {
 CopperChrome.addListResource = function(uri, attributes) {
 	
 	var list = document.getElementById('resource_list');
-	
+		
 	var button = document.createElement('button');
 	button.setAttribute('label', decodeURI(uri));
 	
-	button.addEventListener('click', function() {
-		document.location.href = 'coap://' + CopperChrome.hostname + ':' + CopperChrome.port + uri;
-    }, true);
+
+	var uriTokens = uri.match(/([a-zA-Z]+:\/\/)([^\/]+)(.*)/);
+	
+	if (uriTokens) {
+		// absolute URI
+		
+		if (uriTokens[1]=='coap://') {
+			button.addEventListener('click', function() {
+				document.location.href = uri;
+		    }, true);
+		} else {
+			dump('WARNING: Non-CoAP resource ['+uri+']\n');
+			return;
+		}
+	} else {
+		button.addEventListener('click', function() {
+			document.location.href = 'coap://' + CopperChrome.hostname + ':' + CopperChrome.port + uri;
+	    }, true);
+	}
 	
 	// tooltips for attributes
 	let tooltiptext = '';

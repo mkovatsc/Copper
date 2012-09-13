@@ -179,7 +179,7 @@ CopperChrome.loadCachedResources = function() {
 };
 
 
-CopperChrome.parseUri = function(uri) {
+CopperChrome.parseUri = function(inputUri) {
 
 /*	
 	( 'coap:' )
@@ -188,38 +188,38 @@ CopperChrome.parseUri = function(uri) {
     ( '?'  Uri-Query )
 */
 
-	var url;
+	var uri;
 	
 	try {
-		var parsedUri = Components.classes["@mozilla.org/network/io-service;1"]
+		var uriParser = Components.classes["@mozilla.org/network/io-service;1"]
 	    	.getService(Components.interfaces.nsIIOService)
-	    	.newURI(uri, null, null);
+	    	.newURI(inputUri, null, null);
 		
-		url = parsedUri.QueryInterface(Components.interfaces.nsIURL);
+		uri = uriParser.QueryInterface(Components.interfaces.nsIURL);
 	} catch(ex) {
 		// cannot parse URI
 		throw 'Invalid URI';
 	}
 	
 	// redirect to omit subsequent slash, refs (#), and params (;)
-	if (url.filePath!='/' && url.fileName=='') {
-		document.location.href = url.prePath + url.filePath.substring(0, url.filePath.length-1) + (url.query!='' ? '?'+url.query : '');
+	if (uri.filePath!='/' && uri.fileName=='') {
+		document.location.href = uri.prePath + uri.filePath.substring(0, uri.filePath.length-1) + (uri.query!='' ? '?'+uri.query : '');
 		throw 'Redirect';
-	} else if (url.ref!='') {
-		document.location.href = url.prePath + url.filePath + (url.query!='' ? '?'+url.query : '');
+	} else if (uri.ref!='') {
+		document.location.href = uri.prePath + uri.filePath + (uri.query!='' ? '?'+uri.query : '');
 		throw 'Redirect';
-	} else if (url.filePath.match(/\/{2,}/)) {
-		document.location.href = url.prePath + url.filePath.replace(/\/{2,}/g, '/') + (url.query!='' ? '?'+url.query : '');
+	} else if (uri.filePath.match(/\/{2,}/)) {
+		document.location.href = uri.prePath + uri.filePath.replace(/\/{2,}/g, '/') + (uri.query!='' ? '?'+uri.query : '');
 		throw 'Redirect';
 	}
 	
-	if (url.port>0xFFFF) {
+	if (uri.port>0xFFFF) {
 		throw 'Illeagal port';
 	}
 	
 	// DNS lookup
 	try {
-		var ns = Components.classes["@mozilla.org/network/dns-service;1"].createInstance(Components.interfaces.nsIDNSService).resolve(url.host.replace(/%.+$/, ''), 0);
+		var ns = Components.classes["@mozilla.org/network/dns-service;1"].createInstance(Components.interfaces.nsIDNSService).resolve(uri.host.replace(/%.+$/, ''), 0);
 		
 		var addresses = '';
 		while (ns.hasMore()) {
@@ -231,12 +231,12 @@ CopperChrome.parseUri = function(uri) {
 		throw 'Cannot resolve host';
 	}
 	
-	CopperChrome.hostname = url.host;
+	CopperChrome.hostname = uri.host;
 	if (CopperChrome.hostname.indexOf(':')!=-1) CopperChrome.hostname = '['+CopperChrome.hostname+']';
 	
-	CopperChrome.port = url.port!=-1 ? url.port : Copper.DEFAULT_PORT;
-	CopperChrome.path = decodeURI(url.filePath); // as for 06 and as a server workaround for 03
-	CopperChrome.query = decodeURI(url.query); // as for 06 and as aserver workaround for 03
+	CopperChrome.port = uri.port!=-1 ? uri.port : Copper.DEFAULT_PORT;
+	CopperChrome.path = decodeURI(uri.filePath); // as for 06 and as a server workaround for 03
+	CopperChrome.query = decodeURI(uri.query); // as for 06 and as aserver workaround for 03
 	
 	document.title = CopperChrome.hostname + CopperChrome.path;
 	document.getElementById('info_host').label = CopperChrome.hostname + ':' + CopperChrome.port;
@@ -279,8 +279,13 @@ CopperChrome.parseLinkFormat = function(data) {
 		var elems = format[i].match(/^<([^>\?]+)[^>]*>\s*(;.+)?\s*$/);
 				
 		var uri = elems[1];
-		// fix for old Contiki implementation and others which omit the leading '/' in the link format
-		if (uri.charAt(0)!='/') uri = '/'+uri;
+
+		if (uri.match(/([a-zA-Z]+:\/\/)([^\/]+)(.*)/)) {
+			// absolute URI
+		} else {
+			// fix for old Contiki implementation and others which omit the leading '/' in the link format
+			if (uri.charAt(0)!='/') uri = '/'+uri;
+		}
 		
 		links[uri] = new Object();
 		
@@ -346,7 +351,7 @@ CopperChrome.updateResourceLinks = function(add) {
 	CopperChrome.clearTree();
 	
 	// sort by path
-	var sorted = new Array();
+	let sorted = new Array();
 	for (var uri in CopperChrome.resources) {
 		sorted.push(uri);
 	}
