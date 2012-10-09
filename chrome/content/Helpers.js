@@ -478,20 +478,25 @@ CopperChrome.updateLabel = function(id, value, append) {
 	}
 };
 
-CopperChrome.clearLabels = function() {
-	CopperChrome.updateLabel('info_code', '');
-	CopperChrome.updateLabel('packet_payload', '');
-	document.getElementById('info_payload').label='Payload';
-
-	document.getElementById('packet_header_type').setAttribute('label', '');
-	document.getElementById('packet_header_oc').setAttribute('label', '');
-	document.getElementById('packet_header_code').setAttribute('label', '');
-	document.getElementById('packet_header_tid').setAttribute('label', '');
+CopperChrome.clearLabels = function(full) {
 	
-	document.getElementById('tabs_payload').selectedIndex = 0;
+	if (full || full==null) {
+		CopperChrome.updateLabel('info_code', '');
+		CopperChrome.updateLabel('packet_payload', '');
+		document.getElementById('info_payload').label='Payload';
 	
-	var optionList = document.getElementById('packet_options');
-	while (optionList.getRowCount()) optionList.removeItemAt(0);
+		document.getElementById('packet_header_type').setAttribute('label', '');
+		document.getElementById('packet_header_oc').setAttribute('label', '');
+		document.getElementById('packet_header_code').setAttribute('label', '');
+		document.getElementById('packet_header_tid').setAttribute('label', '');
+		
+		document.getElementById('tabs_payload').selectedIndex = 0;
+		
+		var optionList = document.getElementById('packet_options');
+		while (optionList.getRowCount()) optionList.removeItemAt(0);
+	}
+	document.getElementById('group_head').setAttribute('style', '');
+	document.getElementById('group_payload').setAttribute('style', '');
 };
 
 // workaround for "this" losing scope when passing callback functions

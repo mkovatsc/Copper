@@ -271,7 +271,7 @@ CopperChrome.sendBlockwiseGet = function(num, size, uri) {
 		
 		// token indicates a blockwise get for
 		
-		if (num=0) CopperChrome.clearLabels();
+		CopperChrome.clearLabels(num==0);
 		CopperChrome.client.send( message, CopperChrome.blockwiseHandler );
 	} catch (ex) {
 		alert('ERROR: Main.sendBlockwiseGet ['+ex+']');
@@ -296,7 +296,7 @@ CopperChrome.sendBlockwiseObserveGet = function(num, size, token) {
 		
 		// token indicates a blockwise get for
 		
-		if (num=0) CopperChrome.clearLabels();
+		CopperChrome.clearLabels(num=0);
 		CopperChrome.client.send( message, CopperChrome.observingHandler );
 	} catch (ex) {
 		alert('ERROR: Main.sendBlockwiseObserveGet ['+ex+']');
@@ -382,7 +382,7 @@ CopperChrome.doBlockwiseUpload = function(num, size, uri) {
 		
 		message.setBlock1(num, size, more);
 		
-		if (num==0) CopperChrome.clearLabels();
+		CopperChrome.clearLabels(num==0);
 		CopperChrome.client.send( message, CopperChrome.blockwiseHandler );
 	} catch (ex) {
 		alert('ERROR: Main.doBlockwiseUpload ['+ex+']');
@@ -437,6 +437,7 @@ CopperChrome.discover = function(block, size) {
 // like discover, but resets cached resources -- used for the button
 CopperChrome.reDiscover = function() {
 	dump('INFO: resetting cached resources\n');
+	document.getElementById('toolbar_discover').image = 'chrome://copper/skin/spinner.gif';
 	CopperChrome.prefManager.setCharPref('extensions.copper.resources.'+CopperChrome.hostname+':'+CopperChrome.port, '' );
 	CopperChrome.resources = new Object();
 	

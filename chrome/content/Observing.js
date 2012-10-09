@@ -100,6 +100,7 @@ CopperChrome.Observing.prototype = {
 			}
 
 			var that = this;
+			CopperChrome.clearLabels();
 			CopperChrome.client.send(subscribe, CopperChrome.myBind(that, that.handle));
 		} catch (ex) {
 			alert('ERROR: Observing.subscribe ['+ex+']');
@@ -125,6 +126,7 @@ CopperChrome.Observing.prototype = {
 					let uri = CopperChrome.checkUri(); // get current URI
 					var get = new CopperChrome.CoapMessage(Copper.MSG_TYPE_CON, Copper.GET, uri); // always use CON
 					get.setToken(this.subscription.token);
+					CopperChrome.clearLabels();
 					CopperChrome.client.send( get );
 				} catch (ex) {
 					alert('ERROR: Observing.unsubscribe ['+ex+']');

@@ -122,6 +122,8 @@ CopperChrome.TransactionHandler.prototype = {
 		if (CopperChrome.observer) {
 			CopperChrome.observer.unsubscribe();
 		}
+
+		document.getElementById('toolbar_discover').image = 'chrome://copper/skin/tool_discover.png';
 	},
 	
 	registerToken : function(token, cb) {

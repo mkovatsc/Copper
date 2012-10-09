@@ -178,11 +178,15 @@ CopperChrome.discoverHandler = function(message) {
 				// link-format
 				CopperChrome.resourcesCached = false;
 				CopperChrome.updateResourceLinks( CopperChrome.parseLinkFormat( CopperChrome.discoverCache ) );
+
+				document.getElementById('toolbar_discover').image = 'chrome://copper/skin/tool_discover.png';
 			}
 		} else {
 			// link-format
 			CopperChrome.resourcesCached = false;
 			CopperChrome.updateResourceLinks( CopperChrome.parseLinkFormat( Copper.bytes2str( message.getPayload() ) ) );
+
+			document.getElementById('toolbar_discover').image = 'chrome://copper/skin/tool_discover.png';
 		}
 	} else {
 		alert('ERROR: Main.discoverHandler [Content-Type is '+message.getContentType()+', not \'application/link-format\']');
@@ -191,26 +195,7 @@ CopperChrome.discoverHandler = function(message) {
 
 CopperChrome.errorHandler = function(message) {
 	dump('INFO: errorHandler()\n');
-
-	// disable the toolbar
-	var obj = document.getElementById('main_toolbar').firstChild;
-	do {
-		
-		if (obj.id=='toolbar_version') continue;
-		
-		// children of toolbaritems need to be disabled manually
-		if (obj.nodeName=='toolbaritem') {
-			
-			var obj2 = obj.firstChild;
-			do {
-				obj2.setAttribute("disabled", "true");
-			} while ( obj2 = obj2.nextSibling);
-		} else {
-			obj.setAttribute("disabled", "true");
-		}
-	} while ( obj = obj.nextSibling);
 	
-	//document.getElementById('group_host').setAttribute('style', 'display: none;');
 	document.getElementById('group_head').setAttribute('style', 'display: none;');
 	document.getElementById('group_payload').setAttribute('style', 'display: none;');
 	
