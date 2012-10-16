@@ -133,6 +133,8 @@ CopperChrome.Observing.prototype = {
 				}
 			}
 			
+			CopperChrome.updateLabel('info_code', 'Copper: Cancelled', false); // call after displayMessageInfo()
+			
 			this.subscription = null;
 		}
 		

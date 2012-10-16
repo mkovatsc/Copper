@@ -106,7 +106,7 @@ CopperChrome.renderBinary = function(message) {
 
 CopperChrome.renderLinkFormat = function(message) {
 	
-	// Print raw JSON in case parsing fails
+	// Print raw Link Format in case parsing fails
 	CopperChrome.renderText(message);
 	
 	// The box for output at the top-level
@@ -270,7 +270,7 @@ CopperChrome.renderJSON = function(message) {
 			alert('ERROR: Renderers.renderJSON [Top level element is not a JSON object]');
 		}
 	} catch (ex) {
-		alert('ERROR: Renderers.renderJSON ['+ex+']');
+		dump('ERROR: Renderers.renderJSON ['+ex+']');
 	}
 	
 };
@@ -288,9 +288,22 @@ CopperChrome.renderJSONutils = {
 
 		if (Array.isArray(value)) {
 			xulObj.setAttribute("class", "array");
-			for (var i = 0; i < value.length; i ++) {
-				this.addXulChild(xulObj, value[i]);
+
+			if (value.length>0) {
+				var label = document.createElement("label");
+				label.setAttribute("value", "(length " + value.length + ")");
+				label.setAttribute("style", "color: gray;");
+				xulObj.appendChild(label);
+				
+				for (var i = 0; i < value.length; i ++) {
+					this.addXulChild(xulObj, value[i]);
+				}
+			} else {
+				var label = document.createElement("label");
+				label.setAttribute("value", "    ");
+				xulObj.appendChild(label);
 			}
+			
 		} else {
 			// object
 			xulObj.setAttribute("class", "object");
