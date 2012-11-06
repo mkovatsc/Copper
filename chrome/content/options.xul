@@ -76,6 +76,7 @@
 								<menuitem label="draft-ietf-core-coap-03" value="3"/>
 								<menuitem label="draft-ietf-core-coap-06" value="6"/>
 								<menuitem label="draft-ietf-core-coap-07/08" value="8"/>
+								<menuitem label="draft-ietf-core-coap-12" value="12"/>
 							</menupopup>
 						</menulist>
 					</row>
