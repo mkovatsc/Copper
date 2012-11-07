@@ -60,3 +60,5 @@ pref("extensions.copper.debug.options.block2", "");
 pref("extensions.copper.debug.options.block1", "");
 pref("extensions.copper.debug.options.block-auto", true);
 pref("extensions.copper.debug.options.if-none-match", false);
+pref("extensions.copper.debug.options.custom-number", "");
+pref("extensions.copper.debug.options.custom-value", "");
