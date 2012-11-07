@@ -82,7 +82,7 @@ CopperChrome.Observing.prototype = {
 			subscribe.setToken( new Array(parseInt(Math.random()*0x100), parseInt(Math.random()*0x100)) );
 			// update debug options
 			if (document.getElementById('chk_debug_options').checked) {
-				document.getElementById('debug_option_token').value = subscribe.getToken(true)[1];
+				document.getElementById('debug_option_token').value = subscribe.getToken();
 			}
 		}
 		

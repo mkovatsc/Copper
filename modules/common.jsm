@@ -44,7 +44,74 @@ if ('undefined' == typeof(Copper)) {
 	var Copper = { };
 };
 
-//Helper functions
+
+// Registries
+////////////////////////////////////////////////////////////////////////////////
+
+Copper.getOptionName = function(number) {
+	switch (parseInt(number)) {
+		case Copper.OPTION_CONTENT_TYPE:
+		case Copper.OPTION_CONTENT_FORMAT: return 'Content-Format';
+		case Copper.OPTION_MAX_AGE: return 'Max-Age';
+		case Copper.OPTION_ACCEPT: return 'Accept';
+		case Copper.OPTION_TOKEN: return 'Token';
+
+		case Copper.OPTION_URI_HOST: return 'Uri-Host';
+		case Copper.OPTION_URI_PORT: return 'Uri-Port';
+		case Copper.OPTION_URI_PATH: return 'Uri-Path';
+		case Copper.OPTION_URI_QUERY: return 'Uri-Query';
+
+		case Copper.OPTION_LOCATION_PATH: return 'Location-Path';
+		case Copper.OPTION_LOCATION_QUERY: return 'Location-Query';
+
+		case Copper.OPTION_PROXY_URI: return 'Proxy-Uri';
+
+		case Copper.OPTION_IF_MATCH: return 'If-Match';
+		case Copper.OPTION_IF_NONE_MATCH: return 'If-None-Match';
+		case Copper.OPTION_ETAG: return 'ETag';
+
+		case Copper.OPTION_OBSERVE: return 'Observe';
+
+		case Copper.OPTION_BLOCK:
+		case Copper.OPTION_BLOCK2: return 'Block2';
+		case Copper.OPTION_BLOCK1: return 'Block1';
+		case Copper.OPTION_SIZE: return 'Size';
+		
+		default: return 'Unknown '+number;
+	}
+	return '';
+};
+
+Copper.getContentTypeName = function(type) {
+	switch (type) {
+		case Copper.CONTENT_TYPE_TEXT_PLAIN: return 'text/plain'; break;
+		case Copper.CONTENT_TYPE_TEXT_XML: return 'text/xml'; break;
+		case Copper.CONTENT_TYPE_TEXT_CSV: return 'text/csv'; break;
+		case Copper.CONTENT_TYPE_TEXT_HTML: return 'text/html'; break;
+		case Copper.CONTENT_TYPE_IMAGE_GIF: return 'image/gif'; break;
+		case Copper.CONTENT_TYPE_IMAGE_JPEG: return 'image/jpeg'; break;
+		case Copper.CONTENT_TYPE_IMAGE_PNG: return 'image/png'; break;
+		case Copper.CONTENT_TYPE_IMAGE_TIFF: return 'image/tiff'; break;
+		case Copper.CONTENT_TYPE_AUDIO_RAW: return 'audio/raw'; break;
+		case Copper.CONTENT_TYPE_VIDEO_RAW: return 'video/raw'; break;
+		case Copper.CONTENT_TYPE_APPLICATION_LINK_FORMAT: return 'application/link-format'; break;
+		case Copper.CONTENT_TYPE_APPLICATION_XML: return 'application/xml'; break;
+		case Copper.CONTENT_TYPE_APPLICATION_OCTET_STREAM: return 'application/octet-stream'; break;
+		case Copper.CONTENT_TYPE_APPLICATION_RDF_XML: return 'application/rdf+xml'; break;
+		case Copper.CONTENT_TYPE_APPLICATION_SOAP_XML: return 'application/soap+xml'; break;
+		case Copper.CONTENT_TYPE_APPLICATION_ATOM_XML: return 'application/atom+xml'; break;
+		case Copper.CONTENT_TYPE_APPLICATION_XMPP_XML: return 'application/xmpp+xml'; break;
+		case Copper.CONTENT_TYPE_APPLICATION_EXI: return 'application/exi'; break;
+		case Copper.CONTENT_TYPE_APPLICATION_FASTINFOSET: return 'application/fastinfoset'; break;
+		case Copper.CONTENT_TYPE_APPLICATION_SOAP_FASTINFOSET: return 'application/soap+fastinfoset'; break;
+		case Copper.CONTENT_TYPE_APPLICATION_JSON: return 'application/json'; break;
+		case Copper.CONTENT_TYPE_APPLICATION_X_OBIX_BINARY: return 'application/x-obix-binary'; break;
+		default: return 'unknown';
+	}
+	return '';
+};
+
+// Helper functions
 ////////////////////////////////////////////////////////////////////////////////
 
 Copper.isPowerOfTwo = function(i) {

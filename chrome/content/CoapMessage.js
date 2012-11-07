@@ -178,13 +178,12 @@ CopperChrome.CoapMessage.prototype = {
 	
 	// Copper.OPTION_CONTENT_TYPE:00+
 	getContentType : function(readable) {
-		var optLen = this.packet.getOptionLength(Copper.OPTION_CONTENT_TYPE);
 		var opt = this.packet.getOption(Copper.OPTION_CONTENT_TYPE); // integer
 
 		if (opt==null) return null;
 		
 		if (readable) {
-			return new Array('Content-Type', Copper.getContentTypeName(opt), opt);
+			return new Array(Copper.getContentTypeName(opt), opt);
 		} else {
 			return opt;
 		}
@@ -235,7 +234,7 @@ CopperChrome.CoapMessage.prototype = {
 				if (y) ret += '(~'+y+'y) ';
 			}
 			
-			return new Array('Max-Age', ret.substring(0, ret.length-1), optLen+' byte(s)');
+			return new Array(ret.substring(0, ret.length-1), optLen+' byte(s)');
 		} else {
 			return opt;
 		}
@@ -255,16 +254,7 @@ CopperChrome.CoapMessage.prototype = {
 			return null;
 		}
 
-		var optLen = this.packet.getOptionLength(Copper.OPTION_PROXY_URI);
-		var opt = this.packet.getOption(Copper.OPTION_PROXY_URI); // string
-
-		if (opt==null) return null;
-		
-		if (readable) {
-			return new Array('Proxy-Uri', opt, optLen+' byte(s)');
-		} else {
-			return opt;
-		}
+		return this.packet.getOption(Copper.OPTION_PROXY_URI); // string
 	},
 	setProxyUri : function(proxy) {
 		
@@ -277,59 +267,43 @@ CopperChrome.CoapMessage.prototype = {
 	},
 	
 	// Copper.OPTION_ETAG:00+
-	getETag : function(readable) {
-		var optLen = this.packet.getOptionLength(Copper.OPTION_ETAG);
-		var opt = this.packet.getOption(Copper.OPTION_ETAG); // byte array
-
-		if (opt==null) return null;
-
-		if (readable) {
-			return new Array('ETag', Copper.bytes2hex(opt), optLen+' byte(s)');
-		} else {
-			return opt;
-		}
+	getETag : function() {
+		return this.packet.getOption(Copper.OPTION_ETAG); // byte array
 	},
 	setETag : function(tag) {
+		
+		if (!Array.isArray(tag)) {
+			dump('INFO: Converting ETag to byte array\n');
+			if (tag.substr(0,2)=='0x') {
+				tag = Copper.hex2bytes(tag);
+			} else {
+				tag = Copper.str2bytes(tag);
+			}
+		}
+		
 		while (tag.length>Copper.ETAG_LENGTH) {
 			tag.pop();
 			dump('WARNING: CoapMessage.setETag [ETag must be 1-'+Copper.ETAG_LENGTH+' bytes; cropping to '+Copper.ETAG_LENGTH+' bytes]\n');
 		}
+		
 		this.packet.setOption(Copper.OPTION_ETAG, tag);
 	},
 	
 	// Copper.OPTION_URI_HOST:04+ / Copper.OPTION_URI_AUTH:03*renamed
-	getUriHost : function(readable) {
-		var optLen = this.packet.getOptionLength(Copper.OPTION_URI_HOST);
-		var opt = this.packet.getOption(Copper.OPTION_URI_HOST); // string
-		
-		if (opt==null) return null;
-		
-		if (readable) {
-			return new Array('Uri-Host', opt, optLen+' byte(s)');
-		} else {
-			return opt;
-		}
+	getUriHost : function() {
+		return this.packet.getOption(Copper.OPTION_URI_HOST); // string
 	},
 	setUriHost : function(host) {
 		this.packet.setOption(Copper.OPTION_URI_HOST, host);
 	},
 	// Copper.OPTION_URI_PORT:04+
-	getUriPort : function(readable) {
+	getUriPort : function() {
 		
 		if (CopperChrome.coapVersion < 4) {
 			return null;
 		}
 
-		var optLen = this.packet.getOptionLength(Copper.OPTION_URI_PORT);
-		var opt = this.packet.getOption(Copper.OPTION_URI_PORT); // int
-
-		if (opt==null) return null;
-		
-		if (readable) {
-			return new Array('Uri-Port', opt, optLen+' byte(s)');
-		} else {
-			return opt;
-		}
+		return this.packet.getOption(Copper.OPTION_URI_PORT); // int
 	},
 	setUriPort : function(port) {
 		
@@ -341,33 +315,15 @@ CopperChrome.CoapMessage.prototype = {
 		this.packet.setOption(Copper.OPTION_URI_PORT, port);
 	},
 	// multiple Copper.OPTION_URI_PATH:04+ / Copper.OPTION_URI_PATH:03+
-	getUriPath : function(readable) {
+	getUriPath : function() {
 		// multiple Copper.OPTION_URI_PATH options should be concatinated during datagram parsing
 		// TODO: maybe use a string array later
 
-		var optLen = this.packet.getOptionLength(Copper.OPTION_URI_PATH);
-		var opt = this.packet.getOption(Copper.OPTION_URI_PATH); // string
-
-		if (opt==null) return null;
-		
-		if (readable) {
-			return new Array('Uri-Path', opt, optLen+' byte(s)');
-		} else {
-			return opt;
-		}
+		return this.packet.getOption(Copper.OPTION_URI_PATH); // string
 	},
 	// Copper.OPTION_URI_QUERY:03+
-	getUriQuery : function(readable) {
-		var optLen = this.packet.getOptionLength(Copper.OPTION_URI_QUERY);
-		var opt = this.packet.getOption(Copper.OPTION_URI_QUERY); // string
-
-		if (opt==null) return null;
-		
-		if (readable) {
-			return new Array('Uri-Query', opt, optLen+' byte(s)');
-		} else {
-			return opt;
-		}
+	getUriQuery : function() {
+		return this.packet.getOption(Copper.OPTION_URI_QUERY); // string
 	},
 	// convenience function
 	getUri : function(readable) {
@@ -414,21 +370,11 @@ CopperChrome.CoapMessage.prototype = {
 	},
 	
 	// multiple Copper.OPTION_LOCATION_PATH:04+ / Copper.OPTION_LOCATION:03*renamed
-	getLocationPath : function(readable) {
+	getLocationPath : function() {
 		// multiple Copper.OPTION_LOCATION_PATH options should be concatinated during datagram parsing
 		// TODO: maybe use a string array later
 		
-		var optLen = this.packet.getOptionLength(Copper.OPTION_LOCATION_PATH);
-		var opt = this.packet.getOption(Copper.OPTION_LOCATION_PATH); // string
-
-		if (opt==null) return null;
-		
-		if (readable) {
-			if (opt.charAt(0)!='/') opt = '/' + opt;
-			return new Array('Location-Path', opt, optLen+' byte(s)');
-		} else {
-			return opt;
-		}
+		return this.packet.getOption(Copper.OPTION_LOCATION_PATH); // string
 	},
 	setLocationPath : function(path) {
 		while (path.charAt(0)=='/') path = path.substr(1);
@@ -436,22 +382,13 @@ CopperChrome.CoapMessage.prototype = {
 		this.packet.setOption(Copper.OPTION_LOCATION_PATH, path);
 	},
 	// Copper.OPTION_LOCATION_QUERY:05+
-	getLocationQuery : function(readable) {
+	getLocationQuery : function() {
 		
 		if (CopperChrome.coapVersion < 5) {
 			return null;
 		}
 
-		var optLen = this.packet.getOptionLength(Copper.OPTION_LOCATION_QUERY);
-		var opt = this.packet.getOption(Copper.OPTION_LOCATION_QUERY); // string
-
-		if (opt==null) return null;
-		
-		if (readable) {
-			return new Array('Location-Query', opt, optLen+' byte(s)');
-		} else {
-			return opt;
-		}
+		return this.packet.getOption(Copper.OPTION_LOCATION_QUERY); // string
 	},
 	setLocationQuery : function(query) {
 		
@@ -469,7 +406,6 @@ CopperChrome.CoapMessage.prototype = {
 		var optLen = this.packet.getOptionLength(Copper.OPTION_LOCATION_PATH);
 		var opt = this.packet.getOption(Copper.OPTION_LOCATION_PATH); // string
 		
-		var opt2 = null;
 		var optLen2 = 0;
 
 		if (CopperChrome.coapVersion >= 5) {
@@ -486,26 +422,27 @@ CopperChrome.CoapMessage.prototype = {
 			var multiple = opt.match(/\/|&/g);
 			var decoded = 1 + (multiple!=null ? multiple.length : 0) + (optLen2>0 ? 1 : 0);
 			if (opt.charAt(0)!='/') opt = '/' + opt;
-			return new Array('Location', opt, decoded+(decoded==1 ? ' option' : ' options'));
+			return new Array(opt, decoded+(decoded==1 ? ' option' : ' options'));
 		} else {
 			return opt;
 		}
 	},
 	
 	// Copper.OPTION_TOKEN:03+
-	getToken : function(readable) {
-		var optLen = this.packet.getOptionLength(Copper.OPTION_TOKEN);
-		var opt = this.packet.getOption(Copper.OPTION_TOKEN); // byte array, treat as int
-		
-		if (opt==null) return null;
-		
-		if (readable) {
-			return new Array('Token', Copper.bytes2hex(opt), optLen+' byte(s)'); 
-		} else {
-			return opt;
-		}
+	getToken : function() {
+		return this.packet.getOption(Copper.OPTION_TOKEN); // byte array, treat as hex string
 	},
 	setToken : function(token) {
+		
+		if (!Array.isArray(token)) {
+			dump('INFO: Converting Token to byte array\n');
+			if (token.substr(0,2)=='0x') {
+				token = Copper.hex2bytes(token);
+			} else {
+				token = Copper.str2bytes(token);
+			}
+		}
+		
 		while (token.length > Copper.TOKEN_LENGTH) {
 			token.pop();
 			dump('WARNING: CoapMessage.setToken [token must be 1-'+Copper.TOKEN_LENGTH+' bytes; masking to '+Copper.TOKEN_LENGTH+' bytes]\n');
@@ -522,7 +459,7 @@ CopperChrome.CoapMessage.prototype = {
 	},
 	
 	// Copper.OPTION_ACCEPT:07+
-	getAccept : function(readable) {
+	getAccept : function() {
 
 		if (CopperChrome.coapVersion < 7) {
 			return null;
@@ -530,16 +467,7 @@ CopperChrome.CoapMessage.prototype = {
 		
 		//FIXME support multiple options
 		
-		var optLen = this.packet.getOptionLength(Copper.OPTION_ACCEPT);
-		var opt = this.packet.getOption(Copper.OPTION_ACCEPT); // integer
-
-		if (opt==null) return null;
-		
-		if (readable) {
-			return new Array('Accept', Copper.getContentTypeName(opt), opt);
-		} else {
-			return opt;
-		}
+		return this.packet.getOption(Copper.OPTION_ACCEPT); // integer
 	},
 	setAccept : function(content) {
 		
@@ -558,30 +486,28 @@ CopperChrome.CoapMessage.prototype = {
 	},
 	
 	// Copper.OPTION_IF_MATCH:07+
-	getIfMatch : function(readable) {
+	getIfMatch : function() {
 
 		if (CopperChrome.coapVersion < 7) {
 			return null;
 		}
 		
-		//FIXME support multiple options
-		
-		var optLen = this.packet.getOptionLength(Copper.OPTION_IF_MATCH);
-		var opt = this.packet.getOption(Copper.OPTION_IF_MATCH); // byte array
-
-		if (opt==null) return null;
-
-		if (readable) {
-			return new Array('If-Match', Copper.bytes2hex(opt), optLen+' byte(s)');
-		} else {
-			return opt;
-		}
+		return this.packet.getOption(Copper.OPTION_IF_MATCH); // byte array
 	},
 	setIfMatch : function(tag) {
 
 		if (CopperChrome.coapVersion < 7) {
 			dump('WARNING: CoapMessage.setIfMatch [If-Match only supported in coap-07+]\n');
 			return;
+		}
+		
+		if (!Array.isArray(tag)) {
+			dump('INFO: Converting ETag to byte array\n');
+			if (tag.substr(0,2)=='0x') {
+				tag = Copper.hex2bytes(tag);
+			} else {
+				tag = Copper.str2bytes(tag);
+			}
 		}
 		
 		while (tag.length>Copper.ETAG_LENGTH) {
@@ -593,7 +519,6 @@ CopperChrome.CoapMessage.prototype = {
 	
 	// Copper.OPTION_BLOCK2:06+ / Copper.OPTION_BLOCK:03+
 	getBlock : function(readable) {
-		var optLen = this.packet.getOptionLength(Copper.OPTION_BLOCK); // == Copper.OPTION_BLOCK2
 		var opt = this.packet.getOption(Copper.OPTION_BLOCK); // integer
 
 		if (opt==null) return null;
@@ -603,9 +528,7 @@ CopperChrome.CoapMessage.prototype = {
 			if (this.getBlockMore()) ret += '+';
 			ret += ' ('+this.getBlockSize()+' B/block)';
 			
-			var name = CopperChrome.coapVersion < 6 ? 'Block' : 'Block2';
-			
-			return new Array(name, ret, optLen+' byte(s)');
+			return ret;
 		} else {
 			return opt;
 		}
@@ -662,7 +585,6 @@ CopperChrome.CoapMessage.prototype = {
 			return null;
 		}
 		
-		var optLen = this.packet.getOptionLength(Copper.OPTION_BLOCK1);
 		var opt = this.packet.getOption(Copper.OPTION_BLOCK1); // integer
 
 		if (opt==null) return null;
@@ -671,7 +593,8 @@ CopperChrome.CoapMessage.prototype = {
 			var ret = this.getBlock1Number();
 			if (this.getBlock1More()) ret += '+';
 			ret += ' ('+this.getBlock1Size()+' B/block)';
-			return new Array('Block1', ret, optLen+' byte(s)');
+			
+			return ret;
 		} else {
 			return opt;
 		}
@@ -720,22 +643,15 @@ CopperChrome.CoapMessage.prototype = {
 	},
 	
 	// Copper.OPTION_IF_NONE_MATCH:07+
-	getIfNoneMatch : function(readable) {
+	getIfNoneMatch : function() {
 
 		if (CopperChrome.coapVersion < 7) {
 			return null;
 		}
 		
-		var optLen = this.packet.getOptionLength(Copper.OPTION_IF_NONE_MATCH);
 		var opt = this.packet.getOption(Copper.OPTION_IF_NONE_MATCH); // byte array
 
-		if (opt==null) return null;
-
-		if (readable) {
-			return new Array('If-None-Match', 'none', 'Option set');
-		} else {
-			return 'none';
-		}
+		return (opt==null ? null : 'none');
 	},
 	setIfNoneMatch : function() {
 
@@ -749,63 +665,80 @@ CopperChrome.CoapMessage.prototype = {
 	},
 
 	// Copper.OPTION_SUB_LIFETIME:draft-ietf-core-observe-00*renamed
-	getObserve : function(readable) {
-		var optLen = this.packet.getOptionLength(Copper.OPTION_OBSERVE);
-		var opt = this.packet.getOption(Copper.OPTION_OBSERVE); // int
-		
-		if (opt==null) return null;
-		
-		if (readable) {
-			return new Array('Observe', opt, optLen+' byte(s)'); 
-		} else {
-			return opt;
-		}
+	getObserve : function() {
+		return this.packet.getOption(Copper.OPTION_OBSERVE); // int
 	},
 	setObserve : function(num) {
 		if (num> 0xFFFFFFFF) time = 0xFFFFFFFF;
 		this.packet.setOption(Copper.OPTION_OBSERVE, num);
 	},
 	
+	setCustom : function(num, value) {
+		if (Copper.getOptionName(num).match(/^Unknown/)) {
+			if (value.substr(0,2)=='0x') {
+				this.packet.setOption(parseInt(num), Copper.hex2bytes(value));
+			} else {
+				this.packet.setOption(parseInt(num), Copper.str2bytes(value));
+			}
+		} else {
+			throw 'Cannot set '+Copper.getOptionName(num)+' as custom option!';
+		}
+	},
+	
 	// readable options list
-	getOptions : function(readable) {
+	getOptions : function(asString) {
 		
-		if (readable) {
+		if (asString) {
 			var ret = '';
-			if (this.getContentType()!=null) ret += '\n  ' + this.getContentType(true)[0] + ': ' + this.getContentType(true)[1] + ' ['+this.getContentType(true)[2]+']';
-			if (this.getMaxAge()!=null) ret += '\n  ' + this.getMaxAge(true)[0] + ': ' + this.getMaxAge(true)[1] + ' ['+this.getMaxAge(true)[2]+']';
-			if (this.getProxyUri()!=null) ret += '\n  ' + this.getProxyUri(true)[0] + ': ' + this.getProxyUri(true)[1] + ' ['+this.getProxyUri(true)[2]+']';
-			if (this.getETag()!=null) ret += '\n  ' + this.getETag(true)[0] + ': ' + this.getETag(true)[1] + ' ['+this.getETag(true)[2]+']';
-			if (this.getUri()!=null) ret += '\n  ' + this.getUri(true)[0] + ': ' + this.getUri(true)[1] + ' ['+this.getUri(true)[2]+']';
-			if (this.getLocation()!=null) ret += '\n  ' + this.getLocation(true)[0] + ': ' + this.getLocation(true)[1] + ' ['+this.getLocation(true)[2]+']';
-			if (this.getObserve()!=null) ret += '\n  ' + this.getObserve(true)[0] + ': ' + this.getObserve(true)[1] + ' ['+this.getObserve(true)[2]+']';
-			if (this.getToken()!=null) ret += '\n  ' + this.getToken(true)[0] + ': ' + this.getToken(true)[1] + ' ['+this.getToken(true)[2]+']';
-			if (this.getAccept()!=null) ret += '\n  ' + this.getAccept(true)[0] + ': ' + this.getAccept(true)[1] + ' ['+this.getAccept(true)[2]+']';
-			if (this.getIfMatch()!=null) ret += '\n  ' + this.getIfMatch(true)[0] + ': ' + this.getIfMatch(true)[1] + ' ['+this.getIfMatch(true)[2]+']';
-			if (this.getBlock()!=null) ret += '\n  ' + this.getBlock(true)[0] + ': ' + this.getBlock(true)[1] + ' ['+this.getBlock(true)[2]+']';
-			if (this.getBlock1()!=null) ret += '\n  ' + this.getBlock1(true)[0] + ': ' + this.getBlock1(true)[1] + ' ['+this.getBlock1(true)[2]+']';
-			if (this.getIfNoneMatch()!=null) ret += '\n  ' + this.getIfNoneMatch(true)[0] + ': ' + this.getIfNoneMatch(true)[1] + ' ['+this.getIfNoneMatch(true)[2]+']';
-			// number of fenceposts for info
-			if (this.packet.getOptionLength(Copper.OPTION_FENCE_POST)>0) ret += '\n  Fenceposts: ' + this.packet.getOptionLength(Copper.OPTION_FENCE_POST);
+			
+			for (var optTypeIt in this.packet.options) {
+		    	if (Array.isArray(this.packet.options[optTypeIt][1])) {
+/* Special options	    		
+					var ret = this.getBlock1Number();
+					if (this.getBlock1More()) ret += '+';
+					ret += ' ('+this.getBlock1Size()+' B/block)';
+					return new Array('Block1', ret, optLen+' byte(s)');
+*/
+		    		
+		    		
+		    		ret += '\n  ' + Copper.getOptionName(optTypeIt) + ': ' + this.packet.getOption(optTypeIt) + ' ['+ this.packet.options[optTypeIt][0]+']';
+		    	}
+			}
 			
 			return ret;
 		} else {
 			var ret = new Array();
 			
-			if (this.getContentType()!=null) ret.push(this.getContentType(true));
-			if (this.getMaxAge()!=null) ret.push( this.getMaxAge(true) );
-			if (this.getProxyUri()!=null) ret.push( this.getProxyUri(true) );
-			if (this.getETag()!=null) ret.push( this.getETag(true) );
-			if (this.getUri()!=null) ret.push( this.getUri(true) );
-			if (this.getLocation()!=null) ret.push( this.getLocation(true) );
-			if (this.getObserve()!=null) ret.push( this.getObserve(true) );
-			if (this.getToken()!=null) ret.push( this.getToken(true) );			
-			if (this.getAccept()!=null) ret.push(this.getAccept(true));
-			if (this.getIfMatch()!=null) ret.push(this.getIfMatch(true));
-			if (this.getBlock()!=null) ret.push( this.getBlock(true) );
-			if (this.getBlock1()!=null) ret.push( this.getBlock1(true) );
-			if (this.getIfNoneMatch()!=null) ret.push(this.getIfNoneMatch(true));
-			
-			if (this.packet.getOptionLength(Copper.OPTION_FENCE_POST)>0) ret.push(new Array('Fenceposts', this.packet.getOptionLength(Copper.OPTION_FENCE_POST), 'count'));
+			for (var optTypeIt in this.packet.options) {
+		    	if (Array.isArray(this.packet.options[optTypeIt][1])) {
+		    		var name = Copper.getOptionName(optTypeIt);
+		    		var value = this.packet.getOption(optTypeIt);
+		    		var info = this.packet.options[optTypeIt][0]+' byte' + (this.packet.options[optTypeIt][0]!=1 ? 's' : '');
+		    		
+		    		switch (parseInt(optTypeIt)) {
+			    		case Copper.OPTION_CONTENT_TYPE:
+			    			info = value;
+			    			value = Copper.getContentTypeName(value);
+			    			break;
+			    		case Copper.OPTION_ACCEPT:
+			    			info = value;
+			    			value = Copper.getContentTypeName(value);
+			    			break;
+			    		case Copper.OPTION_BLOCK:
+			    			value = this.getBlockNumber();
+			    			if (this.getBlockMore()) value += '+';
+							value += ' ('+this.getBlockSize()+' B/block)';
+							break;
+			    		case Copper.OPTION_BLOCK1:
+			    			value = this.getBlock1Number();
+			    			if (this.getBlock1More()) value += '+';
+							value += ' ('+this.getBlock1Size()+' B/block)';
+							break;
+		    		}
+		    		
+		    		ret.push(new Array(name, value, info));
+		    	}
+			}
 			
 			return ret;
 		}

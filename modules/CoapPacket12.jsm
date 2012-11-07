@@ -69,10 +69,6 @@ Copper.__defineGetter__("OPTION_IF_MATCH", function() { return 1; });
 Copper.__defineGetter__("OPTION_IF_NONE_MATCH", function() { return 21; });
 Copper.__defineGetter__("OPTION_ETAG", function() { return 4; });
 
-Copper.__defineGetter__("OPTION_FENCE_POST", function() { return 14; });
-Copper.__defineGetter__("OPTION_TERMINATOR", function() { return 15; });
-
-
 Copper.__defineGetter__("OPTION_OBSERVE", function() { return 6; });
 
 Copper.__defineGetter__("OPTION_BLOCK", function() { return 23; }); // for API compatibility
@@ -144,38 +140,6 @@ Copper.__defineGetter__("TOKEN_LENGTH", function() { return 8; });
 
 Copper.__defineGetter__("DEFAULT_PORT", function() { return 5683; });
 
-// General version-specific functions
-////////////////////////////////////////////////////////////////////////////////
-
-Copper.getContentTypeName = function(type) {
-	switch (type) {
-		case Copper.CONTENT_TYPE_TEXT_PLAIN: return 'text/plain'; break;
-		case Copper.CONTENT_TYPE_TEXT_XML: return 'text/xml'; break;
-		case Copper.CONTENT_TYPE_TEXT_CSV: return 'text/csv'; break;
-		case Copper.CONTENT_TYPE_TEXT_HTML: return 'text/html'; break;
-		case Copper.CONTENT_TYPE_IMAGE_GIF: return 'image/gif'; break;
-		case Copper.CONTENT_TYPE_IMAGE_JPEG: return 'image/jpeg'; break;
-		case Copper.CONTENT_TYPE_IMAGE_PNG: return 'image/png'; break;
-		case Copper.CONTENT_TYPE_IMAGE_TIFF: return 'image/tiff'; break;
-		case Copper.CONTENT_TYPE_AUDIO_RAW: return 'audio/raw'; break;
-		case Copper.CONTENT_TYPE_VIDEO_RAW: return 'video/raw'; break;
-		case Copper.CONTENT_TYPE_APPLICATION_LINK_FORMAT: return 'application/link-format'; break;
-		case Copper.CONTENT_TYPE_APPLICATION_XML: return 'application/xml'; break;
-		case Copper.CONTENT_TYPE_APPLICATION_OCTET_STREAM: return 'application/octet-stream'; break;
-		case Copper.CONTENT_TYPE_APPLICATION_RDF_XML: return 'application/rdf+xml'; break;
-		case Copper.CONTENT_TYPE_APPLICATION_SOAP_XML: return 'application/soap+xml'; break;
-		case Copper.CONTENT_TYPE_APPLICATION_ATOM_XML: return 'application/atom+xml'; break;
-		case Copper.CONTENT_TYPE_APPLICATION_XMPP_XML: return 'application/xmpp+xml'; break;
-		case Copper.CONTENT_TYPE_APPLICATION_EXI: return 'application/exi'; break;
-		case Copper.CONTENT_TYPE_APPLICATION_FASTINFOSET: return 'application/fastinfoset'; break;
-		case Copper.CONTENT_TYPE_APPLICATION_SOAP_FASTINFOSET: return 'application/soap+fastinfoset'; break;
-		case Copper.CONTENT_TYPE_APPLICATION_JSON: return 'application/json'; break;
-		case Copper.CONTENT_TYPE_APPLICATION_X_OBIX_BINARY: return 'application/x-obix-binary'; break;
-		default: return 'unknown';
-	}
-	return '';
-};
-
 // CoAP draft-12 implementation
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -196,13 +160,11 @@ Copper.CoapPacket = function() {
 	this.options[Copper.OPTION_TOKEN] = new Array(0, null);
 	this.options[Copper.OPTION_ACCEPT] = new Array(0, null);
 	this.options[Copper.OPTION_IF_MATCH] = new Array(0, null);
-	this.options[Copper.OPTION_FENCE_POST] = new Array(0, null);
 	this.options[Copper.OPTION_URI_QUERY] = new Array(0, null);
 	this.options[Copper.OPTION_BLOCK2] = new Array(0, null);
 	this.options[Copper.OPTION_BLOCK1] = new Array(0, null);
+	this.options[Copper.OPTION_SIZE] = new Array(0, null);
 	this.options[Copper.OPTION_IF_NONE_MATCH] = new Array(0, null);
-
-	this.options[Copper.OPTION_TERMINATOR] = new Array(0, null);
 
 	this.tid = parseInt(Math.random()*0x10000);
 	
@@ -295,31 +257,35 @@ Copper.CoapPacket.prototype = {
 
 		switch (parseInt(optType)) {
 			// strings
-			case Copper.OPTION_PROXY_URI:
-			case Copper.OPTION_LOCATION_PATH:
 			case Copper.OPTION_URI_HOST:
-			case Copper.OPTION_LOCATION_QUERY:
 			case Copper.OPTION_URI_PATH:
 			case Copper.OPTION_URI_QUERY:
+			case Copper.OPTION_LOCATION_PATH:
+			case Copper.OPTION_LOCATION_QUERY:
+			case Copper.OPTION_PROXY_URI:
 				return Copper.bytes2str(opt);
 				break;
+
+			// integers
+			case Copper.OPTION_URI_PORT:
+			case Copper.OPTION_CONTENT_FORMAT:
+			case Copper.OPTION_MAX_AGE:
+			case Copper.OPTION_ACCEPT:
+			case Copper.OPTION_IF_NONE_MATCH:
+			case Copper.OPTION_OBSERVE:
+			case Copper.OPTION_BLOCK2:
+			case Copper.OPTION_BLOCK1:
+			case Copper.OPTION_SIZE:
+				return Copper.bytes2int(opt);
 			
 			// byte arrays
 			case Copper.OPTION_ETAG:
 			case Copper.OPTION_TOKEN:
 			case Copper.OPTION_IF_MATCH:
-				return opt;
-				break;
-			
-			// delta fence post
-			case Copper.OPTION_FENCE_POST:
-			case Copper.OPTION_TERMINATOR:
-				return null;
-				break;
-			
-			// integers
 			default:
-				return Copper.bytes2int(opt);
+				return Copper.bytes2hex(opt);
+				break;
+			
 		}
 		return null;
 	},
@@ -367,7 +333,8 @@ Copper.CoapPacket.prototype = {
 				break;
 			
 			default:
-				dump('WARNING: CoapPacket.setOption [Ignoring unknown option '+option+': '+value+']\n');
+				this.options[option] = new Array(value.length, value);
+				dump('WARNING: Setting custom option '+option+': '+value+'\n');
 		}
 	},
 	
@@ -614,33 +581,25 @@ Copper.CoapPacket.prototype = {
 		    	opt.push(packet.shift());
 		    }
 	    	
-	    	// only supported types
-	    	if (this.options[optType]) {
+	    	// parse Option into Array
 	    	
-				if (optType==Copper.OPTION_LOCATION_PATH ||
-	    			optType==Copper.OPTION_LOCATION_QUERY ||
-	    			optType==Copper.OPTION_URI_PATH ||
-	    			optType==Copper.OPTION_URI_QUERY) {
-	    			
-	    			var separator = 0x002F; // /
-	    			if (optType==Copper.OPTION_LOCATION_QUERY || optType==Copper.OPTION_URI_QUERY) {
-	    				separator = 0x0026; // &
-	    			}
-	    			
-	    			if (this.options[optType][0]>0) {
-	    				optLen += 1 + this.options[optType][0];
-	    				opt = this.options[optType][1].concat(separator).concat(opt);
-	    			}
-	    		}
-				
-				if (optType==Copper.OPTION_FENCE_POST) {
-					this.options[optType][0] += 1;
-				} else {
-	    		
-	    		this.options[optType][0] = optLen;
-	    		this.options[optType][1] = opt;
-				}
-	    	}
+			if (optType==Copper.OPTION_LOCATION_PATH ||
+    			optType==Copper.OPTION_LOCATION_QUERY ||
+    			optType==Copper.OPTION_URI_PATH ||
+    			optType==Copper.OPTION_URI_QUERY) {
+    			
+    			var separator = 0x002F; // /
+    			if (optType==Copper.OPTION_LOCATION_QUERY || optType==Copper.OPTION_URI_QUERY) {
+    				separator = 0x0026; // &
+    			}
+    			
+    			if (this.options[optType][0]>0) {
+    				optLen += 1 + this.options[optType][0];
+    				opt = this.options[optType][1].concat(separator).concat(opt);
+    			}
+    		}
+			
+			this.options[optType] = new Array(optLen, opt);
 		}
 		
         // read payload, treat as raw data, convert later

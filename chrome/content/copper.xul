@@ -261,7 +261,7 @@
 					</menupopup>
 				</menulist>
 				
-				<label control="debug_option_content_type" value="Content-Type"/>
+				<label control="debug_option_content_type" value="Content-Format"/>
 				<menulist id="debug_option_content_type" editable="true">
 					<menupopup id="popup_content_types">
 						<menuitem label="" value=""/>
@@ -270,13 +270,13 @@
 				
 				<hbox>
 					<vbox flex="1">
-						<label control="debug_option_block2" value="Block-Down"/>
+						<label control="debug_option_block2" value="Block2"/>
 						<textbox id="debug_option_block2" emptytext="block no." dir="reverse">
 							<image class="copper-clear-button" onclick="parentNode.value='';"/>
 						</textbox>
 					</vbox>
 					<vbox flex="1">
-						<label control="debug_option_block1" value="Block-Up  "/>
+						<label control="debug_option_block1" value="Block1"/>
 						<textbox id="debug_option_block1" emptytext="block no." dir="reverse">
 							<image class="copper-clear-button" onclick="parentNode.value='';"/>
 						</textbox>
@@ -363,6 +363,24 @@
 				</textbox>
 					</vbox>
 				</hbox>
+				
+				<label value="Custom options" style="text-align: center; margin-top: 5px;"/>
+				
+				<hbox>
+					<vbox flex="1">
+						<label control="debug_option_custom_number" value="Number"/>
+						<textbox id="debug_option_custom_number" emptytext="not set" style="width: 40px;" dir="reverse">
+							<image class="copper-clear-button" onclick="parentNode.value='';"/>
+						</textbox>
+					</vbox>
+					<vbox flex="1">
+						<label control="debug_option_custom_value" value="Value"/>
+						<textbox id="debug_option_custom_value" emptytext="use hex (0x..) or string" style="width: 120px;" dir="reverse">
+							<image class="copper-clear-button" onclick="parentNode.value='';"/>
+						</textbox>
+					</vbox>
+				</hbox>
+				
 			</vbox>
 		</groupbox>
 

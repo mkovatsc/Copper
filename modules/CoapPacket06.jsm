@@ -126,38 +126,6 @@ Copper.__defineGetter__("TOKEN_LENGTH", function() { return 8; });
 
 Copper.__defineGetter__("DEFAULT_PORT", function() { return 5683; });
 
-// General version-specific functions
-////////////////////////////////////////////////////////////////////////////////
-
-Copper.getContentTypeName = function(type) {
-	switch (type) {
-		case Copper.CONTENT_TYPE_TEXT_PLAIN: return 'text/plain'; break;
-		case Copper.CONTENT_TYPE_TEXT_XML: return 'text/xml'; break;
-		case Copper.CONTENT_TYPE_TEXT_CSV: return 'text/csv'; break;
-		case Copper.CONTENT_TYPE_TEXT_HTML: return 'text/html'; break;
-		case Copper.CONTENT_TYPE_IMAGE_GIF: return 'image/gif'; break;
-		case Copper.CONTENT_TYPE_IMAGE_JPEG: return 'image/jpeg'; break;
-		case Copper.CONTENT_TYPE_IMAGE_PNG: return 'image/png'; break;
-		case Copper.CONTENT_TYPE_IMAGE_TIFF: return 'image/tiff'; break;
-		case Copper.CONTENT_TYPE_AUDIO_RAW: return 'audio/raw'; break;
-		case Copper.CONTENT_TYPE_VIDEO_RAW: return 'video/raw'; break;
-		case Copper.CONTENT_TYPE_APPLICATION_LINK_FORMAT: return 'application/link-format'; break;
-		case Copper.CONTENT_TYPE_APPLICATION_XML: return 'application/xml'; break;
-		case Copper.CONTENT_TYPE_APPLICATION_OCTET_STREAM: return 'application/octet-stream'; break;
-		case Copper.CONTENT_TYPE_APPLICATION_RDF_XML: return 'application/rdf+xml'; break;
-		case Copper.CONTENT_TYPE_APPLICATION_SOAP_XML: return 'application/soap+xml'; break;
-		case Copper.CONTENT_TYPE_APPLICATION_ATOM_XML: return 'application/atom+xml'; break;
-		case Copper.CONTENT_TYPE_APPLICATION_XMPP_XML: return 'application/xmpp+xml'; break;
-		case Copper.CONTENT_TYPE_APPLICATION_EXI: return 'application/exi'; break;
-		case Copper.CONTENT_TYPE_APPLICATION_FASTINFOSET: return 'application/fastinfoset'; break;
-		case Copper.CONTENT_TYPE_APPLICATION_SOAP_FASTINFOSET: return 'application/soap+fastinfoset'; break;
-		case Copper.CONTENT_TYPE_APPLICATION_JSON: return 'application/json'; break;
-		case Copper.CONTENT_TYPE_APPLICATION_X_OBIX_BINARY: return 'application/x-obix-binary'; break;
-		default: return 'unknown';
-	}
-	return '';
-};
-
 // CoAP draft-06 implementation
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -280,7 +248,7 @@ Copper.CoapPacket.prototype = {
 			// byte arrays
 			case Copper.OPTION_ETAG:
 			case Copper.OPTION_TOKEN:
-				return opt;
+				return Copper.bytes2hex(opt);
 				break;
 			
 			// delta fence post

@@ -75,6 +75,9 @@ CopperChrome.loadDebugOptions = function() {
 	document.getElementById('debug_option_block1').value = CopperChrome.prefManager.getCharPref('extensions.copper.debug.options.block1');
 	document.getElementById('chk_debug_option_block_auto').checked = CopperChrome.prefManager.getBoolPref('extensions.copper.debug.options.block-auto');
 	document.getElementById('debug_option_if_none_match').checked = CopperChrome.prefManager.getBoolPref('extensions.copper.debug.options.if-none-match');
+	
+	document.getElementById('debug_option_custom_number').value = CopperChrome.prefManager.getCharPref('extensions.copper.debug.options.custom-number');
+	document.getElementById('debug_option_custom_value').value = CopperChrome.prefManager.getCharPref('extensions.copper.debug.options.custom-value');
 };
 
 CopperChrome.saveDebugOptions = function() {
@@ -95,6 +98,9 @@ CopperChrome.saveDebugOptions = function() {
 	CopperChrome.prefManager.setCharPref('extensions.copper.debug.options.block1', document.getElementById('debug_option_block1').value);
 	CopperChrome.prefManager.setBoolPref('extensions.copper.debug.options.block-auto', document.getElementById('chk_debug_option_block_auto').checked);
 	CopperChrome.prefManager.setBoolPref('extensions.copper.debug.options.if-none-match', document.getElementById('debug_option_if_none_match').checked);
+
+	CopperChrome.prefManager.setCharPref('extensions.copper.debug.options.custom-number', document.getElementById('debug_option_custom_number').value);
+	CopperChrome.prefManager.setCharPref('extensions.copper.debug.options.custom-value', document.getElementById('debug_option_custom_value').value);
 };
 
 CopperChrome.checkDebugOptions = function(message) {
@@ -116,11 +122,7 @@ try {
 		}
 } catch (ex) {}
 		if (Copper.OPTION_ETAG && document.getElementById('debug_option_etag').value!='') {
-			if (document.getElementById('debug_option_etag').value.substr(0,2)=='0x') {
-				message.setETag(Copper.hex2bytes(document.getElementById('debug_option_etag').value));
-			} else {
-				message.setETag(Copper.str2bytes(document.getElementById('debug_option_etag').value));
-			}
+			message.setETag(document.getElementById('debug_option_etag').value);
 		}
 		if (Copper.OPTION_URI_HOST && document.getElementById('debug_option_uri_host').value!='') {
 			message.setUriHost(document.getElementById('debug_option_uri_host').value);
@@ -142,11 +144,7 @@ try {
 			message.setObserve(parseInt(document.getElementById('debug_option_observe').value));
 		}
 		if (Copper.OPTION_TOKEN && document.getElementById('debug_option_token').value!='') {
-			if (document.getElementById('debug_option_token').value.substr(0,2)=='0x') {
-				message.setToken(Copper.hex2bytes(document.getElementById('debug_option_token').value));
-			} else {
-				message.setToken(Copper.str2bytes(document.getElementById('debug_option_token').value));
-			}
+			message.setToken(document.getElementById('debug_option_token').value);
 		}
 try {
 		if (Copper.OPTION_ACCEPT && document.getElementById('debug_option_accept').value!='') {
@@ -159,11 +157,7 @@ try {
 } catch (ex) {}
 try {
 		if (Copper.OPTION_IF_MATCH && document.getElementById('debug_option_if_match').value!='') {
-			if (document.getElementById('debug_option_if_match').value.substr(0,2)=='0x') {
-				message.setIfMatch(Copper.hex2bytes(document.getElementById('debug_option_if_match').value));
-			} else {
-				message.setIfMatch(Copper.str2bytes(document.getElementById('debug_option_if_match').value));
-			}
+			message.setIfMatch(document.getElementById('debug_option_if_match').value);
 		}
 } catch (ex) {}
 		if (Copper.OPTION_BLOCK && document.getElementById('debug_option_block2').value!='') {
@@ -179,6 +173,10 @@ try {
 			message.setIfNoneMatch();
 		}
 } catch (ex) {}
+
+		if (CopperChrome.coapVersion >= 12 && document.getElementById('debug_option_custom_number').value!='') {
+			message.setCustom(document.getElementById('debug_option_custom_number').value, document.getElementById('debug_option_custom_value').value);
+		}
 	}
 } catch (ex) {
 	alert('ERROR: CopperChrome.checkDebugOptions ['+ex+']');

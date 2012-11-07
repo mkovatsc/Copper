@@ -127,13 +127,13 @@ CopperChrome.TransactionHandler.prototype = {
 	},
 	
 	registerToken : function(token, cb) {
-		dump('INFO: Registering token '+Copper.bytes2hex(token)+'\n');
+		dump('INFO: Registering token '+token+'\n');
 		this.registeredTokens[token] = cb;
 	},
 	
 	deRegisterToken : function(token) {
 		if (this.registeredTokens[token]) {
-			dump('INFO: Deregistering token '+Copper.bytes2hex(token)+'\n');
+			dump('INFO: Deregistering token '+token+'\n');
 			delete this.registeredTokens[token];
 		}
 		for (i in this.registeredTokens) {
