@@ -66,7 +66,7 @@ Copper.__defineGetter__("OPTION_LOCATION_QUERY", function() { return 20; });
 Copper.__defineGetter__("OPTION_PROXY_URI", function() { return 35; });
 
 Copper.__defineGetter__("OPTION_IF_MATCH", function() { return 1; });
-Copper.__defineGetter__("OPTION_IF_NONE_MATCH", function() { return 21; });
+Copper.__defineGetter__("OPTION_IF_NONE_MATCH", function() { return 5; });
 Copper.__defineGetter__("OPTION_ETAG", function() { return 4; });
 
 Copper.__defineGetter__("OPTION_OBSERVE", function() { return 6; });
