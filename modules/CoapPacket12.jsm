@@ -536,7 +536,7 @@ Copper.CoapPacket.prototype = {
 		var optType = 0;
 		var optDelta = 0;
 		var optLen = 0;
-		for (var i=0; i<this.optionCount || this.optionCount==15; ++i) {
+		optionLoop : for (var i=0; i<this.optionCount || this.optionCount==15; ++i) {
 	    
 			do {
 		    	tempByte = packet.shift();
@@ -548,7 +548,7 @@ Copper.CoapPacket.prototype = {
 				if (optDelta==15) {
 					if (optLen==0) {
 						dump('INFO: Terminator\n');
-						break;
+						break optionLoop;
 					} else if (optLen==1) {
 						dump('INFO: Jump 1\n');
 						optType += 15;
