@@ -66,7 +66,7 @@ Copper.__defineGetter__("OPTION_LOCATION_QUERY", function() { return 20; });
 Copper.__defineGetter__("OPTION_PROXY_URI", function() { return 35; });
 
 Copper.__defineGetter__("OPTION_IF_MATCH", function() { return 1; });
-Copper.__defineGetter__("OPTION_IF_NONE_MATCH", function() { return 21; });
+Copper.__defineGetter__("OPTION_IF_NONE_MATCH", function() { return 5; });
 Copper.__defineGetter__("OPTION_ETAG", function() { return 4; });
 
 Copper.__defineGetter__("OPTION_OBSERVE", function() { return 6; });
@@ -423,7 +423,7 @@ Copper.CoapPacket.prototype = {
 					    byteArray.push(0xFF & temp);
 						optDelta -= (temp+258) * 8;
 					} else {
-						throw 'ERROR: CoapPacket.serialize [Option delta larger that 526359 is not supported]';
+						throw 'ERROR: CoapPacket.serialize [Option delta larger that 526345 is not supported]';
 					}
 				}
 				
