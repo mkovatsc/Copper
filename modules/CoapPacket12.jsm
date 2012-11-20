@@ -410,12 +410,12 @@ Copper.CoapPacket.prototype = {
 					if (optDelta < 30) {
 						byteArray.push( 0xF1 );
 						optDelta -= 15;
-					} else if (optDelta < 2070) {
+					} else if (optDelta < 2064) {
 						byteArray.push( 0xF2 );
 						let temp = 0xFF & ((optDelta/8)-2);
 						byteArray.push( temp );
 						optDelta -= (temp+2) * 8;
-					} else if (optDelta < 526359) {
+					} else if (optDelta < 526345) {
 						byteArray.push( 0xF3 );
 						let temp = 0xFFFF & ((optDelta/8)-258);
 					    byteArray.push(0xFF & (temp >>> 8));
