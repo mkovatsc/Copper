@@ -404,8 +404,9 @@ Copper.CoapPacket.prototype = {
 			} else {
 				var opt = this.options[optTypeIt][1];
 				var optDelta = optTypeIt - optNumber;
+				
 				// jumps: Delta = ((Option Jump Value) + N) * 8
-				while (optDelta > 14) {
+				if (optDelta > 14) {
 					dump('INFO: Serializing jump (delta '+ optDelta + ')\n');
 					if (optDelta < 30) {
 						byteArray.push( 0xF1 );
