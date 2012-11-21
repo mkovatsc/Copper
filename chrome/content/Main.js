@@ -254,6 +254,7 @@ CopperChrome.sendGet = function(uri) {
 		CopperChrome.clearLabels();
 		CopperChrome.client.send( message );
 	} catch (ex) {
+		CopperChrome.client.cancelTransactions();
 		alert('ERROR: Main.sendGet ['+ex+']');
 	}
 };
@@ -277,6 +278,7 @@ CopperChrome.sendBlockwiseGet = function(num, size, uri) {
 		CopperChrome.clearLabels(num==0);
 		CopperChrome.client.send( message, CopperChrome.blockwiseHandler );
 	} catch (ex) {
+		CopperChrome.client.cancelTransactions();
 		alert('ERROR: Main.sendBlockwiseGet ['+ex+']');
 	}
 };
@@ -302,6 +304,7 @@ CopperChrome.sendBlockwiseObserveGet = function(num, size, token) {
 		CopperChrome.clearLabels(num=0);
 		CopperChrome.client.send( message, CopperChrome.observingHandler );
 	} catch (ex) {
+		CopperChrome.client.cancelTransactions();
 		alert('ERROR: Main.sendBlockwiseObserveGet ['+ex+']');
 	}
 };
@@ -352,6 +355,7 @@ CopperChrome.doUpload = function(method, uri) {
 		CopperChrome.clearLabels();
 		CopperChrome.client.send( message );
 	} catch (ex) {
+		CopperChrome.client.cancelTransactions();
 		alert('ERROR: Main.doUpload ['+ex+']');
 	}
 }
@@ -388,6 +392,7 @@ CopperChrome.doBlockwiseUpload = function(num, size, uri) {
 		CopperChrome.clearLabels(num==0);
 		CopperChrome.client.send( message, CopperChrome.blockwiseHandler );
 	} catch (ex) {
+		CopperChrome.client.cancelTransactions();
 		alert('ERROR: Main.doBlockwiseUpload ['+ex+']');
 	}
 };
@@ -405,6 +410,7 @@ CopperChrome.sendDelete = function(uri) {
 		CopperChrome.clearLabels();
 		CopperChrome.client.send( message );
 	} catch (ex) {
+		CopperChrome.client.cancelTransactions();
 		alert('ERROR: Main.sendDelete ['+ex+']');
 	}
 };
@@ -418,6 +424,7 @@ CopperChrome.observe = function(uri) {
 		CopperChrome.observer.subscribe(uri, CopperChrome.observingHandler);
 		
 	} catch (ex) {
+		CopperChrome.client.cancelTransactions();
 		alert('ERROR: Main.observe ['+ex+']');
 	}
 };
@@ -433,6 +440,7 @@ CopperChrome.discover = function(block, size) {
 		
 		CopperChrome.client.send( message, CopperChrome.discoverHandler );
 	} catch (ex) {
+		CopperChrome.client.cancelTransactions();
 		alert('ERROR: Main.discover ['+ex+']');
 	}
 };

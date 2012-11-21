@@ -724,6 +724,10 @@ CopperChrome.CoapMessage.prototype = {
 			    			info = value;
 			    			value = Copper.getContentTypeName(value);
 			    			break;
+			    		case Copper.OPTION_IF_NONE_MATCH:
+			    			info = '';
+			    			value = 'Set';
+			    			break;
 			    		case Copper.OPTION_BLOCK:
 			    			value = this.getBlockNumber();
 			    			if (this.getBlockMore()) value += '+';
