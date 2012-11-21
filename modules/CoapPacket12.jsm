@@ -416,8 +416,9 @@ Copper.CoapPacket.prototype = {
 						let temp = 0xFF & ((optDelta/8)-2);
 						byteArray.push( temp );
 						optDelta -= (temp+2) * 8;
-					} else if (optDelta < 526345) {
+					} else if (optDelta < 526359) {
 						byteArray.push( 0xF3 );
+						optDelta = Math.min(optDelta, 526344); // Limit to avoid overflow
 						let temp = 0xFFFF & ((optDelta/8)-258);
 					    byteArray.push(0xFF & (temp >>> 8));
 					    byteArray.push(0xFF & temp);
@@ -465,7 +466,7 @@ Copper.CoapPacket.prototype = {
 						
 						var tempLen = opt.length - 15;
 						
-						while (tempLen > 255) {
+						while (tempLen > 254) {
 							dump(' FF');
 							byteArray.push(0xFF);
 							tempLen -= 255;
