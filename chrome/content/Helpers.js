@@ -402,12 +402,17 @@ CopperChrome.displayMessageInfo = function(message) {
 
         cell = document.createElement('listcell');
         cell.setAttribute('label',  options[i][1] );
+        cell.setAttribute('id',  'packet_options_'+options[i][0].toLowerCase() );
         row.appendChild(cell);
 
         cell = document.createElement('listcell');
         cell.setAttribute('label',  options[i][2] );
         row.appendChild(cell);
-
+        
+        if (options[i][0]=='ETag') {
+        	row.setAttribute('ondblclick', "document.getElementById('debug_option_etag').value='"+options[i][1]+"'");
+        }
+        
         optionList.appendChild(row);
         
         if (options[i][0]=='Location') {
