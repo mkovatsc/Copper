@@ -677,13 +677,15 @@ CopperChrome.testObs09 = function() {
 		alert('Run OBS_01 first and wait for notifications with the Content-Format option.');
 		return;
 	}
-
+	
+	alert('Due to Firefox\'s stream-based UDP API, the ACK and the notification are probably concatenated.\n(One message appears to be missing, the other has a funny payload.)');
+	
 	CopperChrome.resetDebugOptions();
 	document.getElementById('chk_debug_options').checked = true;
 	document.getElementById('debug_option_content_type').value = document.getElementById('packet_options_content-format').getAttribute('label');
 	
 	CopperChrome.behavior.requests = 'con';
-	CopperChrome.behavior.retransmissions = true;
+	CopperChrome.behavior.retransmissions = false; // set to false to avoid retransmission due to concatenation problem
 	CopperChrome.behavior.sendDuplicates = false;
 	CopperChrome.updateBehavior();
 	
