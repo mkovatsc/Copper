@@ -181,6 +181,19 @@
 			      <menuitem id="menu_plugtest_block_04" label="BLOCK_04 (/large-create)" oncommand="CopperChrome.testBlock04();"/>
 			   </menupopup>
 			  </menu>
+			  <menu id="menu_plugtest_observe" label="TD_COAP_OBS">
+			    <menupopup>
+			      <menuitem id="menu_plugtest_observe_01" label="OBS_01 (CON observe)" oncommand="CopperChrome.testObs01();"/>
+			      <menuitem id="menu_plugtest_observe_02" label="OBS_02 (NON Observe)" oncommand="CopperChrome.testObs02();"/>
+			      <menuitem id="menu_plugtest_observe_03" label="OBS_03 (Cancel GET)" oncommand="CopperChrome.testObs03();"/>
+			      <menuitem id="menu_plugtest_observe_04" label="OBS_04 (Max-Age timeout)" oncommand="CopperChrome.testObs04();"/>
+			      <menuitem id="menu_plugtest_observe_05" label="OBS_05 (Reboot)" oncommand="CopperChrome.testObs05();"/>
+			      <menuitem id="menu_plugtest_observe_06" label="OBS_06 (Cancel RST)" oncommand="CopperChrome.testObs06();"/>
+			      <menuitem id="menu_plugtest_observe_07" label="OBS_07 (DELETE /obs)" oncommand="CopperChrome.testObs07();"/>
+			      <menuitem id="menu_plugtest_observe_08" label="OBS_08 (PUT new Content-Format)" oncommand="CopperChrome.testObs08();"/>
+			      <menuitem id="menu_plugtest_observe_09" label="OBS_09 (PUT same Content-Format)" oncommand="CopperChrome.testObs09();"/>
+			   </menupopup>
+			  </menu>
 	    	<menuitem id="menu_plugtest_proxy" label="Using proxy" type="checkbox" tooltiptext="Use the Proxy-Uri to run the proxy tests" oncommand="CopperChrome.testSetProxy(event.target);"/>
 	    </menupopup>
 	  </menu>
@@ -252,7 +265,7 @@
 						        <listcell id="packet_header_code"/>
 						    </listitem>
 						    <listitem>
-						        <listcell label="TransID"/>
+						        <listcell label="Message ID"/>
 						        <listcell id="packet_header_tid"/>
 						    </listitem>
 						    <listitem>

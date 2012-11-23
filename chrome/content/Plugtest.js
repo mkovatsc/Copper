@@ -82,6 +82,7 @@ CopperChrome.testCore01 = function() {
 	CopperChrome.behavior.requests = 'con';
 	CopperChrome.behavior.retransmissions = true;
 	CopperChrome.behavior.sendDuplicates = false;
+	CopperChrome.updateBehavior();
 	
 	CopperChrome.sendGet( CopperChrome.testCheckUri('/test') );
 };
@@ -93,6 +94,7 @@ CopperChrome.testCore02 = function() {
 	CopperChrome.behavior.requests = 'con';
 	CopperChrome.behavior.retransmissions = true;
 	CopperChrome.behavior.sendDuplicates = false;
+	CopperChrome.updateBehavior();
 	
 	document.getElementById('toolbar_payload_mode').value = 'page';
 	document.getElementById('payload_text_page').value = 'Small payload';
@@ -107,6 +109,7 @@ CopperChrome.testCore03 = function() {
 	CopperChrome.behavior.requests = 'con';
 	CopperChrome.behavior.retransmissions = true;
 	CopperChrome.behavior.sendDuplicates = false;
+	CopperChrome.updateBehavior();
 	
 	document.getElementById('toolbar_payload_mode').value = 'page';
 	document.getElementById('payload_text_page').value = 'Small payload';
@@ -119,6 +122,7 @@ CopperChrome.testCore04 = function() {
 	CopperChrome.behavior.requests = 'con';
 	CopperChrome.behavior.retransmissions = true;
 	CopperChrome.behavior.sendDuplicates = false;
+	CopperChrome.updateBehavior();
 	
 	CopperChrome.sendDelete( CopperChrome.testCheckUri('/test') );
 };
@@ -128,6 +132,7 @@ CopperChrome.testCore05 = function() {
 	CopperChrome.behavior.requests = 'non';
 	CopperChrome.behavior.retransmissions = true;
 	CopperChrome.behavior.sendDuplicates = false;
+	CopperChrome.updateBehavior();
 	
 	CopperChrome.sendGet( CopperChrome.testCheckUri('/test') );
 };
@@ -139,6 +144,7 @@ CopperChrome.testCore06 = function() {
 	CopperChrome.behavior.requests = 'non';
 	CopperChrome.behavior.retransmissions = true;
 	CopperChrome.behavior.sendDuplicates = false;
+	CopperChrome.updateBehavior();
 	
 	document.getElementById('toolbar_payload_mode').value = 'page';
 	document.getElementById('payload_text_page').value = 'Small payload';
@@ -153,6 +159,7 @@ CopperChrome.testCore07 = function() {
 	CopperChrome.behavior.requests = 'non';
 	CopperChrome.behavior.retransmissions = true;
 	CopperChrome.behavior.sendDuplicates = false;
+	CopperChrome.updateBehavior();
 	
 	document.getElementById('toolbar_payload_mode').value = 'page';
 	document.getElementById('payload_text_page').value = 'Small payload';
@@ -165,6 +172,7 @@ CopperChrome.testCore08 = function() {
 	CopperChrome.behavior.requests = 'non';
 	CopperChrome.behavior.retransmissions = true;
 	CopperChrome.behavior.sendDuplicates = false;
+	CopperChrome.updateBehavior();
 	
 	CopperChrome.sendDelete( CopperChrome.testCheckUri('/test') );
 };
@@ -175,6 +183,7 @@ CopperChrome.testCore09 = function() {
 	CopperChrome.behavior.requests = 'con';
 	CopperChrome.behavior.retransmissions = true;
 	CopperChrome.behavior.sendDuplicates = false;
+	CopperChrome.updateBehavior();
 	
 	CopperChrome.sendGet( CopperChrome.testCheckUri('/separate') );
 };
@@ -187,6 +196,7 @@ CopperChrome.testCore10 = function() {
 	CopperChrome.behavior.requests = 'con';
 	CopperChrome.behavior.retransmissions = true;
 	CopperChrome.behavior.sendDuplicates = false;
+	CopperChrome.updateBehavior();
 	
 	CopperChrome.sendGet( CopperChrome.testCheckUri('/test') );
 };
@@ -199,6 +209,7 @@ CopperChrome.testCore11 = function() {
 	CopperChrome.behavior.requests = 'con';
 	CopperChrome.behavior.retransmissions = true;
 	CopperChrome.behavior.sendDuplicates = false;
+	CopperChrome.updateBehavior();
 	
 	CopperChrome.sendGet( CopperChrome.testCheckUri('/separate') );
 };
@@ -213,6 +224,7 @@ CopperChrome.testCore13 = function() {
 	CopperChrome.behavior.requests = 'con';
 	CopperChrome.behavior.retransmissions = true;
 	CopperChrome.behavior.sendDuplicates = false;
+	CopperChrome.updateBehavior();
 	
 	CopperChrome.sendGet( CopperChrome.testCheckUri('/seg1/seg2/seg3') );
 };
@@ -223,6 +235,7 @@ CopperChrome.testCore14 = function() {
 	CopperChrome.behavior.requests = 'con';
 	CopperChrome.behavior.retransmissions = true;
 	CopperChrome.behavior.sendDuplicates = false;
+	CopperChrome.updateBehavior();
 	
 	CopperChrome.sendGet( CopperChrome.testCheckUri('/query?first=1&second=2&third=3') );
 };
@@ -240,6 +253,7 @@ CopperChrome.testCore17 = function() {
 	CopperChrome.behavior.requests = 'non';
 	CopperChrome.behavior.retransmissions = true;
 	CopperChrome.behavior.sendDuplicates = false;
+	CopperChrome.updateBehavior();
 	
 	CopperChrome.sendGet( CopperChrome.testCheckUri('/separate') );
 };
@@ -255,6 +269,7 @@ CopperChrome.testCore19 = function() {
 	CopperChrome.behavior.requests = 'con';
 	CopperChrome.behavior.retransmissions = true;
 	CopperChrome.behavior.sendDuplicates = false;
+	CopperChrome.updateBehavior();
 	
 	document.getElementById('toolbar_payload_mode').value = 'page';
 	document.getElementById('payload_text_page').value = 'Small payload';
@@ -270,6 +285,7 @@ CopperChrome.testCore20a = function() {
 	CopperChrome.behavior.requests = 'con';
 	CopperChrome.behavior.retransmissions = true;
 	CopperChrome.behavior.sendDuplicates = false;
+	CopperChrome.updateBehavior();
 	
 	CopperChrome.sendGet( CopperChrome.testCheckUri('/multi-format') );
 };
@@ -281,6 +297,7 @@ CopperChrome.testCore20b = function() {
 	CopperChrome.behavior.requests = 'con';
 	CopperChrome.behavior.retransmissions = true;
 	CopperChrome.behavior.sendDuplicates = false;
+	CopperChrome.updateBehavior();
 	
 	CopperChrome.sendGet( CopperChrome.testCheckUri('/multi-format') );
 };
@@ -290,12 +307,14 @@ CopperChrome.testCore21a = function() {
 	CopperChrome.behavior.requests = 'con';
 	CopperChrome.behavior.retransmissions = true;
 	CopperChrome.behavior.sendDuplicates = false;
+	CopperChrome.updateBehavior();
 	
 	CopperChrome.sendGet( CopperChrome.testCheckUri('/test') );
 };
 CopperChrome.testCore21b = function() {
 	if (!document.getElementById('packet_options_etag')) {
 		alert('Run CORE_21a first and ensure the response contains the ETag option.');
+		return;
 	}
 	
 	CopperChrome.resetDebugOptions();
@@ -305,6 +324,7 @@ CopperChrome.testCore21b = function() {
 	CopperChrome.behavior.requests = 'con';
 	CopperChrome.behavior.retransmissions = true;
 	CopperChrome.behavior.sendDuplicates = false;
+	CopperChrome.updateBehavior();
 	
 	CopperChrome.sendGet( CopperChrome.testCheckUri('/test') );
 };
@@ -319,6 +339,7 @@ CopperChrome.testCore22b = function() {
 	
 	if (!document.getElementById('packet_options_etag')) {
 		alert('Run CORE_22a first and ensure the response contains the ETag option.');
+		return;
 	}
 	
 	CopperChrome.resetDebugOptions();
@@ -329,6 +350,7 @@ CopperChrome.testCore22b = function() {
 	CopperChrome.behavior.requests = 'con';
 	CopperChrome.behavior.retransmissions = true;
 	CopperChrome.behavior.sendDuplicates = false;
+	CopperChrome.updateBehavior();
 	
 	document.getElementById('toolbar_payload_mode').value = 'page';
 	document.getElementById('payload_text_page').value = 'Small payload';
@@ -349,6 +371,7 @@ CopperChrome.testCore23a = function() {
 	CopperChrome.behavior.requests = 'con';
 	CopperChrome.behavior.retransmissions = true;
 	CopperChrome.behavior.sendDuplicates = false;
+	CopperChrome.updateBehavior();
 	
 	document.getElementById('toolbar_payload_mode').value = 'page';
 	document.getElementById('payload_text_page').value = 'Small payload';
@@ -371,6 +394,7 @@ CopperChrome.testCore25 = function() {
 	CopperChrome.behavior.requests = 'con';
 	CopperChrome.behavior.retransmissions = true;
 	CopperChrome.behavior.sendDuplicates = false;
+	CopperChrome.updateBehavior();
 	
 	document.getElementById('toolbar_payload_mode').value = 'page';
 	document.getElementById('payload_text_page').value = 'Small payload';
@@ -388,6 +412,7 @@ CopperChrome.testLink02 = function() {
 	CopperChrome.behavior.requests = 'con';
 	CopperChrome.behavior.retransmissions = true;
 	CopperChrome.behavior.sendDuplicates = false;
+	CopperChrome.updateBehavior();
 	
 	CopperChrome.sendGet( CopperChrome.testCheckUri('/.well-known/core?rt=Type1') );
 };
@@ -397,6 +422,7 @@ CopperChrome.testLink03 = function() {
 	CopperChrome.behavior.requests = 'con';
 	CopperChrome.behavior.retransmissions = true;
 	CopperChrome.behavior.sendDuplicates = false;
+	CopperChrome.updateBehavior();
 	
 	CopperChrome.sendGet( CopperChrome.testCheckUri('/.well-known/core?rt=*') );
 };
@@ -406,6 +432,7 @@ CopperChrome.testLink04 = function() {
 	CopperChrome.behavior.requests = 'con';
 	CopperChrome.behavior.retransmissions = true;
 	CopperChrome.behavior.sendDuplicates = false;
+	CopperChrome.updateBehavior();
 	
 	CopperChrome.sendGet( CopperChrome.testCheckUri('/.well-known/core?rt=Type2') );
 };
@@ -415,6 +442,7 @@ CopperChrome.testLink05 = function() {
 	CopperChrome.behavior.requests = 'con';
 	CopperChrome.behavior.retransmissions = true;
 	CopperChrome.behavior.sendDuplicates = false;
+	CopperChrome.updateBehavior();
 	
 	CopperChrome.sendGet( CopperChrome.testCheckUri('/.well-known/core?if=If*') );
 };
@@ -424,6 +452,7 @@ CopperChrome.testLink06 = function() {
 	CopperChrome.behavior.requests = 'con';
 	CopperChrome.behavior.retransmissions = true;
 	CopperChrome.behavior.sendDuplicates = false;
+	CopperChrome.updateBehavior();
 	
 	CopperChrome.sendGet( CopperChrome.testCheckUri('/.well-known/core?sz=*') );
 };
@@ -433,6 +462,7 @@ CopperChrome.testLink07 = function() {
 	CopperChrome.behavior.requests = 'con';
 	CopperChrome.behavior.retransmissions = true;
 	CopperChrome.behavior.sendDuplicates = false;
+	CopperChrome.updateBehavior();
 	
 	CopperChrome.sendGet( CopperChrome.testCheckUri('/.well-known/core?href=/link1') );
 };
@@ -442,6 +472,7 @@ CopperChrome.testLink08 = function() {
 	CopperChrome.behavior.requests = 'con';
 	CopperChrome.behavior.retransmissions = true;
 	CopperChrome.behavior.sendDuplicates = false;
+	CopperChrome.updateBehavior();
 	
 	CopperChrome.sendGet( CopperChrome.testCheckUri('/.well-known/core?href=/link*') );
 };
@@ -452,6 +483,7 @@ CopperChrome.testLink09a = function() {
 	CopperChrome.behavior.requests = 'con';
 	CopperChrome.behavior.retransmissions = true;
 	CopperChrome.behavior.sendDuplicates = false;
+	CopperChrome.updateBehavior();
 	
 	CopperChrome.sendGet( CopperChrome.testCheckUri('/.well-known/core?ct=40') );
 };
@@ -463,6 +495,7 @@ CopperChrome.testLink09b = function() {
 	CopperChrome.behavior.requests = 'con';
 	CopperChrome.behavior.retransmissions = true;
 	CopperChrome.behavior.sendDuplicates = false;
+	CopperChrome.updateBehavior();
 	
 	CopperChrome.sendGet( CopperChrome.testCheckUri('/path') );
 };
@@ -472,6 +505,7 @@ CopperChrome.testLink09c = function() {
 	CopperChrome.behavior.requests = 'con';
 	CopperChrome.behavior.retransmissions = true;
 	CopperChrome.behavior.sendDuplicates = false;
+	CopperChrome.updateBehavior();
 	
 	CopperChrome.sendGet( CopperChrome.testCheckUri('/path/sub1') );
 };
@@ -485,6 +519,7 @@ CopperChrome.testBlock01 = function() {
 	CopperChrome.behavior.requests = 'con';
 	CopperChrome.behavior.retransmissions = true;
 	CopperChrome.behavior.sendDuplicates = false;
+	CopperChrome.updateBehavior();
 	
 	CopperChrome.sendGet( CopperChrome.testCheckUri('/large') );
 };
@@ -496,6 +531,7 @@ CopperChrome.testBlock02 = function() {
 	CopperChrome.behavior.requests = 'con';
 	CopperChrome.behavior.retransmissions = true;
 	CopperChrome.behavior.sendDuplicates = false;
+	CopperChrome.updateBehavior();
 	
 	CopperChrome.sendGet( CopperChrome.testCheckUri('/large') );
 };
@@ -509,6 +545,7 @@ CopperChrome.testBlock03 = function() {
 	CopperChrome.behavior.requests = 'con';
 	CopperChrome.behavior.retransmissions = true;
 	CopperChrome.behavior.sendDuplicates = false;
+	CopperChrome.updateBehavior();
 
 	document.getElementById('toolbar_payload_mode').value = 'page';
 	document.getElementById('payload_text_page').value = '';
@@ -529,6 +566,7 @@ CopperChrome.testBlock04 = function() {
 	CopperChrome.behavior.requests = 'con';
 	CopperChrome.behavior.retransmissions = true;
 	CopperChrome.behavior.sendDuplicates = false;
+	CopperChrome.updateBehavior();
 
 	document.getElementById('toolbar_payload_mode').value = 'page';
 	document.getElementById('payload_text_page').value = '';
@@ -538,4 +576,119 @@ CopperChrome.testBlock04 = function() {
 	document.getElementById('payload_text_page').value += '|-[this line only has 34 bytes]-|\n';
 	
 	CopperChrome.sendPost( CopperChrome.testCheckUri('/large-create') );
+};
+
+CopperChrome.testObs01 = function() {
+	if (document.getElementById('toolbar_observe').label == 'Cancel ') {
+		CopperChrome.behavior.observeCancellation = 'rst';
+		CopperChrome.updateBehavior();
+		document.getElementById('toolbar_observe').click();
+	}
+	
+	CopperChrome.resetDebugOptions();
+	
+	CopperChrome.behavior.requests = 'con';
+	CopperChrome.behavior.retransmissions = true;
+	CopperChrome.behavior.sendDuplicates = false;
+	CopperChrome.behavior.observeToken = true;
+	CopperChrome.updateBehavior();
+	
+	CopperChrome.testCheckUri('/obs');
+	
+	document.getElementById('toolbar_observe').click();
+};
+CopperChrome.testObs02 = function() {
+	CopperChrome.resetDebugOptions();
+	document.getElementById('chk_debug_options').checked = true;
+	document.getElementById('debug_option_observe').value = '0';
+	
+	CopperChrome.behavior.requests = 'non';
+	CopperChrome.behavior.sendDuplicates = false;
+	CopperChrome.behavior.showUnknown = true;
+	CopperChrome.behavior.rejectUnknown = false;
+	CopperChrome.updateBehavior();
+	
+	CopperChrome.sendGet( CopperChrome.testCheckUri('/obs') );
+};
+CopperChrome.testObs03 = function() {
+	if (document.getElementById('toolbar_observe').label != 'Cancel ') {
+		alert('Run OBS_01 first and wait for notifications.');
+		return;
+	}
+	
+	CopperChrome.behavior.requests = 'con';
+	CopperChrome.behavior.retransmissions = true;
+	CopperChrome.behavior.sendDuplicates = false;
+	CopperChrome.behavior.observeCancellation = 'get';
+	CopperChrome.updateBehavior();
+	
+	CopperChrome.testCheckUri('/obs');
+	
+	document.getElementById('toolbar_observe').click();
+};
+CopperChrome.testObs04 = function() {
+	alert('The Max-Age entry option turns red when the representation becomes stale.');
+	
+	if (document.getElementById('toolbar_observe').label != 'Cancel ') {
+		CopperChrome.testObs01();
+	}
+};
+CopperChrome.testObs05 = function() {
+	document.location.reload();
+};
+CopperChrome.testObs06 = function() {
+	if (document.getElementById('toolbar_observe').label != 'Cancel ') {
+		alert('Run OBS_01 first and wait for notifications.');
+		return;
+	}
+	
+	CopperChrome.behavior.requests = 'con';
+	CopperChrome.behavior.retransmissions = true;
+	CopperChrome.behavior.sendDuplicates = false;
+	CopperChrome.behavior.observeCancellation = 'rst';
+	CopperChrome.updateBehavior();
+	
+	CopperChrome.testCheckUri('/obs');
+	
+	document.getElementById('toolbar_observe').click();
+};
+CopperChrome.testObs08 = function() {
+	if (document.getElementById('toolbar_observe').label != 'Cancel ' || !document.getElementById('packet_options_content-format')) {
+		alert('Run OBS_01 first and wait for notifications with the Content-Format option.');
+		return;
+	}
+
+	CopperChrome.resetDebugOptions();
+	document.getElementById('chk_debug_options').checked = true;
+	document.getElementById('debug_option_content_type').value = parseInt( Math.random() * 0x10000);
+	
+	CopperChrome.behavior.requests = 'con';
+	CopperChrome.behavior.retransmissions = true;
+	CopperChrome.behavior.sendDuplicates = false;
+	CopperChrome.updateBehavior();
+	
+	document.getElementById('toolbar_payload_mode').value = 'page';
+	document.getElementById('payload_text_page').value = 'random Content-Format ' + document.getElementById('debug_option_content_type').value;
+	
+	CopperChrome.doUpload(Copper.PUT, CopperChrome.testCheckUri('/obs') ); // does not call cancelTransactions()
+};
+CopperChrome.testObs09 = function() {
+	if (document.getElementById('toolbar_observe').label != 'Cancel ' || !document.getElementById('packet_options_content-format')) {
+		alert('Run OBS_01 first and wait for notifications with the Content-Format option.');
+		return;
+	}
+
+	CopperChrome.resetDebugOptions();
+	document.getElementById('chk_debug_options').checked = true;
+	document.getElementById('debug_option_content_type').value = document.getElementById('packet_options_content-format').getAttribute('label');
+	
+	CopperChrome.behavior.requests = 'con';
+	CopperChrome.behavior.retransmissions = true;
+	CopperChrome.behavior.sendDuplicates = false;
+	CopperChrome.updateBehavior();
+	
+	document.getElementById('toolbar_payload_mode').value = 'page';
+	document.getElementById('payload_text_page').value = document.getElementById('debug_option_content_type').value;
+	
+	CopperChrome.doUpload(Copper.PUT, CopperChrome.testCheckUri('/obs') ); // does not call cancelTransactions()
 };

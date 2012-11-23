@@ -56,7 +56,7 @@ CopperChrome.Transaction.prototype = {
 
 CopperChrome.TransactionHandler = function(myClient, retrans) {
 	
-	this.tid = 0xFFFF & parseInt( Math.random() * 0xFFFF);
+	this.tid = 0xFFFF & parseInt( Math.random() * 0x10000);
 	
 	this.client = myClient;
 	this.client.register( CopperChrome.myBind(this, this.handle) );
