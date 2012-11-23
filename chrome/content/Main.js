@@ -111,6 +111,7 @@ CopperChrome.main = function() {
 		
 		CopperChrome.loadBehavior();
 		CopperChrome.loadDebugOptions();
+		CopperChrome.loadPlugtest();
 		
 	} catch (ex) {
 		window.setTimeout(
@@ -210,6 +211,7 @@ CopperChrome.unload = function() {
 	CopperChrome.saveBehavior();
 	CopperChrome.savePayload();
 	CopperChrome.saveDebugOptions();
+	CopperChrome.savePlugtest();
 };
 
 
