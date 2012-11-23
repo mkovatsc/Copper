@@ -93,7 +93,8 @@
 	</toolbaritem>
 	
 	<toolbaritem>
-	  <menu id="menu_behavior" label="Behavior" oncommand="CopperChrome.behaviorUpdate(event.target);">
+	  <toolbarseparator/>
+	  <toolbarbutton type="menu" id="menu_behavior" label="Behavior  " oncommand="CopperChrome.behaviorUpdate(event.target);">
 	    <menupopup>
 	      <menuitem id="menu_behavior_requests_con" label="CON requests" type="radio" name="request" value="con"/>
 	      <menuitem id="menu_behavior_requests_non" label="NON requests" type="radio" name="request" value="non"/>
@@ -119,11 +120,9 @@
 	      <menuitem id="menu_behavior_observe_get" label="GET Observe cancel" type="radio" name="observe" value="get" tooltiptext="Send a GET without Observe option to notify server"/>
 	      <menuitem id="menu_behavior_observe_rst" label="RST Observe cancel" type="radio" name="observe" value="rst" tooltiptext="Send a RST right away (does not work with MID matching as new MID is used)"/>
 	    </menupopup>
-	  </menu>
-	</toolbaritem>
-	
-	<toolbaritem>
-	  <menu id="menu_plugtest" label="Plugtest">
+	  </toolbarbutton>
+	  
+	  <toolbarbutton type="menu" id="menu_plugtest" label="Plugtest  ">
 	    <menupopup>
 			  <menu id="menu_plugtest_core" label="TD_COAP_CORE">
 			    <menupopup>
@@ -194,10 +193,12 @@
 			      <menuitem id="menu_plugtest_observe_09" label="OBS_09 (PUT same Content-Format)" oncommand="CopperChrome.testObs09();"/>
 			   </menupopup>
 			  </menu>
+        <menuseparator/>
 	    	<menuitem id="menu_plugtest_proxy" label="Using proxy" type="checkbox" tooltiptext="Use the Proxy-Uri to run the proxy tests" oncommand="CopperChrome.testSetProxy(event.target);"/>
 	    </menupopup>
-	  </menu>
+	  </toolbarbutton>
 	</toolbaritem>
+	<toolbarbutton id="toolbar_plugtest_exec" label="Test" image="chrome://copper/skin/tool_test.png" oncommand="CopperChrome.testExecute();"/>
 	
 	<toolbarspacer flex="1"/>
 	
