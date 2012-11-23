@@ -181,7 +181,7 @@
 			      <menuitem id="menu_plugtest_block_04" label="BLOCK_04 (/large-create)" oncommand="CopperChrome.testBlock04();"/>
 			   </menupopup>
 			  </menu>
-	    	<menuitem id="menu_plugtest_proxy" label="Use proxy" type="checkbox" tooltiptext="Use the Proxy-Uri for the tests" oncommand="CopperChrome.testSetProxy(event.target);"/>
+	    	<menuitem id="menu_plugtest_proxy" label="Using proxy" type="checkbox" tooltiptext="Use the Proxy-Uri to run the proxy tests" oncommand="CopperChrome.testSetProxy(event.target);"/>
 	    </menupopup>
 	  </menu>
 	</toolbaritem>
