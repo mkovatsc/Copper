@@ -62,3 +62,5 @@ pref("extensions.copper.debug.options.block-auto", true);
 pref("extensions.copper.debug.options.if-none-match", false);
 pref("extensions.copper.debug.options.custom-number", "");
 pref("extensions.copper.debug.options.custom-value", "");
+pref("extensions.copper.plugtest.proxy", false);
+pref("extensions.copper.plugtest.origin-server", "");

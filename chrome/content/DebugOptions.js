@@ -103,6 +103,24 @@ CopperChrome.saveDebugOptions = function() {
 	CopperChrome.prefManager.setCharPref('extensions.copper.debug.options.custom-value', document.getElementById('debug_option_custom_value').value);
 };
 
+CopperChrome.resetDebugOptions = function() {
+	
+	var list = document.getElementById('sidebar').getElementsByTagName('image');
+	for (var i=0; i<list.length; ++i) {
+		list[i].click();
+	}
+	
+	list = document.getElementById('sidebar').getElementsByTagName('checkbox');
+	for (var i=0; i<list.length; ++i) {
+		list[i].checked = false;
+	}
+	
+	list = document.getElementById('sidebar').getElementsByTagName('menulist');
+	for (var i=0; i<list.length; ++i) {
+		list[i].value = '';
+	}
+};
+
 CopperChrome.checkDebugOptions = function(message) {
 try {
 	if (document.getElementById('chk_debug_options').checked) {

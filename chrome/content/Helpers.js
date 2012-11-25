@@ -53,6 +53,9 @@ CopperChrome.loadBehavior = function() {
 	CopperChrome.behavior.observeToken = CopperChrome.prefManager.getBoolPref('extensions.copper.behavior.observe-token');
 	CopperChrome.behavior.observeCancellation = CopperChrome.prefManager.getCharPref('extensions.copper.behavior.observe-cancellation');
 	
+	CopperChrome.updateBehavior();
+};
+CopperChrome.updateBehavior = function() {
 	document.getElementById('menu_behavior_requests_' + CopperChrome.behavior.requests).setAttribute('checked', 'true');
 	document.getElementById('menu_behavior_retransmissions').setAttribute('checked', CopperChrome.behavior.retransmissions);
 	document.getElementById('menu_behavior_send_duplicates').setAttribute('checked', CopperChrome.behavior.sendDuplicates);
@@ -61,9 +64,7 @@ CopperChrome.loadBehavior = function() {
 	document.getElementById('menu_behavior_block_size_' + CopperChrome.behavior.blockSize).setAttribute('checked', 'true');
 	document.getElementById('menu_behavior_token_observe').setAttribute('checked', CopperChrome.behavior.observeToken);
 	document.getElementById('menu_behavior_observe_' + CopperChrome.behavior.observeCancellation).setAttribute('checked', 'true');
-	
 };
-
 CopperChrome.saveBehavior = function() {
 	CopperChrome.prefManager.setCharPref('extensions.copper.behavior.requests', CopperChrome.behavior.requests);
 	CopperChrome.prefManager.setBoolPref('extensions.copper.behavior.retransmissions', CopperChrome.behavior.retransmissions);
@@ -402,12 +403,22 @@ CopperChrome.displayMessageInfo = function(message) {
 
         cell = document.createElement('listcell');
         cell.setAttribute('label',  options[i][1] );
+        cell.setAttribute('id',  'packet_options_'+options[i][0].toLowerCase() );
         row.appendChild(cell);
 
         cell = document.createElement('listcell');
         cell.setAttribute('label',  options[i][2] );
         row.appendChild(cell);
-
+        
+        if (options[i][0]=='ETag') {
+        	row.setAttribute('ondblclick', "document.getElementById('debug_option_etag').value='"+options[i][1]+"'");
+        }
+        
+        if (options[i][0]=='Max-Age') {
+        	var maxAgeHandle = row;
+        	window.setTimeout(function() { maxAgeHandle.style.backgroundColor='red'; maxAgeHandle.style.color='white'; }, options[i][1]*1000);
+        }
+        
         optionList.appendChild(row);
         
         if (options[i][0]=='Location') {

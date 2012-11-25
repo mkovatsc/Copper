@@ -690,21 +690,13 @@ CopperChrome.CoapMessage.prototype = {
 		
 		if (asString) {
 			var ret = '';
-			
+
 			for (var optTypeIt in this.packet.options) {
-		    	if (Array.isArray(this.packet.options[optTypeIt][1])) {
-/* Special options	    		
-					var ret = this.getBlock1Number();
-					if (this.getBlock1More()) ret += '+';
-					ret += ' ('+this.getBlock1Size()+' B/block)';
-					return new Array('Block1', ret, optLen+' byte(s)');
-*/
-		    		
-		    		
-		    		ret += '\n  ' + Copper.getOptionName(optTypeIt) + ': ' + this.packet.getOption(optTypeIt) + ' ['+ this.packet.options[optTypeIt][0]+']';
-		    	}
+				if (Array.isArray(this.packet.options[optTypeIt][1])) {
+					ret += '\n  ' + Copper.getOptionName(optTypeIt) + ': ' + this.packet.getOption(optTypeIt) + ' ['+ this.packet.options[optTypeIt][0]+']';
+				}
 			}
-			
+
 			return ret;
 		} else {
 			var ret = new Array();
@@ -723,6 +715,10 @@ CopperChrome.CoapMessage.prototype = {
 			    		case Copper.OPTION_ACCEPT:
 			    			info = value;
 			    			value = Copper.getContentTypeName(value);
+			    			break;
+			    		case Copper.OPTION_IF_NONE_MATCH:
+			    			info = '';
+			    			value = 'Set';
 			    			break;
 			    		case Copper.OPTION_BLOCK:
 			    			value = this.getBlockNumber();

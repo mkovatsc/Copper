@@ -56,6 +56,7 @@
 <script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/CoapMessage.js"/>
 <script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/UdpClient.js"/>
 <script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/TransactionHandler.js"/>
+<script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/Plugtest.js"/>
 
 
 <toolbar id="main_toolbar"	align="center">
@@ -92,7 +93,8 @@
 	</toolbaritem>
 	
 	<toolbaritem>
-	  <menu id="menu_behavior" label="Behavior" oncommand="CopperChrome.behaviorUpdate(event.target);">
+	  <toolbarseparator/>
+	  <toolbarbutton type="menu" id="menu_behavior" label="Behavior  " oncommand="CopperChrome.behaviorUpdate(event.target);">
 	    <menupopup>
 	      <menuitem id="menu_behavior_requests_con" label="CON requests" type="radio" name="request" value="con"/>
 	      <menuitem id="menu_behavior_requests_non" label="NON requests" type="radio" name="request" value="non"/>
@@ -118,8 +120,85 @@
 	      <menuitem id="menu_behavior_observe_get" label="GET Observe cancel" type="radio" name="observe" value="get" tooltiptext="Send a GET without Observe option to notify server"/>
 	      <menuitem id="menu_behavior_observe_rst" label="RST Observe cancel" type="radio" name="observe" value="rst" tooltiptext="Send a RST right away (does not work with MID matching as new MID is used)"/>
 	    </menupopup>
-	  </menu>
+	  </toolbarbutton>
+	  
+	  <toolbarbutton type="menu" id="menu_plugtest" label="Plugtest  ">
+	    <menupopup>
+			  <menu id="menu_plugtest_core" label="TD_COAP_CORE">
+			    <menupopup>
+			      <menuitem id="menu_plugtest_core_01" label="CORE_01 [29] (GET CON)" oncommand="CopperChrome.testCore01();"/>
+			      <menuitem id="menu_plugtest_core_02" label="CORE_02 (POST CON)" oncommand="CopperChrome.testCore02();"/>
+			      <menuitem id="menu_plugtest_core_03" label="CORE_03 (PUT CON)" oncommand="CopperChrome.testCore03();"/>
+			      <menuitem id="menu_plugtest_core_04" label="CORE_04 (DELETE CON)" oncommand="CopperChrome.testCore04();"/>
+			      <menuitem id="menu_plugtest_core_05" label="CORE_05 (GET NON)" oncommand="CopperChrome.testCore05();"/>
+			      <menuitem id="menu_plugtest_core_06" label="CORE_06 (POST NON)" oncommand="CopperChrome.testCore06();"/>
+			      <menuitem id="menu_plugtest_core_07" label="CORE_07 (PUT NON)" oncommand="CopperChrome.testCore07();"/>
+			      <menuitem id="menu_plugtest_core_08" label="CORE_08 (DELETE NON)" oncommand="CopperChrome.testCore08();"/>
+			      <menuitem id="menu_plugtest_core_09" label="CORE_09 (CON /separate)" oncommand="CopperChrome.testCore09();"/>
+			      <menuitem id="menu_plugtest_core_10" label="CORE_10 (GET Token)" oncommand="CopperChrome.testCore10();"/>
+			      <menuitem id="menu_plugtest_core_11" label="CORE_11 (CON /separate Token)" oncommand="CopperChrome.testCore11();"/>
+			      <menuitem id="menu_plugtest_core_12" label="CORE_12 (GET No Token)" oncommand="CopperChrome.testCore12();"/>
+			      <menuitem id="menu_plugtest_core_13" label="CORE_13 (GET /seg1/seg2/seg3)" oncommand="CopperChrome.testCore13();"/>
+			      <menuitem id="menu_plugtest_core_14" label="CORE_14 (GET /query)" oncommand="CopperChrome.testCore14();"/>
+			      <menuitem id="menu_plugtest_core_15" label="CORE_15 (GET lossy)" oncommand="CopperChrome.testCore15();"/>
+			      <menuitem id="menu_plugtest_core_16" label="CORE_16 (CON /separate lossy)" oncommand="CopperChrome.testCore16();"/>
+			      <menuitem id="menu_plugtest_core_17" label="CORE_17 (NON /separte)" oncommand="CopperChrome.testCore17();"/>
+			      <menuitem id="menu_plugtest_core_18" label="CORE_18 [24] (POST Location-Path)" oncommand="CopperChrome.testCore18();"/>
+			      <menuitem id="menu_plugtest_core_19" label="CORE_19 [25] (POST Location-Query)" oncommand="CopperChrome.testCore19();"/>
+			      <menuitem id="menu_plugtest_core_20a" label="CORE_20a [26] (GET text/plain)" oncommand="CopperChrome.testCore20a();"/>
+			      <menuitem id="menu_plugtest_core_20b" label="CORE_20b [26] (GET application/xml)" oncommand="CopperChrome.testCore20b();"/>
+			      <menuitem id="menu_plugtest_core_21a" label="CORE_21a (GET ETag)" oncommand="CopperChrome.testCore21a();"/>
+			      <menuitem id="menu_plugtest_core_21b" label="CORE_21b (GET ETag validate)" oncommand="CopperChrome.testCore21b();"/>
+			      <menuitem id="menu_plugtest_core_21c" label="CORE_21c (GET ETag changed)" oncommand="CopperChrome.testCore21c();"/>
+			      <menuitem id="menu_plugtest_core_22a" label="CORE_22a [27] (GET ETag)" oncommand="CopperChrome.testCore22a();"/>
+			      <menuitem id="menu_plugtest_core_22b" label="CORE_22b [27] (PUT If-Match)" oncommand="CopperChrome.testCore22b();"/>
+			      <menuitem id="menu_plugtest_core_22c" label="CORE_22c [27] (PUT If-Match changed)" oncommand="CopperChrome.testCore22c();"/>
+			      <menuitem id="menu_plugtest_core_23a" label="CORE_23a [28] (PUT If-None-Match)" oncommand="CopperChrome.testCore23a();"/>
+			      <menuitem id="menu_plugtest_core_23b" label="CORE_23b [28] (PUT If-None-Match exists)" oncommand="CopperChrome.testCore23b();"/>
+			   </menupopup>
+			  </menu>
+			  <menu id="menu_plugtest_link" label="TD_COAP_LINK">
+			    <menupopup>
+			      <menuitem id="menu_plugtest_link_01" label="LINK_01 (Discover)" oncommand="CopperChrome.testLink01();"/>
+			      <menuitem id="menu_plugtest_link_02" label="LINK_02 (Filter rt=Type1)" oncommand="CopperChrome.testLink02();"/>
+			      <menuitem id="menu_plugtest_link_03" label="LINK_03 (Filter rt=*)" oncommand="CopperChrome.testLink03();"/>
+			      <menuitem id="menu_plugtest_link_04" label="LINK_04 (Filter rt=Type2)" oncommand="CopperChrome.testLink04();"/>
+			      <menuitem id="menu_plugtest_link_05" label="LINK_05 (Filter if=If*)" oncommand="CopperChrome.testLink05();"/>
+			      <menuitem id="menu_plugtest_link_06" label="LINK_06 (Filter sz=*)" oncommand="CopperChrome.testLink06();"/>
+			      <menuitem id="menu_plugtest_link_07" label="LINK_07 (Filter href=/link1)" oncommand="CopperChrome.testLink07();"/>
+			      <menuitem id="menu_plugtest_link_08" label="LINK_08 (Filter href=/link*)" oncommand="CopperChrome.testLink08();"/>
+			      <menuitem id="menu_plugtest_link_09a" label="LINK_09a (Filter ct=40)" oncommand="CopperChrome.testLink09a();"/>
+			      <menuitem id="menu_plugtest_link_09b" label="LINK_09b (GET /path" oncommand="CopperChrome.testLink09b();"/>
+			      <menuitem id="menu_plugtest_link_09c" label="LINK_09c (GET /path/sub1)" oncommand="CopperChrome.testLink09c();"/>
+			   </menupopup>
+			  </menu>
+			  <menu id="menu_plugtest_block" label="TD_COAP_BLOCK">
+			    <menupopup>
+			      <menuitem id="menu_plugtest_block_01" label="BLOCK_01 (/large)" oncommand="CopperChrome.testBlock01();"/>
+			      <menuitem id="menu_plugtest_block_02" label="BLOCK_02 (/large late)" oncommand="CopperChrome.testBlock02();"/>
+			      <menuitem id="menu_plugtest_block_03" label="BLOCK_03 (/large-update)" oncommand="CopperChrome.testBlock03();"/>
+			      <menuitem id="menu_plugtest_block_04" label="BLOCK_04 (/large-create)" oncommand="CopperChrome.testBlock04();"/>
+			   </menupopup>
+			  </menu>
+			  <menu id="menu_plugtest_observe" label="TD_COAP_OBS">
+			    <menupopup>
+			      <menuitem id="menu_plugtest_observe_01" label="OBS_01 (CON observe)" oncommand="CopperChrome.testObs01();"/>
+			      <menuitem id="menu_plugtest_observe_02" label="OBS_02 (NON Observe)" oncommand="CopperChrome.testObs02();"/>
+			      <menuitem id="menu_plugtest_observe_03" label="OBS_03 (Cancel GET)" oncommand="CopperChrome.testObs03();"/>
+			      <menuitem id="menu_plugtest_observe_04" label="OBS_04 (Max-Age timeout)" oncommand="CopperChrome.testObs04();"/>
+			      <menuitem id="menu_plugtest_observe_05" label="OBS_05 (Reboot)" oncommand="CopperChrome.testObs05();"/>
+			      <menuitem id="menu_plugtest_observe_06" label="OBS_06 (Cancel RST)" oncommand="CopperChrome.testObs06();"/>
+			      <menuitem id="menu_plugtest_observe_07" label="OBS_07 (DELETE /obs)" oncommand="CopperChrome.testObs07();"/>
+			      <menuitem id="menu_plugtest_observe_08" label="OBS_08 (PUT new Content-Format)" oncommand="CopperChrome.testObs08();"/>
+			      <menuitem id="menu_plugtest_observe_09" label="OBS_09 (PUT same Content-Format)" oncommand="CopperChrome.testObs09();"/>
+			   </menupopup>
+			  </menu>
+        <menuseparator/>
+	    	<menuitem id="menu_plugtest_proxy" label="Using proxy" type="checkbox" tooltiptext="Use the Proxy-Uri to run the proxy tests" oncommand="CopperChrome.testSetProxy(event.target);"/>
+	    </menupopup>
+	  </toolbarbutton>
 	</toolbaritem>
+	<toolbarbutton id="toolbar_plugtest_exec" label="Test" image="chrome://copper/skin/tool_test.png" oncommand="CopperChrome.testExecute();"/>
 	
 	<toolbarspacer flex="1"/>
 	
@@ -187,7 +266,7 @@
 						        <listcell id="packet_header_code"/>
 						    </listitem>
 						    <listitem>
-						        <listcell label="TransID"/>
+						        <listcell label="Message ID"/>
 						        <listcell id="packet_header_tid"/>
 						    </listitem>
 						    <listitem>
@@ -251,6 +330,7 @@
 		<groupbox flex="1">
 			<caption>
 				<checkbox id="chk_debug_options" label="Debug options"/>
+				<button label="Reset" oncommand="CopperChrome.resetDebugOptions();" style="height: 16px;"/>
 			</caption>
 			
 			<vbox flex="1" style="overflow: auto;">
@@ -282,7 +362,7 @@
 						</textbox>
 					</vbox>
 					<vbox flex="1">
-						<label control="debug_option_block1" value="Auto" style="margin-left: -4px;"/>
+						<label control="chk_debug_option_block_auto" value="Auto" style="margin-left: -4px;"/>
 						<box pack="center"><checkbox id="chk_debug_option_block_auto" tooltiptext="Automatically transmit all blocks" style="margin-right:0px; padding-right:0px;"/></box>
 					</vbox>
 				</hbox>

@@ -109,7 +109,7 @@ CopperChrome.Observing.prototype = {
 
 	unsubscribe : function(token) {
 		if (this.subscription) {
-			dump('INFO: Unsibscribing ' + this.subscription.uri + '\n');
+			dump('INFO: Unsubscribing ' + this.subscription.uri + '\n');
 			CopperChrome.client.deRegisterToken(this.subscription.token);
 			
 			if (CopperChrome.behavior.observeCancellation=='rst' && this.subscription.lastTID!=-1) {
