@@ -127,13 +127,13 @@
 			  <menu id="menu_plugtest_core" label="TD_COAP_CORE">
 			    <menupopup>
 			      <menuitem id="menu_plugtest_core_01" label="CORE_01 [29] (GET CON)" oncommand="CopperChrome.testCore01();"/>
-			      <menuitem id="menu_plugtest_core_02" label="CORE_02 (POST CON)" oncommand="CopperChrome.testCore02();"/>
+			      <menuitem id="menu_plugtest_core_02" label="CORE_02 (DELETE CON)" oncommand="CopperChrome.testCore02();"/>
 			      <menuitem id="menu_plugtest_core_03" label="CORE_03 (PUT CON)" oncommand="CopperChrome.testCore03();"/>
-			      <menuitem id="menu_plugtest_core_04" label="CORE_04 (DELETE CON)" oncommand="CopperChrome.testCore04();"/>
+			      <menuitem id="menu_plugtest_core_04" label="CORE_04 (POST CON)" oncommand="CopperChrome.testCore04();"/>
 			      <menuitem id="menu_plugtest_core_05" label="CORE_05 (GET NON)" oncommand="CopperChrome.testCore05();"/>
-			      <menuitem id="menu_plugtest_core_06" label="CORE_06 (POST NON)" oncommand="CopperChrome.testCore06();"/>
+			      <menuitem id="menu_plugtest_core_06" label="CORE_06 (DELETE NON)" oncommand="CopperChrome.testCore06();"/>
 			      <menuitem id="menu_plugtest_core_07" label="CORE_07 (PUT NON)" oncommand="CopperChrome.testCore07();"/>
-			      <menuitem id="menu_plugtest_core_08" label="CORE_08 (DELETE NON)" oncommand="CopperChrome.testCore08();"/>
+			      <menuitem id="menu_plugtest_core_08" label="CORE_08 (POST NON)" oncommand="CopperChrome.testCore08();"/>
 			      <menuitem id="menu_plugtest_core_09" label="CORE_09 (CON /separate)" oncommand="CopperChrome.testCore09();"/>
 			      <menuitem id="menu_plugtest_core_10" label="CORE_10 (GET Token)" oncommand="CopperChrome.testCore10();"/>
 			      <menuitem id="menu_plugtest_core_11" label="CORE_11 (CON /separate Token)" oncommand="CopperChrome.testCore11();"/>
@@ -143,7 +143,7 @@
 			      <menuitem id="menu_plugtest_core_15" label="CORE_15 (GET lossy)" oncommand="CopperChrome.testCore15();"/>
 			      <menuitem id="menu_plugtest_core_16" label="CORE_16 (CON /separate lossy)" oncommand="CopperChrome.testCore16();"/>
 			      <menuitem id="menu_plugtest_core_17" label="CORE_17 (NON /separte)" oncommand="CopperChrome.testCore17();"/>
-			      <menuitem id="menu_plugtest_core_18" label="CORE_18 [24] (POST Location-Path)" oncommand="CopperChrome.testCore18();"/>
+			      <menuitem id="menu_plugtest_core_18" label="CORE_18 (POST Location-Path)" oncommand="CopperChrome.testCore18();"/>
 			      <menuitem id="menu_plugtest_core_19" label="CORE_19 [25] (POST Location-Query)" oncommand="CopperChrome.testCore19();"/>
 			      <menuitem id="menu_plugtest_core_20a" label="CORE_20a [26] (GET text/plain)" oncommand="CopperChrome.testCore20a();"/>
 			      <menuitem id="menu_plugtest_core_20b" label="CORE_20b [26] (GET application/xml)" oncommand="CopperChrome.testCore20b();"/>
@@ -153,8 +153,11 @@
 			      <menuitem id="menu_plugtest_core_22a" label="CORE_22a [27] (GET ETag)" oncommand="CopperChrome.testCore22a();"/>
 			      <menuitem id="menu_plugtest_core_22b" label="CORE_22b [27] (PUT If-Match)" oncommand="CopperChrome.testCore22b();"/>
 			      <menuitem id="menu_plugtest_core_22c" label="CORE_22c [27] (PUT If-Match changed)" oncommand="CopperChrome.testCore22c();"/>
-			      <menuitem id="menu_plugtest_core_23a" label="CORE_23a [28] (PUT If-None-Match)" oncommand="CopperChrome.testCore23a();"/>
-			      <menuitem id="menu_plugtest_core_23b" label="CORE_23b [28] (PUT If-None-Match exists)" oncommand="CopperChrome.testCore23b();"/>
+			      <menuitem id="menu_plugtest_core_23a" label="CORE_23a (PUT If-None-Match)" oncommand="CopperChrome.testCore23a();"/>
+			      <menuitem id="menu_plugtest_core_23b" label="CORE_23b (PUT If-None-Match exists)" oncommand="CopperChrome.testCore23b();"/>
+			      <menuitem id="menu_plugtest_core_24" label="CORE_24 (POST Proxy)" oncommand="CopperChrome.testCore24();"/>
+			      <menuitem id="menu_plugtest_core_28a" label="CORE_28a (PUT If-None-Match)" oncommand="CopperChrome.testCore28a();"/>
+			      <menuitem id="menu_plugtest_core_28b" label="CORE_28b (PUT If-None-Match exists)" oncommand="CopperChrome.testCore28b();"/>
 			   </menupopup>
 			  </menu>
 			  <menu id="menu_plugtest_link" label="TD_COAP_LINK">
