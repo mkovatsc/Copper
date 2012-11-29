@@ -75,19 +75,37 @@ CopperChrome.testCheckUri = function(uri) {
 
 CopperChrome.testList = null;
 CopperChrome.testLast = 0;
+CopperChrome.testSelected = false;
 
 CopperChrome.testExecute = function(uri) {
-	try {
+	
+	CopperChrome.testSelected = true;
 	
 	if (!CopperChrome.testList) CopperChrome.testList = document.getElementById('menu_plugtest').getElementsByTagName('menuitem');
-		
+
 	if (CopperChrome.testLast < CopperChrome.testList.length) {
 		CopperChrome.testList[CopperChrome.testLast].click();
 		++CopperChrome.testLast;
 		document.getElementById('toolbar_plugtest_exec').label = CopperChrome.testList[CopperChrome.testLast].label;
 	}
-	} catch (ex) {alert(ex); }
 }; 
+
+CopperChrome.testSelect = function(target) {
+	
+	if (CopperChrome.testSelected) return;
+	
+	CopperChrome.testSelected = true;
+	
+	if (!CopperChrome.testList) CopperChrome.testList = document.getElementById('menu_plugtest').getElementsByTagName('menuitem');
+	
+	for (var num in CopperChrome.testList) {
+		if (CopperChrome.testList[num].id==target.id) {
+			CopperChrome.testLast = parseInt(num)+1;
+			document.getElementById('toolbar_plugtest_exec').label = CopperChrome.testList[CopperChrome.testLast].label;
+			return;
+		}
+	}
+};
 
 // Test scripts
 ////////////////////////////////////////////////////////////////////////////////

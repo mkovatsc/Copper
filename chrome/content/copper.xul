@@ -122,7 +122,7 @@
 	    </menupopup>
 	  </toolbarbutton>
 	  
-	  <toolbarbutton type="menu" id="menu_plugtest" label="Plugtest  ">
+	  <toolbarbutton type="menu" id="menu_plugtest" label="Plugtest  " oncommand="CopperChrome.testSelect(event.target);">
 	    <menupopup>
 			  <menu id="menu_plugtest_core" label="TD_COAP_CORE">
 			    <menupopup>
