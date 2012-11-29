@@ -288,7 +288,7 @@ CopperChrome.TransactionHandler.prototype = {
 			var infoReset = '';
 			
 			// RST also allowed for NON since 06
-			if (CopperChrome.behavior.rejectUnknown) {
+			if (message.getType()!=Copper.MSG_TYPE_RST && CopperChrome.behavior.rejectUnknown) {
 				this.reset(message.getTID());
 				infoReset = ' (sent RST)';
 			}
