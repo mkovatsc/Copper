@@ -137,6 +137,9 @@ CopperChrome.main = function() {
 			case 12:
 				loader.loadSubScript("resource://drafts/CoapPacket12.jsm");
 				break;
+			case 255:
+				loader.loadSubScript("resource://drafts/CoapPacketKlaus.jsm");
+				break;
 			default:
 				window.setTimeout(
 						function() { window.alert('WARNING: CoAP version '+CopperChrome.coapVersion+' not implemented. Using draft 12.'); },
