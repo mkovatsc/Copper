@@ -103,7 +103,7 @@ CopperChrome.TransactionHandler.prototype = {
 		this.retransmissions = onoff;
 	},
 	
-	cancelTransactions : function() {
+	stopRetransmissions : function() {
 		for (var t in this.transactions) {
 			// only cancel default transactions corresponding to the user requests
 			if (this.transactions[t] && this.transactions[t].cb==null) {
@@ -114,6 +114,11 @@ CopperChrome.TransactionHandler.prototype = {
 				dump('INFO: TransactionHandler.cancelTransactions [cancelled transaction '+t+']\n');
 			}
 		}
+	},
+	
+	cancelTransactions : function() {
+		this.stopRetransmissions();
+		
 		this.requests = new Object();
 		this.registeredTokens = new Object();
 		this.registeredTIDs = new Object();
@@ -265,6 +270,7 @@ CopperChrome.TransactionHandler.prototype = {
 					dump('WARNING: TransactionHandler.handle [wrong type for separate from server: '+message.getType(true)+']\n');
 				} else {
 					dump('INFO: Incoming separate reponse (Token: '+message.getTokenDefault()+')\n');
+					this.stopRetransmissions();
 				}
 			}
 
