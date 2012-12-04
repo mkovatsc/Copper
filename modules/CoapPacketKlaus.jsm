@@ -519,14 +519,14 @@ Copper.CoapPacket.prototype = {
 		    	if (optDelta==13) {
 		    		optDelta += packet.shift();
 				} else if (optDelta==14) {
-					optDelta += 269;
+					optDelta += 255;
 					optDelta += packet.shift()<<8;
 					optDelta += 0xFF & packet.shift();
 				}
 				if (optLen==13) {
 					optLen += packet.shift();
 				} else if (optLen==14) {
-					optLen += 269;
+					optLen += 255;
 					optLen += packet.shift()<<8;
 					optLen += 0xFF & packet.shift();
 				}
