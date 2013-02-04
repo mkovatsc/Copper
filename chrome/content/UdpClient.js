@@ -125,7 +125,7 @@ CopperChrome.UdpClient.prototype = {
 			if (this.callback) this.callback(byteArray);
 			
 		} catch( ex ) {
-		    alert('ERROR: UdpClient.onDataAvailable ['+ex+']');
+		    alert('ERROR: UdpClient.onDataAvailable ['+ex+']\n\n(Make sure to use the correct CoAP version.)');
 		}
 	},
 	

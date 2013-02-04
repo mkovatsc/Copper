@@ -81,7 +81,7 @@ CopperChrome.testExecute = function(uri) {
 	
 	CopperChrome.testSelected = true;
 	
-	if (!CopperChrome.testList) CopperChrome.testList = document.getElementById('menu_plugtest').getElementsByTagName('menuitem');
+	if (!CopperChrome.testList) CopperChrome.testList = document.getElementById('menu_plugtest_popup').getElementsByTagName('menuitem');
 
 	if (CopperChrome.testLast < CopperChrome.testList.length) {
 		CopperChrome.testList[CopperChrome.testLast].click();
@@ -96,7 +96,7 @@ CopperChrome.testSelect = function(target) {
 	
 	CopperChrome.testSelected = true;
 	
-	if (!CopperChrome.testList) CopperChrome.testList = document.getElementById('menu_plugtest').getElementsByTagName('menuitem');
+	if (!CopperChrome.testList) CopperChrome.testList = document.getElementById('menu_plugtest_popup').getElementsByTagName('menuitem');
 	
 	for (var num in CopperChrome.testList) {
 		if (CopperChrome.testList[num].id==target.id) {

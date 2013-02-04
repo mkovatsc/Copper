@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, Institute for Pervasive Computing, ETH Zurich.
+ * Copyright (c) 2013, Institute for Pervasive Computing, ETH Zurich.
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@ Components.utils.import("resource://drafts/common.jsm");
 ////////////////////////////////////////////////////////////////////////////////
 
 Copper.__defineGetter__("VERSION", function() { return 1; });
-Copper.__defineGetter__("DRAFT", function() { return 12; });
+Copper.__defineGetter__("DRAFT", function() { return 13; });
 
 Copper.__defineGetter__("MSG_TYPE_CON", function() { return 0; });
 Copper.__defineGetter__("MSG_TYPE_NON", function() { return 1; });

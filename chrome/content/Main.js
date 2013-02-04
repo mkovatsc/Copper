@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, Institute for Pervasive Computing, ETH Zurich.
+ * Copyright (c) 2013, Institute for Pervasive Computing, ETH Zurich.
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -50,7 +50,7 @@ CopperChrome.mainWindow = window.QueryInterface(Components.interfaces.nsIInterfa
 
 CopperChrome.prefManager = Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefBranch);
 
-CopperChrome.coapVersion = 12;
+CopperChrome.coapVersion = 13;
 
 CopperChrome.hostname = '';
 CopperChrome.port = -1;
@@ -111,7 +111,11 @@ CopperChrome.main = function() {
 		
 		CopperChrome.loadBehavior();
 		CopperChrome.loadDebugOptions();
-		CopperChrome.loadPlugtest();
+		
+		if (CopperChrome.prefManager.getBoolPref('extensions.copper.plugtest.menu')) {
+			document.getElementById('menu_plugtest').hidden = false;
+			CopperChrome.loadPlugtest();
+		}
 		
 	} catch (ex) {
 		window.setTimeout(
@@ -137,15 +141,15 @@ CopperChrome.main = function() {
 			case 12:
 				loader.loadSubScript("resource://drafts/CoapPacket12.jsm");
 				break;
-			case 255:
-				loader.loadSubScript("resource://drafts/CoapPacketKlaus.jsm");
+			case 13:
+				loader.loadSubScript("resource://drafts/CoapPacket13.jsm");
 				break;
 			default:
 				window.setTimeout(
-						function() { window.alert('WARNING: CoAP version '+CopperChrome.coapVersion+' not implemented. Using draft 12.'); },
+						function() { window.alert('WARNING: CoAP version '+CopperChrome.coapVersion+' not implemented. Using draft 13.'); },
 						0);
-				loader.loadSubScript("resource://drafts/CoapPacket12.jsm");
-				CopperChrome.coapVersion = 12;
+				loader.loadSubScript("resource://drafts/CoapPacket13.jsm");
+				CopperChrome.coapVersion = 13;
 				break;
 		}
 		
@@ -303,10 +307,8 @@ CopperChrome.sendBlockwiseObserveGet = function(num, size, token) {
 		
 		// (re)set to useful block option
 		message.setBlock(num, size);
-		
-		// token indicates a blockwise get for
-		
-		CopperChrome.clearLabels(num=0);
+				
+		CopperChrome.clearLabels(num==0);
 		CopperChrome.client.send( message, CopperChrome.observingHandler );
 	} catch (ex) {
 		CopperChrome.client.cancelTransactions();

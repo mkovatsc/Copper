@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-  Copyright (c) 2012, Institute for Pervasive Computing, ETH Zurich.
+  Copyright (c) 2013, Institute for Pervasive Computing, ETH Zurich.
   All rights reserved.
   
   Redistribution and use in source and binary forms, with or without
@@ -45,6 +45,7 @@
 			<preference id="copper-version" name="extensions.copper.coap-version" type="int"/>
 			<preference id="use-tree" name="extensions.copper.use-tree" type="bool"/>
 			<preference id="encode-utf-8" name="extensions.copper.encode-utf-8" type="bool"/>
+			<preference id="plugtest" name="extensions.copper.plugtest.menu" type="bool"/>
 			<preference id="global-dumps" name="browser.dom.window.dump.enabled" type="bool"/>
 		</preferences>
 		
@@ -77,7 +78,7 @@
 								<menuitem label="draft-ietf-core-coap-06" value="6"/>
 								<menuitem label="draft-ietf-core-coap-07/08" value="8"/>
 								<menuitem label="draft-ietf-core-coap-12" value="12"/>
-								<menuitem label="draft-ietf-core-coap-klaus" value="255"/>
+								<menuitem label="draft-ietf-core-coap-13" value="13"/>
 							</menupopup>
 						</menulist>
 					</row>
@@ -96,6 +97,9 @@
 					</row>
 					<row>
 						<checkbox id="debug_dumps" preference="global-dumps" label="Print debug output to the console"/>
+					</row>
+					<row>
+						<checkbox id="plugtest" preference="plugtest" label="Enable ETSI Plugtest menu"/>
 					</row>
 					<row>
 						<button label="Clear resource cache" oncommand="CopperChrome.Options.clearResourceCache();"/>
