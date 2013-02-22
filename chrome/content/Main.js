@@ -461,3 +461,18 @@ CopperChrome.reDiscover = function() {
 	
 	CopperChrome.discover();
 };
+
+// Sends a CoAP ping which is an empty CON message
+CopperChrome.ping = function() {
+	try {
+		CopperChrome.client.cancelTransactions();
+		
+		var message = new CopperChrome.CoapMessage(Copper.MSG_TYPE_CON);
+		
+		CopperChrome.clearLabels();
+		CopperChrome.client.send( message );
+	} catch (ex) {
+		CopperChrome.client.cancelTransactions();
+		alert('ERROR: Main.ping ['+ex+']');
+	}
+};

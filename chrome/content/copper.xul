@@ -63,6 +63,7 @@
 
 	<toolbaritem>
 		<toolbarbutton id="toolbar_discover" label="Discover" tooltiptext="GET link-formats from the well-known URI (cached resources are displayed in red)" image="chrome://copper/skin/tool_discover.png" oncommand="CopperChrome.reDiscover();"/>
+		<toolbarbutton id="toolbar_ping" label="Ping" tooltiptext="Ping with empty message" image="chrome://copper/skin/tool_ping.png" oncommand="CopperChrome.ping();"/>
 	</toolbaritem>
 	<toolbaritem id="toolbar_methods">
 		<toolbarseparator/>

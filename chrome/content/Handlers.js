@@ -57,6 +57,16 @@ CopperChrome.defaultHandler = function(message) {
 	}
 };
 
+//Handle ping responses
+CopperChrome.pingHandler = function(message) {
+	dump('INFO: pingHandler()\n');
+	
+	if (message.getRTT) document.getElementById('info_host').label = '' + CopperChrome.hostname + ':' + CopperChrome.port + ' (RTT: ' + message.getRTT() + 'ms)';
+
+	CopperChrome.displayMessageInfo(message);
+	CopperChrome.updateLabel('info_code', 'Pong: Remote responds to CoAP');
+};
+
 // Handle messages with block-wise transfer
 CopperChrome.blockwiseHandler = function(message) {
 	dump('INFO: blockwiseHandler()\n');

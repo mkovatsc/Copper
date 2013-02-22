@@ -180,6 +180,9 @@ CopperChrome.TransactionHandler.prototype = {
 			
 			// also save callback by TID
 			this.registeredTIDs[message.getTID()] = this.requests[message.getTokenDefault()];
+		// store ping
+		} else if (message.getType()==Copper.MSG_TYPE_CON && message.getCode()==0) {
+			this.registeredTIDs[message.getTID()] = CopperChrome.pingHandler;
 		}
 		
 		// and send
