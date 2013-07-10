@@ -70,7 +70,7 @@ CopperChrome.CoapMessage.prototype = {
 		var ret = '';
 		ret += ' Type: '+this.getType(true);
 		ret += '\n Code: '+this.getCode(true);
-		ret += '\n Transaction ID: '+this.getTID();
+		ret += '\n Message ID: '+this.getTID();
 		if (this.getOptions().length>0) {
 			ret += '\n Options:'+this.getOptions(true);
 		}
@@ -190,7 +190,7 @@ CopperChrome.CoapMessage.prototype = {
 	},
 	setContentType : function(content) {
 		if (content>0xFFFF) {
-			dump('WARNING: CoapMessage.setContentType [must be 1 or 2 bytes; ignoring]\n');
+			dump('WARNING: CoapMessage.setContentType [Must be 1 or 2 bytes; ignoring]\n');
 		} else {
 			this.packet.setOption(Copper.OPTION_CONTENT_TYPE, content);
 		}
@@ -264,6 +264,25 @@ CopperChrome.CoapMessage.prototype = {
 		}
 		
 		this.packet.setOption(Copper.OPTION_PROXY_URI, proxy);
+	},
+	
+	// Copper.OPTION_PROXY_URI:04+
+	getProxyScheme : function(readable) {
+		
+		if (CopperChrome.coapVersion < 14) {
+			return null;
+		}
+
+		return this.packet.getOption(Copper.OPTION_PROXY_SCHEME); // string
+	},
+	setProxyScheme : function(scheme) {
+		
+		if (CopperChrome.coapVersion < 14) {
+			dump('WARNING: CoapMessage.setProxyScheme [Proxy-Scheme only supported in coap-14+]\n');
+			return;
+		}
+		
+		this.packet.setOption(Copper.OPTION_PROXY_SCHEME, scheme);
 	},
 	
 	// Copper.OPTION_ETAG:00+
@@ -465,13 +484,9 @@ CopperChrome.CoapMessage.prototype = {
 			return null;
 		}
 		
-		//FIXME support multiple options
-		
 		return this.packet.getOption(Copper.OPTION_ACCEPT); // integer
 	},
 	setAccept : function(content) {
-		
-		//FIXME support multiple options
 
 		if (CopperChrome.coapVersion < 7) {
 			dump('WARNING: CoapMessage.setAccept [Accept only supported in coap-07+]\n');
@@ -479,7 +494,7 @@ CopperChrome.CoapMessage.prototype = {
 		}
 		
 		if (content>0xFFFF) {
-			dump('WARNING: CoapMessage.setAccept [must be 1 or 2 bytes; ignoring]\n');
+			dump('WARNING: CoapMessage.setAccept [Must be 1 or 2 bytes; ignoring]\n');
 		} else {
 			this.packet.setOption(Copper.OPTION_ACCEPT, content);
 		}
@@ -640,6 +655,51 @@ CopperChrome.CoapMessage.prototype = {
 	},
 	getBlock1More : function() {
 		return (0x08 & this.getBlock1());
+	},
+
+	// Copper.OPTION_SIZE2:18+ / Copper.OPTION_SIZE:09+
+	getSize : function() {
+
+		if (CopperChrome.coapVersion < 9) {
+			return null;
+		}
+		
+		return this.packet.getOption(Copper.OPTION_SIZE); // integer
+	},
+	setSize : function(num) {
+
+		if (CopperChrome.coapVersion < 9) {
+			dump('WARNING: CoapMessage.setSize [Size(2) only supported in block-08+]\n');
+			return;
+		}
+		
+		if (num>0xFFFFFFFF) {
+			dump('WARNING: CoapMessage.setSize [Must be 0-4 bytes; ignoring]\n');
+		} else {
+			this.packet.setOption(Copper.OPTION_SIZE, num);
+		}
+	},
+	// Copper.OPTION_SIZE1:18+
+	getSize1 : function() {
+
+		if (CopperChrome.coapVersion < 18) {
+			return null;
+		}
+		
+		return this.packet.getOption(Copper.OPTION_SIZE1); // integer
+	},
+	setSize1 : function(num) {
+
+		if (CopperChrome.coapVersion < 9) {
+			dump('WARNING: CoapMessage.getSize1 [Size1 only supported in coap-18+]\n');
+			return;
+		}
+		
+		if (num>0xFFFFFFFF) {
+			dump('WARNING: CoapMessage.getSize1 [Must be 0-4 bytes; ignoring]\n');
+		} else {
+			this.packet.setOption(Copper.OPTION_SIZE1, num);
+		}
 	},
 	
 	// Copper.OPTION_IF_NONE_MATCH:07+

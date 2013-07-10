@@ -65,6 +65,7 @@ Copper.getOptionName = function(number) {
 		case Copper.OPTION_LOCATION_QUERY: return 'Location-Query';
 
 		case Copper.OPTION_PROXY_URI: return 'Proxy-Uri';
+		case Copper.OPTION_PROXY_SCHEME: return 'Proxy-Scheme';
 
 		case Copper.OPTION_IF_MATCH: return 'If-Match';
 		case Copper.OPTION_IF_NONE_MATCH: return 'If-None-Match';
@@ -75,7 +76,9 @@ Copper.getOptionName = function(number) {
 		case Copper.OPTION_BLOCK:
 		case Copper.OPTION_BLOCK2: return 'Block2';
 		case Copper.OPTION_BLOCK1: return 'Block1';
-		case Copper.OPTION_SIZE: return 'Size';
+		case Copper.OPTION_SIZE:
+		case Copper.OPTION_SIZE2: return 'Size2';
+		case Copper.OPTION_SIZE1: return 'Size1';
 		
 		default: return 'Unknown '+number;
 	}
@@ -111,7 +114,7 @@ Copper.getContentTypeName = function(type) {
 	return '';
 };
 
-// Helper functions
+// Protocol helper functions
 ////////////////////////////////////////////////////////////////////////////////
 
 Copper.isPowerOfTwo = function(i) {

@@ -76,6 +76,7 @@ CopperChrome.behavior = {
 	sendDuplicates: false,
 	showUnknown: false,
 	rejectUnknown: true,
+	sendUriHost: false,
 	blockSize: 64,
 	observeToken: true,
 	observeCancellation: 'lazy'
@@ -144,12 +145,15 @@ CopperChrome.main = function() {
 			case 13:
 				loader.loadSubScript("resource://drafts/CoapPacket13.jsm");
 				break;
+			case 18:
+				loader.loadSubScript("resource://drafts/CoapPacket18.jsm");
+				break;
 			default:
 				window.setTimeout(
-						function() { window.alert('WARNING: CoAP version '+CopperChrome.coapVersion+' not implemented. Using draft 13.'); },
+						function() { window.alert('WARNING: CoAP version '+CopperChrome.coapVersion+' not implemented. Using draft 18.'); },
 						0);
-				loader.loadSubScript("resource://drafts/CoapPacket13.jsm");
-				CopperChrome.coapVersion = 13;
+				loader.loadSubScript("resource://drafts/CoapPacket18.jsm");
+				CopperChrome.coapVersion = 18;
 				break;
 		}
 		
@@ -237,6 +241,8 @@ CopperChrome.behaviorUpdate = function(target) {
 		CopperChrome.behavior.showUnknown = target.getAttribute('checked')=='true';
 	} else if (target.id=='menu_behavior_reject_unknown') {
 		CopperChrome.behavior.rejectUnknown = target.getAttribute('checked')=='true';
+	} else if (target.id=='menu_behavior_send_uri_host') {
+		CopperChrome.behavior.sendUriHost = target.getAttribute('checked')=='true';
 	} else if (target.id.substr(0,24)=='menu_behavior_block_size') {
 		CopperChrome.behavior.blockSize = target.value;
 	} else if (target.id=='menu_behavior_token_observe') {

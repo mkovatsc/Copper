@@ -106,6 +106,8 @@
 	    	<menuitem id="menu_behavior_show_unknown" label="Display unknown" type="checkbox" tooltiptext="Display messages from unknown transactions"/>
 	    	<menuitem id="menu_behavior_reject_unknown" label="Reject unkown" type="checkbox" tooltiptext="Send a RST for unknown transactions"/>
 	    	<menuseparator/>
+	    	<menuitem id="menu_behavior_send_uri_host" label="Send Uri-Host" type="checkbox" tooltiptext="Enable virtual hosts and send Uri-Host option"/>
+	    	<menuseparator/>
 	      <menuitem id="menu_behavior_block_size_16" label="Block size 16" type="radio" name="block" value="16"/>
 	      <menuitem id="menu_behavior_block_size_32" label="Block size 32" type="radio" name="block" value="32"/>
 	      <menuitem id="menu_behavior_block_size_64" label="Block size 64" type="radio" name="block" value="64"/>
@@ -361,10 +363,20 @@
 						<textbox id="debug_option_block2" emptytext="block no." dir="reverse">
 							<image class="copper-clear-button" onclick="parentNode.value='';"/>
 						</textbox>
+						
+						<label control="debug_option_size2" value="Size2"/>
+						<textbox id="debug_option_size2" emptytext="req. size" dir="reverse">
+							<image class="copper-clear-button" onclick="parentNode.value='';"/>
+						</textbox>
 					</vbox>
 					<vbox flex="1">
 						<label control="debug_option_block1" value="Block1"/>
 						<textbox id="debug_option_block1" emptytext="block no." dir="reverse">
+							<image class="copper-clear-button" onclick="parentNode.value='';"/>
+						</textbox>
+						
+						<label control="debug_option_size1" value="Size1"/>
+						<textbox id="debug_option_size1" emptytext="res. size" dir="reverse">
 							<image class="copper-clear-button" onclick="parentNode.value='';"/>
 						</textbox>
 					</vbox>
@@ -415,6 +427,8 @@
 				<textbox id="debug_option_proxy_uri" emptytext="use absolute URI" dir="reverse">
 					<image class="copper-clear-button" onclick="parentNode.value='';"/>
 				</textbox>
+				
+				<checkbox id="debug_option_proxy_scheme" label="Use Proxy-Scheme option"/>
 				
 				<!--
 				<hbox>

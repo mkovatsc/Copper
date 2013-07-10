@@ -49,6 +49,7 @@ CopperChrome.loadBehavior = function() {
 	CopperChrome.behavior.sendDuplicates = CopperChrome.prefManager.getBoolPref('extensions.copper.behavior.send-duplicates');
 	CopperChrome.behavior.showUnknown = CopperChrome.prefManager.getBoolPref('extensions.copper.behavior.show-unknown');
 	CopperChrome.behavior.rejectUnknown = CopperChrome.prefManager.getBoolPref('extensions.copper.behavior.reject-unknown');
+	CopperChrome.behavior.sendUriHost = CopperChrome.prefManager.getBoolPref('extensions.copper.behavior.send-uri-host');
 	CopperChrome.behavior.blockSize = CopperChrome.prefManager.getIntPref('extensions.copper.behavior.block-size');
 	CopperChrome.behavior.observeToken = CopperChrome.prefManager.getBoolPref('extensions.copper.behavior.observe-token');
 	CopperChrome.behavior.observeCancellation = CopperChrome.prefManager.getCharPref('extensions.copper.behavior.observe-cancellation');
@@ -61,6 +62,7 @@ CopperChrome.updateBehavior = function() {
 	document.getElementById('menu_behavior_send_duplicates').setAttribute('checked', CopperChrome.behavior.sendDuplicates);
 	document.getElementById('menu_behavior_show_unknown').setAttribute('checked', CopperChrome.behavior.showUnknown);
 	document.getElementById('menu_behavior_reject_unknown').setAttribute('checked', CopperChrome.behavior.rejectUnknown);
+	document.getElementById('menu_behavior_send_uri_host').setAttribute('checked', CopperChrome.behavior.sendUriHost);
 	document.getElementById('menu_behavior_block_size_' + CopperChrome.behavior.blockSize).setAttribute('checked', 'true');
 	document.getElementById('menu_behavior_token_observe').setAttribute('checked', CopperChrome.behavior.observeToken);
 	document.getElementById('menu_behavior_observe_' + CopperChrome.behavior.observeCancellation).setAttribute('checked', 'true');
@@ -71,6 +73,7 @@ CopperChrome.saveBehavior = function() {
 	CopperChrome.prefManager.setBoolPref('extensions.copper.behavior.send-duplicates', CopperChrome.behavior.sendDuplicates);
 	CopperChrome.prefManager.setBoolPref('extensions.copper.behavior.show-unknown', CopperChrome.behavior.showUnknown);
 	CopperChrome.prefManager.setBoolPref('extensions.copper.behavior.reject-unknown', CopperChrome.behavior.rejectUnknown);
+	CopperChrome.prefManager.setBoolPref('extensions.copper.behavior.send-uri-host', CopperChrome.behavior.sendUriHost);
 	CopperChrome.prefManager.setIntPref('extensions.copper.behavior.block-size', CopperChrome.behavior.blockSize);
 	CopperChrome.prefManager.setBoolPref('extensions.copper.behavior.observe-token', CopperChrome.behavior.observeToken);
 	CopperChrome.prefManager.setCharPref('extensions.copper.behavior.observe-cancellation', CopperChrome.behavior.observeCancellation);
@@ -300,8 +303,8 @@ CopperChrome.parseLinkFormat = function(data) {
 				//dump('  '+tokens[j]+'\n');
 				var keyVal = tokens[j].match(/;\s*([^<"\s;,=]+)\s*(=\s*(([^<"\s;,]+)|"([^"\\]*(\\.[^"\\]*)*)"))?/);
 				if (keyVal) {
-					dump(keyVal[0]+'\n');
-					dump('   '+keyVal[1] + (keyVal[2] ? (': '+ (keyVal[4] ? keyVal[4] : keyVal[5].replace(/\\/g,''))) : '') + '\n');
+					//dump(keyVal[0]+'\n');
+					//dump('   '+keyVal[1] + (keyVal[2] ? (': '+ (keyVal[4] ? keyVal[4] : keyVal[5].replace(/\\/g,''))) : '') + '\n');
 					
 					if (links[uri][keyVal[1]]!=null) {
 						

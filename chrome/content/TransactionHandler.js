@@ -30,7 +30,7 @@
  ******************************************************************************/
 /**
  * \file
- *         Code handling transactions for the CoAP protocol
+ *         Code handling message transactions for the CoAP protocol
  *
  * \author  Matthias Kovatsch <kovatsch@inf.ethz.ch>\author
  */
@@ -111,7 +111,7 @@ CopperChrome.TransactionHandler.prototype = {
 					window.clearTimeout(this.transactions[t].timer);
 				}
 				delete this.transactions[t];
-				dump('INFO: TransactionHandler.cancelTransactions [cancelled transaction '+t+']\n');
+				dump('INFO: TransactionHandler.cancelTransactions [cancelled message '+t+']\n');
 			}
 		}
 	},
@@ -205,16 +205,16 @@ CopperChrome.TransactionHandler.prototype = {
 			this.transactions[tid].timer = window.setTimeout(function(){CopperChrome.myBind(that,that.resend(tid));}, timeout);
 			
 			dump(Array('=re-sending CoAP message',
-					   ' Transaction ID: '+tid,
+					   ' Message ID: '+tid,
 					   ' New timeout: '+timeout,
 					   ' =======================',
 					   '').join('\n'));
 			this.client.send( this.transactions[tid].message.serialize() );
 			
-			CopperChrome.popup(CopperChrome.hostname+':'+CopperChrome.port, 'Re-transmitting transaction '+tid+' ('+this.transactions[tid].retries+'/'+Copper.MAX_RETRANSMIT+')');
+			CopperChrome.popup(CopperChrome.hostname+':'+CopperChrome.port, 'Re-transmitting message '+tid+' ('+this.transactions[tid].retries+'/'+Copper.MAX_RETRANSMIT+')');
 		} else {
 			dump(Array('=timeout================',
-					   ' Transaction ID: '+tid,
+					   ' Message ID: '+tid,
 					   ' =======================',
 					   '').join('\n'));
 			delete this.transactions[tid];
@@ -235,7 +235,7 @@ CopperChrome.TransactionHandler.prototype = {
 		
 		// handle transaction
 		if (this.transactions[message.getTID()]) {
-			dump('INFO: Closing transaction ' + message.getTID() + '\n');
+			dump('INFO: Closing message ' + message.getTID() + '\n');
 			if (this.transactions[message.getTID()].timer) window.clearTimeout(this.transactions[message.getTID()].timer);
 			
 			// calculate round trip time
@@ -251,7 +251,7 @@ CopperChrome.TransactionHandler.prototype = {
 			
 		// filter duplicates
 		} else if (this.dupFilter.indexOf(message.getTID()) !== -1) {
-			dump('INFO: Dropping duplicate (Transaction ID: '+message.getTID()+')\n');
+			dump('INFO: Dropping duplicate (Message ID: '+message.getTID()+')\n');
 			return;
 		}
 		
@@ -326,14 +326,14 @@ CopperChrome.TransactionHandler.prototype = {
 		ack.setTID( tid );
 		
 		this.send( ack );
-		CopperChrome.popup(CopperChrome.hostname+':'+CopperChrome.port, 'Sending ACK for transaction '+tid);
+		CopperChrome.popup(CopperChrome.hostname+':'+CopperChrome.port, 'Sending ACK for message '+tid);
 	},
 	
 	reset : function(tid) {
 		var rst = new CopperChrome.CoapMessage(Copper.MSG_TYPE_RST);
 		rst.setTID( tid );
 		this.send( rst );
-		CopperChrome.popup(CopperChrome.hostname+':'+CopperChrome.port, 'Sending RST for transaction '+tid);
+		CopperChrome.popup(CopperChrome.hostname+':'+CopperChrome.port, 'Sending RST for message '+tid);
 	},
 	
 	shutdown : function() {
