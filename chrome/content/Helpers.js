@@ -156,7 +156,7 @@ CopperChrome.loadPayloadFileByName = function(filename) {
 	
 	try {
 	
-		var file = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);  
+		var file = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsIFile);  
 		file.initWithPath(filename);
 		
 		CopperChrome.loadPayloadFile(file);
@@ -260,6 +260,7 @@ CopperChrome.parseUri = function(inputUri) {
 	
 	// DNS lookup
 	try {
+		// deliberately ignoring broken/undocumented asyncResolve()
 		var ns = Components.classes["@mozilla.org/network/dns-service;1"].createInstance(Components.interfaces.nsIDNSService).resolve(uri.host.replace(/%.+$/, ''), 0);
 		
 		var addresses = '';
@@ -312,7 +313,7 @@ CopperChrome.parseLinkFormat = function(data) {
 	
 	var links = new Object();
 	
-	// totally complicated but supports ',' and '\n' to seperate links and ',' as well as '\"' within quoted strings
+	// totally complicated but supports ',' and '\n' to separate links and ',' as well as '\"' within quoted strings
 	var format = data.match(/(<[^>]+>\s*(;\s*\w+\s*(=\s*(\w+|"([^"\\]*(\\.[^"\\]*)*)")\s*)?)*)/g);
 	dump('-parsing link-format----------------------------\n');
 	for (var i in format) {
@@ -451,7 +452,9 @@ CopperChrome.displayMessageInfo = function(message) {
         row.appendChild(cell);
         
         if (options[i][0]=='ETag') {
-        	row.setAttribute('ondblclick', "document.getElementById('debug_option_etag').value='"+options[i][1]+"'");
+        	// might be cleaner with bind()
+        	var etagValueCopy = options[i][1];
+        	row.addEventListener('dblclick', function() { document.getElementById('debug_option_etag').value = etagValueCopy; });
         }
         
         if (options[i][0]=='Max-Age') {
