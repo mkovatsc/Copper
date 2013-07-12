@@ -107,6 +107,7 @@
 	    	<menuitem id="menu_behavior_reject_unknown" label="Reject unkown" type="checkbox" tooltiptext="Send a RST for unknown transactions"/>
 	    	<menuseparator/>
 	    	<menuitem id="menu_behavior_send_uri_host" label="Send Uri-Host" type="checkbox" tooltiptext="Enable virtual hosts and send Uri-Host option"/>
+	    	<menuitem id="menu_behavior_send_size1" label="Send auto Size1" type="checkbox" tooltiptext="Automatically indicate request representation size"/>
 	    	<menuseparator/>
 	      <menuitem id="menu_behavior_block_size_16" label="Block size 16" type="radio" name="block" value="16"/>
 	      <menuitem id="menu_behavior_block_size_32" label="Block size 32" type="radio" name="block" value="32"/>
@@ -116,7 +117,7 @@
 	      <menuitem id="menu_behavior_block_size_512" label="Block size 512" type="radio" name="block" value="512"/>
 	      <menuitem id="menu_behavior_block_size_1024" label="Block size 1024" type="radio" name="block" value="1024"/>
 	    	<menuseparator/>
-	    	<!-- keep inversed id to enable substr-matching for the last three -->
+	    	<!-- keep inversed id for observe token to enable substr-matching for the last three -->
 	    	<menuitem id="menu_behavior_token_observe" label="Observe Token" type="checkbox" tooltiptext="Enforce non-default Token option for observing"/>
 	    	<menuseparator/>
 	      <menuitem id="menu_behavior_observe_lazy" label="Lazy Observe cancel" type="radio" name="observe" value="lazy" tooltiptext="Only remove subscription, send lazy RST later (can be used for MID matching at server)"/>

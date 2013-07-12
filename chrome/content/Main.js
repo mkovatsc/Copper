@@ -77,6 +77,7 @@ CopperChrome.behavior = {
 	showUnknown: false,
 	rejectUnknown: true,
 	sendUriHost: false,
+	sendSize1: false,
 	blockSize: 64,
 	observeToken: true,
 	observeCancellation: 'lazy'
@@ -226,33 +227,6 @@ CopperChrome.unload = function() {
 };
 
 
-// Settings callbacks
-////////////////////////////////////////////////////////////////////////////////
-
-CopperChrome.behaviorUpdate = function(target) {
-	if (target.id.substr(0,22)=='menu_behavior_requests') {
-		CopperChrome.behavior.requests = target.value;
-	} else if (target.id=='menu_behavior_retransmissions') {
-		CopperChrome.behavior.retransmissions = target.getAttribute('checked')=='true'; 
-		CopperChrome.client.setRetransmissions(CopperChrome.behavior.retransmissions);
-	} else if (target.id=='menu_behavior_send_duplicates') {
-		CopperChrome.behavior.sendDuplicates = target.getAttribute('checked')=='true';
-	} else if (target.id=='menu_behavior_show_unknown') {
-		CopperChrome.behavior.showUnknown = target.getAttribute('checked')=='true';
-	} else if (target.id=='menu_behavior_reject_unknown') {
-		CopperChrome.behavior.rejectUnknown = target.getAttribute('checked')=='true';
-	} else if (target.id=='menu_behavior_send_uri_host') {
-		CopperChrome.behavior.sendUriHost = target.getAttribute('checked')=='true';
-	} else if (target.id.substr(0,24)=='menu_behavior_block_size') {
-		CopperChrome.behavior.blockSize = target.value;
-	} else if (target.id=='menu_behavior_token_observe') {
-		CopperChrome.behavior.observeToken = target.getAttribute('checked')=='true';
-	} else if (target.id.substr(0,21)=='menu_behavior_observe') {
-		CopperChrome.behavior.observeCancellation = target.value;
-	}
-};
-
-
 // Toolbar commands
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -365,6 +339,12 @@ CopperChrome.doUpload = function(method, uri) {
 		
 		CopperChrome.checkDebugOptions(message);
 		
+		if (CopperChrome.behavior.sendSize1) {
+			dump('INFO: Send auto Size1 option\n');
+			message.setSize1(pl.length);
+			document.getElementById('debug_option_size1').value = pl.length;
+		}
+		
 		CopperChrome.clearLabels();
 		CopperChrome.client.send( message );
 	} catch (ex) {
@@ -399,6 +379,12 @@ CopperChrome.doBlockwiseUpload = function(num, size, uri) {
 		var message = new CopperChrome.CoapMessage(CopperChrome.getRequestType(), CopperChrome.uploadMethod, uri, pl);
 		
 		CopperChrome.checkDebugOptions(message);
+		
+		if (CopperChrome.behavior.sendSize1) {
+			dump('INFO: Send auto Size1 option\n');
+			message.setSize1(CopperChrome.uploadBlocks.length);
+			document.getElementById('debug_option_size1').value = CopperChrome.uploadBlocks.length;
+		}
 		
 		message.setBlock1(num, size, more);
 		

@@ -39,6 +39,7 @@ pref("extensions.copper.behavior.send-duplicates", false);
 pref("extensions.copper.behavior.show-unknown", false);
 pref("extensions.copper.behavior.reject-unknown", true);
 pref("extensions.copper.behavior.send-uri-host", false);
+pref("extensions.copper.behavior.send-size1", false);
 pref("extensions.copper.behavior.block-size", 64);
 pref("extensions.copper.behavior.observe-token", true);
 pref("extensions.copper.behavior.observe-cancellation", "lazy");

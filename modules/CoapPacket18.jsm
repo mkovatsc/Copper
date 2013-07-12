@@ -347,17 +347,19 @@ Copper.CoapPacket.prototype = {
 	setUri : function(inputUri) {
 		
 		var uri = document.createElementNS("http://www.w3.org/1999/xhtml","a");
-		
+/*
+ * <a> tag as parser:
+ * 
+ *		parser.protocol; // => "http:"
+ *		parser.hostname; // => "example.com"
+ *		parser.port; // => "3000"
+ *		parser.pathname; // => "/pathname/"
+ *		parser.search; // => "?search=test"
+ *		parser.hash; // => "#hash"
+ *		parser.host; // => "example.com:3000"
+ */
 		uri.href = inputUri;
-		dump('PARSED:\n' + uri.protocol.slice(0, -1) + '\n' + uri.hostname + '\n' + uri.port + '\n' + uri.pathname + '\n' + uri.search + '\n');
-		 
-//		parser.protocol; // => "http:"
-//		parser.hostname; // => "example.com"
-//		parser.port; // => "3000"
-//		parser.pathname; // => "/pathname/"
-//		parser.search; // => "?search=test"
-//		parser.hash; // => "#hash"
-//		parser.host; // => "example.com:3000"
+		//dump('PARSED:\n' + uri.protocol.slice(0, -1) + '\n' + uri.hostname + '\n' + uri.port + '\n' + uri.pathname + '\n' + uri.search + '\n');
 		
 		if (CopperChrome.behavior.sendUriHost && uri.hostname!='' && !uri.hostname.match(/[0-9a-f]{0,4}(:?:[0-9a-f]{0,4})+/)) {
 			this.setOption(Copper.OPTION_URI_HOST, uri.hostname);
