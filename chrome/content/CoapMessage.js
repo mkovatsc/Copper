@@ -669,7 +669,7 @@ CopperChrome.CoapMessage.prototype = {
 	setSize : function(num) {
 
 		if (CopperChrome.coapVersion < 9) {
-			dump('WARNING: CoapMessage.setSize [Size(2) only supported in block-08+]\n');
+			dump('WARNING: CoapMessage.setSize [Size(2) only supported in block-08+ (~coap-09+)]\n');
 			return;
 		}
 		
@@ -690,13 +690,13 @@ CopperChrome.CoapMessage.prototype = {
 	},
 	setSize1 : function(num) {
 
-		if (CopperChrome.coapVersion < 9) {
-			dump('WARNING: CoapMessage.getSize1 [Size1 only supported in coap-18+]\n');
+		if (CopperChrome.coapVersion < 18) {
+			dump('WARNING: CoapMessage.setSize1 [Size1 only supported in coap-18+]\n');
 			return;
 		}
 		
 		if (num>0xFFFFFFFF) {
-			dump('WARNING: CoapMessage.getSize1 [Must be 0-4 bytes; ignoring]\n');
+			dump('WARNING: CoapMessage.setSize1 [Must be 0-4 bytes; ignoring]\n');
 		} else {
 			this.packet.setOption(Copper.OPTION_SIZE1, num);
 		}

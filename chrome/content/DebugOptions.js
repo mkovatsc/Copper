@@ -221,7 +221,7 @@ try {
 		}
 } catch (ex) {}
 try {
-		if (Copper.OPTION_SIZE1 && document.getElementById('debug_option_size1').value!='') {
+		if (Copper.OPTION_SIZE1 && document.getElementById('debug_option_size1').value!='' && !CopperChrome.behavior.sendSize1) {
 			message.setSize1(parseInt(document.getElementById('debug_option_size1').value));
 		}
 } catch (ex) {}
