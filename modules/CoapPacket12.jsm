@@ -339,44 +339,31 @@ Copper.CoapPacket.prototype = {
 	},
 	
 	// for convenience and consistent API over the versions 
-	setUri : function(uri) {
-		/*
-		var parsedUri = Components.classes["@mozilla.org/network/io-service;1"]
-    	.getService(Components.interfaces.nsIIOService)
-    	.newURI(uri, null, null);
-	
-		var url = parsedUri.QueryInterface(Components.interfaces.nsIURL);
-		dump('setUri PARSED:\n' + url.host + '\n' + url.port + '\n' + url.port + '\n' + url.filePath + '\n' + url.query);
-		*/
-
-		var tokens = uri.match(/^(coap:\/\/[a-z0-9-\.]+(%[a-z0-9]+)?)?(:[0-9]{1,5})?(\/?|(\/[^\/\?]+)+)(\?.*)?$/i);
-		if (tokens) {
-			
-
-			var path = tokens[4];
-			var query = tokens[6];
-			
-			/*
-			if (url.host && url.host.indexOf(':')==-1) {
-				
-				this.setOption(Copper.OPTION_URI_HOST, url.host);
-			}
-			if (url.port) {
-				this.setOption(Copper.OPTION_URI_PORT, url.port);
-			}
-			*/
-			
-			// omit leading slash
-			while (path.charAt(0)=='/') path = path.substr(1);
-			this.setOption(Copper.OPTION_URI_PATH, path);
-			
-			if (query) {
-				while (query.charAt(0)=='?') query = query.substr(1);
-				this.setOption(Copper.OPTION_URI_QUERY, query);
-			}
-			
-		} else {
-			throw 'ERROR: CoapPacket.setUri [invalid URI: '+uri+']';
+	setUri : function(inputUri) {
+		
+		var uri = document.createElementNS("http://www.w3.org/1999/xhtml","a");
+/*
+ * <a> tag as parser:
+ * 
+ *		parser.protocol; // => "http:"
+ *		parser.hostname; // => "example.com"
+ *		parser.port; // => "3000"
+ *		parser.pathname; // => "/pathname/"
+ *		parser.search; // => "?search=test"
+ *		parser.hash; // => "#hash"
+ *		parser.host; // => "example.com:3000"
+ */
+		uri.href = inputUri;
+		//dump('PARSED:\n' + uri.protocol.slice(0, -1) + '\n' + uri.hostname + '\n' + uri.port + '\n' + uri.pathname + '\n' + uri.search + '\n');
+		
+		if (CopperChrome.behavior.sendUriHost && uri.hostname!='' && !uri.hostname.match(/[0-9a-f]{0,4}(:?:[0-9a-f]{0,4})+/)) {
+			this.setOption(Copper.OPTION_URI_HOST, uri.hostname);
+		}
+		if (uri.pathname.length>1) {
+			this.setOption(Copper.OPTION_URI_PATH, uri.pathname.substr(1));
+		}
+		if (uri.search.length>1) {
+			this.setOption(Copper.OPTION_URI_QUERY, uri.search.substr(1));
 		}
 	},
 	
@@ -462,7 +449,7 @@ Copper.CoapPacket.prototype = {
 						tempByte |= 0x0F;
 						byteArray.push(tempByte);
 						
-						dump('  Large option\n*F');
+						dump('  Large option: *F');
 						
 						var tempLen = opt.length - 15;
 						
