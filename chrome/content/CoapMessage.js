@@ -768,6 +768,10 @@ CopperChrome.CoapMessage.prototype = {
 		    		var info = this.packet.options[optTypeIt][0]+' byte' + (this.packet.options[optTypeIt][0]!=1 ? 's' : '');
 		    		
 		    		switch (parseInt(optTypeIt)) {
+			    		case Copper.OPTION_URI_PATH:
+			    		case Copper.OPTION_LOCATION_PATH:
+			    			value = '/' + value;
+			    			break;
 			    		case Copper.OPTION_CONTENT_TYPE:
 			    			info = value;
 			    			value = Copper.getContentTypeName(value);
