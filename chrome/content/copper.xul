@@ -38,7 +38,7 @@
 <?xml-stylesheet href="chrome://copper/skin/renderJSON.css" type="text/css"?>
 
 <window id						= "copper-main-window"
-				title				  = "Copper CoAP Browser"
+				title				  = "Copper (Cu) CoAP user-agent"
 				orient				= "vertical"
 				xmlns				  = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
 				xmlns:html		= "http://www.w3.org/1999/xhtml"
@@ -109,6 +109,7 @@
 	    	<menuitem id="menu_behavior_send_uri_host" label="Send Uri-Host" type="checkbox" tooltiptext="Enable virtual hosts and send Uri-Host option"/>
 	    	<menuitem id="menu_behavior_send_size1" label="Send auto Size1" type="checkbox" tooltiptext="Automatically indicate request representation size"/>
 	    	<menuseparator/>
+	      <menuitem id="menu_behavior_block_size_0" label="Block late negotiation" type="radio" name="block" value="0"/>
 	      <menuitem id="menu_behavior_block_size_16" label="Block size 16" type="radio" name="block" value="16"/>
 	      <menuitem id="menu_behavior_block_size_32" label="Block size 32" type="radio" name="block" value="32"/>
 	      <menuitem id="menu_behavior_block_size_64" label="Block size 64" type="radio" name="block" value="64"/>
@@ -361,23 +362,23 @@
 				<hbox>
 					<vbox flex="1">
 						<label control="debug_option_block1" value="Block1 (Req.)"/>
-						<textbox id="debug_option_block1" emptytext="block no." dir="reverse">
+						<textbox id="debug_option_block1" emptytext="block no." dir="reverse" tooltiptext="Choose block size in Behavior menu">
 							<image class="copper-clear-button" onclick="parentNode.value='';"/>
 						</textbox>
 						
 						<label control="debug_option_size1" value="Size1"/>
-						<textbox id="debug_option_size1" emptytext="res. size" dir="reverse">
+						<textbox id="debug_option_size1" emptytext="total size" dir="reverse">
 							<image class="copper-clear-button" onclick="parentNode.value='';"/>
 						</textbox>
 					</vbox>
 					<vbox flex="1">
 						<label control="debug_option_block2" value="Block2 (Res.)"/>
-						<textbox id="debug_option_block2" emptytext="block no." dir="reverse">
+						<textbox id="debug_option_block2" emptytext="block no." dir="reverse" tooltiptext="Choose block size in Behavior menu">
 							<image class="copper-clear-button" onclick="parentNode.value='';"/>
 						</textbox>
 						
 						<label control="debug_option_size2" value="Size2"/>
-						<textbox id="debug_option_size2" emptytext="req. size" dir="reverse">
+						<textbox id="debug_option_size2" emptytext="total size" dir="reverse">
 							<image class="copper-clear-button" onclick="parentNode.value='';"/>
 						</textbox>
 					</vbox>

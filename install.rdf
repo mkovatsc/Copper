@@ -4,7 +4,7 @@
 	<Description about="urn:mozilla:install-manifest">
 		<em:id>copper@vs.inf.ethz.ch</em:id>
 		<em:name>Copper (Cu)</em:name>
-		<em:version>0.18.0</em:version>
+		<em:version>0.18.1</em:version>
 		<em:type>2</em:type>
 		<em:creator>Matthias Kovatsch, ETH Zurich</em:creator>
 		<em:description>Copper (Cu) CoAP user-agent for Firefox. It installs a handler for the 'coap' URI scheme and allows users to browse and interact with Internet of Things devices.</em:description>

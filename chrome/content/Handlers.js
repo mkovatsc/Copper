@@ -73,51 +73,77 @@ CopperChrome.blockwiseHandler = function(message) {
 	
 	CopperChrome.displayMessageInfo(message);
 	CopperChrome.updateLabel('info_code', ' (Blockwise)', true); // call after displayMessageInfo()
+	
+	if (message.isSuccess() && message.isOption(Copper.OPTION_BLOCK1)) {
 		
-	if (message.isOption(Copper.OPTION_BLOCK1)) {
-
 		// block size negotiation
-		let size = Math.min(message.getBlock1Size(), CopperChrome.behavior.blockSize);
+		let size = message.getBlock1Size();
+		if (CopperChrome.behavior.blockSize!=0 && CopperChrome.behavior.blockSize < size) {
+			size = CopperChrome.behavior.blockSize;
+		}
 		let num = message.getBlock1Number() + 1;
 		let offset = message.getBlock1Size() * num;
 		
 		if (CopperChrome.uploadBlocks!=null && offset < CopperChrome.uploadBlocks.length) {
 			
 			CopperChrome.updateLabel('info_code', ' (Uploading...)', true);
+
+			// automatically count up
+			document.getElementById('debug_option_block1').value = num;
+			if (offset+size < CopperChrome.uploadBlocks.length) document.getElementById('debug_option_block1').value += '+';
 			
-			if ( document.getElementById('chk_debug_options').checked && !document.getElementById('chk_debug_option_block_auto').checked ) {
-				document.getElementById('debug_option_block1').value = num;
-				if (offset+size < CopperChrome.uploadBlocks.length) document.getElementById('debug_option_block1').value += '+';
-			} else {
+			if ( !document.getElementById('chk_debug_options').checked || document.getElementById('chk_debug_option_block_auto').checked ) {
 				CopperChrome.doBlockwiseUpload(num, size);
+				return;
 			}
-			return;
 		} else {
 			// finished
 			CopperChrome.uploadMethod = null;
 			CopperChrome.uploadBlocks = null;
-			document.getElementById('debug_option_block1').value = '0';
+
+			if (document.getElementById('chk_debug_option_block_auto').checked ) {
+				document.getElementById('debug_option_block1').value = '';
+			} else {
+				document.getElementById('debug_option_block1').value = 0;
+			}
+			
 			CopperChrome.updateLabel('info_code', ' (Upload finished)', true); // call after displayMessageInfo()
 		}
 	}
 	
 	CopperChrome.displayPayload(message);
 
-	if (message.isOption(Copper.OPTION_BLOCK)) {
+	if (message.isSuccess() && message.isOption(Copper.OPTION_BLOCK)) {
 		if (message.getBlockMore()) {
 			
+			let size = message.getBlockSize();
 			// block size negotiation
-			let size = Math.min(message.getBlockSize(), CopperChrome.behavior.blockSize);
-			let offset = message.getBlockSize()*(message.getBlockNumber()+1);
-			let num = offset / size;
+			if (CopperChrome.behavior.blockSize==0) {
+				CopperChrome.behavior.blockSize = size;
+				CopperChrome.behaviorUpdate({id: 'menu_behavior_block_size', value: CopperChrome.behavior.blockSize});
+
+				CopperChrome.popup(CopperChrome.hostname+':'+CopperChrome.port, 'Negotiated block size: '+size);
+			} else if (CopperChrome.behavior.blockSize < size) {
+				size = CopperChrome.behavior.blockSize;
+			}
 			
-			if ( document.getElementById('chk_debug_options').checked && !document.getElementById('chk_debug_option_block_auto').checked ) {
-				// automatically count up
-				document.getElementById('debug_option_block2').value = num;
-			} else {
+			let num = message.getBlockNumber() + 1;
+			let offset = message.getBlockSize() * num;
+			
+			// automatically count up
+			document.getElementById('debug_option_block2').value = num;				
+		
+			if ( !document.getElementById('chk_debug_options').checked || document.getElementById('chk_debug_option_block_auto').checked) {
 				CopperChrome.sendBlockwiseGet(num, size);
 			}
 		} else {
+			// finished
+			if (document.getElementById('chk_debug_option_block_auto').checked ) {
+				document.getElementById('debug_option_block2').value = '';
+			} else {
+				document.getElementById('debug_option_block2').value = 0;
+			}
+			
 			if (message.getContentType()==Copper.CONTENT_TYPE_APPLICATION_LINK_FORMAT) {
 				CopperChrome.updateResourceLinks( CopperChrome.parseLinkFormat( document.getElementById('packet_payload').value ) );
 			}

@@ -130,6 +130,15 @@ CopperChrome.CoapMessage.prototype = {
 		return this.getCode()>=64;
 	},
 	
+	isSuccess: function() {
+		return Math.floor(this.getCode() / 32) == 2;
+	},
+	isClientError: function() {
+		return Math.floor(this.getCode() / 32) == 4;
+	},
+	isServerError: function() {
+		return Math.floor(this.getCode() / 32) == 5;
+	},
 	
 	/*
 	 * Option definitions for different versions
