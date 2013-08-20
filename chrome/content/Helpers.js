@@ -571,6 +571,19 @@ CopperChrome.clearLabels = function(full) {
 	document.getElementById('group_payload').setAttribute('style', '');
 };
 
+CopperChrome.negotiateBlockSize = function(message) {
+	var size = message.getBlockSize();
+	if (CopperChrome.behavior.blockSize==0) {
+		CopperChrome.behavior.blockSize = size;
+		CopperChrome.behaviorUpdate({id: 'menu_behavior_block_size', value: CopperChrome.behavior.blockSize});
+	
+		CopperChrome.popup(CopperChrome.hostname+':'+CopperChrome.port, 'Negotiated block size: '+size);
+	} else if (CopperChrome.behavior.blockSize < size) {
+		size = CopperChrome.behavior.blockSize;
+	}
+	return size;
+};
+
 // workaround for "this" losing scope when passing callback functions
 CopperChrome.myBind = function(scope, fn) {
     return function () {

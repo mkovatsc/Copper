@@ -273,29 +273,6 @@ CopperChrome.sendBlockwiseGet = function(num, size, uri) {
 		alert('ERROR: Main.sendBlockwiseGet ['+ex+']');
 	}
 };
-CopperChrome.sendBlockwiseObserveGet = function(num, size, token) {
-	try {
-		
-		if (!num) num = 0;
-		if (!size) size = CopperChrome.behavior.blockSize;
-		uri = CopperChrome.checkUri(null, Copper.GET);
-		
-		var message = new CopperChrome.CoapMessage(CopperChrome.getRequestType(), Copper.GET, uri);
-		
-		message.setObserve(0);
-		
-		if (token) message.setToken(token);
-		
-		// (re)set to useful block option
-		message.setBlock(num, size);
-				
-		CopperChrome.clearLabels(num==0);
-		CopperChrome.client.send( message, CopperChrome.observingHandler );
-	} catch (ex) {
-		CopperChrome.client.cancelTransactions();
-		alert('ERROR: Main.sendBlockwiseObserveGet ['+ex+']');
-	}
-};
 
 CopperChrome.sendPost = function(uri) {
 	CopperChrome.client.cancelTransactions();
@@ -330,7 +307,7 @@ CopperChrome.doUpload = function(method, uri) {
 		CopperChrome.uploadBlocks = pl;
 		
 		// blockwise uploads
-		if (CopperChrome.behavior.blockSize!=0) {
+		if (CopperChrome.behavior.blockSize!=0 && pl.length > CopperChrome.behavior.blockSize) {
 			CopperChrome.doBlockwiseUpload(parseInt(document.getElementById('debug_option_block1').value), CopperChrome.behavior.blockSize, uri);
 			return;
 		}

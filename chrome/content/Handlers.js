@@ -81,8 +81,9 @@ CopperChrome.blockwiseHandler = function(message) {
 		if (CopperChrome.behavior.blockSize!=0 && CopperChrome.behavior.blockSize < size) {
 			size = CopperChrome.behavior.blockSize;
 		}
-		let num = message.getBlock1Number() + 1;
-		let offset = message.getBlock1Size() * num;
+		// calculate offset first to continue with correct num (if block size differs)
+		let offset = message.getBlock1Size() * (message.getBlock1Number() + 1);
+		let num = offset/size;
 		
 		if (CopperChrome.uploadBlocks!=null && offset < CopperChrome.uploadBlocks.length) {
 			
@@ -116,19 +117,10 @@ CopperChrome.blockwiseHandler = function(message) {
 	if (message.isSuccess() && message.isOption(Copper.OPTION_BLOCK)) {
 		if (message.getBlockMore()) {
 			
-			let size = message.getBlockSize();
 			// block size negotiation
-			if (CopperChrome.behavior.blockSize==0) {
-				CopperChrome.behavior.blockSize = size;
-				CopperChrome.behaviorUpdate({id: 'menu_behavior_block_size', value: CopperChrome.behavior.blockSize});
-
-				CopperChrome.popup(CopperChrome.hostname+':'+CopperChrome.port, 'Negotiated block size: '+size);
-			} else if (CopperChrome.behavior.blockSize < size) {
-				size = CopperChrome.behavior.blockSize;
-			}
-			
-			let num = message.getBlockNumber() + 1;
-			let offset = message.getBlockSize() * num;
+			let size = CopperChrome.negotiateBlockSize(message);
+			let offset = message.getBlockOffset();
+			let num = offset/size;
 			
 			// automatically count up
 			document.getElementById('debug_option_block2').value = num;				
@@ -170,11 +162,11 @@ CopperChrome.observingHandler = function(message) {
 			if (message.getBlockMore()) {
 				
 				// block size negotiation
-				let size = Math.min(message.getBlockSize(), CopperChrome.behavior.blockSize);
-				let offset = message.getBlockSize()*(message.getBlockNumber()+1);
-				let num = offset / size;
+				let size = CopperChrome.negotiateBlockSize(message);
+				let offset = message.getBlockOffset();
+				let num = offset/size;
 				
-				CopperChrome.sendBlockwiseObserveGet(num, size, message.getToken());
+				CopperChrome.sendBlockwiseGet(num, size);
 			}
 		}
 		
@@ -193,13 +185,13 @@ CopperChrome.discoverHandler = function(message) {
 		if (message.isOption(Copper.OPTION_BLOCK)) {
 			
 			if (message.getBlockMore()) {
+
+				// block size negotiation
+				let size = CopperChrome.negotiateBlockSize(message);
+				let offset = message.getBlockOffset();
+				let num = offset/size;
 				
-				// give in, as browser could request large blocks and server might be constrained
-				if (message.getBlockSize() > CopperChrome.behavior.blockSize) {
-					CopperChrome.discover(0, CopperChrome.behavior.blockSize);
-				} else {
-					CopperChrome.discover(message.getBlockNumber()+1, message.getBlockSize());
-				}
+				CopperChrome.discover(num, size);
 			}
 			
 			if (message.getBlockNumber()==0) {

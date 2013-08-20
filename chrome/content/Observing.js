@@ -86,6 +86,10 @@ CopperChrome.Observing.prototype = {
 			}
 		}
 		
+		if (CopperChrome.behavior.blockSize!=0) {
+			subscribe.setBlock(0, CopperChrome.behavior.blockSize);
+		}
+		
 		this.pending = new CopperChrome.ObserveEntry(uri, cb, subscribe.getToken());
 
 		var that = this;

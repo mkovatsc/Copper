@@ -601,6 +601,9 @@ CopperChrome.CoapMessage.prototype = {
 	getBlockMore : function() {
 		return (parseInt(0x08 & this.getBlock())!=0);
 	},
+	getBlockOffset : function() {
+		return this.getBlockSize() * (this.getBlockNumber() + 1);
+	},
 	
 	// Copper.OPTION_BLOCK1:06+
 	getBlock1 : function(readable) {
@@ -664,6 +667,9 @@ CopperChrome.CoapMessage.prototype = {
 	},
 	getBlock1More : function() {
 		return (0x08 & this.getBlock1());
+	},
+	getBlock1Offset : function() {
+		return this.getBlock1Size() * (this.getBlock1Number() + 1);
 	},
 
 	// Copper.OPTION_SIZE2:18+ / Copper.OPTION_SIZE:09+
