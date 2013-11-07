@@ -472,7 +472,14 @@ CopperChrome.displayMessageInfo = function(message) {
         if (options[i][0]=='ETag') {
         	// might be cleaner with bind()
         	var etagValueCopy = options[i][1];
-        	row.addEventListener('dblclick', function() { document.getElementById('debug_option_etag').value = etagValueCopy; });
+        	row.addEventListener('dblclick', function(event) {
+        		if (event.button == 0) { // left
+        			document.getElementById('debug_option_etag').value = etagValueCopy;
+        		} else { // right
+        			document.getElementById('debug_option_if_match').value = etagValueCopy;
+        		}
+        	});
+        	row.setAttribute('tooltiptext', 'Double-click for Debug Control: Left for ETag, right for If-Match');
         }
         
         if (options[i][0]=='Max-Age') {
