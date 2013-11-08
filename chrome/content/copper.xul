@@ -206,7 +206,7 @@
 	    	<menuitem id="menu_plugtest_proxy" label="Using proxy" type="checkbox" tooltiptext="Use the Proxy-Uri to run the proxy tests" oncommand="CopperChrome.testSetProxy(event.target);"/>
 	    </menupopup>
 	  </toolbarbutton>
-	  <toolbarbutton id="toolbar_plugtest_exec" label="Test" image="chrome://copper/skin/tool_test.png" oncommand="CopperChrome.testExecute();"/>
+	  <toolbarbutton id="toolbar_plugtest_exec" onload="this.setAttribute('label', document.getElementById('menu_plugtest_popup').getElementsByTagName('menuitem')[0].getAttribute('label'));" image="chrome://copper/skin/tool_test.png" oncommand="CopperChrome.testExecute();"/>
 	</toolbaritem>
 	
 	<toolbarspacer flex="1"/>
