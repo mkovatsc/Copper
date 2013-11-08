@@ -134,7 +134,7 @@
 	    <menupopup>
 			  <menu id="menu_plugtest_core" label="TD_COAP_CORE">
 			    <menupopup>
-			      <menuitem id="menu_plugtest_core_01" label="CORE_01 [29] (GET CON)" oncommand="CopperChrome.testCore01();"/>
+			      <menuitem id="menu_plugtest_core_01" label="CORE_01 (GET CON)" oncommand="CopperChrome.testCore01();"/>
 			      <menuitem id="menu_plugtest_core_02" label="CORE_02 (DELETE CON)" oncommand="CopperChrome.testCore02();"/>
 			      <menuitem id="menu_plugtest_core_03" label="CORE_03 (PUT CON)" oncommand="CopperChrome.testCore03();"/>
 			      <menuitem id="menu_plugtest_core_04" label="CORE_04 (POST CON)" oncommand="CopperChrome.testCore04();"/>
@@ -152,20 +152,18 @@
 			      <menuitem id="menu_plugtest_core_16" label="CORE_16 (CON /separate lossy)" oncommand="CopperChrome.testCore16();"/>
 			      <menuitem id="menu_plugtest_core_17" label="CORE_17 (NON /separte)" oncommand="CopperChrome.testCore17();"/>
 			      <menuitem id="menu_plugtest_core_18" label="CORE_18 (POST Location-Path)" oncommand="CopperChrome.testCore18();"/>
-			      <menuitem id="menu_plugtest_core_19" label="CORE_19 [25] (POST Location-Query)" oncommand="CopperChrome.testCore19();"/>
-			      <menuitem id="menu_plugtest_core_20a" label="CORE_20a [26] (GET text/plain)" oncommand="CopperChrome.testCore20a();"/>
-			      <menuitem id="menu_plugtest_core_20b" label="CORE_20b [26] (GET application/xml)" oncommand="CopperChrome.testCore20b();"/>
+			      <menuitem id="menu_plugtest_core_19" label="CORE_19 (POST Location-Query)" oncommand="CopperChrome.testCore19();"/>
+			      <menuitem id="menu_plugtest_core_20a" label="CORE_20a (GET text/plain)" oncommand="CopperChrome.testCore20a();"/>
+			      <menuitem id="menu_plugtest_core_20b" label="CORE_20b (GET application/xml)" oncommand="CopperChrome.testCore20b();"/>
 			      <menuitem id="menu_plugtest_core_21a" label="CORE_21a (GET ETag)" oncommand="CopperChrome.testCore21a();"/>
 			      <menuitem id="menu_plugtest_core_21b" label="CORE_21b (GET ETag validate)" oncommand="CopperChrome.testCore21b();"/>
 			      <menuitem id="menu_plugtest_core_21c" label="CORE_21c (GET ETag changed)" oncommand="CopperChrome.testCore21c();"/>
-			      <menuitem id="menu_plugtest_core_22a" label="CORE_22a [27] (GET ETag)" oncommand="CopperChrome.testCore22a();"/>
-			      <menuitem id="menu_plugtest_core_22b" label="CORE_22b [27] (PUT If-Match)" oncommand="CopperChrome.testCore22b();"/>
-			      <menuitem id="menu_plugtest_core_22c" label="CORE_22c [27] (PUT If-Match changed)" oncommand="CopperChrome.testCore22c();"/>
+			      <menuitem id="menu_plugtest_core_22a" label="CORE_22a (GET ETag)" oncommand="CopperChrome.testCore22a();"/>
+			      <menuitem id="menu_plugtest_core_22b" label="CORE_22b (PUT If-Match)" oncommand="CopperChrome.testCore22b();"/>
+			      <menuitem id="menu_plugtest_core_22c" label="CORE_22c (GET new ETag)" oncommand="CopperChrome.testCore22c();"/>
+			      <menuitem id="menu_plugtest_core_22d" label="CORE_22d (PUT If-Match changed)" oncommand="CopperChrome.testCore22d();"/>
 			      <menuitem id="menu_plugtest_core_23a" label="CORE_23a (PUT If-None-Match)" oncommand="CopperChrome.testCore23a();"/>
 			      <menuitem id="menu_plugtest_core_23b" label="CORE_23b (PUT If-None-Match exists)" oncommand="CopperChrome.testCore23b();"/>
-			      <menuitem id="menu_plugtest_core_24" label="CORE_24 (POST Proxy)" oncommand="CopperChrome.testCore24();"/>
-			      <menuitem id="menu_plugtest_core_28a" label="CORE_28a (PUT If-None-Match)" oncommand="CopperChrome.testCore28a();"/>
-			      <menuitem id="menu_plugtest_core_28b" label="CORE_28b (PUT If-None-Match exists)" oncommand="CopperChrome.testCore28b();"/>
 			   </menupopup>
 			  </menu>
 			  <menu id="menu_plugtest_link" label="TD_COAP_LINK">
@@ -337,14 +335,22 @@
 	<splitter collapse="after" resizebefore="farthest">
 		<grippy/>
 	</splitter>
-	<vbox id="sidebar" style="width: 18.5em;"><!-- 18.5em to avoid scrollbar on Linux (at least InstantContiki) -->
+	<vbox id="sidebar" style="width: 18.5em;"><!-- 18.5em to avoid scrollbar on Linux -->
 		<groupbox flex="1">
 			<caption>
-				<checkbox id="chk_debug_options" label="Debug options"/>
+				<checkbox id="chk_debug_options" label="Debug Control"/>
 				<button label="Reset" oncommand="CopperChrome.resetDebugOptions();" style="height: 16px;"/>
 			</caption>
 			
 			<vbox flex="1" style="overflow: auto;">
+			
+				<label control="debug_option_token" value="Token" style="text-align: center;"/>
+				<textbox id="debug_option_token" emptytext="use hex (0x..) or string" dir="reverse" oninput="this.setAttribute('tooltiptext', Copper.str2hex(this.value));">
+					<image class="copper-clear-button" onclick="parentNode.value='';"/>
+				</textbox>
+				
+				<label value="Request Options" style="text-align: center; margin-top: 5px;"/>
+			
 				<label control="debug_option_accept" value="Accept"/>
 				<menulist id="debug_option_accept" editable="true">
 					<menupopup id="popup_accepts">
@@ -387,11 +393,6 @@
 						<box pack="center"><checkbox id="chk_debug_option_block_auto" tooltiptext="Automatically transmit all blocks" style="margin-right:0px; padding-right:0px;"/></box>
 					</vbox>
 				</hbox>
-					
-				<label control="debug_option_token" value="Token"/>
-				<textbox id="debug_option_token" emptytext="use hex (0x..) or string" dir="reverse">
-					<image class="copper-clear-button" onclick="parentNode.value='';"/>
-				</textbox>
 				
 				<label control="debug_option_observe" value="Observe"/>
 				<textbox id="debug_option_observe" emptytext="use integer" dir="reverse">
@@ -399,12 +400,12 @@
 				</textbox>
 				
 				<label control="debug_option_etag" value="ETag"/>
-				<textbox id="debug_option_etag" emptytext="use hex (0x..) or string" dir="reverse">
+				<textbox id="debug_option_etag" emptytext="use hex (0x..) or string" dir="reverse" oninput="this.setAttribute('tooltiptext', Copper.str2hex(this.value));">
 					<image class="copper-clear-button" onclick="parentNode.value='';"/>
 				</textbox>
 				
 				<label control="debug_option_if_match" value="If-Match"/>
-				<textbox id="debug_option_if_match" emptytext="use an ETag" dir="reverse">
+				<textbox id="debug_option_if_match" emptytext="use an ETag" dir="reverse" oninput="this.setAttribute('tooltiptext', Copper.str2hex(this.value));">
 					<image class="copper-clear-button" onclick="parentNode.value='';"/>
 				</textbox>
 				
@@ -445,7 +446,7 @@
 				</hbox>
 				-->
 				
-				<label value="Response options" style="text-align: center; margin-top: 5px;"/>
+				<label value="Response Options" style="text-align: center; margin-top: 5px;"/>
 				
 				<label control="debug_option_max_age" value="Max-Age"/>
 				<textbox id="debug_option_max_age" emptytext="use integer" dir="reverse">
@@ -467,7 +468,7 @@
 					</vbox>
 				</hbox>
 				
-				<label value="Custom options" style="text-align: center; margin-top: 5px;"/>
+				<label value="Custom Options" style="text-align: center; margin-top: 5px;"/>
 				
 				<hbox>
 					<vbox flex="1">
@@ -478,7 +479,7 @@
 					</vbox>
 					<vbox flex="1">
 						<label control="debug_option_custom_value" value="Value"/>
-						<textbox id="debug_option_custom_value" emptytext="use hex (0x..) or string" style="width: 120px;" dir="reverse">
+						<textbox id="debug_option_custom_value" emptytext="use hex (0x..) or string" style="width: 120px;" dir="reverse" oninput="this.setAttribute('tooltiptext', Copper.str2hex(this.value));">
 							<image class="copper-clear-button" onclick="parentNode.value='';"/>
 						</textbox>
 					</vbox>

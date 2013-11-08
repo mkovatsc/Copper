@@ -78,7 +78,7 @@ CopperChrome.behavior = {
 	rejectUnknown: true,
 	sendUriHost: false,
 	sendSize1: false,
-	blockSize: 64,
+	blockSize: 0,
 	observeToken: true,
 	observeCancellation: 'lazy'
 };
@@ -230,7 +230,7 @@ CopperChrome.unload = function() {
 // Toolbar commands
 ////////////////////////////////////////////////////////////////////////////////
 
-CopperChrome.sendGet = function(uri) {
+CopperChrome.sendGet = function(uri, callback) {
 	try {
 		CopperChrome.client.cancelTransactions();
 		
@@ -246,7 +246,7 @@ CopperChrome.sendGet = function(uri) {
 		CopperChrome.checkDebugOptions(message);
 		
 		CopperChrome.clearLabels();
-		CopperChrome.client.send( message );
+		CopperChrome.client.send( message, callback );
 	} catch (ex) {
 		CopperChrome.client.cancelTransactions();
 		alert('ERROR: Main.sendGet ['+ex+']');
@@ -274,17 +274,17 @@ CopperChrome.sendBlockwiseGet = function(num, size, uri) {
 	}
 };
 
-CopperChrome.sendPost = function(uri) {
+CopperChrome.sendPost = function(uri, callback) {
 	CopperChrome.client.cancelTransactions();
-	CopperChrome.doUpload(Copper.POST, uri);
+	CopperChrome.doUpload(Copper.POST, uri, callback);
 };
 
-CopperChrome.sendPut = function(uri) {
+CopperChrome.sendPut = function(uri, callback) {
 	CopperChrome.client.cancelTransactions();
-	CopperChrome.doUpload(Copper.PUT, uri);
+	CopperChrome.doUpload(Copper.PUT, uri, callback);
 };
 
-CopperChrome.doUpload = function(method, uri) {
+CopperChrome.doUpload = function(method, uri, callback) {
 	try {
 		
 		uri = CopperChrome.checkUri(uri, method, document.getElementById('toolbar_payload_mode').value);
@@ -323,7 +323,7 @@ CopperChrome.doUpload = function(method, uri) {
 		}
 		
 		CopperChrome.clearLabels();
-		CopperChrome.client.send( message );
+		CopperChrome.client.send( message, callback );
 	} catch (ex) {
 		CopperChrome.client.cancelTransactions();
 		alert('ERROR: Main.doUpload ['+ex+']');
@@ -374,7 +374,7 @@ CopperChrome.doBlockwiseUpload = function(num, size, uri) {
 	}
 };
 
-CopperChrome.sendDelete = function(uri) {
+CopperChrome.sendDelete = function(uri, callback) {
 	try {
 		CopperChrome.client.cancelTransactions();
 		
@@ -385,7 +385,7 @@ CopperChrome.sendDelete = function(uri) {
 		CopperChrome.checkDebugOptions(message);
 		
 		CopperChrome.clearLabels();
-		CopperChrome.client.send( message );
+		CopperChrome.client.send( message, callback );
 	} catch (ex) {
 		CopperChrome.client.cancelTransactions();
 		alert('ERROR: Main.sendDelete ['+ex+']');

@@ -233,3 +233,14 @@ Copper.bytes2hex = function(b) {
 	
 	return hex;
 };
+
+Copper.str2hex = function(s) {
+	var temp;
+	if (s.substr(0,2)=='0x') {
+		temp = Copper.hex2bytes(s);
+	} else {
+		temp = Copper.str2bytes(s);
+	}
+	
+	return Copper.bytes2hex(temp);
+};
