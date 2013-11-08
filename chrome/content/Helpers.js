@@ -489,7 +489,7 @@ CopperChrome.displayMessageInfo = function(message) {
         
         optionList.appendChild(row);
         
-        if (options[i][0]=='Location') {
+        if (options[i][0]=='Location-Path') {
         	CopperChrome.updateResourceLinks( CopperChrome.parseLinkFormat( '<'+options[i][1]+'>' ) );
         }
     }
