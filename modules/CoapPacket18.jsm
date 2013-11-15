@@ -80,6 +80,7 @@ Copper.__defineGetter__("CODE_2_02_DELETED", function() { return 66; });
 Copper.__defineGetter__("CODE_2_03_VALID", function() { return 67; });
 Copper.__defineGetter__("CODE_2_04_CHANGED", function() { return 68; });
 Copper.__defineGetter__("CODE_2_05_CONTENT", function() { return 69; });
+Copper.__defineGetter__("CODE_2_31_CONTINUE", function() { return 95; });
 
 Copper.__defineGetter__("CODE_4_00_BAD_REQUEST", function() { return 128; });
 Copper.__defineGetter__("CODE_4_01_UNAUTHORIZED", function() { return 129; });
@@ -199,6 +200,7 @@ Copper.CoapPacket.prototype = {
 				case Copper.CODE_2_03_VALID: return '2.03 Valid';
 				case Copper.CODE_2_04_CHANGED: return '2.04 Changed';
 				case Copper.CODE_2_05_CONTENT: return '2.05 Content';
+				case Copper.CODE_2_31_CONTINUE: return '2.31 Continue';
 				case Copper.CODE_4_00_BAD_REQUEST: return '4.00 Bad Request';
 				case Copper.CODE_4_01_UNAUTHORIZED: return '4.01 Unauthorized';
 				case Copper.CODE_4_02_BAD_OPTION: return '4.02 Bad Option';
