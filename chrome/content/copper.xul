@@ -166,21 +166,6 @@
 			      <menuitem id="menu_plugtest_core_23b" label="CORE_23b (PUT If-None-Match exists)" oncommand="CopperChrome.testCore23b();"/>
 			   </menupopup>
 			  </menu>
-			  <menu id="menu_plugtest_link" label="TD_COAP_LINK">
-			    <menupopup>
-			      <menuitem id="menu_plugtest_link_01" label="LINK_01 (Discover)" oncommand="CopperChrome.testLink01();"/>
-			      <menuitem id="menu_plugtest_link_02" label="LINK_02 (Filter rt=Type1)" oncommand="CopperChrome.testLink02();"/>
-			      <menuitem id="menu_plugtest_link_03" label="LINK_03 (Filter rt=*)" oncommand="CopperChrome.testLink03();"/>
-			      <menuitem id="menu_plugtest_link_04" label="LINK_04 (Filter rt=Type2)" oncommand="CopperChrome.testLink04();"/>
-			      <menuitem id="menu_plugtest_link_05" label="LINK_05 (Filter if=If*)" oncommand="CopperChrome.testLink05();"/>
-			      <menuitem id="menu_plugtest_link_06" label="LINK_06 (Filter sz=*)" oncommand="CopperChrome.testLink06();"/>
-			      <menuitem id="menu_plugtest_link_07" label="LINK_07 (Filter href=/link1)" oncommand="CopperChrome.testLink07();"/>
-			      <menuitem id="menu_plugtest_link_08" label="LINK_08 (Filter href=/link*)" oncommand="CopperChrome.testLink08();"/>
-			      <menuitem id="menu_plugtest_link_09a" label="LINK_09a (Filter ct=40)" oncommand="CopperChrome.testLink09a();"/>
-			      <menuitem id="menu_plugtest_link_09b" label="LINK_09b (GET /path" oncommand="CopperChrome.testLink09b();"/>
-			      <menuitem id="menu_plugtest_link_09c" label="LINK_09c (GET /path/sub1)" oncommand="CopperChrome.testLink09c();"/>
-			   </menupopup>
-			  </menu>
 			  <menu id="menu_plugtest_block" label="TD_COAP_BLOCK">
 			    <menupopup>
 			      <menuitem id="menu_plugtest_block_01" label="BLOCK_01 (/large)" oncommand="CopperChrome.testBlock01();"/>
@@ -200,6 +185,21 @@
 			      <menuitem id="menu_plugtest_observe_07" label="OBS_07 (DELETE /obs)" oncommand="CopperChrome.testObs07();"/>
 			      <menuitem id="menu_plugtest_observe_08" label="OBS_08 (PUT new Content-Format)" oncommand="CopperChrome.testObs08();"/>
 			      <menuitem id="menu_plugtest_observe_09" label="OBS_09 (PUT same Content-Format)" oncommand="CopperChrome.testObs09();"/>
+			   </menupopup>
+			  </menu>
+			  <menu id="menu_plugtest_link" label="TD_COAP_LINK">
+			    <menupopup>
+			      <menuitem id="menu_plugtest_link_01" label="LINK_01 (Discover)" oncommand="CopperChrome.testLink01();"/>
+			      <menuitem id="menu_plugtest_link_02" label="LINK_02 (Filter rt=Type1)" oncommand="CopperChrome.testLink02();"/>
+			      <menuitem id="menu_plugtest_link_03" label="LINK_03 (Filter rt=*)" oncommand="CopperChrome.testLink03();"/>
+			      <menuitem id="menu_plugtest_link_04" label="LINK_04 (Filter rt=Type2)" oncommand="CopperChrome.testLink04();"/>
+			      <menuitem id="menu_plugtest_link_05" label="LINK_05 (Filter if=If*)" oncommand="CopperChrome.testLink05();"/>
+			      <menuitem id="menu_plugtest_link_06" label="LINK_06 (Filter sz=*)" oncommand="CopperChrome.testLink06();"/>
+			      <menuitem id="menu_plugtest_link_07" label="LINK_07 (Filter href=/link1)" oncommand="CopperChrome.testLink07();"/>
+			      <menuitem id="menu_plugtest_link_08" label="LINK_08 (Filter href=/link*)" oncommand="CopperChrome.testLink08();"/>
+			      <menuitem id="menu_plugtest_link_09a" label="LINK_09a (Filter ct=40)" oncommand="CopperChrome.testLink09a();"/>
+			      <menuitem id="menu_plugtest_link_09b" label="LINK_09b (GET /path" oncommand="CopperChrome.testLink09b();"/>
+			      <menuitem id="menu_plugtest_link_09c" label="LINK_09c (GET /path/sub1)" oncommand="CopperChrome.testLink09c();"/>
 			   </menupopup>
 			  </menu>
         <menuseparator/>
