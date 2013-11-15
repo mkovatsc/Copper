@@ -102,7 +102,7 @@ CopperChrome.blockwiseHandler = function(message) {
 			CopperChrome.uploadMethod = null;
 			CopperChrome.uploadBlocks = null;
 
-			if (document.getElementById('chk_debug_option_block_auto').checked ) {
+			if (!document.getElementById('chk_debug_options').checked || document.getElementById('chk_debug_option_block_auto').checked ) {
 				document.getElementById('debug_option_block1').value = '';
 			} else {
 				document.getElementById('debug_option_block1').value = 0;
@@ -130,7 +130,7 @@ CopperChrome.blockwiseHandler = function(message) {
 			}
 		} else {
 			// finished
-			if (document.getElementById('chk_debug_option_block_auto').checked ) {
+			if (!document.getElementById('chk_debug_options').checked || document.getElementById('chk_debug_option_block_auto').checked ) {
 				document.getElementById('debug_option_block2').value = '';
 			} else {
 				document.getElementById('debug_option_block2').value = 0;
