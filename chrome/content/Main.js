@@ -69,6 +69,9 @@ CopperChrome.payloadFileData = null;
 
 CopperChrome.uploadMethod = 0;
 CopperChrome.uploadBlocks = null;
+CopperChrome.uploadHandler = null;
+
+CopperChrome.downloadHandler = null;
 
 CopperChrome.behavior = {
 	requests: 'con',
@@ -274,7 +277,7 @@ CopperChrome.sendGet = function(uri, callback) {
 		if (!uri) throw 'No URI specified';
 		
 		if (CopperChrome.behavior.blockSize!=0) {
-			CopperChrome.sendBlockwiseGet(uri, parseInt(document.getElementById('debug_option_block2').value), CopperChrome.behavior.blockSize);
+			CopperChrome.sendBlockwiseGet(uri, parseInt(document.getElementById('debug_option_block2').value), CopperChrome.behavior.blockSize, callback);
 			return;
 		}
 		
@@ -289,11 +292,13 @@ CopperChrome.sendGet = function(uri, callback) {
 		alert('ERROR: Main.sendGet ['+ex+']');
 	}
 };
-CopperChrome.sendBlockwiseGet = function(uri, num, size) {
+CopperChrome.sendBlockwiseGet = function(uri, num, size, callback) {
 	try {
 		if (!uri) throw 'No URI specified';
 		if (!num) num = 0;
 		if (!size) size = CopperChrome.behavior.blockSize;
+		
+		if (callback) CopperChrome.downloadHandler = callback;
 		
 		var message = new CopperChrome.CoapMessage(CopperChrome.getRequestType(), Copper.GET, uri);
 		
@@ -331,7 +336,7 @@ CopperChrome.doUpload = function(method, uri, callback) {
 		} else {
 			if (!CopperChrome.payloadFileLoaded) {
 				// file loading as async, wait until done
-				window.setTimeout(function() {CopperChrome.doUpload(method,uri);}, 50);
+				window.setTimeout(function() {CopperChrome.doUpload(method, uri, callback);}, 50);
 				return;
 			}
 			pl = Copper.data2bytes(CopperChrome.payloadFileData);
@@ -343,7 +348,7 @@ CopperChrome.doUpload = function(method, uri, callback) {
 		
 		// blockwise uploads
 		if (CopperChrome.behavior.blockSize!=0 && pl.length > CopperChrome.behavior.blockSize) {
-			CopperChrome.doBlockwiseUpload(uri, parseInt(document.getElementById('debug_option_block1').value), CopperChrome.behavior.blockSize);
+			CopperChrome.doBlockwiseUpload(uri, parseInt(document.getElementById('debug_option_block1').value), CopperChrome.behavior.blockSize, callback);
 			return;
 		}
 		
@@ -365,7 +370,7 @@ CopperChrome.doUpload = function(method, uri, callback) {
 	}
 }
 
-CopperChrome.doBlockwiseUpload = function(uri, num, size) {
+CopperChrome.doBlockwiseUpload = function(uri, num, size, callback) {
 	try {
 		if (!uri) throw 'No URI specified';
 		if (!num) num = 0;
@@ -377,13 +382,15 @@ CopperChrome.doBlockwiseUpload = function(uri, num, size) {
 		if ( (num>0) && (size*(num-1) > CopperChrome.uploadBlocks.length)) { // num-1, as we are called with the num to send, not was has been send
 			throw 'Debug Block1 out of payload scope';
 		}
-	
+		
 		let more = false;
 		let pl = CopperChrome.uploadBlocks.slice(size*num, size*(num+1));
 		
 		if (CopperChrome.uploadBlocks.length > (num+1) * size) { // num+1, as we start counting at 0...
 			more = true;
 		}
+		
+		if (callback) CopperChrome.uploadHandler = callback;
 		
 		var message = new CopperChrome.CoapMessage(CopperChrome.getRequestType(), CopperChrome.uploadMethod, uri, pl);
 		
