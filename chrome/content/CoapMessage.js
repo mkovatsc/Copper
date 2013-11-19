@@ -599,7 +599,7 @@ CopperChrome.CoapMessage.prototype = {
 		return (16 << (0x07 & this.getBlock()));
 	},
 	getBlockMore : function() {
-		return (parseInt(0x08 & this.getBlock())!=0);
+		return (parseInt(0x08 & this.getBlock())!=0) ? 1 : 0;
 	},
 	getBlockOffset : function() {
 		return this.getBlockSize() * (this.getBlockNumber() + 1);
@@ -666,7 +666,7 @@ CopperChrome.CoapMessage.prototype = {
 		return (16 << (0x07 & this.getBlock1()));
 	},
 	getBlock1More : function() {
-		return (0x08 & this.getBlock1());
+		return (0x08 & this.getBlock1()) ? 1 : 0;
 	},
 	getBlock1Offset : function() {
 		return this.getBlock1Size() * (this.getBlock1Number() + 1);
@@ -768,7 +768,24 @@ CopperChrome.CoapMessage.prototype = {
 
 			for (var optTypeIt in this.packet.options) {
 				if (Array.isArray(this.packet.options[optTypeIt][1])) {
-					ret += '\n  ' + Copper.getOptionName(optTypeIt) + ': ' + this.packet.getOption(optTypeIt) + ' ['+ this.packet.options[optTypeIt][0]+']';
+					let name = Copper.getOptionName(optTypeIt);
+					let val = this.packet.getOption(optTypeIt);
+					let info = this.packet.options[optTypeIt][0];
+					
+					switch (parseInt(optTypeIt)) {
+			    		case Copper.OPTION_BLOCK:
+			    			val = this.getBlockNumber();
+			    			val += '/'+this.getBlockMore();
+			    			val += '/'+this.getBlockSize();
+							break;
+			    		case Copper.OPTION_BLOCK1:
+			    			val = this.getBlock1Number();
+			    			val += '/'+this.getBlock1More();
+			    			val += '/'+this.getBlock1Size();
+							break;
+					}
+					
+					ret += '\n  ' + name + ': ' + val + ' ['+ info +']';
 				}
 			}
 
