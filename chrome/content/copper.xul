@@ -172,6 +172,7 @@
 			      <menuitem id="menu_plugtest_block_02" label="BLOCK_02 (/large late)" oncommand="CopperChrome.testBlock02();"/>
 			      <menuitem id="menu_plugtest_block_03" label="BLOCK_03 (/large-update)" oncommand="CopperChrome.testBlock03();"/>
 			      <menuitem id="menu_plugtest_block_04" label="BLOCK_04 (/large-create)" oncommand="CopperChrome.testBlock04();"/>
+			      <menuitem id="menu_plugtest_block_05" label="BLOCK_05 (/large-post)" oncommand="CopperChrome.testBlock05();"/>
 			   </menupopup>
 			  </menu>
 			  <menu id="menu_plugtest_observe" label="TD_COAP_OBS">
