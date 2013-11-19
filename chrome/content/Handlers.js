@@ -74,7 +74,7 @@ CopperChrome.blockwiseHandler = function(message) {
 	CopperChrome.displayMessageInfo(message);
 	CopperChrome.updateLabel('info_code', ' (Blockwise)', true); // call after displayMessageInfo()
 	
-	if (message.isSuccess() && message.isOption(Copper.OPTION_BLOCK1)) {
+	if (message.isOption(Copper.OPTION_BLOCK1)) {
 		
 		// block size negotiation
 		let size = message.getBlock1Size();
@@ -85,7 +85,7 @@ CopperChrome.blockwiseHandler = function(message) {
 		let offset = message.getBlock1Size() * (message.getBlock1Number() + 1);
 		let num = offset/size;
 		
-		if (CopperChrome.uploadBlocks!=null && offset < CopperChrome.uploadBlocks.length) {
+		if (message.isSuccess() && CopperChrome.uploadBlocks!=null && offset < CopperChrome.uploadBlocks.length) {
 			
 			CopperChrome.updateLabel('info_code', ' (Uploading...)', true);
 
@@ -94,12 +94,12 @@ CopperChrome.blockwiseHandler = function(message) {
 			if (offset+size < CopperChrome.uploadBlocks.length) document.getElementById('debug_option_block1').value += '+';
 			
 			if ( !document.getElementById('chk_debug_options').checked || document.getElementById('chk_debug_option_block_auto').checked ) {
-				CopperChrome.doBlockwiseUpload(num, size);
+				CopperChrome.doBlockwiseUpload(document.location.href, num, size);
 				return;
 			}
 		} else {
 			// finished
-			CopperChrome.uploadMethod = null;
+			CopperChrome.uploadMethod = 0;
 			CopperChrome.uploadBlocks = null;
 
 			if (!document.getElementById('chk_debug_options').checked || document.getElementById('chk_debug_option_block_auto').checked ) {
@@ -114,7 +114,7 @@ CopperChrome.blockwiseHandler = function(message) {
 	
 	CopperChrome.displayPayload(message);
 
-	if (message.isSuccess() && message.isOption(Copper.OPTION_BLOCK)) {
+	if (message.isOption(Copper.OPTION_BLOCK)) {
 		if (message.getBlockMore()) {
 			
 			// block size negotiation
@@ -126,7 +126,7 @@ CopperChrome.blockwiseHandler = function(message) {
 			document.getElementById('debug_option_block2').value = num;				
 		
 			if ( !document.getElementById('chk_debug_options').checked || document.getElementById('chk_debug_option_block_auto').checked) {
-				CopperChrome.sendBlockwiseGet(num, size);
+				CopperChrome.sendBlockwiseGet(document.location.href, num, size);
 			}
 		} else {
 			// finished
@@ -166,7 +166,7 @@ CopperChrome.observingHandler = function(message) {
 				let offset = message.getBlockOffset();
 				let num = offset/size;
 				
-				CopperChrome.sendBlockwiseGet(num, size);
+				CopperChrome.sendBlockwiseGet(document.location.href, num, size);
 			}
 		}
 		

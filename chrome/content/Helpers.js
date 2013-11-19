@@ -303,27 +303,32 @@ CopperChrome.parseUri = function(inputUri) {
 };
 
 // Set the default URI and also check for modified Firefox URL bar
-CopperChrome.checkUri = function(uri, method) {
-	if (!uri) {
+CopperChrome.checkUri = function(uri, caller) {
 
-		var uri1 = decodeURI(CopperChrome.mainWindow.document.getElementById('urlbar').value);
-		var uri2 = decodeURI(document.location.href);
+	if (!uri) {
+		uri = decodeURI(CopperChrome.mainWindow.document.getElementById('urlbar').value);
+	} else if (uri.indexOf('coap://')!=0) {
+		// URI must be absolute
+		if (uri.indexOf('/')!=0) uri = '/' + uri;
+		// convert to full URI
+		uri = 'coap://' + CopperChrome.hostname + ':' + CopperChrome.port + uri;
+	}
 		
-		// when urlbar was changed without pressing enter, redirect and perform request
-		if (method && (uri1!=uri2)) {
-			//alert('You edited the URL bar:\n'+uri1+'\n'+uri2);
-			
-			// schedule the request to start automatically at new location
-			CopperChrome.prefManager.setIntPref('extensions.copper.auto-request.method', method);
-			
-			// redirect
-			document.location.href = uri1;
-			// will not continue after location change
-		} else {
-			return CopperChrome.path + (CopperChrome.query ? '?'+CopperChrome.query : '');
-		}
+	var uri2 = decodeURI(document.location.href);
+	
+	// when urlbar was changed without pressing enter, redirect and perform request
+	if (caller && (uri!=uri2)) {
+		
+		// schedule the request to start automatically at new location
+		CopperChrome.prefManager.setCharPref('extensions.copper.onload-action', ''+caller);
+		
+		dump('INFO: Redirecting\n      from ' + uri2 + '\n      to   ' + uri + '\n');
+		document.location.href = uri;
+		
+		// required to stop execution for redirect
+		throw 'REDIRECT';
 	} else {
-		return uri;
+		return CopperChrome.path + (CopperChrome.query ? '?'+CopperChrome.query : '');
 	}
 };
 
@@ -582,7 +587,7 @@ CopperChrome.negotiateBlockSize = function(message) {
 	var size = message.getBlockSize();
 	if (CopperChrome.behavior.blockSize==0) {
 		CopperChrome.behavior.blockSize = size;
-		CopperChrome.behaviorUpdate({id: 'menu_behavior_block_size', value: CopperChrome.behavior.blockSize});
+		CopperChrome.updateBehavior();
 	
 		CopperChrome.popup(CopperChrome.hostname+':'+CopperChrome.port, 'Negotiated block size: '+size);
 	} else if (CopperChrome.behavior.blockSize < size) {

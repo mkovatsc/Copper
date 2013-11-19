@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, Institute for Pervasive Computing, ETH Zurich.
+ * Copyright (c) 2013, Institute for Pervasive Computing, ETH Zurich.
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -32,22 +32,29 @@
  * \file
  *         Automated Plugtests
  *
- * \author  Matthias Kovatsch <kovatsch@inf.ethz.ch>\author
+ * \author  Matthias Kovatsch <kovatsch@inf.ethz.ch>
  */
 
-
 CopperChrome.plugtest = {
+		list : null,
+		current : 0,
 		proxy : false,
 		originServer : ''
 };
 
-CopperChrome.loadPlugtest = function() {
+CopperChrome.loadPlugtest = function() {	
+	CopperChrome.plugtest.list = document.getElementById('menu_plugtest_popup').getElementsByTagName('menuitem');
+	CopperChrome.plugtest.current = CopperChrome.prefManager.getIntPref('extensions.copper.plugtest.current');
+	
 	CopperChrome.plugtest.proxy = CopperChrome.prefManager.getBoolPref('extensions.copper.plugtest.proxy');
 	CopperChrome.plugtest.originServer = CopperChrome.prefManager.getCharPref('extensions.copper.plugtest.origin-server');
 	
 	document.getElementById('menu_plugtest_proxy').setAttribute('checked', CopperChrome.plugtest.proxy);
+	document.getElementById('toolbar_plugtest_exec').setAttribute('label', CopperChrome.plugtest.list[CopperChrome.plugtest.current].label);
 };
+
 CopperChrome.savePlugtest = function() {
+	CopperChrome.prefManager.setIntPref('extensions.copper.plugtest.current', CopperChrome.plugtest.current);
 	CopperChrome.prefManager.setBoolPref('extensions.copper.plugtest.proxy', CopperChrome.plugtest.proxy);
 	CopperChrome.prefManager.setCharPref('extensions.copper.plugtest.origin-server', CopperChrome.plugtest.originServer);
 };
@@ -57,11 +64,36 @@ CopperChrome.testSetProxy = function(target) {
 	if (CopperChrome.plugtest.proxy) CopperChrome.plugtest.originServer = prompt('Origin server base URI (coap://authority[:port])', CopperChrome.plugtest.originServer);
 };
 
+CopperChrome.testSelect = function(target) {
+	
+	for (var num in CopperChrome.plugtest.list) {
+		if (CopperChrome.plugtest.list[num].id==target.id) {
+			
+			CopperChrome.plugtest.current = parseInt(num) + 1;
+			document.getElementById('toolbar_plugtest_exec').label = CopperChrome.plugtest.list[CopperChrome.plugtest.current].label;
+			CopperChrome.prefManager.setIntPref('extensions.copper.plugtest.current', CopperChrome.plugtest.current);
+			return;
+		}
+	}
+};
 
+CopperChrome.testNext = function(uri) {
 
-CopperChrome.testCheckUri = function(uri) {
+	if (CopperChrome.plugtest.current < CopperChrome.plugtest.list.length) {
+		CopperChrome.plugtest.list[CopperChrome.plugtest.current].click();
+	} else {
+		CopperChrome.plugtest.current = 0;
+		document.getElementById('toolbar_plugtest_exec').label = CopperChrome.plugtest.list[CopperChrome.plugtest.current].label;
+	}
+}; 
+
+CopperChrome.updateTestURI = function(uri) {
 	
 	if (CopperChrome.plugtest.proxy) {
+		while (CopperChrome.plugtest.originServer.indexOf('coap://')!=0) {
+			CopperChrome.plugtest.originServer = prompt('Origin server base URI not set (coap://authority[:port])', CopperChrome.plugtest.originServer);
+		}
+		
 		document.getElementById('chk_debug_options').checked = true;
 		document.getElementById('debug_option_proxy_uri').value = CopperChrome.plugtest.originServer + uri;
 		
@@ -73,44 +105,16 @@ CopperChrome.testCheckUri = function(uri) {
 	return uri;
 };
 
-CopperChrome.testList = null;
-CopperChrome.testLast = 0;
-CopperChrome.testSelected = false;
-
-CopperChrome.testExecute = function(uri) {
-	
-	CopperChrome.testSelected = true;
-	
-	if (!CopperChrome.testList) CopperChrome.testList = document.getElementById('menu_plugtest_popup').getElementsByTagName('menuitem');
-
-	if (CopperChrome.testLast < CopperChrome.testList.length) {
-		CopperChrome.testList[CopperChrome.testLast].click();
-		++CopperChrome.testLast;
-		document.getElementById('toolbar_plugtest_exec').label = CopperChrome.testList[CopperChrome.testLast].label;
-	}
-}; 
-
-CopperChrome.testSelect = function(target) {
-	
-	if (CopperChrome.testSelected) return;
-	
-	CopperChrome.testSelected = true;
-	
-	if (!CopperChrome.testList) CopperChrome.testList = document.getElementById('menu_plugtest_popup').getElementsByTagName('menuitem');
-	
-	for (var num in CopperChrome.testList) {
-		if (CopperChrome.testList[num].id==target.id) {
-			CopperChrome.testLast = parseInt(num)+1;
-			document.getElementById('toolbar_plugtest_exec').label = CopperChrome.testList[CopperChrome.testLast].label;
-			return;
-		}
-	}
+CopperChrome.checkContentFormat = function(message) {
+	if (message.getPayload().length>0 && message.isSuccess() && message.getContentType()==null) alert("Fail: Payload should have Content-Format");
 };
 
-// Test scripts
+// CORE Tests
 ////////////////////////////////////////////////////////////////////////////////
 
 CopperChrome.testCore01 = function() {
+	var uri = CopperChrome.checkUri( CopperChrome.updateTestURI('/test'), 'testCore01');
+	
 	CopperChrome.resetDebugOptions();
 	
 	CopperChrome.behavior.requests = 'con';
@@ -119,7 +123,7 @@ CopperChrome.testCore01 = function() {
 	CopperChrome.behavior.blockSize = 0;
 	CopperChrome.updateBehavior();
 	
-	CopperChrome.sendGet( CopperChrome.testCheckUri('/test'), CopperChrome.testCore01checker );
+	CopperChrome.sendGet( uri, CopperChrome.testCore01checker );
 };
 CopperChrome.testCore01checker = function(message) {
 	CopperChrome.defaultHandler(message);
@@ -132,6 +136,8 @@ CopperChrome.testCore01checker = function(message) {
 };
 
 CopperChrome.testCore02 = function() {
+	var uri = CopperChrome.checkUri( CopperChrome.updateTestURI('/test'), 'testCore02');
+	
 	CopperChrome.resetDebugOptions();
 	
 	CopperChrome.behavior.requests = 'con';
@@ -140,7 +146,7 @@ CopperChrome.testCore02 = function() {
 	CopperChrome.behavior.blockSize = 0;
 	CopperChrome.updateBehavior();
 	
-	CopperChrome.sendDelete( CopperChrome.testCheckUri('/test'), CopperChrome.testCore02checker );
+	CopperChrome.sendDelete( uri, CopperChrome.testCore02checker );
 };
 CopperChrome.testCore02checker = function(message) {
 	CopperChrome.defaultHandler(message);
@@ -148,9 +154,12 @@ CopperChrome.testCore02checker = function(message) {
 	if (message.getType()!=Copper.MSG_TYPE_ACK) alert("Fail: Type should be ACK");
 	if (message.getCode()!=Copper.CODE_2_02_DELETED) alert("Fail: Code should be 2.02");
 	if (message.getToken()!=null) alert("Fail: Token should be empty");
+	CopperChrome.checkContentFormat(message);
 };
 
 CopperChrome.testCore03 = function() {
+	var uri = CopperChrome.checkUri( CopperChrome.updateTestURI('/test'), 'testCore03');
+	
 	CopperChrome.resetDebugOptions();
 	document.getElementById('chk_debug_options').checked = true;
 	document.getElementById('debug_option_content_type').value = 'text/plain';
@@ -164,7 +173,7 @@ CopperChrome.testCore03 = function() {
 	document.getElementById('toolbar_payload_mode').value = 'page';
 	document.getElementById('payload_text_page').value = 'Copper (Cu) CC03';
 	
-	CopperChrome.sendPut( CopperChrome.testCheckUri('/test'), CopperChrome.testCore03checker );
+	CopperChrome.sendPut( uri, CopperChrome.testCore03checker );
 };
 CopperChrome.testCore03checker = function(message) {
 	CopperChrome.defaultHandler(message);
@@ -172,9 +181,12 @@ CopperChrome.testCore03checker = function(message) {
 	if (message.getType()!=Copper.MSG_TYPE_ACK) alert("Fail: Type should be ACK");
 	if (message.getCode()!=Copper.CODE_2_04_CHANGED && message.getCode()!=Copper.CODE_2_01_CREATED) alert("Fail: Code should be 2.04 or 2.01");
 	if (message.getToken()!=null) alert("Fail: Token should be empty");
+	CopperChrome.checkContentFormat(message);
 };
 
 CopperChrome.testCore04 = function() {
+	var uri = CopperChrome.checkUri( CopperChrome.updateTestURI('/test'), 'testCore04');
+	
 	CopperChrome.resetDebugOptions();
 	document.getElementById('chk_debug_options').checked = true;
 	document.getElementById('debug_option_content_type').value = 'text/plain';
@@ -188,7 +200,7 @@ CopperChrome.testCore04 = function() {
 	document.getElementById('toolbar_payload_mode').value = 'page';
 	document.getElementById('payload_text_page').value = 'Copper (Cu) CC04';
 	
-	CopperChrome.sendPost( CopperChrome.testCheckUri('/test'), CopperChrome.testCore04checker );
+	CopperChrome.sendPost( uri, CopperChrome.testCore04checker );
 };
 CopperChrome.testCore04checker = function(message) {
 	var CHECK_LOCATION = '/location1/location2/location3';
@@ -198,11 +210,14 @@ CopperChrome.testCore04checker = function(message) {
 	if (message.getType()!=Copper.MSG_TYPE_ACK) alert("Fail: Type should be ACK");
 	if (message.getCode()!=Copper.CODE_2_04_CHANGED && message.getCode()!=Copper.CODE_2_01_CREATED) alert("Fail: Code should be 2.04 or 2.01");
 	if (message.getToken()!=null) alert("Fail: Token should be empty");
+	CopperChrome.checkContentFormat(message);
 	
 	if (message.getCode()==Copper.CODE_2_01_CREATED && document.getElementById('packet_options_location-path').getAttribute('label')!=CHECK_LOCATION) alert("Fail: Location should be " + CHECK_LOCATION);
 };
 
 CopperChrome.testCore05 = function() {
+	var uri = CopperChrome.checkUri( CopperChrome.updateTestURI('/test'), 'testCore05');
+	
 	CopperChrome.resetDebugOptions();
 	
 	CopperChrome.behavior.requests = 'non';
@@ -211,7 +226,7 @@ CopperChrome.testCore05 = function() {
 	CopperChrome.behavior.blockSize = 0;
 	CopperChrome.updateBehavior();
 	
-	CopperChrome.sendGet( CopperChrome.testCheckUri('/test'), CopperChrome.testCore05checker );
+	CopperChrome.sendGet(uri, CopperChrome.testCore05checker );
 };
 CopperChrome.testCore05checker = function(message) {
 	CopperChrome.defaultHandler(message);
@@ -224,6 +239,8 @@ CopperChrome.testCore05checker = function(message) {
 };
 
 CopperChrome.testCore06 = function() {
+	var uri = CopperChrome.checkUri( CopperChrome.updateTestURI('/test'), 'testCore06');
+	
 	CopperChrome.resetDebugOptions();
 	
 	CopperChrome.behavior.requests = 'non';
@@ -232,7 +249,7 @@ CopperChrome.testCore06 = function() {
 	CopperChrome.behavior.blockSize = 0;
 	CopperChrome.updateBehavior();
 	
-	CopperChrome.sendDelete( CopperChrome.testCheckUri('/test'), CopperChrome.testCore06checker );
+	CopperChrome.sendDelete(uri, CopperChrome.testCore06checker );
 };
 CopperChrome.testCore06checker = function(message) {
 	CopperChrome.defaultHandler(message);
@@ -240,9 +257,12 @@ CopperChrome.testCore06checker = function(message) {
 	if (message.getType()!=Copper.MSG_TYPE_NON) alert("Fail: Type should be NON");
 	if (message.getCode()!=Copper.CODE_2_02_DELETED) alert("Fail: Code should be 2.02");
 	if (message.getToken()!=null) alert("Fail: Token should be empty");
+	CopperChrome.checkContentFormat(message);
 };
 
 CopperChrome.testCore07 = function() {
+	var uri = CopperChrome.checkUri( CopperChrome.updateTestURI('/test'), 'testCore07');
+	
 	CopperChrome.resetDebugOptions();
 	document.getElementById('chk_debug_options').checked = true;
 	document.getElementById('debug_option_content_type').value = 'text/plain';
@@ -256,7 +276,7 @@ CopperChrome.testCore07 = function() {
 	document.getElementById('toolbar_payload_mode').value = 'page';
 	document.getElementById('payload_text_page').value = 'Copper (Cu) CC07';
 	
-	CopperChrome.sendPut( CopperChrome.testCheckUri('/test'), CopperChrome.testCore07checker );
+	CopperChrome.sendPut(uri, CopperChrome.testCore07checker );
 };
 CopperChrome.testCore07checker = function(message) {
 	CopperChrome.defaultHandler(message);
@@ -264,9 +284,12 @@ CopperChrome.testCore07checker = function(message) {
 	if (message.getType()!=Copper.MSG_TYPE_NON) alert("Fail: Type should be NON");
 	if (message.getCode()!=Copper.CODE_2_04_CHANGED && message.getCode()!=Copper.CODE_2_01_CREATED) alert("Fail: Code should be 2.04 or 2.01");
 	if (message.getToken()!=null) alert("Fail: Token should be empty");
+	CopperChrome.checkContentFormat(message);
 };
 
 CopperChrome.testCore08 = function() {
+	var uri = CopperChrome.checkUri( CopperChrome.updateTestURI('/test'), 'testCore08');
+	
 	CopperChrome.resetDebugOptions();
 	document.getElementById('chk_debug_options').checked = true;
 	document.getElementById('debug_option_content_type').value = 'text/plain';
@@ -280,7 +303,7 @@ CopperChrome.testCore08 = function() {
 	document.getElementById('toolbar_payload_mode').value = 'page';
 	document.getElementById('payload_text_page').value = 'Copper (Cu) CC08';
 	
-	CopperChrome.sendPost( CopperChrome.testCheckUri('/test'), CopperChrome.testCore08checker );
+	CopperChrome.sendPost(uri, CopperChrome.testCore08checker );
 };
 CopperChrome.testCore08checker = function(message) {
 	CopperChrome.defaultHandler(message);
@@ -288,10 +311,13 @@ CopperChrome.testCore08checker = function(message) {
 	if (message.getType()!=Copper.MSG_TYPE_NON) alert("Fail: Type should be NON");
 	if (message.getCode()!=Copper.CODE_2_04_CHANGED && message.getCode()!=Copper.CODE_2_01_CREATED) alert("Fail: Code should be 2.04 or 2.01");
 	if (message.getToken()!=null) alert("Fail: Token should be empty");
+	CopperChrome.checkContentFormat(message);
 };
 
 CopperChrome.testCore09state = 0;
 CopperChrome.testCore09 = function() {
+	var uri = CopperChrome.checkUri( CopperChrome.updateTestURI('/separate'), 'testCore09');
+	
 	CopperChrome.resetDebugOptions();
 	
 	CopperChrome.behavior.requests = 'con';
@@ -302,7 +328,7 @@ CopperChrome.testCore09 = function() {
 	
 	CopperChrome.testCore09state = 1;
 	
-	CopperChrome.sendGet( CopperChrome.testCheckUri('/separate'), CopperChrome.testCore09checker );
+	CopperChrome.sendGet(uri, CopperChrome.testCore09checker );
 };
 CopperChrome.testCore09checker = function(message) {
 	CopperChrome.defaultHandler(message);
@@ -335,6 +361,8 @@ CopperChrome.testCore09checker = function(message) {
 };
 
 CopperChrome.testCore10 = function() {
+	var uri = CopperChrome.checkUri( CopperChrome.updateTestURI('/test'), 'testCore10');
+	
 	CopperChrome.resetDebugOptions();
 	document.getElementById('chk_debug_options').checked = true;
 	document.getElementById('debug_option_token').value = '0xBEEF';
@@ -345,7 +373,7 @@ CopperChrome.testCore10 = function() {
 	CopperChrome.behavior.blockSize = 0;
 	CopperChrome.updateBehavior();
 	
-	CopperChrome.sendGet( CopperChrome.testCheckUri('/test'), CopperChrome.testCore10checker );
+	CopperChrome.sendGet(uri, CopperChrome.testCore10checker );
 };
 CopperChrome.testCore10checker = function(message) {
 	CopperChrome.defaultHandler(message);
@@ -359,6 +387,8 @@ CopperChrome.testCore10checker = function(message) {
 
 CopperChrome.testCore11state = 0;
 CopperChrome.testCore11 = function() {
+	var uri = CopperChrome.checkUri( CopperChrome.updateTestURI('/separate'), 'testCore11');
+	
 	CopperChrome.resetDebugOptions();
 	document.getElementById('chk_debug_options').checked = true;
 	document.getElementById('debug_option_token').value = '0xBEEF';
@@ -371,7 +401,7 @@ CopperChrome.testCore11 = function() {
 	
 	CopperChrome.testCore11state = 1;
 	
-	CopperChrome.sendGet( CopperChrome.testCheckUri('/separate'), CopperChrome.testCore11checker );
+	CopperChrome.sendGet(uri, CopperChrome.testCore11checker );
 };
 CopperChrome.testCore11checker = function(message) {
 	CopperChrome.defaultHandler(message);
@@ -408,6 +438,8 @@ CopperChrome.testCore12 = function() {
 };
 
 CopperChrome.testCore13 = function() {
+	var uri = CopperChrome.checkUri( CopperChrome.updateTestURI('/seg1/seg2/seg3'), 'testCore13');
+	
 	CopperChrome.resetDebugOptions();
 	
 	CopperChrome.behavior.requests = 'con';
@@ -416,10 +448,12 @@ CopperChrome.testCore13 = function() {
 	CopperChrome.behavior.blockSize = 0;
 	CopperChrome.updateBehavior();
 	
-	CopperChrome.sendGet( CopperChrome.testCheckUri('/seg1/seg2/seg3'), CopperChrome.testCore01checker );
+	CopperChrome.sendGet(uri, CopperChrome.testCore01checker );
 };
 
 CopperChrome.testCore14 = function() {
+	var uri = CopperChrome.checkUri( CopperChrome.updateTestURI('/query?first=1&second=2&third=3'), 'testCore14');
+	
 	CopperChrome.resetDebugOptions();
 	
 	CopperChrome.behavior.requests = 'con';
@@ -428,7 +462,7 @@ CopperChrome.testCore14 = function() {
 	CopperChrome.behavior.blockSize = 0;
 	CopperChrome.updateBehavior();
 	
-	CopperChrome.sendGet( CopperChrome.testCheckUri('/query?first=1&second=2&third=3'), CopperChrome.testCore01checker );
+	CopperChrome.sendGet(uri, CopperChrome.testCore01checker );
 };
 
 CopperChrome.testCore15 = function() {
@@ -439,6 +473,8 @@ CopperChrome.testCore16 = function() {
 };
 
 CopperChrome.testCore17 = function() {
+	var uri = CopperChrome.checkUri( CopperChrome.updateTestURI('/separate'), 'testCore17');
+	
 	CopperChrome.resetDebugOptions();
 	
 	CopperChrome.behavior.requests = 'non';
@@ -447,7 +483,7 @@ CopperChrome.testCore17 = function() {
 	CopperChrome.behavior.blockSize = 0;
 	CopperChrome.updateBehavior();
 	
-	CopperChrome.sendGet( CopperChrome.testCheckUri('/separate'), CopperChrome.testCore17checker );
+	CopperChrome.sendGet(uri, CopperChrome.testCore17checker );
 };
 CopperChrome.testCore17checker = function(message) {
 	CopperChrome.defaultHandler(message);
@@ -463,6 +499,8 @@ CopperChrome.testCore18 = function() {
 	CopperChrome.testCore04(); // focus on Location-Path
 };
 CopperChrome.testCore19 = function() {
+	var uri = CopperChrome.checkUri( CopperChrome.updateTestURI('/location-query'), 'testCore19');
+	
 	CopperChrome.resetDebugOptions();
 	document.getElementById('chk_debug_options').checked = true;
 	document.getElementById('debug_option_content_type').value = 'text/plain';
@@ -476,7 +514,7 @@ CopperChrome.testCore19 = function() {
 	document.getElementById('toolbar_payload_mode').value = 'page';
 	document.getElementById('payload_text_page').value = 'Copper (Cu) CC19';
 	
-	CopperChrome.sendPost( CopperChrome.testCheckUri('/location-query'), CopperChrome.testCore19checker );
+	CopperChrome.sendPost(uri, CopperChrome.testCore19checker );
 };
 CopperChrome.testCore19checker = function(message) {
 	var CHECK_LQ1 = 'first=1';
@@ -487,6 +525,7 @@ CopperChrome.testCore19checker = function(message) {
 	if (message.getCode()!=0 ) { // spec allows separate response
 		if (message.getCode()!=Copper.CODE_2_01_CREATED) alert("Fail: Code should be 2.01");
 		if (message.getToken()!=null) alert("Fail: Token should be empty");
+		CopperChrome.checkContentFormat(message);
 		
 		var lq = document.getElementById('packet_options_location-query').getAttribute('label');
 		
@@ -495,6 +534,8 @@ CopperChrome.testCore19checker = function(message) {
 };
 
 CopperChrome.testCore20a = function() {
+	var uri = CopperChrome.checkUri( CopperChrome.updateTestURI('/multi-format'), 'testCore20a');
+	
 	CopperChrome.resetDebugOptions();
 	document.getElementById('chk_debug_options').checked = true;
 	document.getElementById('debug_option_accept').value = Copper.CONTENT_TYPE_TEXT_PLAIN;
@@ -506,7 +547,7 @@ CopperChrome.testCore20a = function() {
 	CopperChrome.behavior.blockSize = 0;
 	CopperChrome.updateBehavior();
 	
-	CopperChrome.sendGet( CopperChrome.testCheckUri('/multi-format'), CopperChrome.testCore20achecker );
+	CopperChrome.sendGet(uri, CopperChrome.testCore20achecker );
 };
 CopperChrome.testCore20achecker = function(message) {
 	CopperChrome.defaultHandler(message);
@@ -519,11 +560,13 @@ CopperChrome.testCore20achecker = function(message) {
 	}
 };
 CopperChrome.testCore20b = function() {
+	var uri = CopperChrome.checkUri( CopperChrome.updateTestURI('/multi-format'), 'testCore20b');
+	
 	CopperChrome.resetDebugOptions();
 	document.getElementById('chk_debug_options').checked = true;
 	document.getElementById('debug_option_accept').value = Copper.CONTENT_TYPE_APPLICATION_XML;
 	
-	CopperChrome.sendGet( CopperChrome.testCheckUri('/multi-format'), CopperChrome.testCore20bchecker );
+	CopperChrome.sendGet(uri, CopperChrome.testCore20bchecker );
 };
 CopperChrome.testCore20bchecker = function(message) {
 	CopperChrome.defaultHandler(message);
@@ -537,6 +580,8 @@ CopperChrome.testCore20bchecker = function(message) {
 };
 
 CopperChrome.testCore21a = function() {
+	var uri = CopperChrome.checkUri( CopperChrome.updateTestURI('/validate'), 'testCore21a');
+	
 	CopperChrome.resetDebugOptions();
 	
 	// ensure behavior in first step
@@ -546,7 +591,7 @@ CopperChrome.testCore21a = function() {
 	CopperChrome.behavior.blockSize = 0;
 	CopperChrome.updateBehavior();
 	
-	CopperChrome.sendGet( CopperChrome.testCheckUri('/validate'), CopperChrome.testCore21achecker );
+	CopperChrome.sendGet(uri, CopperChrome.testCore21achecker );
 };
 CopperChrome.testCore21achecker = function(message) {
 	CopperChrome.defaultHandler(message);
@@ -561,6 +606,8 @@ CopperChrome.testCore21achecker = function(message) {
 };
 
 CopperChrome.testCore21b = function() {
+	var uri = CopperChrome.checkUri( CopperChrome.updateTestURI('/validate'), 'testCore21b');
+	
 	if (!document.getElementById('packet_options_etag')) {
 		alert('Run CORE_21a first and ensure the response contains the ETag option.');
 		return;
@@ -570,7 +617,7 @@ CopperChrome.testCore21b = function() {
 	document.getElementById('chk_debug_options').checked = true;
 	document.getElementById('debug_option_etag').value = document.getElementById('packet_options_etag').getAttribute('label');
 	
-	CopperChrome.sendGet( CopperChrome.testCheckUri('/validate'), CopperChrome.testCore21bchecker );
+	CopperChrome.sendGet(uri, CopperChrome.testCore21bchecker );
 };
 CopperChrome.testCore21bchecker = function(message) {
 	CopperChrome.defaultHandler(message);
@@ -584,6 +631,8 @@ CopperChrome.testCore21bchecker = function(message) {
 };
 
 CopperChrome.testCore21c = function() {
+	var uri = CopperChrome.checkUri( CopperChrome.updateTestURI('/validate'), 'testCore21c');
+	
 	if (!document.getElementById('packet_options_etag') || document.getElementById('debug_option_etag').value != document.getElementById('packet_options_etag').getAttribute('label')) {
 		alert('Run CORE_21b first and ensure the response contains the ETag option set in Debug Control.');
 		return;
@@ -591,13 +640,14 @@ CopperChrome.testCore21c = function() {
 	
 	alert('Make sure the resource /validate changed (e.g., by using a second client or a smart resource implementation).');
 
-	CopperChrome.sendGet( CopperChrome.testCheckUri('/validate'), CopperChrome.testCore21achecker );
+	CopperChrome.sendGet(uri, CopperChrome.testCore21achecker );
 };
 
 CopperChrome.testCore22a = function() {
 	CopperChrome.testCore21a();
 };
 CopperChrome.testCore22b = function() {
+	var uri = CopperChrome.checkUri( CopperChrome.updateTestURI('/validate'), 'testCore22b');
 	
 	if (!document.getElementById('packet_options_etag')) {
 		alert('Run CORE_22a first and ensure the response contains the ETag option.');
@@ -617,7 +667,7 @@ CopperChrome.testCore22b = function() {
 		document.getElementById('payload_text_page').value += '*';
 	}
 	
-	CopperChrome.sendPut( CopperChrome.testCheckUri('/validate'), CopperChrome.testCore22bchecker );
+	CopperChrome.sendPut(uri, CopperChrome.testCore22bchecker );
 };
 CopperChrome.testCore22bchecker = function(message) {
 	CopperChrome.defaultHandler(message);
@@ -625,10 +675,13 @@ CopperChrome.testCore22bchecker = function(message) {
 	if (message.getCode()!=0) {
 		if (message.getCode()!=Copper.CODE_2_04_CHANGED) alert("Fail: Code should be 2.04");
 		if (message.getToken()!=null) alert("Fail: Token should be empty");
+		CopperChrome.checkContentFormat(message);
 	}
 };
 
 CopperChrome.testCore22c = function() {
+	var uri = CopperChrome.checkUri( CopperChrome.updateTestURI('/validate'), 'testCore22c');
+	
 	if (document.getElementById('debug_option_if_match').value=='') {
 		alert('Run CORE_22b first and ensure the If-Match option was set.');
 		return;
@@ -636,7 +689,7 @@ CopperChrome.testCore22c = function() {
 	
 	document.getElementById('chk_debug_options').checked = false;
 	
-	CopperChrome.sendGet( CopperChrome.testCheckUri('/validate'), CopperChrome.testCore22cchecker );
+	CopperChrome.sendGet(uri, CopperChrome.testCore22cchecker );
 };
 CopperChrome.testCore22cchecker = function(message) {
 	CopperChrome.defaultHandler(message);
@@ -654,7 +707,10 @@ CopperChrome.testCore22d = function() {
 	CopperChrome.testCore22b();
 };
 
+CopperChrome.testCore09state = 0;
 CopperChrome.testCore23a = function() {
+	var uri = CopperChrome.checkUri( CopperChrome.updateTestURI('/create1'), 'testCore23a');
+	
 	CopperChrome.resetDebugOptions();
 	document.getElementById('chk_debug_options').checked = true;
 	document.getElementById('debug_option_if_none_match').checked = true;
@@ -670,136 +726,50 @@ CopperChrome.testCore23a = function() {
 	document.getElementById('toolbar_payload_mode').value = 'page';
 	document.getElementById('payload_text_page').value = 'Copper (Cu) CC23';
 	
-	CopperChrome.sendPut( CopperChrome.testCheckUri('/create1') );
+	CopperChrome.sendPut(uri, CopperChrome.testCore23achecker);
 };
+CopperChrome.testCore23achecker = function(message) {
+	CopperChrome.defaultHandler(message);
+	
+	if (message.getCode()!=0) {
+		if (CopperChrome.testCore09state==0) {
+			if (message.getCode()!=Copper.CODE_2_01_CREATED) alert("Fail: Code should be 2.01");
+			if (message.getToken()!=null) alert("Fail: Token should be empty");
+		} else {
+			if (message.getCode()!=Copper.CODE_4_12_PRECONDITION_FAILED) alert("Fail: Code should be 4.12");
+			if (message.getToken()!=null) alert("Fail: Token should be empty");
+			
+			CopperChrome.testCore09state = 0;
+		}
+		CopperChrome.checkContentFormat(message);
+	}
+};
+
 CopperChrome.testCore23b = function() {
+	CopperChrome.testCore09state = 1;
 	CopperChrome.testCore23a();
 };
 
-CopperChrome.testLink01 = function() {
-	CopperChrome.reDiscover();
-};
-
-CopperChrome.testLink02 = function() {
-	CopperChrome.resetDebugOptions();
-	
-	CopperChrome.behavior.requests = 'con';
-	CopperChrome.behavior.retransmissions = true;
-	CopperChrome.behavior.sendDuplicates = false;
-	CopperChrome.behavior.blockSize = 0;
-	CopperChrome.updateBehavior();
-	
-	CopperChrome.sendGet( CopperChrome.testCheckUri('/.well-known/core?rt=Type1') );
-};
-CopperChrome.testLink03 = function() {
-	CopperChrome.resetDebugOptions();
-	
-	CopperChrome.behavior.requests = 'con';
-	CopperChrome.behavior.retransmissions = true;
-	CopperChrome.behavior.sendDuplicates = false;
-	CopperChrome.behavior.blockSize = 0;
-	CopperChrome.updateBehavior();
-	
-	CopperChrome.sendGet( CopperChrome.testCheckUri('/.well-known/core?rt=*') );
-};
-CopperChrome.testLink04 = function() {
-	CopperChrome.resetDebugOptions();
-	
-	CopperChrome.behavior.requests = 'con';
-	CopperChrome.behavior.retransmissions = true;
-	CopperChrome.behavior.sendDuplicates = false;
-	CopperChrome.behavior.blockSize = 0;
-	CopperChrome.updateBehavior();
-	
-	CopperChrome.sendGet( CopperChrome.testCheckUri('/.well-known/core?rt=Type2') );
-};
-CopperChrome.testLink05 = function() {
-	CopperChrome.resetDebugOptions();
-	
-	CopperChrome.behavior.requests = 'con';
-	CopperChrome.behavior.retransmissions = true;
-	CopperChrome.behavior.sendDuplicates = false;
-	CopperChrome.behavior.blockSize = 0;
-	CopperChrome.updateBehavior();
-	
-	CopperChrome.sendGet( CopperChrome.testCheckUri('/.well-known/core?if=If*') );
-};
-CopperChrome.testLink06 = function() {
-	CopperChrome.resetDebugOptions();
-	
-	CopperChrome.behavior.requests = 'con';
-	CopperChrome.behavior.retransmissions = true;
-	CopperChrome.behavior.sendDuplicates = false;
-	CopperChrome.behavior.blockSize = 0;
-	CopperChrome.updateBehavior();
-	
-	CopperChrome.sendGet( CopperChrome.testCheckUri('/.well-known/core?sz=*') );
-};
-CopperChrome.testLink07 = function() {
-	CopperChrome.resetDebugOptions();
-	
-	CopperChrome.behavior.requests = 'con';
-	CopperChrome.behavior.retransmissions = true;
-	CopperChrome.behavior.sendDuplicates = false;
-	CopperChrome.behavior.blockSize = 0;
-	CopperChrome.updateBehavior();
-	
-	CopperChrome.sendGet( CopperChrome.testCheckUri('/.well-known/core?href=/link1') );
-};
-CopperChrome.testLink08 = function() {
-	CopperChrome.resetDebugOptions();
-	
-	CopperChrome.behavior.requests = 'con';
-	CopperChrome.behavior.retransmissions = true;
-	CopperChrome.behavior.sendDuplicates = false;
-	CopperChrome.behavior.blockSize = 0;
-	CopperChrome.updateBehavior();
-	
-	CopperChrome.sendGet( CopperChrome.testCheckUri('/.well-known/core?href=/link*') );
-};
-
-CopperChrome.testLink09a = function() {
-	CopperChrome.resetDebugOptions();
-	
-	CopperChrome.behavior.requests = 'con';
-	CopperChrome.behavior.retransmissions = true;
-	CopperChrome.behavior.sendDuplicates = false;
-	CopperChrome.behavior.blockSize = 0;
-	CopperChrome.updateBehavior();
-	
-	CopperChrome.sendGet( CopperChrome.testCheckUri('/.well-known/core?ct=40') );
-};
-CopperChrome.testLink09b = function() {
-	CopperChrome.resetDebugOptions();
-	document.getElementById('chk_debug_options').checked = true;
-	document.getElementById('debug_option_content_type').value = 'application/link-format';
-	
-	CopperChrome.sendGet( CopperChrome.testCheckUri('/path') );
-};
-CopperChrome.testLink09c = function() {
-	document.getElementById('chk_debug_options').checked = false;
-	
-	CopperChrome.sendGet( CopperChrome.testCheckUri('/path/sub1') );
-};
+// BLOCK Tests
+////////////////////////////////////////////////////////////////////////////////
 
 CopperChrome.testBlock01 = function() {
+	var uri = CopperChrome.checkUri( CopperChrome.updateTestURI('/large'), 'testBlock01');
+	
 	CopperChrome.resetDebugOptions();
-	document.getElementById('chk_debug_options').checked = true;
-	document.getElementById('debug_option_block2').value = '0';
-	document.getElementById('chk_debug_option_block_auto').checked = true;
 	
 	CopperChrome.behavior.requests = 'con';
 	CopperChrome.behavior.retransmissions = true;
 	CopperChrome.behavior.sendDuplicates = false;
-	CopperChrome.behavior.blockSize = 64;
+	CopperChrome.behavior.blockSize = 64; // early negotiation in CB01
 	CopperChrome.updateBehavior();
 	
-	CopperChrome.sendGet( CopperChrome.testCheckUri('/large') );
+	CopperChrome.sendGet(uri );
 };
 CopperChrome.testBlock02 = function() {
-	CopperChrome.resetDebugOptions();
+	var uri = CopperChrome.checkUri( CopperChrome.updateTestURI('/large'), 'testBlock02');
 	
-	document.getElementById('menu_behavior_block_size_64').click();
+	CopperChrome.resetDebugOptions();
 	
 	CopperChrome.behavior.requests = 'con';
 	CopperChrome.behavior.retransmissions = true;
@@ -807,13 +777,14 @@ CopperChrome.testBlock02 = function() {
 	CopperChrome.behavior.blockSize = 0; // late negotiation in CB02
 	CopperChrome.updateBehavior();
 	
-	CopperChrome.sendGet( CopperChrome.testCheckUri('/large') );
+	CopperChrome.sendGet(uri );
 };
 CopperChrome.testBlock03 = function() {
+	var uri = CopperChrome.checkUri( CopperChrome.updateTestURI('/large-update'), 'testBlock03');
+	
 	CopperChrome.resetDebugOptions();
 	document.getElementById('chk_debug_options').checked = true;
 	document.getElementById('debug_option_content_type').value = 'text/plain';
-	document.getElementById('debug_option_block1').value = '0';
 	document.getElementById('chk_debug_option_block_auto').checked = true;
 	
 	CopperChrome.behavior.requests = 'con';
@@ -829,13 +800,14 @@ CopperChrome.testBlock03 = function() {
 	}
 	document.getElementById('payload_text_page').value += '|-[this line only has 34 bytes]-|\n';
 	
-	CopperChrome.sendPut( CopperChrome.testCheckUri('/large-update') );
+	CopperChrome.sendPut(uri );
 };
 CopperChrome.testBlock04 = function() {
+	var uri = CopperChrome.checkUri( CopperChrome.updateTestURI('/large-create'), 'testBlock04');
+	
 	CopperChrome.resetDebugOptions();
 	document.getElementById('chk_debug_options').checked = true;
 	document.getElementById('debug_option_content_type').value = 'text/plain';
-	document.getElementById('debug_option_block1').value = '0';
 	document.getElementById('chk_debug_option_block_auto').checked = true;
 	
 	CopperChrome.behavior.requests = 'con';
@@ -851,10 +823,138 @@ CopperChrome.testBlock04 = function() {
 	}
 	document.getElementById('payload_text_page').value += '|-[this line only has 34 bytes]-|\n';
 	
-	CopperChrome.sendPost( CopperChrome.testCheckUri('/large-create') );
+	CopperChrome.sendPost(uri );
+};
+
+
+
+CopperChrome.testLink01 = function() {
+	CopperChrome.userDiscover();
+};
+
+CopperChrome.testLink02 = function() {
+	var uri = CopperChrome.checkUri( CopperChrome.updateTestURI('/.well-known/core?rt=Type1'), 'testLink02');
+	
+	CopperChrome.resetDebugOptions();
+	
+	CopperChrome.behavior.requests = 'con';
+	CopperChrome.behavior.retransmissions = true;
+	CopperChrome.behavior.sendDuplicates = false;
+	CopperChrome.behavior.blockSize = 0;
+	CopperChrome.updateBehavior();
+	
+	CopperChrome.sendGet(uri );
+};
+CopperChrome.testLink03 = function() {
+	var uri = CopperChrome.checkUri( CopperChrome.updateTestURI('/.well-known/core?rt=*'), 'testLink03');
+	
+	CopperChrome.resetDebugOptions();
+	
+	CopperChrome.behavior.requests = 'con';
+	CopperChrome.behavior.retransmissions = true;
+	CopperChrome.behavior.sendDuplicates = false;
+	CopperChrome.behavior.blockSize = 0;
+	CopperChrome.updateBehavior();
+	
+	CopperChrome.sendGet(uri );
+};
+CopperChrome.testLink04 = function() {
+	var uri = CopperChrome.checkUri( CopperChrome.updateTestURI('/.well-known/core?rt=Type2'), 'testLink04');
+	
+	CopperChrome.resetDebugOptions();
+	
+	CopperChrome.behavior.requests = 'con';
+	CopperChrome.behavior.retransmissions = true;
+	CopperChrome.behavior.sendDuplicates = false;
+	CopperChrome.behavior.blockSize = 0;
+	CopperChrome.updateBehavior();
+	
+	CopperChrome.sendGet(uri );
+};
+CopperChrome.testLink05 = function() {
+	var uri = CopperChrome.checkUri( CopperChrome.updateTestURI('/.well-known/core?if=If*'), 'testLink05');
+	
+	CopperChrome.resetDebugOptions();
+	
+	CopperChrome.behavior.requests = 'con';
+	CopperChrome.behavior.retransmissions = true;
+	CopperChrome.behavior.sendDuplicates = false;
+	CopperChrome.behavior.blockSize = 0;
+	CopperChrome.updateBehavior();
+	
+	CopperChrome.sendGet(uri );
+};
+CopperChrome.testLink06 = function() {
+	var uri = CopperChrome.checkUri( CopperChrome.updateTestURI('/.well-known/core?sz=*'), 'testLink06');
+	
+	CopperChrome.resetDebugOptions();
+	
+	CopperChrome.behavior.requests = 'con';
+	CopperChrome.behavior.retransmissions = true;
+	CopperChrome.behavior.sendDuplicates = false;
+	CopperChrome.behavior.blockSize = 0;
+	CopperChrome.updateBehavior();
+	
+	CopperChrome.sendGet(uri );
+};
+CopperChrome.testLink07 = function() {
+	var uri = CopperChrome.checkUri( CopperChrome.updateTestURI('/.well-known/core?href=/link1'), 'testLink07');
+	
+	CopperChrome.resetDebugOptions();
+	
+	CopperChrome.behavior.requests = 'con';
+	CopperChrome.behavior.retransmissions = true;
+	CopperChrome.behavior.sendDuplicates = false;
+	CopperChrome.behavior.blockSize = 0;
+	CopperChrome.updateBehavior();
+	
+	CopperChrome.sendGet(uri );
+};
+CopperChrome.testLink08 = function() {
+	var uri = CopperChrome.checkUri( CopperChrome.updateTestURI('/.well-known/core?href=/link*'), 'testLink08');
+	
+	CopperChrome.resetDebugOptions();
+	
+	CopperChrome.behavior.requests = 'con';
+	CopperChrome.behavior.retransmissions = true;
+	CopperChrome.behavior.sendDuplicates = false;
+	CopperChrome.behavior.blockSize = 0;
+	CopperChrome.updateBehavior();
+	
+	CopperChrome.sendGet(uri );
+};
+
+CopperChrome.testLink09a = function() {
+	var uri = CopperChrome.checkUri( CopperChrome.updateTestURI('/.well-known/core?ct=40'), 'testLink09a');
+	
+	CopperChrome.resetDebugOptions();
+	
+	CopperChrome.behavior.requests = 'con';
+	CopperChrome.behavior.retransmissions = true;
+	CopperChrome.behavior.sendDuplicates = false;
+	CopperChrome.behavior.blockSize = 0;
+	CopperChrome.updateBehavior();
+	
+	CopperChrome.sendGet(uri );
+};
+
+// TODO use result
+CopperChrome.testLink09b = function() {
+	CopperChrome.resetDebugOptions();
+	document.getElementById('chk_debug_options').checked = true;
+	document.getElementById('debug_option_content_type').value = 'application/link-format';
+	
+	CopperChrome.sendGet( CopperChrome.updateTestURI('/path') );
+};
+CopperChrome.testLink09c = function() {
+	document.getElementById('chk_debug_options').checked = false;
+	
+	CopperChrome.sendGet( CopperChrome.updateTestURI('/path/sub1') );
 };
 
 CopperChrome.testObs01 = function() {
+	var uri = CopperChrome.checkUri( CopperChrome.updateTestURI('/obs'), 'testObs01'); // unused since we "click" observe
+	
 	if (document.getElementById('toolbar_observe').label == 'Cancel ') {
 		CopperChrome.behavior.observeCancellation = 'rst';
 		CopperChrome.updateBehavior();
@@ -870,11 +970,11 @@ CopperChrome.testObs01 = function() {
 	CopperChrome.behavior.observeToken = true;
 	CopperChrome.updateBehavior();
 	
-	CopperChrome.testCheckUri('/obs');
-	
 	document.getElementById('toolbar_observe').click();
 };
 CopperChrome.testObs02 = function() {
+	var uri = CopperChrome.checkUri( CopperChrome.updateTestURI('/obs'), 'testObs02'); // unused since we "click" observe
+	
 	CopperChrome.resetDebugOptions();
 	document.getElementById('chk_debug_options').checked = true;
 	document.getElementById('debug_option_observe').value = '0';
@@ -886,7 +986,7 @@ CopperChrome.testObs02 = function() {
 	CopperChrome.behavior.rejectUnknown = false;
 	CopperChrome.updateBehavior();
 	
-	CopperChrome.sendGet( CopperChrome.testCheckUri('/obs') );
+	CopperChrome.sendGet(uri);
 };
 CopperChrome.testObs03 = function() {
 	if (document.getElementById('toolbar_observe').label != 'Cancel ') {
@@ -901,7 +1001,7 @@ CopperChrome.testObs03 = function() {
 	CopperChrome.behavior.observeCancellation = 'get';
 	CopperChrome.updateBehavior();
 	
-	CopperChrome.testCheckUri('/obs');
+	CopperChrome.updateTestURI('/obs');
 	
 	document.getElementById('toolbar_observe').click();
 };
@@ -928,7 +1028,7 @@ CopperChrome.testObs06 = function() {
 	CopperChrome.behavior.observeCancellation = 'rst';
 	CopperChrome.updateBehavior();
 	
-	CopperChrome.testCheckUri('/obs');
+	CopperChrome.updateTestURI('/obs');
 	
 	document.getElementById('toolbar_observe').click();
 };
@@ -951,7 +1051,7 @@ CopperChrome.testObs08 = function() {
 	document.getElementById('toolbar_payload_mode').value = 'page';
 	document.getElementById('payload_text_page').value = 'random Content-Format ' + document.getElementById('debug_option_content_type').value;
 	
-	CopperChrome.doUpload(Copper.PUT, CopperChrome.testCheckUri('/obs') ); // does not call cancelTransactions()
+	CopperChrome.doUpload(Copper.PUT, CopperChrome.updateTestURI('/obs') ); // does not call cancelTransactions()
 };
 CopperChrome.testObs09 = function() {
 	if (document.getElementById('toolbar_observe').label != 'Cancel ' || !document.getElementById('packet_options_content-format')) {
@@ -974,5 +1074,5 @@ CopperChrome.testObs09 = function() {
 	document.getElementById('toolbar_payload_mode').value = 'page';
 	document.getElementById('payload_text_page').value = document.getElementById('debug_option_content_type').value;
 	
-	CopperChrome.doUpload(Copper.PUT, CopperChrome.testCheckUri('/obs') ); // does not call cancelTransactions()
+	CopperChrome.doUpload(Copper.PUT, CopperChrome.updateTestURI('/obs') ); // does not call cancelTransactions()
 };

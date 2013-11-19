@@ -62,17 +62,17 @@
 <toolbar id="main_toolbar"	align="center">
 
 	<toolbaritem>
-		<toolbarbutton id="toolbar_discover" label="Discover" tooltiptext="GET link-formats from the well-known URI (cached resources are displayed in red)" image="chrome://copper/skin/tool_discover.png" oncommand="CopperChrome.reDiscover();"/>
+		<toolbarbutton id="toolbar_discover" label="Discover" tooltiptext="GET link-formats from the well-known URI (cached resources are displayed in red)" image="chrome://copper/skin/tool_discover.png" oncommand="CopperChrome.userDiscover();"/>
 		<toolbarbutton id="toolbar_ping" label="Ping" tooltiptext="Ping with empty message" image="chrome://copper/skin/tool_ping.png" oncommand="CopperChrome.ping();"/>
 	</toolbaritem>
 	<toolbaritem id="toolbar_methods">
 		<toolbarseparator/>
-		<toolbarbutton id="toolbar_get" label="GET" image="chrome://copper/skin/tool_get.png" oncommand="CopperChrome.sendGet();"/>
-		<toolbarbutton id="toolbar_post" label="POST" image="chrome://copper/skin/tool_post.png" oncommand="CopperChrome.sendPost();"/>
-		<toolbarbutton id="toolbar_put" label="PUT" image="chrome://copper/skin/tool_put.png" oncommand="CopperChrome.sendPut();"/>
-		<toolbarbutton id="toolbar_delete" label="DELETE" image="chrome://copper/skin/tool_delete.png" oncommand="CopperChrome.sendDelete();"/>
+		<toolbarbutton id="toolbar_get" label="GET" image="chrome://copper/skin/tool_get.png" oncommand="CopperChrome.userGet();"/>
+		<toolbarbutton id="toolbar_post" label="POST" image="chrome://copper/skin/tool_post.png" oncommand="CopperChrome.userPost();"/>
+		<toolbarbutton id="toolbar_put" label="PUT" image="chrome://copper/skin/tool_put.png" oncommand="CopperChrome.userPut();"/>
+		<toolbarbutton id="toolbar_delete" label="DELETE" image="chrome://copper/skin/tool_delete.png" oncommand="CopperChrome.userDelete();"/>
 		<toolbarspacer/>
-		<toolbarbutton id="toolbar_observe" label="Observe" tooltiptext="Subscribe to the resource" image="chrome://copper/skin/tool_observe.png" oncommand="CopperChrome.observe();"/>
+		<toolbarbutton id="toolbar_observe" label="Observe" tooltiptext="Subscribe to the resource" image="chrome://copper/skin/tool_observe.png" oncommand="CopperChrome.userObserve();"/>
 		<toolbarseparator/>
 	</toolbaritem>
 	
@@ -206,7 +206,7 @@
 	    	<menuitem id="menu_plugtest_proxy" label="Using proxy" type="checkbox" tooltiptext="Use the Proxy-Uri to run the proxy tests" oncommand="CopperChrome.testSetProxy(event.target);"/>
 	    </menupopup>
 	  </toolbarbutton>
-	  <toolbarbutton id="toolbar_plugtest_exec" onload="this.setAttribute('label', document.getElementById('menu_plugtest_popup').getElementsByTagName('menuitem')[0].getAttribute('label'));" image="chrome://copper/skin/tool_test.png" oncommand="CopperChrome.testExecute();"/>
+	  <toolbarbutton id="toolbar_plugtest_exec" image="chrome://copper/skin/tool_test.png" oncommand="CopperChrome.testNext();"/>
 	</toolbaritem>
 	
 	<toolbarspacer flex="1"/>

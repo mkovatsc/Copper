@@ -102,14 +102,14 @@ CopperChrome.main = function() {
 	}
 	
 	// get settings from preferences
-	var auto = null; // auto-method
+	var onloadAction = null;
 	try {
 		CopperChrome.coapVersion = CopperChrome.prefManager.getIntPref('extensions.copper.coap-version');
 		
 		document.getElementById('resource_split').setAttribute('state', CopperChrome.prefManager.getBoolPref('extensions.copper.use-tree') ? 'open' : 'collapsed');
 		document.getElementById('resource_split').hidden = !CopperChrome.prefManager.getBoolPref('extensions.copper.use-tree');
 		
-		auto = CopperChrome.prefManager.getIntPref('extensions.copper.auto-request.method');
+		onloadAction = CopperChrome.prefManager.getCharPref('extensions.copper.onload-action');
 		
 		CopperChrome.loadBehavior();
 		CopperChrome.loadDebugOptions();
@@ -189,22 +189,18 @@ CopperChrome.main = function() {
 		
 		CopperChrome.loadLastPayload();
 		
+		
 		// handle auto-request after redirect
-		if (auto) {
+		if (onloadAction!='') {
 			
-			dump('INFO: Main.init [auto request after redirect]\n');
+			dump('INFO: Main.init [onloadAction: '+onloadAction+']\n');
 			
-			switch (auto) {
-				case 0:             break;
-				case Copper.GET:    CopperChrome.sendGet(); break;
-				case Copper.POST:   CopperChrome.sendPost(); break;
-				case Copper.PUT:    CopperChrome.sendPut(); break;
-				case Copper.DELETE: CopperChrome.sendDelete(); break;
-				default: dump('WARNING: Main.init [unknown method for auto-request: '+auto+']\n');
-			}
+			window.setTimeout(
+					'CopperChrome.'+onloadAction+'();',
+					0);
 			
-			// reset auto-request
-			CopperChrome.prefManager.setIntPref('extensions.copper.auto-request.method', 0);
+			// reset onloadAction
+			CopperChrome.prefManager.setCharPref('extensions.copper.onload-action', '');
 		}
 		
 	} catch( ex ) {
@@ -230,16 +226,57 @@ CopperChrome.unload = function() {
 // Toolbar commands
 ////////////////////////////////////////////////////////////////////////////////
 
+CopperChrome.userGet = function() {
+	CopperChrome.client.cancelTransactions();
+	var uri = CopperChrome.checkUri(null, 'userGet');
+	
+	CopperChrome.sendGet(uri);
+};
+CopperChrome.userPost = function() {
+	CopperChrome.client.cancelTransactions();
+	var uri = CopperChrome.checkUri(null, 'userPost');
+	
+	CopperChrome.sendPost(uri);
+};
+CopperChrome.userPut = function() {
+	CopperChrome.client.cancelTransactions();
+	var uri = CopperChrome.checkUri(null, 'userPut');
+	
+	CopperChrome.sendPut(uri);
+};
+CopperChrome.userDelete = function() {
+	CopperChrome.client.cancelTransactions();
+	var uri = CopperChrome.checkUri(null, 'userDelete');
+
+	CopperChrome.sendDelete(uri);
+};
+CopperChrome.userObserve = function() {
+	var uri = CopperChrome.checkUri(uri, 'observe');
+	
+	CopperChrome.observe(uri);
+};
+
+CopperChrome.userDiscover = function() {
+	dump('INFO: resetting cached resources\n');
+	document.getElementById('toolbar_discover').image = 'chrome://copper/skin/spinner.gif';
+	CopperChrome.prefManager.setCharPref('extensions.copper.resources.'+CopperChrome.hostname+':'+CopperChrome.port, '' );
+	CopperChrome.resources = new Object();
+	
+	CopperChrome.discover();
+};
+
+
+// Request commands
+////////////////////////////////////////////////////////////////////////////////
+
 CopperChrome.sendGet = function(uri, callback) {
 	try {
-		CopperChrome.client.cancelTransactions();
+		if (!uri) throw 'No URI specified';
 		
 		if (CopperChrome.behavior.blockSize!=0) {
-			CopperChrome.sendBlockwiseGet(parseInt(document.getElementById('debug_option_block2').value), CopperChrome.behavior.blockSize, uri);
+			CopperChrome.sendBlockwiseGet(uri, parseInt(document.getElementById('debug_option_block2').value), CopperChrome.behavior.blockSize);
 			return;
 		}
-		
-		uri = CopperChrome.checkUri(uri, Copper.GET);
 		
 		var message = new CopperChrome.CoapMessage(CopperChrome.getRequestType(), Copper.GET, uri);
 		
@@ -252,12 +289,11 @@ CopperChrome.sendGet = function(uri, callback) {
 		alert('ERROR: Main.sendGet ['+ex+']');
 	}
 };
-CopperChrome.sendBlockwiseGet = function(num, size, uri) {
+CopperChrome.sendBlockwiseGet = function(uri, num, size) {
 	try {
+		if (!uri) throw 'No URI specified';
 		if (!num) num = 0;
 		if (!size) size = CopperChrome.behavior.blockSize;
-		
-		uri = CopperChrome.checkUri(uri, Copper.GET);
 		
 		var message = new CopperChrome.CoapMessage(CopperChrome.getRequestType(), Copper.GET, uri);
 		
@@ -275,19 +311,18 @@ CopperChrome.sendBlockwiseGet = function(num, size, uri) {
 };
 
 CopperChrome.sendPost = function(uri, callback) {
-	CopperChrome.client.cancelTransactions();
 	CopperChrome.doUpload(Copper.POST, uri, callback);
 };
 
 CopperChrome.sendPut = function(uri, callback) {
-	CopperChrome.client.cancelTransactions();
 	CopperChrome.doUpload(Copper.PUT, uri, callback);
 };
 
 CopperChrome.doUpload = function(method, uri, callback) {
 	try {
+		if (!uri) throw 'No URI specified';
 		
-		uri = CopperChrome.checkUri(uri, method, document.getElementById('toolbar_payload_mode').value);
+		uri = CopperChrome.checkUri(uri, method);
 		
 		let pl = '';
 		
@@ -308,7 +343,7 @@ CopperChrome.doUpload = function(method, uri, callback) {
 		
 		// blockwise uploads
 		if (CopperChrome.behavior.blockSize!=0 && pl.length > CopperChrome.behavior.blockSize) {
-			CopperChrome.doBlockwiseUpload(parseInt(document.getElementById('debug_option_block1').value), CopperChrome.behavior.blockSize, uri);
+			CopperChrome.doBlockwiseUpload(uri, parseInt(document.getElementById('debug_option_block1').value), CopperChrome.behavior.blockSize);
 			return;
 		}
 		
@@ -330,21 +365,17 @@ CopperChrome.doUpload = function(method, uri, callback) {
 	}
 }
 
-CopperChrome.doBlockwiseUpload = function(num, size, uri) {
+CopperChrome.doBlockwiseUpload = function(uri, num, size) {
 	try {
-		
+		if (!uri) throw 'No URI specified';
 		if (!num) num = 0;
 		if (!size) size = CopperChrome.behavior.blockSize;
-		uri = CopperChrome.checkUri(uri, CopperChrome.uploadMethod);
 		
 		if (CopperChrome.uploadBlocks==null || CopperChrome.uploadMethod==0) {
-			alert("WARNING: Main.doBlockwiseUpload [no upload in progress, cancelling]");
-			return;
+			throw 'No upload in progress, cancelling';
 		}
-	
 		if ( (num>0) && (size*(num-1) > CopperChrome.uploadBlocks.length)) { // num-1, as we are called with the num to send, not was has been send
-			alert('ERROR: Main.doBlockwiseUpload [debug Block1 out of payload scope]');
-			return;
+			throw 'Debug Block1 out of payload scope';
 		}
 	
 		let more = false;
@@ -376,10 +407,6 @@ CopperChrome.doBlockwiseUpload = function(num, size, uri) {
 
 CopperChrome.sendDelete = function(uri, callback) {
 	try {
-		CopperChrome.client.cancelTransactions();
-		
-		uri = CopperChrome.checkUri(uri, Copper.DELETE);
-		
 		var message = new CopperChrome.CoapMessage(CopperChrome.getRequestType(), Copper.DELETE, uri);
 		
 		CopperChrome.checkDebugOptions(message);
@@ -394,10 +421,6 @@ CopperChrome.sendDelete = function(uri, callback) {
 
 CopperChrome.observe = function(uri) {
 	try {
-		//CopperChrome.client.cancelTransactions();
-		
-		uri = CopperChrome.checkUri(uri);
-
 		CopperChrome.observer.subscribe(uri, CopperChrome.observingHandler);
 		
 	} catch (ex) {
@@ -420,16 +443,6 @@ CopperChrome.discover = function(block, size) {
 		CopperChrome.client.cancelTransactions();
 		alert('ERROR: Main.discover ['+ex+']');
 	}
-};
-
-// like discover, but resets cached resources -- used for the button
-CopperChrome.reDiscover = function() {
-	dump('INFO: resetting cached resources\n');
-	document.getElementById('toolbar_discover').image = 'chrome://copper/skin/spinner.gif';
-	CopperChrome.prefManager.setCharPref('extensions.copper.resources.'+CopperChrome.hostname+':'+CopperChrome.port, '' );
-	CopperChrome.resources = new Object();
-	
-	CopperChrome.discover();
 };
 
 // Sends a CoAP ping which is an empty CON message
