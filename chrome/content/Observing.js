@@ -72,7 +72,7 @@ CopperChrome.Observing.prototype = {
 		
 		dump('INFO: Subscribing to ' + uri + '\n');
 		
-		var subscribe = new CopperChrome.CoapMessage(Copper.MSG_TYPE_CON, Copper.GET, uri); // always use CON
+		var subscribe = new CopperChrome.CoapMessage(CopperChrome.getRequestType(), Copper.GET, uri);
 
 		// add all debug options
 		CopperChrome.checkDebugOptions(subscribe);
