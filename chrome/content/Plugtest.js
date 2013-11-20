@@ -203,16 +203,12 @@ CopperChrome.testCore04 = function() {
 	CopperChrome.sendPost( uri, CopperChrome.testCore04checker );
 };
 CopperChrome.testCore04checker = function(message) {
-	var CHECK_LOCATION = '/location1/location2/location3';
-	
 	CopperChrome.defaultHandler(message);
 
 	if (message.getType()!=Copper.MSG_TYPE_ACK) alert("Fail: Type should be ACK");
 	if (message.getCode()!=Copper.CODE_2_04_CHANGED && message.getCode()!=Copper.CODE_2_01_CREATED) alert("Fail: Code should be 2.04 or 2.01");
 	if (message.getToken()!=null) alert("Fail: Token should be empty");
 	CopperChrome.checkContentFormat(message);
-	
-	if (message.getCode()==Copper.CODE_2_01_CREATED && document.getElementById('packet_options_location-path').getAttribute('label')!=CHECK_LOCATION) alert("Fail: Location should be " + CHECK_LOCATION);
 };
 
 CopperChrome.testCore05 = function() {
@@ -496,7 +492,34 @@ CopperChrome.testCore17checker = function(message) {
 };
 
 CopperChrome.testCore18 = function() {
-	CopperChrome.testCore04(); // focus on Location-Path
+	var uri = CopperChrome.checkUri( CopperChrome.updateTestURI('/test'), 'testCore18');
+	
+	CopperChrome.resetDebugOptions();
+	document.getElementById('chk_debug_options').checked = true;
+	document.getElementById('debug_option_content_type').value = 'text/plain';
+	
+	CopperChrome.behavior.requests = 'con';
+	CopperChrome.behavior.retransmissions = true;
+	CopperChrome.behavior.sendDuplicates = false;
+	CopperChrome.behavior.blockSize = 0;
+	CopperChrome.updateBehavior();
+	
+	document.getElementById('toolbar_payload_mode').value = 'page';
+	document.getElementById('payload_text_page').value = 'Copper (Cu) CC18';
+	
+	CopperChrome.sendPost( uri, CopperChrome.testCore18checker );
+};
+CopperChrome.testCore18checker = function(message) {
+	var CHECK_LOCATION = '/location1/location2/location3';
+	
+	CopperChrome.defaultHandler(message);
+
+	if (message.getType()!=Copper.MSG_TYPE_ACK) alert("Fail: Type should be ACK");
+	if (message.getCode()!=Copper.CODE_2_01_CREATED) alert("Fail: Code should be 2.01");
+	if (message.getToken()!=null) alert("Fail: Token should be empty");
+	CopperChrome.checkContentFormat(message);
+	
+	if (!document.getElementById('packet_options_location-path') || document.getElementById('packet_options_location-path').getAttribute('label')!=CHECK_LOCATION) alert("Fail: Location should be " + CHECK_LOCATION);
 };
 CopperChrome.testCore19 = function() {
 	var uri = CopperChrome.checkUri( CopperChrome.updateTestURI('/location-query'), 'testCore19');
@@ -1100,18 +1123,22 @@ CopperChrome.testObs01 = function() {
 CopperChrome.testObs02 = function() {
 	var uri = CopperChrome.checkUri( CopperChrome.updateTestURI('/obs'), 'testObs02'); // unused since we "click" observe
 	
+	if (document.getElementById('toolbar_observe').label == 'Cancel ') {
+		CopperChrome.behavior.observeCancellation = 'rst';
+		CopperChrome.updateBehavior();
+		document.getElementById('toolbar_observe').click();
+	}
+	
 	CopperChrome.resetDebugOptions();
-	document.getElementById('chk_debug_options').checked = true;
-	document.getElementById('debug_option_observe').value = '0';
 	
 	CopperChrome.behavior.requests = 'non';
+	CopperChrome.behavior.retransmissions = true;
 	CopperChrome.behavior.sendDuplicates = false;
 	CopperChrome.behavior.blockSize = 0;
-	CopperChrome.behavior.showUnknown = true;
-	CopperChrome.behavior.rejectUnknown = false;
+	CopperChrome.behavior.observeToken = true;
 	CopperChrome.updateBehavior();
 	
-	CopperChrome.sendGet(uri);
+	document.getElementById('toolbar_observe').click();
 };
 CopperChrome.testObs03 = function() {
 	if (document.getElementById('toolbar_observe').label != 'Cancel ') {
