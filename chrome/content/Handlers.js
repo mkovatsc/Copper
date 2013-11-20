@@ -160,31 +160,24 @@ CopperChrome.blockwiseHandler = function(message) {
 CopperChrome.observingHandler = function(message) {
 	dump('INFO: observingHandler()\n');
 	
-	if (message.isOption(Copper.OPTION_OBSERVE)) {
+	CopperChrome.displayMessageInfo(message);
+	CopperChrome.updateLabel('info_code', ' (Observing)', true); // call after displayMessageInfo()
+	CopperChrome.displayPayload(message);
+	
+	//TODO duplicated code from blockwise handler
+	if (message.isOption(Copper.OPTION_BLOCK)) {
 		
-		CopperChrome.displayMessageInfo(message);
-		CopperChrome.updateLabel('info_code', ' (Observing)', true); // call after displayMessageInfo()
-		CopperChrome.displayPayload(message);
+		CopperChrome.updateLabel('info_code', ' (Blockwise)', true); // call after displayMessageInfo()
 		
-		//TODO duplicated code from blockwise handler
-		if (message.isOption(Copper.OPTION_BLOCK)) {
+		if (message.getBlockMore()) {
 			
-			CopperChrome.updateLabel('info_code', ' (Blockwise)', true); // call after displayMessageInfo()
+			// block size negotiation
+			let size = CopperChrome.negotiateBlockSize(message);
+			let offset = message.getBlockOffset();
+			let num = offset/size;
 			
-			if (message.getBlockMore()) {
-				
-				// block size negotiation
-				let size = CopperChrome.negotiateBlockSize(message);
-				let offset = message.getBlockOffset();
-				let num = offset/size;
-				
-				CopperChrome.sendBlockwiseGet(document.location.href, num, size);
-			}
+			CopperChrome.sendBlockwiseGet(document.location.href, num, size);
 		}
-		
-	} else {
-		CopperChrome.updateLabel('info_code', 'Observing not supported');
-		CopperChrome.displayPayload(message);
 	}
 };
 
