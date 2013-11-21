@@ -974,6 +974,28 @@ CopperChrome.testBlock05bchecker = function(message) {
 	CopperChrome.downloadHandler = null;
 };
 
+CopperChrome.testBlock06 = function() {
+	var uri = CopperChrome.checkUri( CopperChrome.updateTestURI('/large'), 'testBlock06');
+	
+	CopperChrome.resetDebugOptions();
+	
+	CopperChrome.behavior.requests = 'con';
+	CopperChrome.behavior.retransmissions = true;
+	CopperChrome.behavior.sendDuplicates = false;
+	CopperChrome.behavior.blockSize = 16; // early negotiation in CB01
+	CopperChrome.updateBehavior();
+	
+	CopperChrome.sendGet(uri, CopperChrome.testBlock06checker);
+};
+CopperChrome.testBlock06checker = function(message) {
+	if (message.getBlockNumber()<=0) alert("Fail: Block2 should be set");
+	if (message.getBlockSize()!=16) alert("Fail: Block size should be 16");
+	if (message.getCode()!=Copper.CODE_2_05_CONTENT) alert("Fail: Code should be 2.05");
+	if (message.getToken()!=null) alert("Fail: Token should be empty");
+	if (message.getPayload().length==0) alert("Fail: Payload should be non-empty");
+	if (message.getContentType()==null) alert("Fail: Content-Format should be set");
+};
+
 
 
 CopperChrome.testLink01 = function() {
@@ -1227,4 +1249,14 @@ CopperChrome.testObs09 = function() {
 	document.getElementById('payload_text_page').value = document.getElementById('debug_option_content_type').value;
 	
 	CopperChrome.doUpload(Copper.PUT, CopperChrome.updateTestURI('/obs') ); // does not call cancelTransactions()
+};
+
+CopperChrome.testObs10 = function() {
+	var uri = CopperChrome.checkUri( CopperChrome.updateTestURI('/obs'), 'testObs10'); // unused since we "click" observe
+	
+	CopperChrome.testObs01();
+	
+	window.setTimeout(
+			function() { CopperChrome.sendGet('/obs'); },
+			12000);
 };

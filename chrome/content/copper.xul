@@ -173,6 +173,7 @@
 			      <menuitem id="menu_plugtest_block_03" label="BLOCK_03 (/large-update)" oncommand="CopperChrome.testBlock03();"/>
 			      <menuitem id="menu_plugtest_block_04" label="BLOCK_04 (/large-create)" oncommand="CopperChrome.testBlock04();"/>
 			      <menuitem id="menu_plugtest_block_05" label="BLOCK_05 (/large-post)" oncommand="CopperChrome.testBlock05();"/>
+			      <menuitem id="menu_plugtest_block_06" label="BLOCK_06 (/large 16)" oncommand="CopperChrome.testBlock06();"/>
 			   </menupopup>
 			  </menu>
 			  <menu id="menu_plugtest_observe" label="TD_COAP_OBS">
@@ -186,6 +187,7 @@
 			      <menuitem id="menu_plugtest_observe_07" label="OBS_07 (DELETE /obs)" oncommand="CopperChrome.testObs07();"/>
 			      <menuitem id="menu_plugtest_observe_08" label="OBS_08 (PUT new Content-Format)" oncommand="CopperChrome.testObs08();"/>
 			      <menuitem id="menu_plugtest_observe_09" label="OBS_09 (PUT same Content-Format)" oncommand="CopperChrome.testObs09();"/>
+			      <menuitem id="menu_plugtest_observe_10" label="OBS_10 (Unrelated GET)" oncommand="CopperChrome.testObs10();"/>
 			   </menupopup>
 			  </menu>
 			  <menu id="menu_plugtest_link" label="TD_COAP_LINK">
