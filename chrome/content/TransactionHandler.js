@@ -245,14 +245,22 @@ CopperChrome.TransactionHandler.prototype = {
 			// clear transaction
 			delete this.transactions[message.getTID()];
 			
-			// add to duplicates filter
+		// filter duplicates
+		} else if (this.dupFilter.indexOf(message.getTID()) != -1) {
+			
+			if (message.getType()==Copper.MSG_TYPE_CON) {
+				dump('INFO: Acking duplicate (Message ID: '+message.getTID()+')\n');
+				this.ack(message.getTID());
+			} else {
+				dump('INFO: Ignoring duplicate (Message ID: '+message.getTID()+')\n');
+			}
+			return;
+		}
+		
+		// add to duplicates filter
+		if (message.getType()!=Copper.MSG_TYPE_RST) {
 			this.dupFilter.unshift(message.getTID());
 			if (this.dupFilter.length>10) this.dupFilter.pop();
-			
-		// filter duplicates
-		} else if (this.dupFilter.indexOf(message.getTID()) !== -1) {
-			dump('INFO: Dropping duplicate (Message ID: '+message.getTID()+')\n');
-			return;
 		}
 		
 		// find callback
@@ -294,46 +302,40 @@ CopperChrome.TransactionHandler.prototype = {
 		} else {
 			dump('WARNING: TransactionHandler.handle [unknown token]\n');
 			
-			var infoReset = '';
-			
-			// RST also allowed for NON since 06
-			if (message.getType()!=Copper.MSG_TYPE_RST && CopperChrome.behavior.rejectUnknown) {
-				this.reset(message.getTID());
-				infoReset = ' (sent RST)';
-			}
-			
 			if (CopperChrome.behavior.showUnknown) {
 				// hack for additional info
-				message.getCopperCode = function() { return 'Unknown token'+infoReset; };
+				message.getCopperCode = function() { return 'Unknown token'; };
 				
-				this.defaultCB(message);
+				callback = defaultCB;
 			}
-			return;
-		}
-		
-		// ack all successfully received CON messages
-		if (message.getType()==Copper.MSG_TYPE_CON) {
-			this.ack(message.getTID());
 		}
 		
 		if (callback) {
+			// ack all successfully received CON messages
+			if (message.getType()==Copper.MSG_TYPE_CON) {
+				this.ack(message.getTID());
+			}
 			callback(message);
+		} else {
+			// only reject NONs when set in
+			if (message.getType()==Copper.MSG_TYPE_CON || message.getType()==Copper.MSG_TYPE_NON && CopperChrome.behavior.rejectUnknown) {
+				this.reset(message.getTID());
+			}
 		}
 	},
 	
 	ack : function(tid) {
 		var ack = new CopperChrome.CoapMessage(Copper.MSG_TYPE_ACK);
 		ack.setTID( tid );
-		
-		this.send( ack );
 		CopperChrome.popup(CopperChrome.hostname+':'+CopperChrome.port, 'Sending ACK for message '+tid);
+		this.send( ack );
 	},
 	
 	reset : function(tid) {
 		var rst = new CopperChrome.CoapMessage(Copper.MSG_TYPE_RST);
 		rst.setTID( tid );
-		this.send( rst );
 		CopperChrome.popup(CopperChrome.hostname+':'+CopperChrome.port, 'Sending RST for message '+tid);
+		this.send( rst );
 	},
 	
 	shutdown : function() {
