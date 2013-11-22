@@ -73,6 +73,7 @@ CopperChrome.blockwiseHandler = function(message) {
 	
 	CopperChrome.displayMessageInfo(message);
 	CopperChrome.updateLabel('info_code', ' (Blockwise)', true); // call after displayMessageInfo()
+	CopperChrome.displayPayload(message);
 	
 	if (message.isOption(Copper.OPTION_BLOCK1)) {
 		
@@ -94,19 +95,14 @@ CopperChrome.blockwiseHandler = function(message) {
 			if (offset+size < CopperChrome.uploadBlocks.length) document.getElementById('debug_option_block1').value += '+';
 			
 			if ( !document.getElementById('chk_debug_options').checked || document.getElementById('chk_debug_option_block_auto').checked ) {
-				CopperChrome.doBlockwiseUpload(document.location.href, num, size);
+				CopperChrome.sendBlockwise1(document.location.href, num, size);
 				return;
 			}
 		} else {
 			// finished
 			CopperChrome.uploadMethod = 0;
 			CopperChrome.uploadBlocks = null;
-
-			if (!document.getElementById('chk_debug_options').checked || document.getElementById('chk_debug_option_block_auto').checked ) {
-				document.getElementById('debug_option_block1').value = '';
-			} else {
-				document.getElementById('debug_option_block1').value = 0;
-			}
+			document.getElementById('debug_option_block1').value = ''; // important when continuing with Block1
 			
 			CopperChrome.updateLabel('info_code', ' (Upload finished)', true); // call after displayMessageInfo()
 
@@ -117,8 +113,6 @@ CopperChrome.blockwiseHandler = function(message) {
 			}
 		}
 	}
-	
-	CopperChrome.displayPayload(message);
 
 	if (message.isOption(Copper.OPTION_BLOCK)) {
 		if (message.getBlockMore()) {
@@ -130,17 +124,16 @@ CopperChrome.blockwiseHandler = function(message) {
 			
 			// automatically count up
 			document.getElementById('debug_option_block2').value = num;				
-		
+			
 			if ( !document.getElementById('chk_debug_options').checked || document.getElementById('chk_debug_option_block_auto').checked) {
-				CopperChrome.sendBlockwiseGet(document.location.href, num, size);
+				CopperChrome.sendBlockwise2(document.location.href, num, size);
 			}
 		} else {
 			// finished
-			if (!document.getElementById('chk_debug_options').checked || document.getElementById('chk_debug_option_block_auto').checked ) {
-				document.getElementById('debug_option_block2').value = '';
-			} else {
-				document.getElementById('debug_option_block2').value = 0;
-			}
+			CopperChrome.downloadMethod = 0;
+			document.getElementById('debug_option_block2').value = '';
+
+			CopperChrome.updateLabel('info_code', ' (Download finished)', true); // call after displayMessageInfo()
 			
 			if (message.getContentType()==Copper.CONTENT_TYPE_APPLICATION_LINK_FORMAT) {
 				CopperChrome.updateResourceLinks( CopperChrome.parseLinkFormat( document.getElementById('packet_payload').value ) );
@@ -161,7 +154,11 @@ CopperChrome.observingHandler = function(message) {
 	dump('INFO: observingHandler()\n');
 	
 	CopperChrome.displayMessageInfo(message);
-	CopperChrome.updateLabel('info_code', ' (Observing)', true); // call after displayMessageInfo()
+	if (message.isOption(Copper.OPTION_OBSERVE)) {
+		CopperChrome.updateLabel('info_code', ' (Observing)', true); // call after displayMessageInfo()
+	} else {
+		CopperChrome.updateLabel('info_code', ' (Observing stopped)', true); // call after displayMessageInfo()
+	}
 	CopperChrome.displayPayload(message);
 	
 	//TODO duplicated code from blockwise handler
@@ -176,7 +173,7 @@ CopperChrome.observingHandler = function(message) {
 			let offset = message.getBlockOffset();
 			let num = offset/size;
 			
-			CopperChrome.sendBlockwiseGet(document.location.href, num, size);
+			CopperChrome.sendBlockwise2(document.location.href, num, size);
 		}
 	}
 };

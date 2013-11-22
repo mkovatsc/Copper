@@ -550,7 +550,7 @@ CopperChrome.testCore19checker = function(message) {
 		if (message.getToken()!=null) alert("Fail: Token should be empty");
 		CopperChrome.checkContentFormat(message);
 		
-		var lq = document.getElementById('packet_options_location-query').getAttribute('label');
+		var lq = document.getElementById('packet_options_location-query') ? document.getElementById('packet_options_location-query').getAttribute('label') : '';
 		
 		if (lq.indexOf(CHECK_LQ1)<0 || lq.indexOf(CHECK_LQ2)<0) alert("Fail: Location-Query should contain " + CHECK_LQ1 + " and " + CHECK_LQ2);
 	}

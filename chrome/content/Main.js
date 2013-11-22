@@ -71,6 +71,7 @@ CopperChrome.uploadMethod = 0;
 CopperChrome.uploadBlocks = null;
 CopperChrome.uploadHandler = null;
 
+CopperChrome.downloadMethod = 0;
 CopperChrome.downloadHandler = null;
 
 CopperChrome.behavior = {
@@ -276,8 +277,10 @@ CopperChrome.sendGet = function(uri, callback) {
 	try {
 		if (!uri) throw 'No URI specified';
 		
+		CopperChrome.downloadMethod = Copper.GET;
+		
 		if (CopperChrome.behavior.blockSize!=0) {
-			CopperChrome.sendBlockwiseGet(uri, parseInt(document.getElementById('debug_option_block2').value), CopperChrome.behavior.blockSize, callback);
+			CopperChrome.sendBlockwise2(uri, parseInt(document.getElementById('debug_option_block2').value), CopperChrome.behavior.blockSize, callback);
 			return;
 		}
 		
@@ -292,15 +295,19 @@ CopperChrome.sendGet = function(uri, callback) {
 		alert('ERROR: Main.sendGet ['+ex+']');
 	}
 };
-CopperChrome.sendBlockwiseGet = function(uri, num, size, callback) {
+CopperChrome.sendBlockwise2 = function(uri, num, size, callback) {
 	try {
 		if (!uri) throw 'No URI specified';
 		if (!num) num = 0;
 		if (!size) size = CopperChrome.behavior.blockSize;
 		
+		if (CopperChrome.downloadMethod==0) {
+			throw 'No download in progress, cancelling';
+		}
+		
 		if (callback) CopperChrome.downloadHandler = callback;
 		
-		var message = new CopperChrome.CoapMessage(CopperChrome.getRequestType(), Copper.GET, uri);
+		var message = new CopperChrome.CoapMessage(CopperChrome.getRequestType(), CopperChrome.downloadMethod, uri);
 		
 		CopperChrome.checkDebugOptions(message);
 		
@@ -311,26 +318,36 @@ CopperChrome.sendBlockwiseGet = function(uri, num, size, callback) {
 		CopperChrome.client.send( message, CopperChrome.blockwiseHandler );
 	} catch (ex) {
 		CopperChrome.client.cancelTransactions();
-		alert('ERROR: Main.sendBlockwiseGet ['+ex+']');
+		alert('ERROR: Main.sendBlockwise2 ['+ex+']');
 	}
 };
 
 CopperChrome.sendPost = function(uri, callback) {
-	CopperChrome.doUpload(Copper.POST, uri, callback);
+	var num = parseInt(document.getElementById('debug_option_block2').value);
+	
+	if (CopperChrome.downloadMethod == Copper.POST && num>0) {
+		CopperChrome.sendBlockwise2(uri, num, CopperChrome.behavior.blockSize, callback);
+	} else {
+		CopperChrome.doUpload(Copper.POST, uri, callback);
+	}
 };
 
 CopperChrome.sendPut = function(uri, callback) {
-	CopperChrome.doUpload(Copper.PUT, uri, callback);
+	var num = parseInt(document.getElementById('debug_option_block2').value);
+	
+	if (CopperChrome.downloadMethod == Copper.PUT && num>0) {
+		CopperChrome.sendBlockwise2(uri, num, CopperChrome.behavior.blockSize, callback);
+	} else {
+		CopperChrome.doUpload(Copper.PUT, uri, callback);
+	}
 };
 
 CopperChrome.doUpload = function(method, uri, callback) {
 	try {
 		if (!uri) throw 'No URI specified';
 		
-		uri = CopperChrome.checkUri(uri, method);
-		
+		// load payload
 		let pl = '';
-		
 		if (document.getElementById('toolbar_payload_mode').value=='page') {
 			pl = Copper.str2bytes(document.getElementById('payload_text_page').value);
 		} else {
@@ -345,10 +362,11 @@ CopperChrome.doUpload = function(method, uri, callback) {
 		// store payload in case server requests blockwise upload
 		CopperChrome.uploadMethod = method; // POST or PUT
 		CopperChrome.uploadBlocks = pl;
+		CopperChrome.downloadMethod = method; // in case of Block2 response
 		
 		// blockwise uploads
 		if (CopperChrome.behavior.blockSize!=0 && pl.length > CopperChrome.behavior.blockSize) {
-			CopperChrome.doBlockwiseUpload(uri, parseInt(document.getElementById('debug_option_block1').value), CopperChrome.behavior.blockSize, callback);
+			CopperChrome.sendBlockwise1(uri, parseInt(document.getElementById('debug_option_block1').value), CopperChrome.behavior.blockSize, callback);
 			return;
 		}
 		
@@ -370,7 +388,7 @@ CopperChrome.doUpload = function(method, uri, callback) {
 	}
 }
 
-CopperChrome.doBlockwiseUpload = function(uri, num, size, callback) {
+CopperChrome.sendBlockwise1 = function(uri, num, size, callback) {
 	try {
 		if (!uri) throw 'No URI specified';
 		if (!num) num = 0;
@@ -408,13 +426,18 @@ CopperChrome.doBlockwiseUpload = function(uri, num, size, callback) {
 		CopperChrome.client.send( message, CopperChrome.blockwiseHandler );
 	} catch (ex) {
 		CopperChrome.client.cancelTransactions();
-		alert('ERROR: Main.doBlockwiseUpload ['+ex+']');
+		alert('ERROR: Main.sendBlockwise1 ['+ex+']');
 	}
 };
 
 CopperChrome.sendDelete = function(uri, callback) {
 	try {
+		if (!uri) throw 'No URI specified';
+		
+		CopperChrome.downloadMethod = Copper.GET;
+		
 		var message = new CopperChrome.CoapMessage(CopperChrome.getRequestType(), Copper.DELETE, uri);
+
 		
 		CopperChrome.checkDebugOptions(message);
 		
