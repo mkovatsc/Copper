@@ -172,14 +172,14 @@ CopperChrome.TransactionHandler.prototype = {
 		// store request callback through token matching
 		if (message.isRequest()) {
 			
-			while (this.requests[message.getTokenDefault()]!=null && this.registeredTokens[message.getTokenDefault()]==null) {
+			while (this.requests[message.getToken()]!=null && this.registeredTokens[message.getToken()]==null) {
 				dump('INFO: Default token already in use\n');
 				message.setToken(new Array([parseInt(Math.random()*0x100)]));
 			}
-			this.requests[message.getTokenDefault()] = reqCB==null ? this.defaultCB : reqCB;
+			this.requests[message.getToken()] = reqCB==null ? this.defaultCB : reqCB;
 			
 			// also save callback by TID
-			this.registeredTIDs[message.getTID()] = this.requests[message.getTokenDefault()];
+			this.registeredTIDs[message.getTID()] = this.requests[message.getToken()];
 		// store ping
 		} else if (message.getType()==Copper.MSG_TYPE_CON && message.getCode()==0) {
 			this.registeredTIDs[message.getTID()] = CopperChrome.pingHandler;
@@ -274,24 +274,24 @@ CopperChrome.TransactionHandler.prototype = {
 			message.getCopperCode = function() { return 'Separate response inbound'; };
 		
 		// request matching by token
-		} else if (this.requests[message.getTokenDefault()]) {
+		} else if (this.requests[message.getToken()]) {
 			
 			if (!this.registeredTIDs[message.getTID()]) {
 				if (message.getType()!=Copper.MSG_TYPE_CON && message.getType()!=Copper.MSG_TYPE_NON) {
 					dump('WARNING: TransactionHandler.handle [wrong type for separate from server: '+message.getType(true)+']\n');
 				} else {
-					dump('INFO: Incoming separate reponse (Token: '+message.getTokenDefault()+')\n');
+					dump('INFO: Incoming separate reponse (Token: '+message.getToken()+')\n');
 					this.stopRetransmissions();
 				}
 			}
 
-			callback = this.requests[message.getTokenDefault()];
-			delete this.requests[message.getTokenDefault()];
+			callback = this.requests[message.getToken()];
+			delete this.requests[message.getToken()];
 			delete this.registeredTIDs[message.getTID()];
 		
 		// check registered Tokens, e.g., subscriptions
-		} else if (this.registeredTokens[message.getTokenDefault()]) {
-			callback = this.registeredTokens[message.getTokenDefault()];
+		} else if (this.registeredTokens[message.getToken()]) {
+			callback = this.registeredTokens[message.getToken()];
 
 		// fallback to TID
 		} else if (this.registeredTIDs[message.getTID()]) {
@@ -305,8 +305,10 @@ CopperChrome.TransactionHandler.prototype = {
 			if (CopperChrome.behavior.showUnknown) {
 				// hack for additional info
 				message.getCopperCode = function() { return 'Unknown token'; };
+				this.reset(message.getTID());
 				
-				callback = defaultCB;
+				callback = this.defaultCB(message);
+				return;
 			}
 		}
 		

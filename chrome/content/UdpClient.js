@@ -55,7 +55,7 @@ CopperChrome.UdpClient = function(myHost, myPort) {
 	this.outputStream = this.socket.openOutputStream(0,0,0);
 	this.inputStream = this.socket.openInputStream(0, 0, 0); // 1,0,0 = OPEN_BLOCKING
 	
-    this.pump.init(this.inputStream, -1, -1, 0, 0, false);
+	this.pump.init(this.inputStream, -1, -1, 0, 0, false);
 	this.pump.asyncRead(this, null);
 	
 	return this;

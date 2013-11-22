@@ -477,14 +477,6 @@ CopperChrome.CoapMessage.prototype = {
 		}
 		this.packet.setOption(Copper.OPTION_TOKEN, token);
 	},
-	getTokenDefault : function() {
-		var token = this.getToken();
-		if (token!=null) {
-			return token;
-		} else {
-			return new Array([0]);
-		}
-	},
 	
 	// Copper.OPTION_ACCEPT:07+
 	getAccept : function() {
