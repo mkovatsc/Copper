@@ -1143,7 +1143,7 @@ CopperChrome.testObs01 = function() {
 	document.getElementById('toolbar_observe').click();
 };
 CopperChrome.testObs02 = function() {
-	var uri = CopperChrome.checkUri( CopperChrome.updateTestURI('/obs'), 'testObs02'); // unused since we "click" observe
+	var uri = CopperChrome.checkUri( CopperChrome.updateTestURI('/obs-non'), 'testObs02'); // unused since we "click" observe
 	
 	if (document.getElementById('toolbar_observe').label == 'Cancel ') {
 		CopperChrome.behavior.observeCancellation = 'rst';
