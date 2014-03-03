@@ -449,9 +449,9 @@ CopperChrome.displayMessageInfo = function(message) {
 	}
 
 	document.getElementById('packet_header_type').setAttribute('label', message.getType(true));
-	document.getElementById('packet_header_oc').setAttribute('label', message.getOptionCount(true));
 	document.getElementById('packet_header_code').setAttribute('label', message.getCode(true));
-	document.getElementById('packet_header_tid').setAttribute('label', message.getTID(true));
+	document.getElementById('packet_header_tid').setAttribute('label', message.getTID());
+	document.getElementById('packet_header_token').setAttribute('label', message.getToken(true));
 	
 	var optionList = document.getElementById('packet_options');
 	while (optionList.getRowCount()) optionList.removeItemAt(0);
@@ -459,6 +459,8 @@ CopperChrome.displayMessageInfo = function(message) {
 	
 	for (var i=0; i < options.length; i++)
     {
+		if (options[i][0]=='Token') continue;
+		
         var row = document.createElement('listitem');
         
         var cell = document.createElement('listcell');
@@ -570,9 +572,9 @@ CopperChrome.clearLabels = function(full) {
 		document.getElementById('info_payload').label='Payload';
 	
 		document.getElementById('packet_header_type').setAttribute('label', '');
-		document.getElementById('packet_header_oc').setAttribute('label', '');
 		document.getElementById('packet_header_code').setAttribute('label', '');
 		document.getElementById('packet_header_tid').setAttribute('label', '');
+		document.getElementById('packet_header_token').setAttribute('label', '');
 		
 		document.getElementById('tabs_payload').selectedIndex = 0;
 		

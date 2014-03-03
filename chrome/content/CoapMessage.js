@@ -457,7 +457,8 @@ CopperChrome.CoapMessage.prototype = {
 	},
 	
 	// Copper.OPTION_TOKEN:03+
-	getToken : function() {
+	getToken : function(readable) {
+		if (readable && this.packet.getOption(Copper.OPTION_TOKEN)==null) return 'empty';
 		return this.packet.getOption(Copper.OPTION_TOKEN); // byte array, treat as hex string
 	},
 	setToken : function(token) {

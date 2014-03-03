@@ -282,8 +282,8 @@
 						        <listcell id="packet_header_tid"/>
 						    </listitem>
 						    <listitem>
-						        <listcell label="Options"/>
-						        <listcell id="packet_header_oc"/>
+						        <listcell label="Token"/>
+						        <listcell id="packet_header_token"/>
 						    </listitem>
 						</listbox>
 					
