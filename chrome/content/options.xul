@@ -74,11 +74,11 @@
 						<label control="coap_version" value="CoAP version"/>
 						<menulist id="coap_version" preference="copper-version">
 							<menupopup>
-								<menuitem label="draft-ietf-core-coap-03" value="3"/>
+							<!--<menuitem label="draft-ietf-core-coap-03" value="3"/>
 								<menuitem label="draft-ietf-core-coap-06" value="6"/>
 								<menuitem label="draft-ietf-core-coap-08" value="8"/>
 								<menuitem label="draft-ietf-core-coap-12" value="12"/>
-								<menuitem label="draft-ietf-core-coap-13" value="13"/>
+								<menuitem label="draft-ietf-core-coap-13" value="13"/> -->
 								<menuitem label="draft-ietf-core-coap-18" value="18"/>
 							</menupopup>
 						</menulist>
