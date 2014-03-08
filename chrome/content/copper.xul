@@ -122,7 +122,7 @@
 	    	<menuitem id="menu_behavior_token_observe" label="Observe Token" type="checkbox" tooltiptext="Enforce non-default Token option for observing"/>
 	    	<menuseparator/>
 	      <menuitem id="menu_behavior_observe_lazy" label="Lazy Observe cancel" type="radio" name="observe" value="lazy" tooltiptext="Only remove subscription, send lazy RST later (can be used for MID matching at server)"/>
-	      <menuitem id="menu_behavior_observe_get" label="GET Observe cancel" type="radio" name="observe" value="get" tooltiptext="Send a GET without Observe option to notify server"/>
+	      <menuitem id="menu_behavior_observe_cancel" label="GET Observe cancel" type="radio" name="observe" value="cancel" tooltiptext="Send a GET without Observe option to notify server"/>
 	      <menuitem id="menu_behavior_observe_rst" label="RST Observe cancel" type="radio" name="observe" value="rst" tooltiptext="Send a RST right away (does not work with MID matching as new MID is used)"/>
 	    </menupopup>
 	  </toolbarbutton>
@@ -180,7 +180,6 @@
 			    <menupopup>
 			      <menuitem id="menu_plugtest_observe_01" label="OBS_01 (CON observe)" oncommand="CopperChrome.testObs01();"/>
 			      <menuitem id="menu_plugtest_observe_02" label="OBS_02 (NON Observe)" oncommand="CopperChrome.testObs02();"/>
-			      <menuitem id="menu_plugtest_observe_03" label="OBS_03 (Cancel GET)" oncommand="CopperChrome.testObs03();"/>
 			      <menuitem id="menu_plugtest_observe_04" label="OBS_04 (Max-Age timeout)" oncommand="CopperChrome.testObs04();"/>
 			      <menuitem id="menu_plugtest_observe_05" label="OBS_05 (Reboot)" oncommand="CopperChrome.testObs05();"/>
 			      <menuitem id="menu_plugtest_observe_06" label="OBS_06 (Cancel RST)" oncommand="CopperChrome.testObs06();"/>
@@ -188,6 +187,8 @@
 			      <menuitem id="menu_plugtest_observe_08" label="OBS_08 (PUT new Content-Format)" oncommand="CopperChrome.testObs08();"/>
 			      <menuitem id="menu_plugtest_observe_09" label="OBS_09 (PUT same Content-Format)" oncommand="CopperChrome.testObs09();"/>
 			      <menuitem id="menu_plugtest_observe_10" label="OBS_10 (Unrelated GET)" oncommand="CopperChrome.testObs10();"/>
+			      <menuitem id="menu_plugtest_observe_11" label="OBS_11 (CON observe lossy)" oncommand="CopperChrome.testObs01();"/>
+			      <menuitem id="menu_plugtest_observe_12" label="OBS_12 (Cancel GET)" oncommand="CopperChrome.testObs12();"/>
 			   </menupopup>
 			  </menu>
 			  <menu id="menu_plugtest_link" label="TD_COAP_LINK">

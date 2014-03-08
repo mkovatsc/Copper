@@ -159,7 +159,7 @@ CopperChrome.TransactionHandler.prototype = {
 		// store reliable transaction
 		if (message.isConfirmable()) {
 			if (this.retransmissions) {
-				// schedule resend
+				// schedule resend without RANDOM_FACTOR since we already have human jitter
 				timer = window.setTimeout(function(){CopperChrome.myBind(that,that.resend(message.getTID()));}, Copper.RESPONSE_TIMEOUT);
 			} else {
 				// also schedule 'not responding' timeout when retransmissions are disabled 

@@ -125,23 +125,25 @@ CopperChrome.Observing.prototype = {
 				} catch (ex) {
 					alert('ERROR: Observing.unsubscribe ['+ex+']');
 				}
-			} else if (CopperChrome.behavior.observeCancellation=='get') {
+			} else if (CopperChrome.behavior.observeCancellation=='cancel') {
 				try {
 					let uri = CopperChrome.checkUri(); // get current URI
-					var get = new CopperChrome.CoapMessage(Copper.MSG_TYPE_CON, Copper.GET, uri); // always use CON
-					get.setToken(this.subscription.token);
+					var cancel = new CopperChrome.CoapMessage(Copper.MSG_TYPE_CON, Copper.GET, uri); // always use CON
+					cancel.setToken(this.subscription.token);
+					
+					cancel.setObserve(1);
+					
 					CopperChrome.clearLabels();
-					CopperChrome.client.send( get );
+					CopperChrome.client.send( cancel );
 				} catch (ex) {
 					alert('ERROR: Observing.unsubscribe ['+ex+']');
 				}
 			}
 			
-			CopperChrome.updateLabel('info_code', 'Copper: Cancelled', false); // call after displayMessageInfo()
+			CopperChrome.updateLabel('info_code', 'Copper: Canceled', false); // call after displayMessageInfo()
 			
 			this.subscription = null;
 		}
-		
 		
 		document.getElementById('toolbar_observe').image = 'chrome://copper/skin/tool_observe.png';
 		document.getElementById('toolbar_observe').label = 'Observe';

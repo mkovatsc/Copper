@@ -899,7 +899,10 @@ CopperChrome.testBlock03checker = function(message) {
 };
 
 CopperChrome.testBlock04 = function() {
+	
 	var uri = CopperChrome.checkUri( CopperChrome.updateTestURI('/large-create'), 'testBlock04');
+
+	alert('Check for 2.31 Continue during transfer.');
 	
 	CopperChrome.resetDebugOptions();
 	document.getElementById('chk_debug_options').checked = true;
@@ -926,11 +929,14 @@ CopperChrome.testBlock04checker = function(message) {
 	if (message.getBlock1Size()>64) alert("Block1 size should be 64 or smaller");
 	if (message.getCode()!=Copper.CODE_2_01_CREATED) alert("Fail: Code should be 2.01");
 	if (message.getToken()!=null) alert("Fail: Token should be empty");
+	if (message.getLocation()==null) alert("Fail: No Location option");
 	CopperChrome.checkContentFormat(message);
 };
 
 CopperChrome.testBlock05 = function() {
 	var uri = CopperChrome.checkUri( CopperChrome.updateTestURI('/large-post'), 'testBlock05');
+	
+	alert('Check for 2.31 Continue during transfer.');
 	
 	CopperChrome.resetDebugOptions();
 	document.getElementById('chk_debug_options').checked = true;
@@ -1162,7 +1168,7 @@ CopperChrome.testObs02 = function() {
 	
 	document.getElementById('toolbar_observe').click();
 };
-CopperChrome.testObs03 = function() {
+CopperChrome.testObs12 = function() {
 	if (document.getElementById('toolbar_observe').label != 'Cancel ') {
 		alert('Run OBS_01 first and wait for notifications.');
 		return;
