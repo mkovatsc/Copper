@@ -42,8 +42,9 @@
 CopperChrome.defaultHandler = function(message) {
 	dump('INFO: defaultHandler()\n');
 	
-	// if message turns out to be block-wise transfer dispatch to corresponding handler
-	if (message.isOption && (message.isOption(Copper.OPTION_BLOCK) || message.isOption(Copper.OPTION_BLOCK1))) {
+	// late blocksize negotiation
+	if (message.isOption(Copper.OPTION_BLOCK) && CopperChrome.downloadMethod!=0
+			|| message.isOption(Copper.OPTION_BLOCK1) && CopperChrome.uploadMethod!=0) {
 		return CopperChrome.blockwiseHandler(message);
 	}
 
@@ -167,6 +168,8 @@ CopperChrome.observingHandler = function(message) {
 		CopperChrome.updateLabel('info_code', ' (Blockwise)', true); // call after displayMessageInfo()
 		
 		if (message.getBlockMore()) {
+			
+			CopperChrome.downloadMethod = Copper.GET;
 			
 			// block size negotiation
 			let size = CopperChrome.negotiateBlockSize(message);

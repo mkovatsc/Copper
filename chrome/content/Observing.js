@@ -127,6 +127,8 @@ CopperChrome.Observing.prototype = {
 				}
 			} else if (CopperChrome.behavior.observeCancellation=='cancel') {
 				try {
+					CopperChrome.downloadMethod = Copper.GET;
+					
 					let uri = CopperChrome.checkUri(); // get current URI
 					var cancel = new CopperChrome.CoapMessage(Copper.MSG_TYPE_CON, Copper.GET, uri); // always use CON
 					cancel.setToken(this.subscription.token);
