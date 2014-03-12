@@ -449,7 +449,7 @@ Copper.CoapPacket.prototype = {
 						byteArray.push( 0xFF & (opt.length-269) );
 					}
 					
-					dump('INFO: Serializing option '+optTypeIt+' (delta '+optDelta+', len '+opt.length+')\n');
+					//dump('INFO: Serializing option '+optTypeIt+' (delta '+optDelta+', len '+opt.length+')\n');
 			    	// add option value
 					for(var i in opt) byteArray.push(opt[i]);
 					
@@ -527,7 +527,7 @@ Copper.CoapPacket.prototype = {
 				
 				optType += optDelta;
 				
-				dump('INFO: Reading option '+optType+'\n');
+				//dump('INFO: Reading option '+optType+'\n');
 				
 				var opt = new Array(0);
 		    	
