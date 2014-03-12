@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, Institute for Pervasive Computing, ETH Zurich.
+ * Copyright (c) 2014, Institute for Pervasive Computing, ETH Zurich.
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,7 +26,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  * 
- * This file is part of the Copper CoAP browser.
+ * This file is part of the Copper (Cu) CoAP user-agent.
  ******************************************************************************/
 /**
  * \file
@@ -50,7 +50,7 @@ CopperChrome.mainWindow = window.QueryInterface(Components.interfaces.nsIInterfa
 
 CopperChrome.prefManager = Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefBranch);
 
-CopperChrome.coapVersion = 13;
+CopperChrome.coapVersion = 18;
 
 CopperChrome.hostname = '';
 CopperChrome.port = -1;
@@ -94,14 +94,14 @@ CopperChrome.main = function() {
 	
 	dump(Array(5).join('\n'));
 	dump('==============================================================================\n');
-	dump('=INITIALIZING COPPER==========================================================\n');
+	dump('= INITIALIZING COPPER ========================================================\n');
 	dump('==============================================================================\n');
 		
  	// set the Cu icon for all Copper tabs
 	// TODO: There must be a more elegant way
 	var tabbrowser = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator).getEnumerator("navigator:browser").getNext().gBrowser;  
 	for (var i=0; i<tabbrowser.browsers.length; ++i) {
-		if (tabbrowser.mTabs[i].label=='Copper CoAP Browser')
+		if (tabbrowser.mTabs[i].label=='Copper (Cu) CoAP user-agent')
 		tabbrowser.setIcon(tabbrowser.mTabs[i], 'chrome://copper/skin/Cu_16.png');
 	}
 	
