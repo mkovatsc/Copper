@@ -30,35 +30,54 @@
  ******************************************************************************/
 /**
  * \file
- *         Code for the options window.
+ *         Main program code for the Copper CoAP Browser
  *
  * \author  Matthias Kovatsch <kovatsch@inf.ethz.ch>\author
  */
 
-CopperChrome.Options = {
-
-		clearResourceCache : function() {
-			var prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("extensions.copper.resources");
-			
-			try {
-				if (confirm('This will delete '+prefs.getChildList('', {}).length+' entries. Continue?')) {
-					prefs.deleteBranch('');
-				}
-			} catch (ex) {
-				alert(ex);
-			}
-		},
-
-		clearPayloadCache : function() {
-			var prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("extensions.copper.payloads");
-			
-			try {
-				if (confirm('This will delete '+prefs.getChildList('', {}).length+' entries. Continue?')) {
-					prefs.deleteBranch('');
-				}
-			} catch (ex) {
-				alert(ex);
-			}
-		}
-};
+CopperChrome.check = function() {
+	
+	var firstRun = Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefBranch).getBoolPref('extensions.copper.first-run');
+	
+	if (firstRun) {
+	
+		let id = 'copper-toolbar-button';
 		
+		// install the Cu toolbar button for the how-to
+	    if (!document.getElementById(id)) {
+	        var toolbar = document.getElementById('addon-bar');
+	
+	        toolbar.insertItem(id);
+	        toolbar.setAttribute("currentset", toolbar.currentSet);
+	        document.persist(toolbar.id, "currentset");
+	        
+	        toolbar.collapsed = false;
+	    }
+	    
+	    // set first-run to false
+	    Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefBranch).setBoolPref('extensions.copper.first-run', false);
+	}
+};
+
+CopperChrome.hideHowto = function() {
+
+	let id = 'copper-toolbar-button';
+	
+    if (document.getElementById(id)) {
+        var toolbar = document.getElementById('addon-bar');
+
+        let newSet = toolbar.currentSet.replace(/(,copper-toolbar-button|copper-toolbar-button,)/, '');
+        toolbar.setAttribute("currentset", newSet);
+        document.persist(toolbar.id, "currentset");
+    }
+    
+    CopperChrome.firstRun = false;
+};
+
+CopperChrome.howto = function() {
+	window.openDialog('chrome://copper/content/howto.xul', 'HowTo', 'chrome,titlebar,toolbar,centerscreen,modal');
+	CopperChrome.hideHowto();
+	document.getElementById('urlbar').focus();
+};
+
+addEventListener("load", CopperChrome.check, false);

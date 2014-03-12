@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<!--
+  Copyright (c) 2014, Institute for Pervasive Computing, ETH Zurich.
+  All rights reserved.
+  
+  Redistribution and use in source and binary forms, with or without
+  modification, are permitted provided that the following conditions
+  are met:
+  1. Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+  2. Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+  3. Neither the name of the Institute nor the names of its contributors
+     may be used to endorse or promote products derived from this software
+     without specific prior written permission.
+  
+  THIS SOFTWARE IS PROVIDED BY THE INSTITUTE AND CONTRIBUTORS "AS IS" AND
+  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+  ARE DISCLAIMED.  IN NO EVENT SHALL THE INSTITUTE OR CONTRIBUTORS BE LIABLE
+  FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+  DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+  SUCH DAMAGE.
+  
+  This file is part of the Copper (Cu) CoAP user-agent.
+-->
+
+<!DOCTYPE copper SYSTEM "chrome://copper/locale/translations.dtd">
+
+<?xml-stylesheet href="chrome://global/skin/global.css" stype="text/css"?>
+
+<overlay id="copper-overlay"
+	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+	
+	<script type="application/x-javascript" src="chrome://copper/content/namespace.js"/> 
+	<script type="application/x-javascript" src="chrome://copper/content/Howto.js"/>
+
+	<!-- Web developer tool bar -->
+	<menupopup id="appmenu_webDeveloper_popup">
+		<menuitem label="Copper (Cu) How-To"
+			class="menuitem-iconic"
+			style="list-style-image: url('chrome://copper/skin/Cu_16.png');"
+			oncommand="CopperChrome.howto();" />
+	</menupopup>
+
+	<!-- Old tools menu -->
+	<menupopup id="menu_ToolsPopup">
+		<menuitem label="Copper (Cu) How-To"
+			image="chrome://colorzilla/skin/Cu_16.png"
+			oncommand="CopperChrome.howto();" />
+	</menupopup>
+
+	<!-- Customizable tool button -->
+	<toolbarpalette id="BrowserToolbarPalette">
+		<toolbarbutton id="copper-toolbar-button" class="chromeclass-toolbar-additional"
+			label="Copper (Cu) How-To"
+			image="chrome://copper/skin/Cu_16.png"
+			tooltiptext="How to use the Copper (Cu) CoAP user-agent?"
+			oncommand="CopperChrome.howto();">
+		</toolbarbutton>
+	</toolbarpalette>
+
+</overlay>

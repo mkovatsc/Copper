@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, Institute for Pervasive Computing, ETH Zurich.
+ * Copyright (c) 2014, Institute for Pervasive Computing, ETH Zurich.
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,7 +26,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  * 
- * This file is part of the Copper CoAP browser.
+ * This file is part of the Copper (Cu) CoAP user-agent.
  ******************************************************************************/
 /**
  * \file   Implementation of draft-ietf-core-coap-12

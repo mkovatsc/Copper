@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<!--
+  Copyright (c) 2014, Institute for Pervasive Computing, ETH Zurich.
+  All rights reserved.
+  
+  Redistribution and use in source and binary forms, with or without
+  modification, are permitted provided that the following conditions
+  are met:
+  1. Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+  2. Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+  3. Neither the name of the Institute nor the names of its contributors
+     may be used to endorse or promote products derived from this software
+     without specific prior written permission.
+  
+  THIS SOFTWARE IS PROVIDED BY THE INSTITUTE AND CONTRIBUTORS "AS IS" AND
+  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+  ARE DISCLAIMED.  IN NO EVENT SHALL THE INSTITUTE OR CONTRIBUTORS BE LIABLE
+  FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+  DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+  SUCH DAMAGE.
+  
+  This file is part of the Copper (Cu) CoAP user-agent.
+-->
+
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+
+<dialog id="copper-howto-window" buttons="accept" title="Copper (Cu) How-To"
+	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+	<hbox style="margin-top: 50px;">
+		<image src="chrome://copper/skin/Cu_box_256.png" />
+		<vbox flex="1">
+			<spacer flex="1" />
+			<description width="250">
+				Cupper (Cu) does not come with a button that
+				you have to press to access CoAP resources.
+				Simply enter a CoAP URI into the address bar
+				and hit enter.
+			</description>
+			<description width="250">
+				Use the
+				<image src="chrome://copper/skin/tool_discover.png" align="middle" /> Discover
+				button to retrieve the list of available resources
+				from /.well-known/core.
+				It is useful to first <image src="chrome://copper/skin/tool_ping.png" align="center" /> Ping
+				the server to see if the remote endpoint responds to CoAP.
+			</description>
+			<description width="250">
+				You can try with
+			</description>
+			<textbox value="coap://vs0.inf.ethz.ch/" readonly="true" style="text-align: center; padding: 5px; margin: 10px;" />
+			<description style="text-align: center;">
+				(copy &amp; paste to browser address)
+			</description>
+			<spacer flex="1" />
+		</vbox>
+	</hbox>
+
+</dialog>
