@@ -35,7 +35,7 @@
 <dialog id="copper-howto-window" buttons="accept" title="Copper (Cu) How-To"
 	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
-	<hbox style="margin-top: 50px;">
+	<hbox style="margin-top: 40px;">
 		<image src="chrome://copper/skin/Cu_box_256.png" />
 		<vbox flex="1">
 			<spacer flex="1" />

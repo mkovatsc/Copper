@@ -43,7 +43,7 @@ pref("extensions.copper.behavior.send-uri-host", false);
 pref("extensions.copper.behavior.send-size1", false);
 pref("extensions.copper.behavior.block-size", 64);
 pref("extensions.copper.behavior.observe-token", true);
-pref("extensions.copper.behavior.observe-cancellation", "lazy");
+pref("extensions.copper.behavior.observe-cancellation", "cancel");
 pref("extensions.copper.default-payload", "Enter payload...");
 pref("extensions.copper.onload-action", "");
 pref("extensions.copper.debug.options-enabled", false);
