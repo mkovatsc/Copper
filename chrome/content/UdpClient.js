@@ -77,6 +77,8 @@ CopperChrome.UdpClient.prototype = {
 	inputStream      : null,
 	sis : null,
 	
+	lastSend : null,
+	
 	register : function(myCB) {
 		this.callback = myCB;
 	},
@@ -140,12 +142,26 @@ CopperChrome.UdpClient.prototype = {
 	},
 	
 	send : function(datagram) {
+		
+		// the transport API also concatenates outgoing datagrams when sent too quickly
+		let since = new Date() - this.lastSend;
+		if (since<30) {
+			dump('WARNING: Message interval too short for transport API: delaying '+(30-since)+'ms)\n');
+			var that = this;
+			window.setTimeout(
+					function() { CopperChrome.myBind(that,that.send(datagram)); },
+					30-since);
+			return;
+		}
+		this.lastSend = new Date();
+			
 		try {
 			this.outputStream.write(datagram, datagram.length);
 			
 			dump('-sent UDP datagram------\n');
 			dump(' Length: '+datagram.length+'\n');
 			dump(' -----------------------\n');
+			
 		} catch (ex) {
 			dump('WARNING: UdpClient.send [I/O error]\n');
 			if (this.errorCallback) {
