@@ -40,7 +40,19 @@
 
 CopperChrome.renderText = function(message) {
 	CopperChrome.updateLabel('packet_payload', Copper.bytes2str(message.getPayload()), false);
-	document.getElementById('tabs_payload').selectedIndex = 0;
+	let str = Copper.bytes2str(message.getPayload());
+	if (str.match(/^#[0-9a-f]{3,6}$/i) || str.match(/´rgb\(\s*[0-9]+\s*,\s*[0-9]+\s*,\s*[0-9]+\s*\)$/i)) {
+
+		// view corresponding render element
+		document.getElementById('rendered_img').style.display = 'none';
+		document.getElementById('rendered_div').style.display = 'block';
+		
+		document.getElementById('tab_rendered').style.backgroundColor = str.toLowerCase();
+		document.getElementById('tabs_payload').selectedIndex = 1;
+	} else {
+		document.getElementById('tab_rendered').style.backgroundColor = '';
+		document.getElementById('tabs_payload').selectedIndex = 0;
+	}
 };
 
 CopperChrome.renderImage = function(message) {
@@ -56,6 +68,7 @@ CopperChrome.renderImage = function(message) {
 	
 	// causes flickering, but partially added data does not draw anyway
 	document.getElementById('rendered_img').src = 'data:'+Copper.getContentTypeName(message.getContentType())+';base64,'+btoa( Copper.bytes2data(message.getPayload()) );
+	document.getElementById('tab_rendered').style.backgroundColor = '';
 	document.getElementById('tabs_payload').selectedIndex = 1;
 };
 
@@ -123,6 +136,7 @@ CopperChrome.renderLinkFormat = function(message) {
 	
 	view.appendChild( CopperChrome.renderLinkFormatUtils.getXulLinks(parsedObj) );
 	
+	document.getElementById('tab_rendered').style.backgroundColor = '';
 	document.getElementById('tabs_payload').selectedIndex = 1;
 };
 
@@ -265,6 +279,7 @@ CopperChrome.renderJSON = function(message) {
 		// Turn the Javascript object into XUL objects
 		if (typeof parsedObj == 'object') {
 			view.appendChild( CopperChrome.renderJSONutils.getXulObject(parsedObj) );
+			document.getElementById('tab_rendered').style.backgroundColor = '';
 			document.getElementById('tabs_payload').selectedIndex = 1;
 		} else {
 			alert('ERROR: Renderers.renderJSON [Top level element is not a JSON object]');
