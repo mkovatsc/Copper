@@ -36,8 +36,8 @@
  */
 
 /**
- * CopperChrome namespace.
+ * Copper namespace.
  */
-if ("undefined" == typeof(CopperChrome)) {
-  var CopperChrome = {};
+if ("undefined" == typeof(Copper)) {
+  var Copper = {};
 };

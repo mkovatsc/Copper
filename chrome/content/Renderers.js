@@ -38,8 +38,8 @@
 // Rendering functions
 ////////////////////////////////////////////////////////////////////////////////
 
-CopperChrome.renderText = function(message) {
-	CopperChrome.updateLabel('packet_payload', Copper.bytes2str(message.getPayload()), false);
+Copper.renderText = function(message) {
+	Copper.updateLabel('packet_payload', Copper.bytes2str(message.getPayload()), false);
 	let str = Copper.bytes2str(message.getPayload());
 	if (str.match(/^#[0-9a-f]{3,6}$/i) || str.match(/´rgb\(\s*[0-9]+\s*,\s*[0-9]+\s*,\s*[0-9]+\s*\)$/i)) {
 
@@ -55,11 +55,11 @@ CopperChrome.renderText = function(message) {
 	}
 };
 
-CopperChrome.renderImage = function(message) {
+Copper.renderImage = function(message) {
 	
-	if (!message.getBlockMore()) {
+	if (!message.getBlock2More()) {
 		// only render binary when transfer is complete (binary is heavy)
-		CopperChrome.renderBinary(message);
+		Copper.renderBinary(message);
 	}
 	
 	// view corresponding render element
@@ -67,32 +67,32 @@ CopperChrome.renderImage = function(message) {
 	document.getElementById('rendered_img').style.display = 'block';
 	
 	// causes flickering, but partially added data does not draw anyway
-	document.getElementById('rendered_img').src = 'data:'+Copper.getContentTypeName(message.getContentType())+';base64,'+btoa( Copper.bytes2data(message.getPayload()) );
+	document.getElementById('rendered_img').src = 'data:'+Copper.getContentFormatName(message.getContentFormat())+';base64,'+btoa( Copper.bytes2data(message.getPayload()) );
 	document.getElementById('tab_rendered').style.backgroundColor = '';
 	document.getElementById('tabs_payload').selectedIndex = 1;
 };
 
-CopperChrome.renderBinary = function(message) {
+Copper.renderBinary = function(message) {
 	
 	var pl = message.getPayload();
 	
 	// TODO: loop is too heavy for large payloads, alternatives?
 	for (var i in pl) {
 		
-		CopperChrome.updateLabel('packet_payload', Copper.leadingZero(pl[i].toString(16).toUpperCase()), true);
+		Copper.updateLabel('packet_payload', Copper.leadingZero(pl[i].toString(16).toUpperCase()), true);
 		
 		if (i % 16 == 15) {
-			CopperChrome.updateLabel('packet_payload', ' | ', true);
+			Copper.updateLabel('packet_payload', ' | ', true);
 			for (var j=i-15; j<=i; ++j) {
 				if (pl[j] < 32) {
-					CopperChrome.updateLabel('packet_payload', '·', true);
+					Copper.updateLabel('packet_payload', '·', true);
 				} else {
-					CopperChrome.updateLabel('packet_payload', String.fromCharCode(pl[j] & 0xFF), true);
+					Copper.updateLabel('packet_payload', String.fromCharCode(pl[j] & 0xFF), true);
 				}
 			}
-			CopperChrome.updateLabel('packet_payload', '\n', true);
+			Copper.updateLabel('packet_payload', '\n', true);
 		} else if (i % 2 == 1) {
-			CopperChrome.updateLabel('packet_payload', ' ', true);
+			Copper.updateLabel('packet_payload', ' ', true);
 		}
 	}
 	
@@ -100,15 +100,15 @@ CopperChrome.renderBinary = function(message) {
 	if ((parseInt(i)+1) % 16 != 0) {
 		// complete line with spaces
 		for (var j=0; j<39-((parseInt(i)+1)%16)*2 - ((parseInt(i)+1)%16)/2; ++j) {
-			CopperChrome.updateLabel('packet_payload', ' ', true);
+			Copper.updateLabel('packet_payload', ' ', true);
 		}
 		
-		CopperChrome.updateLabel('packet_payload', ' | ', true);
+		Copper.updateLabel('packet_payload', ' | ', true);
 		for (var j=i-(i%16); j<=i; ++j) {
 			if (pl[j] < 32) {
-				CopperChrome.updateLabel('packet_payload', '·', true);
+				Copper.updateLabel('packet_payload', '·', true);
 			} else {
-				CopperChrome.updateLabel('packet_payload', String.fromCharCode(pl[j] & 0xFF), true);
+				Copper.updateLabel('packet_payload', String.fromCharCode(pl[j] & 0xFF), true);
 			}
 		}
 	}
@@ -117,10 +117,10 @@ CopperChrome.renderBinary = function(message) {
 };
 
 
-CopperChrome.renderLinkFormat = function(message) {
+Copper.renderLinkFormat = function(message) {
 	
 	// Print raw Link Format in case parsing fails
-	CopperChrome.renderText(message);
+	Copper.renderText(message);
 	
 	// The box for output at the top-level
 	document.getElementById('rendered_img').style.display = 'none';
@@ -132,15 +132,15 @@ CopperChrome.renderLinkFormat = function(message) {
     }
     view.setAttribute("class", "link-content");
     
-	var parsedObj = CopperChrome.parseLinkFormat( Copper.bytes2str(message.getPayload()) );
+	var parsedObj = Copper.parseLinkFormat( Copper.bytes2str(message.getPayload()) );
 	
-	view.appendChild( CopperChrome.renderLinkFormatUtils.getXulLinks(parsedObj) );
+	view.appendChild( Copper.renderLinkFormatUtils.getXulLinks(parsedObj) );
 	
 	document.getElementById('tab_rendered').style.backgroundColor = '';
 	document.getElementById('tabs_payload').selectedIndex = 1;
 };
 
-CopperChrome.renderLinkFormatUtils = {
+Copper.renderLinkFormatUtils = {
 	
 	htmlns: "http://www.w3.org/1999/xhtml",
 	
@@ -256,10 +256,10 @@ CopperChrome.renderLinkFormatUtils = {
 	}
 };
 
-CopperChrome.renderJSON = function(message) {
+Copper.renderJSON = function(message) {
 	
 	// Print raw JSON in case parsing fails
-	CopperChrome.renderText(message);
+	Copper.renderText(message);
 	
 	// The box for output at the top-level
 	document.getElementById('rendered_img').style.display = 'none';
@@ -278,19 +278,19 @@ CopperChrome.renderJSON = function(message) {
 		var parsedObj = JSON.parse(pl);
 		// Turn the Javascript object into XUL objects
 		if (typeof parsedObj == 'object') {
-			view.appendChild( CopperChrome.renderJSONutils.getXulObject(parsedObj) );
+			view.appendChild( Copper.renderJSONutils.getXulObject(parsedObj) );
 			document.getElementById('tab_rendered').style.backgroundColor = '';
 			document.getElementById('tabs_payload').selectedIndex = 1;
 		} else {
-			alert('ERROR: Renderers.renderJSON [Top level element is not a JSON object]');
+			Copper.logError(new Error('Top level element is not a JSON object'));
 		}
 	} catch (ex) {
-		dump('ERROR: Renderers.renderJSON ['+ex+']');
+		Copper.logError(ex);
 	}
 	
 };
 
-CopperChrome.renderJSONutils = {
+Copper.renderJSONutils = {
 		
 	htmlns: "http://www.w3.org/1999/xhtml",
  
@@ -392,7 +392,7 @@ CopperChrome.renderJSONutils = {
 	}
 };
 
-CopperChrome.renderEXI = function(message) {
-	CopperChrome.updateLabel('packet_payload', Copper.bytes2data(message.getPayload()), message.getBlockNumber()>0);
+Copper.renderEXI = function(message) {
+	Copper.updateLabel('packet_payload', Copper.bytes2data(message.getPayload()), message.getBlock2Number()>0);
 	document.getElementById('tabs_payload').selectedIndex = 0;
 };

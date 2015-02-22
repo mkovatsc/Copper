@@ -37,56 +37,60 @@
 <?xml-stylesheet href="chrome://copper/skin/renderLinkFormat.css" type="text/css"?>
 <?xml-stylesheet href="chrome://copper/skin/renderJSON.css" type="text/css"?>
 
-<window id						= "copper-main-window"
-				title				  = "Copper (Cu) CoAP user-agent"
-				orient				= "vertical"
-				xmlns				  = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-				xmlns:html		= "http://www.w3.org/1999/xhtml"
-				onload				= "CopperChrome.main()"
-				onunload			= "CopperChrome.unload()">
+<window id         = "copper-main-window"
+		title      = "Copper (Cu) CoAP user-agent"
+		orient     = "vertical"
+		xmlns      = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+		xmlns:html = "http://www.w3.org/1999/xhtml"
+		onload     = "Copper.main()"
+		onunload   = "Copper.unload()">
 
 <script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/namespace.js"/>
-<script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/Main.js"/>
+<script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/coap/CoapRFC7252.js"/>
+<script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/coap/CoapMessage.js"/>
+<script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/coap/TransactionHandler.js"/>
+<script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/coap/UdpClient.js"/>
 <script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/ResourceViews.js"/>
 <script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/Helpers.js"/>
 <script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/Handlers.js"/>
 <script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/Renderers.js"/>
 <script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/DebugOptions.js"/>
 <script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/Observing.js"/>
-<script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/CoapMessage.js"/>
-<script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/UdpClient.js"/>
-<script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/TransactionHandler.js"/>
 <script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/Plugtest.js"/>
+<script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/Logger.js"/>
+<script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/Main.js"/>
 
+<panel id="panel_event_log" position="bottomright topright" style="margin-top: 1px;">
+	<textbox id="log_event_log" flex="1" readonly="true" multiline="true" cols="80" rows="50" style="-moz-appearance: none; font-family: monospace; color: lightgray; background-color: black; border: 1px solid white;" />
+</panel>
 
 <toolbar id="main_toolbar"	align="center">
 
 	<toolbaritem>
-		<toolbarbutton id="toolbar_discover" label="Discover" tooltiptext="GET link-formats from the well-known URI (cached resources are displayed in red)" image="chrome://copper/skin/tool_discover.png" oncommand="CopperChrome.userDiscover();"/>
-		<toolbarbutton id="toolbar_ping" label="Ping" tooltiptext="Ping with empty message" image="chrome://copper/skin/tool_ping.png" oncommand="CopperChrome.ping();"/>
+		<toolbarbutton id="toolbar_discover" label="Discover" tooltiptext="GET link-formats from the well-known URI (cached resources are displayed in red)" image="chrome://copper/skin/tool_discover.png" oncommand="Copper.userDiscover();"/>
+		<toolbarbutton id="toolbar_ping" label="Ping" tooltiptext="Ping with empty message" image="chrome://copper/skin/tool_ping.png" oncommand="Copper.ping();"/>
 	</toolbaritem>
 	<toolbaritem id="toolbar_methods">
 		<toolbarseparator/>
-		<toolbarbutton id="toolbar_get" label="GET" image="chrome://copper/skin/tool_get.png" oncommand="CopperChrome.userGet();"/>
-		<toolbarbutton id="toolbar_post" label="POST" image="chrome://copper/skin/tool_post.png" oncommand="CopperChrome.userPost();"/>
-		<toolbarbutton id="toolbar_put" label="PUT" image="chrome://copper/skin/tool_put.png" oncommand="CopperChrome.userPut();"/>
-		<toolbarbutton id="toolbar_delete" label="DELETE" image="chrome://copper/skin/tool_delete.png" oncommand="CopperChrome.userDelete();"/>
+		<toolbarbutton id="toolbar_get" label="GET" image="chrome://copper/skin/tool_get.png" oncommand="Copper.userGet();"/>
+		<toolbarbutton id="toolbar_post" label="POST" image="chrome://copper/skin/tool_post.png" oncommand="Copper.userPost();"/>
+		<toolbarbutton id="toolbar_put" label="PUT" image="chrome://copper/skin/tool_put.png" oncommand="Copper.userPut();"/>
+		<toolbarbutton id="toolbar_delete" label="DELETE" image="chrome://copper/skin/tool_delete.png" oncommand="Copper.userDelete();"/>
 		<toolbarspacer/>
-		<toolbarbutton id="toolbar_observe" label="Observe" tooltiptext="Subscribe to the resource" image="chrome://copper/skin/tool_observe.png" oncommand="CopperChrome.userObserve();"/>
+		<toolbarbutton id="toolbar_observe" label="Observe" tooltiptext="Subscribe to the resource" image="chrome://copper/skin/tool_observe.png" oncommand="Copper.userObserve();"/>
 		<toolbarseparator/>
 	</toolbaritem>
 	
-	
 	<toolbaritem align="center">
 	  <label value="Payload"/>
-		<menulist id="toolbar_payload_mode" sizetopopup="none" oncommand="CopperChrome.checkPayload();">
+		<menulist id="toolbar_payload_mode" sizetopopup="none" oncommand="Copper.checkPayload();">
 			<menupopup ignorekeys="true">
 				<menuitem label="Text" value="page">
 					<label value="Text"/>
 				</menuitem>
 				<menuitem label="File" value="file">
 					<label control="toolbar_payload_file" value="File"/>
-					<button id="toolbar_payload_file" label="Select..." allowevents="true" oncommand="CopperChrome.selectPayloadFile();"/>
+					<button id="toolbar_payload_file" label="Select..." allowevents="true" oncommand="Copper.selectPayloadFile();"/>
 				</menuitem>
 					
 			</menupopup>
@@ -95,7 +99,7 @@
 	
 	<toolbaritem>
 	  <toolbarseparator/>
-	  <toolbarbutton type="menu" id="menu_behavior" label="Behavior  " oncommand="CopperChrome.behaviorUpdate(event.target);">
+	  <toolbarbutton type="menu" id="menu_behavior" label="Behavior  " oncommand="Copper.behaviorUpdate(event.target);">
 	    <menupopup>
 	      <menuitem id="menu_behavior_requests_con" label="CON requests" type="radio" name="request" value="con"/>
 	      <menuitem id="menu_behavior_requests_non" label="NON requests" type="radio" name="request" value="non"/>
@@ -103,8 +107,8 @@
 	    	<menuitem id="menu_behavior_retransmissions" label="Retransmissions" type="checkbox" tooltiptext="Retransmit unconfirmed messages"/>
 	    	<menuitem id="menu_behavior_send_duplicates" label="Send Duplicates" type="checkbox" tooltiptext="Do not increase MID"/>
 	    	<menuseparator/>
-	    	<menuitem id="menu_behavior_show_unknown" label="Display unknown" type="checkbox" tooltiptext="Display messages from unknown transactions"/>
-	    	<menuitem id="menu_behavior_reject_unknown" label="Reject unkown" type="checkbox" tooltiptext="Send a RST for unknown transactions"/>
+	    	<menuitem id="menu_behavior_show_unknown" label="Display unknown" type="checkbox" tooltiptext="Display messages with unknown tokens"/>
+	    	<menuitem id="menu_behavior_reject_unknown" label="Reject unkown NONs" type="checkbox" tooltiptext="Send a Reset for unknown Non-Confirmables"/>
 	    	<menuseparator/>
 	    	<menuitem id="menu_behavior_send_uri_host" label="Send Uri-Host" type="checkbox" tooltiptext="Enable virtual hosts and send Uri-Host option"/>
 	    	<menuitem id="menu_behavior_send_size1" label="Send auto Size1" type="checkbox" tooltiptext="Automatically indicate request representation size"/>
@@ -130,369 +134,399 @@
 	
 	<toolbaritem id="menu_plugtest" hidden="true">
 	  <toolbarseparator/>
-	  <toolbarbutton type="menu" id="menu_plugtest_popup" label="Plugtest  " oncommand="CopperChrome.testSelect(event.target);">
+	  <toolbarbutton type="menu" id="menu_plugtest_popup" label="Plugtest  " oncommand="Copper.testSelect(event.target);">
 	    <menupopup>
 			  <menu id="menu_plugtest_core" label="TD_COAP_CORE">
 			    <menupopup>
-			      <menuitem id="menu_plugtest_core_01" label="CORE_01 (GET CON)" oncommand="CopperChrome.testCore01();"/>
-			      <menuitem id="menu_plugtest_core_02" label="CORE_02 (DELETE CON)" oncommand="CopperChrome.testCore02();"/>
-			      <menuitem id="menu_plugtest_core_03" label="CORE_03 (PUT CON)" oncommand="CopperChrome.testCore03();"/>
-			      <menuitem id="menu_plugtest_core_04" label="CORE_04 (POST CON)" oncommand="CopperChrome.testCore04();"/>
-			      <menuitem id="menu_plugtest_core_05" label="CORE_05 (GET NON)" oncommand="CopperChrome.testCore05();"/>
-			      <menuitem id="menu_plugtest_core_06" label="CORE_06 (DELETE NON)" oncommand="CopperChrome.testCore06();"/>
-			      <menuitem id="menu_plugtest_core_07" label="CORE_07 (PUT NON)" oncommand="CopperChrome.testCore07();"/>
-			      <menuitem id="menu_plugtest_core_08" label="CORE_08 (POST NON)" oncommand="CopperChrome.testCore08();"/>
-			      <menuitem id="menu_plugtest_core_09" label="CORE_09 (CON /separate)" oncommand="CopperChrome.testCore09();"/>
-			      <menuitem id="menu_plugtest_core_10" label="CORE_10 (GET Token)" oncommand="CopperChrome.testCore10();"/>
-			      <menuitem id="menu_plugtest_core_11" label="CORE_11 (CON /separate Token)" oncommand="CopperChrome.testCore11();"/>
-			      <menuitem id="menu_plugtest_core_12" label="CORE_12 (GET No Token)" oncommand="CopperChrome.testCore12();"/>
-			      <menuitem id="menu_plugtest_core_13" label="CORE_13 (GET /seg1/seg2/seg3)" oncommand="CopperChrome.testCore13();"/>
-			      <menuitem id="menu_plugtest_core_14" label="CORE_14 (GET /query)" oncommand="CopperChrome.testCore14();"/>
-			      <menuitem id="menu_plugtest_core_15" label="CORE_15 (GET lossy)" oncommand="CopperChrome.testCore15();"/>
-			      <menuitem id="menu_plugtest_core_16" label="CORE_16 (CON /separate lossy)" oncommand="CopperChrome.testCore16();"/>
-			      <menuitem id="menu_plugtest_core_17" label="CORE_17 (NON /separte)" oncommand="CopperChrome.testCore17();"/>
-			      <menuitem id="menu_plugtest_core_18" label="CORE_18 (POST Location-Path)" oncommand="CopperChrome.testCore18();"/>
-			      <menuitem id="menu_plugtest_core_19" label="CORE_19 (POST Location-Query)" oncommand="CopperChrome.testCore19();"/>
-			      <menuitem id="menu_plugtest_core_20a" label="CORE_20a (GET text/plain)" oncommand="CopperChrome.testCore20a();"/>
-			      <menuitem id="menu_plugtest_core_20b" label="CORE_20b (GET application/xml)" oncommand="CopperChrome.testCore20b();"/>
-			      <menuitem id="menu_plugtest_core_21a" label="CORE_21a (GET ETag)" oncommand="CopperChrome.testCore21a();"/>
-			      <menuitem id="menu_plugtest_core_21b" label="CORE_21b (GET ETag validate)" oncommand="CopperChrome.testCore21b();"/>
-			      <menuitem id="menu_plugtest_core_21c" label="CORE_21c (GET ETag changed)" oncommand="CopperChrome.testCore21c();"/>
-			      <menuitem id="menu_plugtest_core_22a" label="CORE_22a (GET ETag)" oncommand="CopperChrome.testCore22a();"/>
-			      <menuitem id="menu_plugtest_core_22b" label="CORE_22b (PUT If-Match)" oncommand="CopperChrome.testCore22b();"/>
-			      <menuitem id="menu_plugtest_core_22c" label="CORE_22c (GET new ETag)" oncommand="CopperChrome.testCore22c();"/>
-			      <menuitem id="menu_plugtest_core_22d" label="CORE_22d (PUT If-Match changed)" oncommand="CopperChrome.testCore22d();"/>
-			      <menuitem id="menu_plugtest_core_23a" label="CORE_23a (PUT If-None-Match)" oncommand="CopperChrome.testCore23a();"/>
-			      <menuitem id="menu_plugtest_core_23b" label="CORE_23b (PUT If-None-Match exists)" oncommand="CopperChrome.testCore23b();"/>
+			      <menuitem id="menu_plugtest_core_01" label="CORE_01 (GET CON)" oncommand="Copper.testCore01();"/>
+			      <menuitem id="menu_plugtest_core_02" label="CORE_02 (DELETE CON)" oncommand="Copper.testCore02();"/>
+			      <menuitem id="menu_plugtest_core_03" label="CORE_03 (PUT CON)" oncommand="Copper.testCore03();"/>
+			      <menuitem id="menu_plugtest_core_04" label="CORE_04 (POST CON)" oncommand="Copper.testCore04();"/>
+			      <menuitem id="menu_plugtest_core_05" label="CORE_05 (GET NON)" oncommand="Copper.testCore05();"/>
+			      <menuitem id="menu_plugtest_core_06" label="CORE_06 (DELETE NON)" oncommand="Copper.testCore06();"/>
+			      <menuitem id="menu_plugtest_core_07" label="CORE_07 (PUT NON)" oncommand="Copper.testCore07();"/>
+			      <menuitem id="menu_plugtest_core_08" label="CORE_08 (POST NON)" oncommand="Copper.testCore08();"/>
+			      <menuitem id="menu_plugtest_core_09" label="CORE_09 (CON /separate)" oncommand="Copper.testCore09();"/>
+			      <menuitem id="menu_plugtest_core_10" label="CORE_10 (GET Token)" oncommand="Copper.testCore10();"/>
+			      <menuitem id="menu_plugtest_core_11" label="CORE_11 (CON /separate Token)" oncommand="Copper.testCore11();"/>
+			      <menuitem id="menu_plugtest_core_12" label="CORE_12 (GET No Token)" oncommand="Copper.testCore12();"/>
+			      <menuitem id="menu_plugtest_core_13" label="CORE_13 (GET /seg1/seg2/seg3)" oncommand="Copper.testCore13();"/>
+			      <menuitem id="menu_plugtest_core_14" label="CORE_14 (GET /query)" oncommand="Copper.testCore14();"/>
+			      <menuitem id="menu_plugtest_core_15" label="CORE_15 (GET lossy)" oncommand="Copper.testCore15();"/>
+			      <menuitem id="menu_plugtest_core_16" label="CORE_16 (CON /separate lossy)" oncommand="Copper.testCore16();"/>
+			      <menuitem id="menu_plugtest_core_17" label="CORE_17 (NON /separte)" oncommand="Copper.testCore17();"/>
+			      <menuitem id="menu_plugtest_core_18" label="CORE_18 (POST Location-Path)" oncommand="Copper.testCore18();"/>
+			      <menuitem id="menu_plugtest_core_19" label="CORE_19 (POST Location-Query)" oncommand="Copper.testCore19();"/>
+			      <menuitem id="menu_plugtest_core_20a" label="CORE_20a (GET text/plain)" oncommand="Copper.testCore20a();"/>
+			      <menuitem id="menu_plugtest_core_20b" label="CORE_20b (GET application/xml)" oncommand="Copper.testCore20b();"/>
+			      <menuitem id="menu_plugtest_core_21a" label="CORE_21a (GET ETag)" oncommand="Copper.testCore21a();"/>
+			      <menuitem id="menu_plugtest_core_21b" label="CORE_21b (GET ETag validate)" oncommand="Copper.testCore21b();"/>
+			      <menuitem id="menu_plugtest_core_21c" label="CORE_21c (GET ETag changed)" oncommand="Copper.testCore21c();"/>
+			      <menuitem id="menu_plugtest_core_22a" label="CORE_22a (GET ETag)" oncommand="Copper.testCore22a();"/>
+			      <menuitem id="menu_plugtest_core_22b" label="CORE_22b (PUT If-Match)" oncommand="Copper.testCore22b();"/>
+			      <menuitem id="menu_plugtest_core_22c" label="CORE_22c (GET new ETag)" oncommand="Copper.testCore22c();"/>
+			      <menuitem id="menu_plugtest_core_22d" label="CORE_22d (PUT If-Match changed)" oncommand="Copper.testCore22d();"/>
+			      <menuitem id="menu_plugtest_core_23a" label="CORE_23a (PUT If-None-Match)" oncommand="Copper.testCore23a();"/>
+			      <menuitem id="menu_plugtest_core_23b" label="CORE_23b (PUT If-None-Match exists)" oncommand="Copper.testCore23b();"/>
 			   </menupopup>
 			  </menu>
 			  <menu id="menu_plugtest_block" label="TD_COAP_BLOCK">
 			    <menupopup>
-			      <menuitem id="menu_plugtest_block_01" label="BLOCK_01 (/large)" oncommand="CopperChrome.testBlock01();"/>
-			      <menuitem id="menu_plugtest_block_02" label="BLOCK_02 (/large late)" oncommand="CopperChrome.testBlock02();"/>
-			      <menuitem id="menu_plugtest_block_03" label="BLOCK_03 (/large-update)" oncommand="CopperChrome.testBlock03();"/>
-			      <menuitem id="menu_plugtest_block_04" label="BLOCK_04 (/large-create)" oncommand="CopperChrome.testBlock04();"/>
-			      <menuitem id="menu_plugtest_block_05" label="BLOCK_05 (/large-post)" oncommand="CopperChrome.testBlock05();"/>
-			      <menuitem id="menu_plugtest_block_06" label="BLOCK_06 (/large 16)" oncommand="CopperChrome.testBlock06();"/>
+			      <menuitem id="menu_plugtest_block_01" label="BLOCK_01 (/large)" oncommand="Copper.testBlock01();"/>
+			      <menuitem id="menu_plugtest_block_02" label="BLOCK_02 (/large late)" oncommand="Copper.testBlock02();"/>
+			      <menuitem id="menu_plugtest_block_03" label="BLOCK_03 (/large-update)" oncommand="Copper.testBlock03();"/>
+			      <menuitem id="menu_plugtest_block_04" label="BLOCK_04 (/large-create)" oncommand="Copper.testBlock04();"/>
+			      <menuitem id="menu_plugtest_block_05" label="BLOCK_05 (/large-post)" oncommand="Copper.testBlock05();"/>
+			      <menuitem id="menu_plugtest_block_06" label="BLOCK_06 (/large 16)" oncommand="Copper.testBlock06();"/>
 			   </menupopup>
 			  </menu>
 			  <menu id="menu_plugtest_observe" label="TD_COAP_OBS">
 			    <menupopup>
-			      <menuitem id="menu_plugtest_observe_01" label="OBS_01 (CON observe)" oncommand="CopperChrome.testObs01();"/>
-			      <menuitem id="menu_plugtest_observe_02" label="OBS_02 (NON Observe)" oncommand="CopperChrome.testObs02();"/>
-			      <menuitem id="menu_plugtest_observe_04" label="OBS_04 (Max-Age timeout)" oncommand="CopperChrome.testObs04();"/>
-			      <menuitem id="menu_plugtest_observe_05" label="OBS_05 (Reboot)" oncommand="CopperChrome.testObs05();"/>
-			      <menuitem id="menu_plugtest_observe_06" label="OBS_06 (Cancel RST)" oncommand="CopperChrome.testObs06();"/>
-			      <menuitem id="menu_plugtest_observe_07" label="OBS_07 (DELETE /obs)" oncommand="CopperChrome.testObs07();"/>
-			      <menuitem id="menu_plugtest_observe_08" label="OBS_08 (PUT new Content-Format)" oncommand="CopperChrome.testObs08();"/>
-			      <menuitem id="menu_plugtest_observe_09" label="OBS_09 (PUT same Content-Format)" oncommand="CopperChrome.testObs09();"/>
-			      <menuitem id="menu_plugtest_observe_10" label="OBS_10 (Unrelated GET)" oncommand="CopperChrome.testObs10();"/>
-			      <menuitem id="menu_plugtest_observe_11" label="OBS_11 (CON observe lossy)" oncommand="CopperChrome.testObs01();"/>
-			      <menuitem id="menu_plugtest_observe_12" label="OBS_12 (Cancel GET)" oncommand="CopperChrome.testObs12();"/>
+			      <menuitem id="menu_plugtest_observe_01" label="OBS_01 (CON observe)" oncommand="Copper.testObs01();"/>
+			      <menuitem id="menu_plugtest_observe_02" label="OBS_02 (NON Observe)" oncommand="Copper.testObs02();"/>
+			      <menuitem id="menu_plugtest_observe_04" label="OBS_04 (Max-Age timeout)" oncommand="Copper.testObs04();"/>
+			      <menuitem id="menu_plugtest_observe_05" label="OBS_05 (Reboot)" oncommand="Copper.testObs05();"/>
+			      <menuitem id="menu_plugtest_observe_06" label="OBS_06 (Cancel RST)" oncommand="Copper.testObs06();"/>
+			      <menuitem id="menu_plugtest_observe_07" label="OBS_07 (DELETE /obs)" oncommand="Copper.testObs07();"/>
+			      <menuitem id="menu_plugtest_observe_08" label="OBS_08 (PUT new Content-Format)" oncommand="Copper.testObs08();"/>
+			      <menuitem id="menu_plugtest_observe_09" label="OBS_09 (PUT same Content-Format)" oncommand="Copper.testObs09();"/>
+			      <menuitem id="menu_plugtest_observe_10" label="OBS_10 (Unrelated GET)" oncommand="Copper.testObs10();"/>
+			      <menuitem id="menu_plugtest_observe_11" label="OBS_11 (CON observe lossy)" oncommand="Copper.testObs01();"/>
+			      <menuitem id="menu_plugtest_observe_12" label="OBS_12 (Cancel GET)" oncommand="Copper.testObs12();"/>
 			   </menupopup>
 			  </menu>
 			  <menu id="menu_plugtest_link" label="TD_COAP_LINK">
 			    <menupopup>
-			      <menuitem id="menu_plugtest_link_01" label="LINK_01 (Discover)" oncommand="CopperChrome.testLink01();"/>
-			      <menuitem id="menu_plugtest_link_02" label="LINK_02 (Filter rt=Type1)" oncommand="CopperChrome.testLink02();"/>
-			      <menuitem id="menu_plugtest_link_03" label="LINK_03 (Filter rt=*)" oncommand="CopperChrome.testLink03();"/>
-			      <menuitem id="menu_plugtest_link_04" label="LINK_04 (Filter rt=Type2)" oncommand="CopperChrome.testLink04();"/>
-			      <menuitem id="menu_plugtest_link_05" label="LINK_05 (Filter if=If*)" oncommand="CopperChrome.testLink05();"/>
-			      <menuitem id="menu_plugtest_link_06" label="LINK_06 (Filter sz=*)" oncommand="CopperChrome.testLink06();"/>
-			      <menuitem id="menu_plugtest_link_07" label="LINK_07 (Filter href=/link1)" oncommand="CopperChrome.testLink07();"/>
-			      <menuitem id="menu_plugtest_link_08" label="LINK_08 (Filter href=/link*)" oncommand="CopperChrome.testLink08();"/>
-			      <menuitem id="menu_plugtest_link_09a" label="LINK_09a (Filter ct=40)" oncommand="CopperChrome.testLink09a();"/>
-			      <menuitem id="menu_plugtest_link_09b" label="LINK_09b (GET /path" oncommand="CopperChrome.testLink09b();"/>
-			      <menuitem id="menu_plugtest_link_09c" label="LINK_09c (GET /path/sub1)" oncommand="CopperChrome.testLink09c();"/>
+			      <menuitem id="menu_plugtest_link_01" label="LINK_01 (Discover)" oncommand="Copper.testLink01();"/>
+			      <menuitem id="menu_plugtest_link_02" label="LINK_02 (Filter rt=Type1)" oncommand="Copper.testLink02();"/>
+			      <menuitem id="menu_plugtest_link_03" label="LINK_03 (Filter rt=*)" oncommand="Copper.testLink03();"/>
+			      <menuitem id="menu_plugtest_link_04" label="LINK_04 (Filter rt=Type2)" oncommand="Copper.testLink04();"/>
+			      <menuitem id="menu_plugtest_link_05" label="LINK_05 (Filter if=If*)" oncommand="Copper.testLink05();"/>
+			      <menuitem id="menu_plugtest_link_06" label="LINK_06 (Filter sz=*)" oncommand="Copper.testLink06();"/>
+			      <menuitem id="menu_plugtest_link_07" label="LINK_07 (Filter href=/link1)" oncommand="Copper.testLink07();"/>
+			      <menuitem id="menu_plugtest_link_08" label="LINK_08 (Filter href=/link*)" oncommand="Copper.testLink08();"/>
+			      <menuitem id="menu_plugtest_link_09a" label="LINK_09a (Filter ct=40)" oncommand="Copper.testLink09a();"/>
+			      <menuitem id="menu_plugtest_link_09b" label="LINK_09b (GET /path" oncommand="Copper.testLink09b();"/>
+			      <menuitem id="menu_plugtest_link_09c" label="LINK_09c (GET /path/sub1)" oncommand="Copper.testLink09c();"/>
 			   </menupopup>
 			  </menu>
         <menuseparator/>
-	    	<menuitem id="menu_plugtest_proxy" label="Using proxy" type="checkbox" tooltiptext="Use the Proxy-Uri to run the proxy tests" oncommand="CopperChrome.testSetProxy(event.target);"/>
+	    	<menuitem id="menu_plugtest_proxy" label="Using proxy" type="checkbox" tooltiptext="Use the Proxy-Uri to run the proxy tests" oncommand="Copper.testSetProxy(event.target);"/>
 	    </menupopup>
 	  </toolbarbutton>
-	  <toolbarbutton id="toolbar_plugtest_exec" image="chrome://copper/skin/tool_test.png" oncommand="CopperChrome.testNext();"/>
+	  <toolbarbutton id="toolbar_plugtest_exec" image="chrome://copper/skin/tool_test.png" oncommand="Copper.testNext();"/>
 	</toolbaritem>
 	
 	<toolbarspacer flex="1"/>
 	
-	<toolbarbutton id="toolbar_version" label="CoAP version" oncommand="window.openDialog('chrome://copper/content/options.xul', 'Prefs', 'chrome,titlebar,toolbar,centerscreen,modal');document.location.reload();"/>
+	<toolbarbutton id="toolbar_log" popup="panel_event_log" ><label style="margin: -8px 0 -4px 0; font-size: 220%;" value="⏍" /></toolbarbutton>
+	<toolbarbutton id="toolbar_preferences" oncommand="window.openDialog('chrome://copper/content/options.xul', 'Prefs', 'chrome,titlebar,toolbar,centerscreen,modal');document.location.reload();"><label style="margin: -10px 0 -2px 0; font-size: 220%;" value="≡" /></toolbarbutton>
 </toolbar>
 
+<vbox flex="1">
 
-
-<hbox flex="1"><!-- top container -->
-
-	<vbox flex="1"><!-- title + content -->
+	<hbox flex="1"><!-- top container -->
 	
-		<groupbox id="group_host">
-			<caption id="info_host" label="Host" style="font-size: 14pt; font-weight: bold;"/>
-			
-			<box style="overflow: hidden;">
-				<label id="info_code" value="" style="font-size: 24pt; font-weight: bold; margin-top: -4px;"/>
-			</box>
-
-		</groupbox>
-
-			<description id="resource_list">
-				<button label="discovering..." disabled="true"/>
-			</description>
-	
-		<hbox flex="1"><!-- content = resource tree + message pane -->
-	
-<!-- resource tree -->
-	
-			<vbox style="width: 16em;">
-				<tree id="resource_tree" flex="1" treelines="true" seltype="single" hidecolumnpicker="true" onclick="CopperChrome.onTreeClicked(event)" onmousemove="CopperChrome.onTreeHover(event)">
-					<treecols>
-						<treecol primary="true" hideheader="true" flex="1"/>
-						<treecol hideheader="true" hidden="true" flex="1"/>
-					</treecols>
-					<treechildren id="resource_elems" tooltiptext="Loading..."/>
-				</tree>
-			</vbox>
-			
-			<splitter collapse="before" resizebefore="farthest" id="resource_split">
-				<grippy style="width: 1px;"/>
-			</splitter>
-	
-<!-- message pane -->
+		<vbox flex="1"><!-- title + content -->
 		
-			<vbox flex="1">
+			<groupbox id="group_host">
+				<caption id="info_host" label="Host" style="font-size: 14pt; font-weight: bold;"/>
 				
-				<box id="group_head">
-					<hbox flex="1">
-						<listbox id="packet_header" flex="1" rows="4">
-						    <listhead>
-						        <listheader label="Header"/>
-						        <listheader label="Value"/>
-						    </listhead>
-						    <listcols>
-						        <listcol flex="1" width="10"/>
-						        <listcol flex="2"/>
-						    </listcols>
-						    <listitem>
-						        <listcell label="Type"/>
-						        <listcell id="packet_header_type"/>
-						    </listitem>
-						    <listitem>
-						        <listcell label="Code"/>
-						        <listcell id="packet_header_code"/>
-						    </listitem>
-						    <listitem>
-						        <listcell label="Message ID"/>
-						        <listcell id="packet_header_tid"/>
-						    </listitem>
-						    <listitem>
-						        <listcell label="Token"/>
-						        <listcell id="packet_header_token"/>
-						    </listitem>
-						</listbox>
-					
-						<listbox id="packet_options" flex="3" rows="4">
-						    <listhead>
-						        <listheader label="Option"/>
-						        <listheader label="Value"/>
-						        <listheader label="Info"/>
-						    </listhead>
-						    <listcols>
-						        <listcol flex="1"/>
-						        <listcol flex="2"/>
-						        <listcol flex="1"/>
-						    </listcols>
-						</listbox>
-					</hbox>
+				<box style="overflow: hidden;">
+					<label id="info_code" value="" style="font-size: 24pt; font-weight: bold; margin-top: -4px;"/>
 				</box>
+			</groupbox>
+		
+			<hbox flex="1"><!-- content = resource tree + message pane -->
+		
+	<!-- resource tree -->
+		
+				<vbox style="width: 16em;">
+					<tree id="resource_tree" flex="1" treelines="true" seltype="single" hidecolumnpicker="true" onclick="Copper.onTreeClicked(event)" onmousemove="Copper.onTreeHover(event)">
+						<treecols>
+							<treecol primary="true" hideheader="true" flex="1"/>
+							<treecol hideheader="true" hidden="true" flex="1"/>
+						</treecols>
+						<treechildren id="resource_elems" tooltiptext="Loading..."/>
+					</tree>
+				</vbox>
 				
-				<groupbox id="group_payload" flex="1">
-					<caption id="info_payload" label="Payload"/>
-				
-					<tabbox id="tabs_payload" flex="1">
-					  <tabs>
-					    <tab label=" Incoming" image="chrome://copper/skin/payload_in.png"/>
-					    <tab label=" Rendered" image="chrome://copper/skin/payload_rendered.png"/>
-					    <spacer width="10px"/>
-					    <tab label=" Outgoing" image="chrome://copper/skin/payload_out.png"/>
-					  </tabs>
-					  <tabpanels flex="1" style="padding: 0px;">
-					    <tabpanel id="tab_incoming">
-					    	<textbox flex="1" id="packet_payload" readonly="true" multiline="true" style="background-color: white; width: 100%; height: 100%; font-family: monospace; padding: 5px;"/>
-					    </tabpanel>
-					    <tabpanel id="tab_rendered" pack="center" align="center" border="1" style="overflow:auto">
-					    	<image id="rendered_img" src="" inherits="validate,src=image"/>
-					    	<div id="rendered_div"></div>
-					    </tabpanel>
-					    <tabpanel/>
-					    <tabpanel id="tab_outgoing">
-					    	<textbox flex="1" id="payload_text_page" multiline="true" style="background-color: white; width: 100%; height: 100%; font-family: monospace; padding: 5px;"/>
-					    </tabpanel>
-					  </tabpanels>
-					</tabbox>
+				<splitter collapse="before" resizebefore="farthest" id="view_tree_split">
+					<grippy style="width: 1px;"/>
+				</splitter>
+		
+	<!-- message pane -->
+			
+				<vbox flex="1">
 					
-				</groupbox>
-			</vbox>
+					<box id="group_head">
+						<hbox flex="1">
+							<listbox id="packet_header" rows="4">
+							    <listhead>
+							        <listheader label="Header"/>
+							        <listheader label="Value"/>
+							    </listhead>
+							    <listcols>
+							        <listcol/>
+							        <listcol flex="1"/>
+							    </listcols>
+							    <listitem>
+							        <listcell label="Type"/>
+							        <listcell id="packet_header_type"/>
+							    </listitem>
+							    <listitem>
+							        <listcell label="Code"/>
+							        <listcell id="packet_header_code"/>
+							    </listitem>
+							    <listitem>
+							        <listcell label="MID"/>
+							        <listcell id="packet_header_mid"/>
+							    </listitem>
+							    <listitem>
+							        <listcell label="Token"/>
+							        <listcell id="packet_header_token"/>
+							    </listitem>
+							</listbox>
+						
+							<listbox id="packet_options" flex="1" rows="4">
+							    <listhead>
+							        <listheader label="Option"/>
+							        <listheader label="Value"/>
+							        <listheader label="Info"/>
+							    </listhead>
+							    <listcols>
+							        <listcol flex="2"/>
+							        <listcol flex="7"/>
+							        <listcol flex="1"/>
+							    </listcols>
+							</listbox>
+						</hbox>
+					</box>
+					
+					<groupbox id="group_payload" flex="1">
+						<caption id="info_payload" label="Payload"/>
+					
+						<tabbox id="tabs_payload" flex="1">
+						  <tabs>
+						    <tab label=" Incoming" image="chrome://copper/skin/payload_in.png"/>
+						    <tab label=" Rendered" image="chrome://copper/skin/payload_rendered.png"/>
+						    <spacer width="10px"/>
+						    <tab label=" Outgoing" image="chrome://copper/skin/payload_out.png"/>
+						  </tabs>
+						  <tabpanels flex="1" style="padding: 0px;">
+						    <tabpanel id="tab_incoming">
+						    	<textbox flex="1" id="packet_payload" readonly="true" multiline="true" style="background-color: white; width: 100%; height: 100%; font-family: monospace; padding: 5px;"/>
+						    </tabpanel>
+						    <tabpanel id="tab_rendered" pack="center" align="center" border="1" style="overflow:auto">
+						    	<image id="rendered_img" src="" inherits="validate,src=image"/>
+						    	<div id="rendered_div"></div>
+						    </tabpanel>
+						    <tabpanel/>
+						    <tabpanel id="tab_outgoing">
+						    	<textbox flex="1" id="payload_text_page" multiline="true" style="background-color: white; width: 100%; height: 100%; font-family: monospace; padding: 5px;"/>
+						    </tabpanel>
+						  </tabpanels>
+						</tabbox>
+						
+					</groupbox>
+				</vbox>
+		
+			</hbox><!-- content = resource tree + message pane -->
+			
+		</vbox><!-- title + content -->
 	
-		</hbox><!-- content = resource tree + message pane -->
-	</vbox><!-- title + content -->
-
-<!-- collapsable debug sidebar -->
-
-	<splitter collapse="after" resizebefore="farthest">
+	<!-- collapsable debug sidebar -->
+	
+		<splitter collapse="after" resizebefore="farthest" id="view_debug_split">
+			<grippy/>
+		</splitter>
+		<vbox id="sidebar" style="width: 18.5em;"><!-- 18.5em to avoid scrollbar on Linux -->
+			<groupbox flex="1">
+				<caption>
+					<checkbox id="chk_debug_options" label="Debug Control"/>
+					<button label="Reset" oncommand="Copper.resetDebugOptions();" style="height: 16px;"/>
+				</caption>
+				
+				<vbox flex="1" style="overflow: auto;">
+				
+					<label control="debug_option_token" value="Token" style="text-align: center;"/>
+					<textbox id="debug_option_token" emptytext="use hex (0x..) or string" dir="reverse" oninput="this.setAttribute('tooltiptext', Copper.str2hex(this.value));">
+						<image class="copper-clear-button" onclick="parentNode.value='';"/>
+					</textbox>
+					
+					<label value="Request Options" style="text-align: center; margin-top: 5px;"/>
+				
+					<label control="debug_option_accept" value="Accept"/>
+					<menulist id="debug_option_accept" editable="true">
+						<menupopup id="popup_accepts">
+							<menuitem label="" value=""/>
+						</menupopup>
+					</menulist>
+					
+					<label control="debug_option_content_format" value="Content-Format"/>
+					<menulist id="debug_option_content_format" editable="true">
+						<menupopup id="popup_content_types">
+							<menuitem label="" value=""/>
+						</menupopup>
+					</menulist>
+					
+					<hbox>
+						<vbox flex="1">
+							<label control="debug_option_block1" value="Block1 (Req.)"/>
+							<textbox id="debug_option_block1" emptytext="block no." dir="reverse" tooltiptext="Choose block size in Behavior menu">
+								<image class="copper-clear-button" onclick="parentNode.value='';"/>
+							</textbox>
+							
+							<label control="debug_option_size1" value="Size1"/>
+							<textbox id="debug_option_size1" emptytext="total size" dir="reverse">
+								<image class="copper-clear-button" onclick="parentNode.value='';"/>
+							</textbox>
+						</vbox>
+						<vbox flex="1">
+							<label control="debug_option_block2" value="Block2 (Res.)"/>
+							<textbox id="debug_option_block2" emptytext="block no." dir="reverse" tooltiptext="Choose block size in Behavior menu">
+								<image class="copper-clear-button" onclick="parentNode.value='';"/>
+							</textbox>
+							
+							<label control="debug_option_size2" value="Size2"/>
+							<textbox id="debug_option_size2" emptytext="total size" dir="reverse">
+								<image class="copper-clear-button" onclick="parentNode.value='';"/>
+							</textbox>
+						</vbox>
+						<vbox flex="1">
+							<label control="chk_debug_option_block_auto" value="Auto" style="margin-left: -4px;"/>
+							<box pack="center"><checkbox id="chk_debug_option_block_auto" tooltiptext="Automatically transmit all blocks" style="margin-right:0px; padding-right:0px;"/></box>
+						</vbox>
+					</hbox>
+					
+					<label control="debug_option_observe" value="Observe"/>
+					<textbox id="debug_option_observe" emptytext="use integer" dir="reverse">
+						<image class="copper-clear-button" onclick="parentNode.value='';"/>
+					</textbox>
+					
+					<label control="debug_option_etag" value="ETag"/>
+					<textbox id="debug_option_etag" emptytext="use hex (0x..) or string" dir="reverse" oninput="this.setAttribute('tooltiptext', Copper.str2hex(this.value));">
+						<image class="copper-clear-button" onclick="parentNode.value='';"/>
+					</textbox>
+					
+					<label control="debug_option_if_match" value="If-Match"/>
+					<textbox id="debug_option_if_match" emptytext="use an ETag" dir="reverse" oninput="this.setAttribute('tooltiptext', Copper.str2hex(this.value));">
+						<image class="copper-clear-button" onclick="parentNode.value='';"/>
+					</textbox>
+					
+					<checkbox id="debug_option_if_none_match" label="If-None-Match"/>
+					
+					<hbox>
+						<vbox flex="1">
+							<label control="debug_option_uri_host" value="Uri-Host"/>
+							<textbox id="debug_option_uri_host" emptytext="not set" dir="reverse">
+								<image class="copper-clear-button" onclick="parentNode.value='';"/>
+							</textbox>
+						</vbox>
+						<vbox>
+							<label control="debug_option_uri_port" value="Uri-Port"/>
+							<textbox id="debug_option_uri_port" emptytext="n/s" maxlength="5" style="width: 4em;" dir="reverse">
+								<image class="copper-clear-button" onclick="parentNode.value='';"/>
+							</textbox>
+						</vbox>
+					</hbox>
+						
+					<label control="debug_option_proxy_uri" value="Proxy-Uri"/>
+					<textbox id="debug_option_proxy_uri" emptytext="use absolute URI" dir="reverse">
+						<image class="copper-clear-button" onclick="parentNode.value='';"/>
+					</textbox>
+					
+					<checkbox id="debug_option_proxy_scheme" label="Use Proxy-Scheme option"/>
+					
+					<!--
+					<hbox>
+						<vbox flex="1">
+							<label control="debug_option_uri_path" value="Uri-Path"/>
+							<textbox id="debug_option_uri_path" emptytext="not set" disabled="true"/>
+						</vbox>
+						<vbox flex="1">
+							<label control="debug_option_uri_query" value="Uri-Query"/>
+							<textbox id="debug_option_uri_query" emptytext="not set" disabled="true"/>
+						</vbox>
+					</hbox>
+					-->
+					
+					<label value="Response Options" style="text-align: center; margin-top: 5px;"/>
+					
+					<label control="debug_option_max_age" value="Max-Age"/>
+					<textbox id="debug_option_max_age" emptytext="use integer" dir="reverse">
+						<image class="copper-clear-button" onclick="parentNode.value='';"/>
+					</textbox>
+					
+					<hbox>
+						<vbox flex="1">
+							<label control="debug_option_location_path" value="Location-Path"/>
+							<textbox id="debug_option_location_path" emptytext="not set" style="width: 80px;" dir="reverse">
+						<image class="copper-clear-button" onclick="parentNode.value='';"/>
+					</textbox>
+						</vbox>
+						<vbox flex="1">
+							<label control="debug_option_location_query" value="Location-Query"/>
+							<textbox id="debug_option_location_query" emptytext="not set" style="width: 80px;" dir="reverse">
+						<image class="copper-clear-button" onclick="parentNode.value='';"/>
+					</textbox>
+						</vbox>
+					</hbox>
+					
+					<label value="Custom Options" style="text-align: center; margin-top: 5px;"/>
+					
+					<hbox>
+						<vbox flex="1">
+							<label control="debug_option_custom_number" value="Number"/>
+							<textbox id="debug_option_custom_number" emptytext="not set" style="width: 40px;" dir="reverse">
+								<image class="copper-clear-button" onclick="parentNode.value='';"/>
+							</textbox>
+						</vbox>
+						<vbox flex="1">
+							<label control="debug_option_custom_value" value="Value"/>
+							<textbox id="debug_option_custom_value" emptytext="use hex (0x..) or string" style="width: 120px;" dir="reverse" oninput="this.setAttribute('tooltiptext', Copper.str2hex(this.value));">
+								<image class="copper-clear-button" onclick="parentNode.value='';"/>
+							</textbox>
+						</vbox>
+					</hbox>
+					
+				</vbox>
+			</groupbox>
+	
+		</vbox>
+	</hbox>
+	
+	
+	<splitter collapse="after" resizebefore="closest" id="view_log_split">
 		<grippy/>
 	</splitter>
-	<vbox id="sidebar" style="width: 18.5em;"><!-- 18.5em to avoid scrollbar on Linux -->
-		<groupbox flex="1">
-			<caption>
-				<checkbox id="chk_debug_options" label="Debug Control"/>
-				<button label="Reset" oncommand="CopperChrome.resetDebugOptions();" style="height: 16px;"/>
-			</caption>
-			
-			<vbox flex="1" style="overflow: auto;">
-			
-				<label control="debug_option_token" value="Token" style="text-align: center;"/>
-				<textbox id="debug_option_token" emptytext="use hex (0x..) or string" dir="reverse" oninput="this.setAttribute('tooltiptext', Copper.str2hex(this.value));">
-					<image class="copper-clear-button" onclick="parentNode.value='';"/>
-				</textbox>
-				
-				<label value="Request Options" style="text-align: center; margin-top: 5px;"/>
-			
-				<label control="debug_option_accept" value="Accept"/>
-				<menulist id="debug_option_accept" editable="true">
-					<menupopup id="popup_accepts">
-						<menuitem label="" value=""/>
-					</menupopup>
-				</menulist>
-				
-				<label control="debug_option_content_type" value="Content-Format"/>
-				<menulist id="debug_option_content_type" editable="true">
-					<menupopup id="popup_content_types">
-						<menuitem label="" value=""/>
-					</menupopup>
-				</menulist>
-				
-				<hbox>
-					<vbox flex="1">
-						<label control="debug_option_block1" value="Block1 (Req.)"/>
-						<textbox id="debug_option_block1" emptytext="block no." dir="reverse" tooltiptext="Choose block size in Behavior menu">
-							<image class="copper-clear-button" onclick="parentNode.value='';"/>
-						</textbox>
-						
-						<label control="debug_option_size1" value="Size1"/>
-						<textbox id="debug_option_size1" emptytext="total size" dir="reverse">
-							<image class="copper-clear-button" onclick="parentNode.value='';"/>
-						</textbox>
-					</vbox>
-					<vbox flex="1">
-						<label control="debug_option_block2" value="Block2 (Res.)"/>
-						<textbox id="debug_option_block2" emptytext="block no." dir="reverse" tooltiptext="Choose block size in Behavior menu">
-							<image class="copper-clear-button" onclick="parentNode.value='';"/>
-						</textbox>
-						
-						<label control="debug_option_size2" value="Size2"/>
-						<textbox id="debug_option_size2" emptytext="total size" dir="reverse">
-							<image class="copper-clear-button" onclick="parentNode.value='';"/>
-						</textbox>
-					</vbox>
-					<vbox flex="1">
-						<label control="chk_debug_option_block_auto" value="Auto" style="margin-left: -4px;"/>
-						<box pack="center"><checkbox id="chk_debug_option_block_auto" tooltiptext="Automatically transmit all blocks" style="margin-right:0px; padding-right:0px;"/></box>
-					</vbox>
-				</hbox>
-				
-				<label control="debug_option_observe" value="Observe"/>
-				<textbox id="debug_option_observe" emptytext="use integer" dir="reverse">
-					<image class="copper-clear-button" onclick="parentNode.value='';"/>
-				</textbox>
-				
-				<label control="debug_option_etag" value="ETag"/>
-				<textbox id="debug_option_etag" emptytext="use hex (0x..) or string" dir="reverse" oninput="this.setAttribute('tooltiptext', Copper.str2hex(this.value));">
-					<image class="copper-clear-button" onclick="parentNode.value='';"/>
-				</textbox>
-				
-				<label control="debug_option_if_match" value="If-Match"/>
-				<textbox id="debug_option_if_match" emptytext="use an ETag" dir="reverse" oninput="this.setAttribute('tooltiptext', Copper.str2hex(this.value));">
-					<image class="copper-clear-button" onclick="parentNode.value='';"/>
-				</textbox>
-				
-				<checkbox id="debug_option_if_none_match" label="If-None-Match"/>
-				
-				<hbox>
-					<vbox flex="1">
-						<label control="debug_option_uri_host" value="Uri-Host"/>
-						<textbox id="debug_option_uri_host" emptytext="not set" dir="reverse">
-							<image class="copper-clear-button" onclick="parentNode.value='';"/>
-						</textbox>
-					</vbox>
-					<vbox>
-						<label control="debug_option_uri_port" value="Uri-Port"/>
-						<textbox id="debug_option_uri_port" emptytext="n/s" maxlength="5" style="width: 4em;" dir="reverse">
-							<image class="copper-clear-button" onclick="parentNode.value='';"/>
-						</textbox>
-					</vbox>
-				</hbox>
-					
-				<label control="debug_option_proxy_uri" value="Proxy-Uri"/>
-				<textbox id="debug_option_proxy_uri" emptytext="use absolute URI" dir="reverse">
-					<image class="copper-clear-button" onclick="parentNode.value='';"/>
-				</textbox>
-				
-				<checkbox id="debug_option_proxy_scheme" label="Use Proxy-Scheme option"/>
-				
-				<!--
-				<hbox>
-					<vbox flex="1">
-						<label control="debug_option_uri_path" value="Uri-Path"/>
-						<textbox id="debug_option_uri_path" emptytext="not set" disabled="true"/>
-					</vbox>
-					<vbox flex="1">
-						<label control="debug_option_uri_query" value="Uri-Query"/>
-						<textbox id="debug_option_uri_query" emptytext="not set" disabled="true"/>
-					</vbox>
-				</hbox>
-				-->
-				
-				<label value="Response Options" style="text-align: center; margin-top: 5px;"/>
-				
-				<label control="debug_option_max_age" value="Max-Age"/>
-				<textbox id="debug_option_max_age" emptytext="use integer" dir="reverse">
-					<image class="copper-clear-button" onclick="parentNode.value='';"/>
-				</textbox>
-				
-				<hbox>
-					<vbox flex="1">
-						<label control="debug_option_location_path" value="Location-Path"/>
-						<textbox id="debug_option_location_path" emptytext="not set" style="width: 80px;" dir="reverse">
-					<image class="copper-clear-button" onclick="parentNode.value='';"/>
-				</textbox>
-					</vbox>
-					<vbox flex="1">
-						<label control="debug_option_location_query" value="Location-Query"/>
-						<textbox id="debug_option_location_query" emptytext="not set" style="width: 80px;" dir="reverse">
-					<image class="copper-clear-button" onclick="parentNode.value='';"/>
-				</textbox>
-					</vbox>
-				</hbox>
-				
-				<label value="Custom Options" style="text-align: center; margin-top: 5px;"/>
-				
-				<hbox>
-					<vbox flex="1">
-						<label control="debug_option_custom_number" value="Number"/>
-						<textbox id="debug_option_custom_number" emptytext="not set" style="width: 40px;" dir="reverse">
-							<image class="copper-clear-button" onclick="parentNode.value='';"/>
-						</textbox>
-					</vbox>
-					<vbox flex="1">
-						<label control="debug_option_custom_value" value="Value"/>
-						<textbox id="debug_option_custom_value" emptytext="use hex (0x..) or string" style="width: 120px;" dir="reverse" oninput="this.setAttribute('tooltiptext', Copper.str2hex(this.value));">
-							<image class="copper-clear-button" onclick="parentNode.value='';"/>
-						</textbox>
-					</vbox>
-				</hbox>
-				
-			</vbox>
-		</groupbox>
+	
+	<box height="216">
+	
+	<groupbox flex="1">
+		<caption label="CoAP Message Log" />
+		
+		<listbox id="log_messages" flex="1">
+			<listhead>
+				<listheader label="Time" style="width: 4.5em;" />									
+				<listheader label="CoAP Message" style="width: 10em;" />
+				<listheader label="MID" style="width: 4.5em;" />
+				<listheader label="Token" style="width: 6em;" />
+				<listheader label="Options" />
+				<listheader label="Payload" />
+			</listhead>
+			<listcols>
+				<listcol />
+				<listcol />
+				<listcol />
+				<listcol />
+				<listcol flex="1" />
+				<listcol flex="1" />
+			</listcols>
+		</listbox>
+	</groupbox>
+	</box>
 
-	</vbox>
-</hbox>
+</vbox>
 
 </window>

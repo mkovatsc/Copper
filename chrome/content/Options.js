@@ -35,7 +35,7 @@
  * \author  Matthias Kovatsch <kovatsch@inf.ethz.ch>\author
  */
 
-CopperChrome.Options = {
+Copper.Options = {
 
 		clearResourceCache : function() {
 			var prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("extensions.copper.resources");

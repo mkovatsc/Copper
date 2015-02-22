@@ -39,14 +39,14 @@
 // Tree view
 ////////////////////////////////////////////////////////////////////////////////
 
-CopperChrome.clearTree = function() {
+Copper.clearTree = function() {
 	var elems = document.getElementById('resource_elems');
 	while (elems.hasChildNodes()) {
 		elems.removeChild(elems.firstChild);
 	}
 };
 
-CopperChrome.addTreeResource = function(uri, attributes) {
+Copper.addTreeResource = function(uri, attributes) {
 
 	var tree = document.getElementById('resource_tree');
 	var segments;
@@ -61,21 +61,21 @@ CopperChrome.addTreeResource = function(uri, attributes) {
 			segments.shift();
 			segments.unshift(uriTokens[2]);
 		} else {
-			dump('WARNING: Non-CoAP resource ['+uri+']\n');
+			Copper.logEvent('WARNING: Non-CoAP resource ['+uri+']\n');
 			return;
 		}
 	} else {
 		segments = uri.split('/');
 		segments.shift();
-		segments.unshift(CopperChrome.hostname + ':' + CopperChrome.port);
+		segments.unshift(Copper.hostname + ':' + Copper.port);
 	}
 	
 	var node = tree;
-	//dump('Children: '+node.getElementsByTagName('treechildren')[0].childNodes.length+'\n');
+	//Copper.logEvent('Children: '+node.getElementsByTagName('treechildren')[0].childNodes.length+'\n');
 	
 	for (var i=0; i<segments.length; ++i) {
 		if (segments[i]=='') continue;
-		//dump('resource_tree'+segments.slice(0,i+1).join('_')+'\n');
+		//Copper.logEvent('resource_tree'+segments.slice(0,i+1).join('_')+'\n');
 		
 		var cur = null;
 		var nodeChildren = null;
@@ -110,7 +110,7 @@ CopperChrome.addTreeResource = function(uri, attributes) {
 			// special icon
 			if (path.match(/\/\.well-known$/)) {
 				properties += 'wellknown ';
-			} else if (path==CopperChrome.hostname+':'+CopperChrome.port) {
+			} else if (path==Copper.hostname+':'+Copper.port) {
 				properties += 'host ';
 			} else if (i==0) {
 				properties += 'link ';
@@ -118,11 +118,11 @@ CopperChrome.addTreeResource = function(uri, attributes) {
 				properties += 'observable ';
 			}
 			// highlight current location
-			if (path==CopperChrome.path) {
+			if (path==Copper.path) {
 				properties += 'active ';
 			}
 			// visualize freshness
-			if (CopperChrome.resourcesCached) {
+			if (Copper.resourcesCached) {
 				properties += 'cached ';
 			}
 			
@@ -167,11 +167,11 @@ CopperChrome.addTreeResource = function(uri, attributes) {
 			node = item;
 		}
 	}
-	//dump('Children: '+tree.getElementsByTagName('treechildren')[0].childNodes.length+'\n');
+	//Copper.logEvent('Children: '+tree.getElementsByTagName('treechildren')[0].childNodes.length+'\n');
 
 };
 
-CopperChrome.onTreeClicked = function(event) {
+Copper.onTreeClicked = function(event) {
 	var tree = document.getElementById("resource_tree");
 	var tbo = tree.treeBoxObject;
 
@@ -184,7 +184,7 @@ CopperChrome.onTreeClicked = function(event) {
 		
 		if(event.which == 2 ) {
 			event.preventDefault();
-			CopperChrome.mainWindow.gBrowser.addTab( 'coap://' + tree.view.getCellValue(row.value, col.value) ); 
+			Copper.mainWindow.gBrowser.addTab( 'coap://' + tree.view.getCellValue(row.value, col.value) ); 
 		} else {
 			document.location.href = 'coap://' + tree.view.getCellValue(row.value, col.value);
 		}
@@ -192,7 +192,7 @@ CopperChrome.onTreeClicked = function(event) {
 };
 
 // used to have per node tooltips
-CopperChrome.onTreeHover = function(event) {
+Copper.onTreeHover = function(event) {
 	var tree = document.getElementById("resource_tree");
 	var tbo = tree.treeBoxObject;
 
@@ -202,63 +202,4 @@ CopperChrome.onTreeHover = function(event) {
 	if (col.value) {
 		document.getElementById('resource_elems').setAttribute('tooltiptext', tree.view.getCellValue(row.value, col.value.getNext()));
 	}
-};
-
-
-// List view
-////////////////////////////////////////////////////////////////////////////////
-
-CopperChrome.clearList = function() {
-	var list = document.getElementById('resource_list');
-	while (list.hasChildNodes()) {
-		list.removeChild(list.firstChild);
-	}
-};
-
-CopperChrome.addListResource = function(uri, attributes) {
-	
-	var list = document.getElementById('resource_list');
-		
-	var button = document.createElement('button');
-	button.setAttribute('label', decodeURI(uri));
-	
-
-	var uriTokens = uri.match(/([a-zA-Z]+:\/\/)([^\/]+)(.*)/);
-	
-	if (uriTokens) {
-		// absolute URI
-		
-		if (uriTokens[1]=='coap://') {
-			button.addEventListener('click', function() {
-				document.location.href = uri;
-		    }, true);
-		} else {
-			dump('WARNING: Non-CoAP resource ['+uri+']\n');
-			return;
-		}
-	} else {
-		button.addEventListener('click', function() {
-			document.location.href = 'coap://' + CopperChrome.hostname + ':' + CopperChrome.port + uri;
-	    }, true);
-	}
-	
-	// tooltips for attributes
-	let tooltiptext = '';
-	for (var attrib in attributes) {
-		if (tooltiptext) tooltiptext += '\n';
-		tooltiptext += attrib + ': "' + attributes[attrib]+'"';
-	}
-	button.setAttribute('tooltiptext', tooltiptext);
-	
-	// visualize freshness
-	if (CopperChrome.resourcesCached) {
-		button.setAttribute('style', 'color: red;');
-	}
-	
-	// highlight current resource
-	if (uri==CopperChrome.path) {
-		button.setAttribute('style', 'font-weight: bold; text-shadow: 2px 2px 3px #666666;');
-	}
-	
-	list.appendChild(button);
 };

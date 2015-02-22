@@ -1,7 +1,7 @@
 /*******************************************************************************
- * Copyright (c) 2014, Institute for Pervasive Computing, ETH Zurich.
+ * Copyright (c) 2015, Institute for Pervasive Computing, ETH Zurich.
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
@@ -13,7 +13,7 @@
  * 3. Neither the name of the Institute nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE INSTITUTE AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -25,9 +25,9 @@
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
- * 
+ *
  * This file is part of the Copper (Cu) CoAP user-agent.
- ******************************************************************************/
+ *******************************************************************************/
 /**
  * \file
  *         Code handling the UDP communication for the CoAP protocol
@@ -41,18 +41,18 @@
  * A workaround will probably need native code to provide a datagram handler (transport-service) that pipes them to/from Firefox.
  */ 
 
-CopperChrome.UdpClient = function(myHost, myPort) {
+Copper.UdpClient = function(remoteHost, remotePort) {
 
 	// createTransport requires plain IPv6 address
-	this.host = myHost.replace(/\[/,'').replace(/\]/,'');
-	this.port = myPort;
+	this.host = remoteHost.replace(/\[/,'').replace(/\]/,'');
+	this.port = remotePort;
 	
 	this.transportService = Components.classes["@mozilla.org/network/socket-transport-service;1"].getService(Components.interfaces.nsISocketTransportService);
 	this.pump = Components.classes["@mozilla.org/network/input-stream-pump;1"].createInstance(Components.interfaces.nsIInputStreamPump);
 	
 	this.socket = this.transportService.createTransport(["udp"], 1, this.host, this.port, null);
 	
-	this.outputStream = this.socket.openOutputStream(0,0,0);
+	this.outputStream = this.socket.openOutputStream(0, 0, 0);
 	this.inputStream = this.socket.openInputStream(0, 0, 0); // 1,0,0 = OPEN_BLOCKING
 	
 	this.pump.init(this.inputStream, -1, -1, 0, 0, false);
@@ -61,10 +61,12 @@ CopperChrome.UdpClient = function(myHost, myPort) {
 	return this;
 };
 
-CopperChrome.UdpClient.prototype = {
+Copper.UdpClient.prototype = {
 
 	host             : '',
 	port             : -1,
+	
+	localAddr        : null,
 	
 	callback         : null,
 	errorCallback    : null,
@@ -93,10 +95,11 @@ CopperChrome.UdpClient.prototype = {
 	},
 	
 	onStopRequest : function(request, context, status) {
-		this.outputStream.close();
-		this.inputStream.close();
 		if (!this.ended) {
-			this.errorCallback({getCopperCode:function(){return 'Host/network unreachable';}});
+			this.shutdown();
+			Copper.logError(new Error('Host/network unreachable'), true);
+		} else {
+			Copper.logWarning('Illegal state');
 		}
 	},
 	
@@ -108,7 +111,7 @@ CopperChrome.UdpClient.prototype = {
 			
 			// read() cannot handle zero bytes in strings, readBytes() coming in FF4
 			var byteArray = new Array(count);
-			for (var i=0; i<count; i++) {
+			for (let i=0; i<count; i++) {
 				//var ch = sis.readBytes(1); // FF4
 				var ch = sis.read(1);
 				
@@ -119,15 +122,13 @@ CopperChrome.UdpClient.prototype = {
 				
 				//showByte(byteArray[i])
 			}
-
-			//alert(byteArray);
-			dump('-receiving UDP datagram-\n');
-			dump(' Length: '+count+'\n');
-			dump(' -----------------------\n');
+			
+			Copper.logEvent('UDP: Received ' + byteArray.length + ' bytes');
+			
 			if (this.callback) this.callback(byteArray);
 			
 		} catch( ex ) {
-		    alert('ERROR: UdpClient.onDataAvailable ['+ex+']\n\n(Make sure to use the correct CoAP version.)');
+			Copper.logError(ex);
 		}
 	},
 	
@@ -138,45 +139,44 @@ CopperChrome.UdpClient.prototype = {
 		this.outputStream.close();
 		this.inputStream.close();
 		this.socket.close(0);
-		dump('-UDP shut down-----------\n');
 	},
 	
 	send : function(datagram) {
 		
+		if (this.ended) return;
+		
 		// the transport API also concatenates outgoing datagrams when sent too quickly
 		let since = new Date() - this.lastSend;
 		if (since<30) {
-			dump('WARNING: Message interval too short for transport API: delaying '+(30-since)+'ms)\n');
 			var that = this;
 			window.setTimeout(
-					function() { CopperChrome.myBind(that,that.send(datagram)); },
+					function() { Copper.myBind(that,that.send(datagram)); },
 					30-since);
 			return;
 		}
+		
 		this.lastSend = new Date();
 			
 		try {
 			this.outputStream.write(datagram, datagram.length);
-			
-			dump('-sent UDP datagram------\n');
-			dump(' Length: '+datagram.length+'\n');
-			dump(' -----------------------\n');
-			
+
+			Copper.logEvent('UDP: Sent ' + datagram.length + ' bytes');
 		} catch (ex) {
-			dump('WARNING: UdpClient.send [I/O error]\n');
-			if (this.errorCallback) {
-				this.errorCallback({getCopperCode:function(){return 'I/O error';}});
-			}
+			Copper.logError(ex);
 		}
+	},
+	
+	getAddr : function() {
+
+		try {
+			this.localAddr = this.socket.getScriptableSelfAddr();
+			return this.localAddr;
+		} catch (ex) {
+			return null;
+		}
+	},
+	
+	setTimeout : function(time) {
+		this.socket.setTimeout(this.socket.TIMEOUT_READ_WRITE, time);
 	}
 };
-
-/*
-function showByte(b) {
-	var str = '';
-	for (var j=0; j<8; j++) {
-		str = ((b & 1<<j)>0 ? '1' : '0') + str;
-	}
-	dump('UDP byte ' + b + ': ' + str + '\n');
-}
-*/

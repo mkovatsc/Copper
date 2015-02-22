@@ -35,7 +35,7 @@
  * \author  Matthias Kovatsch <kovatsch@inf.ethz.ch>\author
  */
 
-CopperChrome.check = function() {
+Copper.check = function() {
 	
 	var firstRun = Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefBranch).getBoolPref('extensions.copper.first-run');
 	
@@ -59,7 +59,7 @@ CopperChrome.check = function() {
 	}
 };
 
-CopperChrome.hideHowto = function() {
+Copper.hideHowto = function() {
 
 	let id = 'copper-toolbar-button';
 	
@@ -71,13 +71,13 @@ CopperChrome.hideHowto = function() {
         document.persist(toolbar.id, "currentset");
     }
     
-    CopperChrome.firstRun = false;
+    Copper.firstRun = false;
 };
 
-CopperChrome.howto = function() {
+Copper.howto = function() {
 	window.openDialog('chrome://copper/content/howto.xul', 'HowTo', 'chrome,titlebar,toolbar,centerscreen,modal');
-	CopperChrome.hideHowto();
+	Copper.hideHowto();
 	document.getElementById('urlbar').focus();
 };
 
-addEventListener("load", CopperChrome.check, false);
+addEventListener("load", Copper.check, false);

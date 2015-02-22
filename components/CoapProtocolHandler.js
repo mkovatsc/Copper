@@ -82,7 +82,7 @@ CopperProtocol.Handler.prototype = {
 			return uri;
 		
 		} catch (ex) {
-			dump('ERROR: CopperProtocol.Handler.newURI ['+ex+']\n');
+			Copper.logEvent('ERROR: CopperProtocol.Handler.newURI ['+ex+']\n');
 			
 			// will cause an alert
 			return uri = Components.classes["@mozilla.org/network/simple-uri;1"].createInstance(Components.interfaces.nsIURI);
@@ -95,7 +95,7 @@ CopperProtocol.Handler.prototype = {
 			return ioService.newChannel("chrome://copper/content/copper.xul", null, null);
 			
 		} catch (ex) {
-			dump('ERROR: CoapProtocolHandler.newChannel ['+ex+']\n');
+			Copper.logEvent('ERROR: CoapProtocolHandler.newChannel ['+ex+']\n');
 		}
 	},
 

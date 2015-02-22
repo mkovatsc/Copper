@@ -38,63 +38,63 @@
 // Helper functions
 ////////////////////////////////////////////////////////////////////////////////
 
-CopperChrome.getRequestType = function() {
-	return CopperChrome.behavior.requests=='con' ? Copper.MSG_TYPE_CON : Copper.MSG_TYPE_NON;
+Copper.getRequestType = function() {
+	return Copper.behavior.requests=='con' ? Copper.MSG_TYPE_CON : Copper.MSG_TYPE_NON;
 };
 
 //TODO write nice generic settings object (settings['requests'] = 'bool';) and generate load/update/save code
 // Load behavior options from preferences
-CopperChrome.loadBehavior = function() {
-	CopperChrome.behavior.requests = CopperChrome.prefManager.getCharPref('extensions.copper.behavior.requests');
-	CopperChrome.behavior.retransmissions = CopperChrome.prefManager.getBoolPref('extensions.copper.behavior.retransmissions');
-	CopperChrome.behavior.sendDuplicates = CopperChrome.prefManager.getBoolPref('extensions.copper.behavior.send-duplicates');
-	CopperChrome.behavior.showUnknown = CopperChrome.prefManager.getBoolPref('extensions.copper.behavior.show-unknown');
-	CopperChrome.behavior.rejectUnknown = CopperChrome.prefManager.getBoolPref('extensions.copper.behavior.reject-unknown');
-	CopperChrome.behavior.sendUriHost = CopperChrome.prefManager.getBoolPref('extensions.copper.behavior.send-uri-host');
-	CopperChrome.behavior.sendSize1 = CopperChrome.prefManager.getBoolPref('extensions.copper.behavior.send-size1');
-	CopperChrome.behavior.blockSize = CopperChrome.prefManager.getIntPref('extensions.copper.behavior.block-size');
-	CopperChrome.behavior.observeToken = CopperChrome.prefManager.getBoolPref('extensions.copper.behavior.observe-token');
-	CopperChrome.behavior.observeCancellation = CopperChrome.prefManager.getCharPref('extensions.copper.behavior.observe-cancellation');
+Copper.loadBehavior = function() {
+	Copper.behavior.requests = Copper.prefManager.getCharPref('extensions.copper.behavior.requests');
+	Copper.behavior.retransmissions = Copper.prefManager.getBoolPref('extensions.copper.behavior.retransmissions');
+	Copper.behavior.sendDuplicates = Copper.prefManager.getBoolPref('extensions.copper.behavior.send-duplicates');
+	Copper.behavior.showUnknown = Copper.prefManager.getBoolPref('extensions.copper.behavior.show-unknown');
+	Copper.behavior.rejectUnknown = Copper.prefManager.getBoolPref('extensions.copper.behavior.reject-unknown');
+	Copper.behavior.sendUriHost = Copper.prefManager.getBoolPref('extensions.copper.behavior.send-uri-host');
+	Copper.behavior.sendSize1 = Copper.prefManager.getBoolPref('extensions.copper.behavior.send-size1');
+	Copper.behavior.blockSize = Copper.prefManager.getIntPref('extensions.copper.behavior.block-size');
+	Copper.behavior.observeToken = Copper.prefManager.getBoolPref('extensions.copper.behavior.observe-token');
+	Copper.behavior.observeCancellation = Copper.prefManager.getCharPref('extensions.copper.behavior.observe-cancellation');
 	
 	// init menu
-	CopperChrome.updateBehavior();
+	Copper.updateBehavior();
 };
 // sync XUL menu with behavior object
-CopperChrome.updateBehavior = function() {
-	document.getElementById('menu_behavior_requests_' + CopperChrome.behavior.requests).setAttribute('checked', 'true');
-	document.getElementById('menu_behavior_retransmissions').setAttribute('checked', CopperChrome.behavior.retransmissions);
-	document.getElementById('menu_behavior_send_duplicates').setAttribute('checked', CopperChrome.behavior.sendDuplicates);
-	document.getElementById('menu_behavior_show_unknown').setAttribute('checked', CopperChrome.behavior.showUnknown);
-	document.getElementById('menu_behavior_reject_unknown').setAttribute('checked', CopperChrome.behavior.rejectUnknown);
-	document.getElementById('menu_behavior_send_uri_host').setAttribute('checked', CopperChrome.behavior.sendUriHost);
-	document.getElementById('menu_behavior_send_size1').setAttribute('checked', CopperChrome.behavior.sendSize1);
-	document.getElementById('menu_behavior_block_size_' + CopperChrome.behavior.blockSize).setAttribute('checked', 'true');
-	document.getElementById('menu_behavior_token_observe').setAttribute('checked', CopperChrome.behavior.observeToken);
-	document.getElementById('menu_behavior_observe_' + CopperChrome.behavior.observeCancellation).setAttribute('checked', 'true');
+Copper.updateBehavior = function() {
+	document.getElementById('menu_behavior_requests_' + Copper.behavior.requests).setAttribute('checked', 'true');
+	document.getElementById('menu_behavior_retransmissions').setAttribute('checked', Copper.behavior.retransmissions);
+	document.getElementById('menu_behavior_send_duplicates').setAttribute('checked', Copper.behavior.sendDuplicates);
+	document.getElementById('menu_behavior_show_unknown').setAttribute('checked', Copper.behavior.showUnknown);
+	document.getElementById('menu_behavior_reject_unknown').setAttribute('checked', Copper.behavior.rejectUnknown);
+	document.getElementById('menu_behavior_send_uri_host').setAttribute('checked', Copper.behavior.sendUriHost);
+	document.getElementById('menu_behavior_send_size1').setAttribute('checked', Copper.behavior.sendSize1);
+	document.getElementById('menu_behavior_block_size_' + Copper.behavior.blockSize).setAttribute('checked', 'true');
+	document.getElementById('menu_behavior_token_observe').setAttribute('checked', Copper.behavior.observeToken);
+	document.getElementById('menu_behavior_observe_' + Copper.behavior.observeCancellation).setAttribute('checked', 'true');
 	
-	CopperChrome.behaviorUpdate({id: 'menu_behavior_block_size', value: CopperChrome.behavior.blockSize});
+	Copper.behaviorUpdate({id: 'menu_behavior_block_size', value: Copper.behavior.blockSize});
 };
 // sync behavior object with XUL menu (callback)
-CopperChrome.behaviorUpdate = function(target) {
+Copper.behaviorUpdate = function(target) {
 	if (target.id.substr(0,22)=='menu_behavior_requests') {
-		CopperChrome.behavior.requests = target.value;
+		Copper.behavior.requests = target.value;
 	} else if (target.id=='menu_behavior_retransmissions') {
-		CopperChrome.behavior.retransmissions = target.getAttribute('checked')=='true'; 
-		CopperChrome.client.setRetransmissions(CopperChrome.behavior.retransmissions);
+		Copper.behavior.retransmissions = target.getAttribute('checked')=='true'; 
+		Copper.endpoint.setRetransmissions(Copper.behavior.retransmissions);
 	} else if (target.id=='menu_behavior_send_duplicates') {
-		CopperChrome.behavior.sendDuplicates = target.getAttribute('checked')=='true';
+		Copper.behavior.sendDuplicates = target.getAttribute('checked')=='true';
 	} else if (target.id=='menu_behavior_show_unknown') {
-		CopperChrome.behavior.showUnknown = target.getAttribute('checked')=='true';
+		Copper.behavior.showUnknown = target.getAttribute('checked')=='true';
 	} else if (target.id=='menu_behavior_reject_unknown') {
-		CopperChrome.behavior.rejectUnknown = target.getAttribute('checked')=='true';
+		Copper.behavior.rejectUnknown = target.getAttribute('checked')=='true';
 	} else if (target.id=='menu_behavior_send_uri_host') {
-		CopperChrome.behavior.sendUriHost = target.getAttribute('checked')=='true';
+		Copper.behavior.sendUriHost = target.getAttribute('checked')=='true';
 	} else if (target.id=='menu_behavior_send_size1') {
-		CopperChrome.behavior.sendSize1 = target.getAttribute('checked')=='true';
+		Copper.behavior.sendSize1 = target.getAttribute('checked')=='true';
 	} else if (target.id.substr(0,24)=='menu_behavior_block_size') {
-		CopperChrome.behavior.blockSize = target.value;
-		document.getElementById('menu_behavior_block_size_' + CopperChrome.behavior.blockSize).setAttribute('checked', 'true');
-		if (CopperChrome.behavior.blockSize==0) {
+		Copper.behavior.blockSize = target.value;
+		document.getElementById('menu_behavior_block_size_' + Copper.behavior.blockSize).setAttribute('checked', 'true');
+		if (Copper.behavior.blockSize==0) {
 			document.getElementById('debug_option_block1').setAttribute('disabled', 'true');
 			document.getElementById('debug_option_block2').setAttribute('disabled', 'true');
 			document.getElementById('chk_debug_option_block_auto').setAttribute('disabled', 'true');
@@ -104,90 +104,90 @@ CopperChrome.behaviorUpdate = function(target) {
 			document.getElementById('chk_debug_option_block_auto').removeAttribute('disabled');
 		}
 	} else if (target.id=='menu_behavior_token_observe') {
-		CopperChrome.behavior.observeToken = target.getAttribute('checked')=='true';
+		Copper.behavior.observeToken = target.getAttribute('checked')=='true';
 	} else if (target.id.substr(0,21)=='menu_behavior_observe') {
-		CopperChrome.behavior.observeCancellation = target.value;
+		Copper.behavior.observeCancellation = target.value;
 	}
 };
 // save to preferences
-CopperChrome.saveBehavior = function() {
-	CopperChrome.prefManager.setCharPref('extensions.copper.behavior.requests', CopperChrome.behavior.requests);
-	CopperChrome.prefManager.setBoolPref('extensions.copper.behavior.retransmissions', CopperChrome.behavior.retransmissions);
-	CopperChrome.prefManager.setBoolPref('extensions.copper.behavior.send-duplicates', CopperChrome.behavior.sendDuplicates);
-	CopperChrome.prefManager.setBoolPref('extensions.copper.behavior.show-unknown', CopperChrome.behavior.showUnknown);
-	CopperChrome.prefManager.setBoolPref('extensions.copper.behavior.reject-unknown', CopperChrome.behavior.rejectUnknown);
-	CopperChrome.prefManager.setBoolPref('extensions.copper.behavior.send-uri-host', CopperChrome.behavior.sendUriHost);
-	CopperChrome.prefManager.setBoolPref('extensions.copper.behavior.send-size1', CopperChrome.behavior.sendSize1);
-	CopperChrome.prefManager.setIntPref('extensions.copper.behavior.block-size', CopperChrome.behavior.blockSize);
-	CopperChrome.prefManager.setBoolPref('extensions.copper.behavior.observe-token', CopperChrome.behavior.observeToken);
-	CopperChrome.prefManager.setCharPref('extensions.copper.behavior.observe-cancellation', CopperChrome.behavior.observeCancellation);
+Copper.saveBehavior = function() {
+	Copper.prefManager.setCharPref('extensions.copper.behavior.requests', Copper.behavior.requests);
+	Copper.prefManager.setBoolPref('extensions.copper.behavior.retransmissions', Copper.behavior.retransmissions);
+	Copper.prefManager.setBoolPref('extensions.copper.behavior.send-duplicates', Copper.behavior.sendDuplicates);
+	Copper.prefManager.setBoolPref('extensions.copper.behavior.show-unknown', Copper.behavior.showUnknown);
+	Copper.prefManager.setBoolPref('extensions.copper.behavior.reject-unknown', Copper.behavior.rejectUnknown);
+	Copper.prefManager.setBoolPref('extensions.copper.behavior.send-uri-host', Copper.behavior.sendUriHost);
+	Copper.prefManager.setBoolPref('extensions.copper.behavior.send-size1', Copper.behavior.sendSize1);
+	Copper.prefManager.setIntPref('extensions.copper.behavior.block-size', Copper.behavior.blockSize);
+	Copper.prefManager.setBoolPref('extensions.copper.behavior.observe-token', Copper.behavior.observeToken);
+	Copper.prefManager.setCharPref('extensions.copper.behavior.observe-cancellation', Copper.behavior.observeCancellation);
 };
 
 //Load last used payload from preferences, otherwise use default payload
-CopperChrome.loadLastPayload = function() {
+Copper.loadLastPayload = function() {
 	
 	document.getElementById('toolbar_payload_mode').selectedIndex = 0;
-	//document.getElementById('payload_text_line').value = CopperChrome.prefManager.getCharPref('extensions.copper.default-payload');
+	//document.getElementById('payload_text_line').value = Copper.prefManager.getCharPref('extensions.copper.default-payload');
 	
 	try {
-		document.getElementById('toolbar_payload_mode').selectedIndex = CopperChrome.prefManager.getIntPref('extensions.copper.payloads.'+CopperChrome.hostname+':'+CopperChrome.port+'.mode');		
-		document.getElementById('payload_text_page').value = CopperChrome.prefManager.getCharPref('extensions.copper.payloads.'+CopperChrome.hostname+':'+CopperChrome.port+'.page');
-		CopperChrome.payloadFile = CopperChrome.prefManager.getCharPref('extensions.copper.payloads.'+CopperChrome.hostname+':'+CopperChrome.port+'.file');
+		document.getElementById('toolbar_payload_mode').selectedIndex = Copper.prefManager.getIntPref('extensions.copper.payloads.'+Copper.hostname+':'+Copper.port+'.mode');		
+		document.getElementById('payload_text_page').value = Copper.prefManager.getCharPref('extensions.copper.payloads.'+Copper.hostname+':'+Copper.port+'.page');
+		Copper.payloadFile = Copper.prefManager.getCharPref('extensions.copper.payloads.'+Copper.hostname+':'+Copper.port+'.file');
 		
-		if (CopperChrome.payloadFile!='') {
-			CopperChrome.loadPayloadFileByName(CopperChrome.payloadFile);
+		if (Copper.payloadFile!='') {
+			Copper.loadPayloadFileByName(Copper.payloadFile);
 		}
 		
-		CopperChrome.checkPayload();
+		Copper.checkPayload();
 	} catch( ex ) {
-	    dump('INFO: no default payload for '+CopperChrome.hostname+':'+CopperChrome.port+' yet\n');
+	    Copper.logEvent('INFO: no default payload for '+Copper.hostname+':'+Copper.port+' yet\n');
 	}
 };
 
-CopperChrome.checkPayload = function() {
+Copper.checkPayload = function() {
 	if (document.getElementById('toolbar_payload_mode').value=='page') {
 		document.getElementById('tabs_payload').selectedIndex = 3;
-		if (CopperChrome.behavior.sendSize1) {
-			dump('INFO: Send auto Size1 option\n');
+		if (Copper.behavior.sendSize1) {
+			Copper.logEvent('INFO: Send auto Size1 option\n');
 			document.getElementById('debug_option_size1').value = document.getElementById('payload_text_page').value.length;
 		}
 		document.getElementById('payload_text_page').focus();
-	} else if (document.getElementById('toolbar_payload_mode').value=='file' && CopperChrome.payloadFile=='') {
-		CopperChrome.selectPayloadFile();
+	} else if (document.getElementById('toolbar_payload_mode').value=='file' && Copper.payloadFile=='') {
+		Copper.selectPayloadFile();
 	} else {
-		if (CopperChrome.behavior.sendSize1) {
-			dump('INFO: Send auto Size1 option\n');
-			document.getElementById('debug_option_size1').value = CopperChrome.payloadFileData.length;
+		if (Copper.behavior.sendSize1) {
+			Copper.logEvent('INFO: Send auto Size1 option\n');
+			document.getElementById('debug_option_size1').value = Copper.payloadFileData.length;
 		}
 	}
 }
 
-CopperChrome.savePayload = function() {
-	if (CopperChrome.hostname!='') {
-		CopperChrome.prefManager.setIntPref('extensions.copper.payloads.'+CopperChrome.hostname+':'+CopperChrome.port+'.mode', document.getElementById('toolbar_payload_mode').selectedIndex);
-		CopperChrome.prefManager.setCharPref('extensions.copper.payloads.'+CopperChrome.hostname+':'+CopperChrome.port+'.page', document.getElementById('payload_text_page').value);
-		CopperChrome.prefManager.setCharPref('extensions.copper.payloads.'+CopperChrome.hostname+':'+CopperChrome.port+'.file', CopperChrome.payloadFile);
+Copper.savePayload = function() {
+	if (Copper.hostname!='') {
+		Copper.prefManager.setIntPref('extensions.copper.payloads.'+Copper.hostname+':'+Copper.port+'.mode', document.getElementById('toolbar_payload_mode').selectedIndex);
+		Copper.prefManager.setCharPref('extensions.copper.payloads.'+Copper.hostname+':'+Copper.port+'.page', document.getElementById('payload_text_page').value);
+		Copper.prefManager.setCharPref('extensions.copper.payloads.'+Copper.hostname+':'+Copper.port+'.file', Copper.payloadFile);
 	}
 };
 
-CopperChrome.loadPayloadFileByName = function(filename) {
+Copper.loadPayloadFileByName = function(filename) {
 	
 	try {
 	
 		var file = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsIFile);  
 		file.initWithPath(filename);
 		
-		CopperChrome.loadPayloadFile(file);
+		Copper.loadPayloadFile(file);
 	} catch (ex) {
-		alert('ERROR: Main.loadPayloadFileByName [' + ex + ']');
+		Copper.logError(ex);
 	}
 };
 
-CopperChrome.selectPayloadFile = function() {
+Copper.selectPayloadFile = function() {
 	const nsIFilePicker = Components.interfaces.nsIFilePicker;
 	
-	CopperChrome.payloadFile = '';
-	CopperChrome.payloadFileData = null;
+	Copper.payloadFile = '';
+	Copper.payloadFileData = null;
 
 	var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
 	fp.init(window, "Select payload file", nsIFilePicker.modeOpen);
@@ -195,50 +195,49 @@ CopperChrome.selectPayloadFile = function() {
 
 	var rv = fp.show();
 	if (rv == nsIFilePicker.returnOK || rv == nsIFilePicker.returnReplace) {
-		CopperChrome.payloadFile = fp.file.path;
-		CopperChrome.loadPayloadFile(fp.file);
+		Copper.payloadFile = fp.file.path;
+		Copper.loadPayloadFile(fp.file);
 	} else {
-		CopperChrome.payloadFile = '';
-		CopperChrome.payloadFileData = null;
-		CopperChrome.payloadFileLoaded = false;
+		Copper.payloadFile = '';
+		Copper.payloadFileData = null;
+		Copper.payloadFileLoaded = false;
 		document.getElementById('toolbar_payload_file').label = "Select...";
 		document.getElementById('toolbar_payload_mode').selectedIndex = 0;
 	}
 };
 
-CopperChrome.loadPayloadFile = function(file) {
+Copper.loadPayloadFile = function(file) {
 	var channel = NetUtil.newChannel(file);
 	NetUtil.asyncFetch(channel,
 			function(inputStream, status) {
 				if (!Components.isSuccessCode(status)) {  
-					alert('ERROR: Main.payloadFile ['+status+']');
-					return;  
+					Copper.logError(new Error(status));
+					return;
 				}
-				CopperChrome.payloadFileData = NetUtil.readInputStreamToString(inputStream, inputStream.available());
+				Copper.payloadFileData = NetUtil.readInputStreamToString(inputStream, inputStream.available());
 				document.getElementById('toolbar_payload_file').label = file.leafName;
-				CopperChrome.payloadFileLoaded = true;
-				dump('INFO: loaded "' + file.path + '"\n');
+				Copper.payloadFileLoaded = true;
+				Copper.logEvent('INFO: loaded "' + file.path + '"\n');
 				
-				CopperChrome.checkPayload();
+				Copper.checkPayload();
 			}
 		);
 };
 
 //Load cached resource links from preferences
-CopperChrome.loadCachedResources = function() {
+Copper.loadCachedResources = function() {
 	
 	try {
-		dump('INFO: loading cached resource links\n');
-		let loadRes = CopperChrome.prefManager.getCharPref('extensions.copper.resources.'+CopperChrome.hostname+':'+CopperChrome.port);
-		CopperChrome.resources = JSON.parse( unescape(loadRes) );
-		
+		Copper.logEvent('INFO: loading cached resource links');
+		let loadRes = Copper.prefManager.getCharPref('extensions.copper.resources.'+Copper.hostname+':'+Copper.port);
+		Copper.resources = JSON.parse( unescape(loadRes) );
 	} catch( ex ) {
-	    dump('INFO: no cached links for '+CopperChrome.hostname+':'+CopperChrome.port+' yet\n');
+	    Copper.logEvent('INFO: no cached links for '+Copper.hostname+':'+Copper.port);
 	}
 };
 
 
-CopperChrome.parseUri = function(inputUri) {
+Copper.parseUri = function(inputUri) {
 
 /*	
 	( 'coap:' )
@@ -291,27 +290,27 @@ CopperChrome.parseUri = function(inputUri) {
 		throw 'Cannot resolve host';
 	}
 	
-	CopperChrome.hostname = uri.host;
-	if (CopperChrome.hostname.indexOf(':')!=-1) CopperChrome.hostname = '['+CopperChrome.hostname+']';
+	Copper.hostname = uri.host;
+	if (Copper.hostname.indexOf(':')!=-1) Copper.hostname = '['+Copper.hostname+']';
 	
-	CopperChrome.port = uri.port!=-1 ? uri.port : Copper.DEFAULT_PORT;
-	CopperChrome.path = decodeURI(uri.filePath); // as for 06 and as a server workaround for 03
-	CopperChrome.query = decodeURI(uri.query); // as for 06 and as aserver workaround for 03
+	Copper.port = uri.port!=-1 ? uri.port : Copper.DEFAULT_PORT;
+	Copper.path = decodeURI(uri.filePath); // as for 06 and as a server workaround for 03
+	Copper.query = decodeURI(uri.query); // as for 06 and as aserver workaround for 03
 	
-	document.title = CopperChrome.hostname + CopperChrome.path;
-	document.getElementById('info_host').label = CopperChrome.hostname + ':' + CopperChrome.port;
+	document.title = Copper.hostname + Copper.path;
+	document.getElementById('info_host').label = Copper.hostname + ':' + Copper.port;
 };
 
 // Set the default URI and also check for modified Firefox URL bar
-CopperChrome.checkUri = function(uri, caller) {
+Copper.checkUri = function(uri, caller) {
 
 	if (!uri) {
-		uri = decodeURI(CopperChrome.mainWindow.document.getElementById('urlbar').value);
+		uri = decodeURI(Copper.mainWindow.document.getElementById('urlbar').value);
 	} else if (uri.indexOf('coap://')!=0) {
 		// URI must be absolute
 		if (uri.indexOf('/')!=0) uri = '/' + uri;
 		// convert to full URI
-		uri = 'coap://' + CopperChrome.hostname + ':' + CopperChrome.port + uri;
+		uri = 'coap://' + Copper.hostname + ':' + Copper.port + uri;
 	}
 		
 	var uri2 = decodeURI(document.location.href);
@@ -320,27 +319,27 @@ CopperChrome.checkUri = function(uri, caller) {
 	if (caller && (uri!=uri2)) {
 		
 		// schedule the request to start automatically at new location
-		CopperChrome.prefManager.setCharPref('extensions.copper.onload-action', ''+caller);
+		Copper.prefManager.setCharPref('extensions.copper.onload-action', ''+caller);
 		
-		dump('INFO: Redirecting\n      from ' + uri2 + '\n      to   ' + uri + '\n');
+		Copper.logEvent('INFO: Redirecting\n      from ' + uri2 + '\n      to   ' + uri + '\n');
 		document.location.href = uri;
 		
 		// required to stop execution for redirect
 		throw 'REDIRECT';
 	} else {
-		return CopperChrome.path + (CopperChrome.query ? '?'+CopperChrome.query : '');
+		return Copper.path + (Copper.query ? '?'+Copper.query : '');
 	}
 };
 
-CopperChrome.parseLinkFormat = function(data) {
+Copper.parseLinkFormat = function(data) {
 	
 	var links = new Object();
 	
 	// totally complicated but supports ',' and '\n' to separate links and ',' as well as '\"' within quoted strings
 	var format = data.match(/(<[^>]+>\s*(;\s*\w+\s*(=\s*(\w+|"([^"\\]*(\\.[^"\\]*)*)")\s*)?)*)/g);
-	dump('-parsing link-format----------------------------\n');
+	Copper.logEvent('-parsing link-format----------------------------\n');
 	for (var i in format) {
-		//dump(links[i]+'\n');
+		//Copper.logEvent(links[i]+'\n');
 		var elems = format[i].match(/^<([^>\?]+)[^>]*>\s*(;.+)?\s*$/);
 				
 		var uri = elems[1];
@@ -358,14 +357,14 @@ CopperChrome.parseLinkFormat = function(data) {
 		
 			var tokens = elems[2].match(/(;\s*\w+\s*(=\s*(\w+|"([^\\"]*(\\.[^"\\]*)*)"))?)/g);
 		
-			dump(' '+uri+' ('+tokens.length+')\n');
+			Copper.logEvent(' '+uri+' ('+tokens.length+')\n');
 		
 			for (var j in tokens) {
-				//dump('  '+tokens[j]+'\n');
+				//Copper.logEvent('  '+tokens[j]+'\n');
 				var keyVal = tokens[j].match(/;\s*([^<"\s;,=]+)\s*(=\s*(([^<"\s;,]+)|"([^"\\]*(\\.[^"\\]*)*)"))?/);
 				if (keyVal) {
-					//dump(keyVal[0]+'\n');
-					//dump('   '+keyVal[1] + (keyVal[2] ? (': '+ (keyVal[4] ? keyVal[4] : keyVal[5].replace(/\\/g,''))) : '') + '\n');
+					//Copper.logEvent(keyVal[0]+'\n');
+					//Copper.logEvent('   '+keyVal[1] + (keyVal[2] ? (': '+ (keyVal[4] ? keyVal[4] : keyVal[5].replace(/\\/g,''))) : '') + '\n');
 					
 					if (links[uri][keyVal[1]]!=null) {
 						
@@ -384,40 +383,38 @@ CopperChrome.parseLinkFormat = function(data) {
 				}
 			}
 		} else {
-			dump(' '+uri+' (no attributes)\n');
+			Copper.logEvent(' '+uri+' (no attributes)\n');
 		}
 	}
-	dump(' -----------------------------------------------\n');
+	Copper.logEvent(' -----------------------------------------------\n');
 	
 	return links;
 };
 
-CopperChrome.updateResourceLinks = function(add) {
+Copper.updateResourceLinks = function(add) {
 	
 	// merge links
 	if (add) {
 		for (var uri in add) {
-			if (!CopperChrome.resources[uri]) {
-				CopperChrome.resources[uri] = add[uri];
-				dump('INFO: adding '+uri+' to host resources\n');
+			if (!Copper.resources[uri]) {
+				Copper.resources[uri] = add[uri];
+				Copper.logEvent('INFO: adding '+uri+' to host resources\n');
 			}
 		}
 	}
 	
 	// add well-known resource to resource cache
-	if (!CopperChrome.resources[Copper.WELL_KNOWN_RESOURCES]) {
-		CopperChrome.resources[Copper.WELL_KNOWN_RESOURCES] = new Object();
-		CopperChrome.resources[Copper.WELL_KNOWN_RESOURCES]['ct'] = 40;
-		CopperChrome.resources[Copper.WELL_KNOWN_RESOURCES]['title'] = 'Resource discovery';
+	if (!Copper.resources[Copper.WELL_KNOWN_RESOURCES]) {
+		Copper.resources[Copper.WELL_KNOWN_RESOURCES] = new Object();
+		Copper.resources[Copper.WELL_KNOWN_RESOURCES]['ct'] = 40;
+		Copper.resources[Copper.WELL_KNOWN_RESOURCES]['title'] = 'Resource discovery';
 	}
 	
-	// clear views
-	CopperChrome.clearList();
-	CopperChrome.clearTree();
+	Copper.clearTree();
 	
 	// sort by path
 	let sorted = new Array();
-	for (var uri in CopperChrome.resources) {
+	for (var uri in Copper.resources) {
 		sorted.push(uri);
 	}
 	sorted.sort();
@@ -425,45 +422,38 @@ CopperChrome.updateResourceLinks = function(add) {
 	for (var entry in sorted) {
 
 		let uri = sorted[entry];
-
-		if (CopperChrome.prefManager.getBoolPref('extensions.copper.use-tree')) {
-			// add to tree view
-			CopperChrome.addTreeResource( decodeURI(uri), CopperChrome.resources[uri] );
-		} else {
-			// add to list view
-			CopperChrome.addListResource( decodeURI(uri), CopperChrome.resources[uri] );
-		}
+		// add to tree view
+		Copper.addTreeResource( decodeURI(uri), Copper.resources[uri] );
 	}
 	
 	// save in cache
-	let saveRes = JSON.stringify(CopperChrome.resources);
-	if (CopperChrome.hostname!='') CopperChrome.prefManager.setCharPref('extensions.copper.resources.'+CopperChrome.hostname+':'+CopperChrome.port, escape(saveRes));
+	let saveRes = JSON.stringify(Copper.resources);
+	if (Copper.hostname!='') Copper.prefManager.setCharPref('extensions.copper.resources.'+Copper.hostname+':'+Copper.port, escape(saveRes));
 };
 
-CopperChrome.displayMessageInfo = function(message) {
+Copper.displayMessageInfo = function(message) {
 	
 	if (message.getCopperCode) {
-		CopperChrome.updateLabel('info_code', 'Copper: '+message.getCopperCode());
+		Copper.updateLabel('info_code', 'Copper: '+message.getCopperCode());
 	} else {
-		CopperChrome.updateLabel('info_code', message.getCode(true));
+		Copper.updateLabel('info_code', message.getCode(true));
 	}
 
 	document.getElementById('packet_header_type').setAttribute('label', message.getType(true));
 	document.getElementById('packet_header_code').setAttribute('label', message.getCode(true));
-	document.getElementById('packet_header_tid').setAttribute('label', message.getTID());
+	document.getElementById('packet_header_mid').setAttribute('label', message.getMID());
 	document.getElementById('packet_header_token').setAttribute('label', message.getToken(true));
 	
-	var optionList = document.getElementById('packet_options');
+	let optionList = document.getElementById('packet_options');
 	while (optionList.getRowCount()) optionList.removeItemAt(0);
-	var options = message.getOptions();
 	
-	for (var i=0; i < options.length; i++)
-    {
-		if (options[i][0]=='Token') continue;
+	let options = message.getOptions(false)
+	
+	for (let i in options) {
 		
-        var row = document.createElement('listitem');
+        let row = document.createElement('listitem');
         
-        var cell = document.createElement('listcell');
+        let cell = document.createElement('listcell');
         cell.setAttribute('label', options[i][0]);
         row.appendChild(cell);
 
@@ -497,66 +487,66 @@ CopperChrome.displayMessageInfo = function(message) {
         optionList.appendChild(row);
         
         if (options[i][0]=='Location-Path') {
-        	CopperChrome.updateResourceLinks( CopperChrome.parseLinkFormat( '<'+options[i][1]+'>' ) );
+        	Copper.updateResourceLinks( Copper.parseLinkFormat( '<'+options[i][1]+'>' ) );
         }
     }
 };
 
-CopperChrome.displayCache = null;
+Copper.displayCache = null;
 
-CopperChrome.displayPayload = function(message) {
+Copper.displayPayload = function(message) {
 	
 	if (message.getPayload().length<1) {
 		return;
 	}
 	
 	// TODO block management
-	if (!message.isOption(Copper.OPTION_BLOCK) || message.getBlockNumber()==0 || CopperChrome.displayCache==null) {
-		CopperChrome.displayCache = new CopperChrome.CoapMessage(0,0);
-		CopperChrome.displayCache.setContentType(message.getContentType());
+	if (!message.isOption(Copper.OPTION_BLOCK2) || message.getBlock2Number()==0 || Copper.displayCache==null) {
+		Copper.displayCache = new Copper.CoapMessage(0,0);
+		Copper.displayCache.setContentType(message.getContentFormat());
 		document.getElementById('info_payload').label='Payload ('+message.getPayload().length+')';
 	} else {
-		document.getElementById('info_payload').label='Combined Payload ('+ (CopperChrome.displayCache.getPayload().length + message.getPayload().length)  +')';
+		document.getElementById('info_payload').label='Combined Payload ('+ (Copper.displayCache.getPayload().length + message.getPayload().length)  +')';
 	}
 	
-	CopperChrome.displayCache.setBlock(message.getBlock());
-	CopperChrome.displayCache.appendPayload(message.getPayload());
+	Copper.displayCache.setBlock2(message.getBlock2());
+	Copper.displayCache.appendPayload(message.getPayload());
 	
-	switch (CopperChrome.displayCache.getContentType()) {
+	switch (Copper.displayCache.getContentFormat()) {
 		case Copper.CONTENT_TYPE_IMAGE_GIF:
 		case Copper.CONTENT_TYPE_IMAGE_JPEG:
 		case Copper.CONTENT_TYPE_IMAGE_PNG:
 		case Copper.CONTENT_TYPE_IMAGE_TIFF:
-			CopperChrome.renderImage(CopperChrome.displayCache);
+			Copper.renderImage(Copper.displayCache);
 			break;
 		case Copper.CONTENT_TYPE_AUDIO_RAW:
 		case Copper.CONTENT_TYPE_VIDEO_RAW:
 		case Copper.CONTENT_TYPE_APPLICATION_OCTET_STREAM:
 		case Copper.CONTENT_TYPE_APPLICATION_X_OBIX_BINARY:
-			CopperChrome.renderBinary(CopperChrome.displayCache);
+			Copper.renderBinary(Copper.displayCache);
 			break;
 		case Copper.CONTENT_TYPE_APPLICATION_EXI:
-			CopperChrome.renderBinary(CopperChrome.displayCache);
-			CopperChrome.renderEXI(CopperChrome.displayCache);
+			Copper.renderBinary(Copper.displayCache);
+			Copper.renderEXI(Copper.displayCache);
 			break;
 		case Copper.CONTENT_TYPE_APPLICATION_JSON:
-			CopperChrome.renderText(CopperChrome.displayCache);
-			CopperChrome.renderJSON(CopperChrome.displayCache);
+			Copper.renderText(Copper.displayCache);
+			Copper.renderJSON(Copper.displayCache);
 			break;
 		case Copper.CONTENT_TYPE_APPLICATION_LINK_FORMAT:
-			CopperChrome.renderText(CopperChrome.displayCache);
-			CopperChrome.renderLinkFormat(CopperChrome.displayCache);
+			Copper.renderText(Copper.displayCache);
+			Copper.renderLinkFormat(Copper.displayCache);
 			break;
 		default:
-			CopperChrome.renderText(CopperChrome.displayCache);
+			Copper.renderText(Copper.displayCache);
 	}
 	
-	if (!message.getBlockMore()) {
-		delete CopperChrome.displayCache;
+	if (!message.getBlock2More()) {
+		delete Copper.displayCache;
 	}
 };
 
-CopperChrome.updateLabel = function(id, value, append) {
+Copper.updateLabel = function(id, value, append) {
 	if (append) {
 		document.getElementById(id).value += value;
 	} else {
@@ -564,16 +554,16 @@ CopperChrome.updateLabel = function(id, value, append) {
 	}
 };
 
-CopperChrome.clearLabels = function(full) {
+Copper.clearLabels = function(full) {
 	
 	if (full || full==null) {
-		CopperChrome.updateLabel('info_code', '');
-		CopperChrome.updateLabel('packet_payload', '');
+		Copper.updateLabel('info_code', '');
+		Copper.updateLabel('packet_payload', '');
 		document.getElementById('info_payload').label='Payload';
 	
 		document.getElementById('packet_header_type').setAttribute('label', '');
 		document.getElementById('packet_header_code').setAttribute('label', '');
-		document.getElementById('packet_header_tid').setAttribute('label', '');
+		document.getElementById('packet_header_mid').setAttribute('label', '');
 		document.getElementById('packet_header_token').setAttribute('label', '');
 		
 		document.getElementById('tabs_payload').selectedIndex = 0;
@@ -585,30 +575,30 @@ CopperChrome.clearLabels = function(full) {
 	document.getElementById('group_payload').setAttribute('style', '');
 };
 
-CopperChrome.negotiateBlockSize = function(message) {
-	var size = message.getBlockSize();
-	if (CopperChrome.behavior.blockSize==0) {
-		CopperChrome.behavior.blockSize = size;
-		CopperChrome.updateBehavior();
+Copper.negotiateBlockSize = function(message) {
+	var size = message.getBlock2Size();
+	if (Copper.behavior.blockSize==0) {
+		Copper.behavior.blockSize = size;
+		Copper.updateBehavior();
 	
-		CopperChrome.popup(CopperChrome.hostname+':'+CopperChrome.port, 'Negotiated block size: '+size);
-	} else if (CopperChrome.behavior.blockSize < size) {
-		size = CopperChrome.behavior.blockSize;
+		Copper.popup(Copper.hostname+':'+Copper.port, 'Negotiated block size: '+size);
+	} else if (Copper.behavior.blockSize < size) {
+		size = Copper.behavior.blockSize;
 	}
 	return size;
 };
 
 // workaround for "this" losing scope when passing callback functions
-CopperChrome.myBind = function(scope, fn) {
+Copper.myBind = function(scope, fn) {
     return function () {
         fn.apply(scope, arguments);
     };
 };
 
-CopperChrome.popup = function(title, str) {
+Copper.popup = function(title, str) {
 	try {
 		Components.classes['@mozilla.org/alerts-service;1'].getService(Components.interfaces.nsIAlertsService).showAlertNotification('chrome://copper/skin/Cu_32.png',title,str);
 	} catch (ex) {
-		dump("WARNING: You are probably running Mac OS without Growl, which is required for notifications.\n")
+		Copper.logEvent("WARNING: You are probably running Mac OS without Growl, which is required for notifications.\n")
 	}
 };

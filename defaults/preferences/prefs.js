@@ -30,9 +30,10 @@
  ******************************************************************************/
 
 pref("extensions.copper.first-run", true);
-pref("extensions.copper.coap-version", 18);
+pref("extensions.copper.view-tree", true);
+pref("extensions.copper.view-debug", true);
+pref("extensions.copper.view-log", true);
 pref("extensions.copper.encode-utf-8", true);
-pref("extensions.copper.use-tree", true);
 pref("extensions.copper.behavior.auto-discover", false);
 pref("extensions.copper.behavior.requests", "con");
 pref("extensions.copper.behavior.retransmissions", true);
@@ -47,7 +48,7 @@ pref("extensions.copper.behavior.observe-cancellation", "cancel");
 pref("extensions.copper.default-payload", "Enter payload...");
 pref("extensions.copper.onload-action", "");
 pref("extensions.copper.debug.options-enabled", false);
-pref("extensions.copper.debug.options.content-type", "");
+pref("extensions.copper.debug.options.content-format", "");
 pref("extensions.copper.debug.options.max-age", "");
 pref("extensions.copper.debug.options.proxy-uri", "");
 pref("extensions.copper.debug.options.proxy-scheme", false);

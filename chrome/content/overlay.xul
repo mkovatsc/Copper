@@ -45,14 +45,14 @@
 		<menuitem label="Copper (Cu) How-To"
 			class="menuitem-iconic"
 			style="list-style-image: url('chrome://copper/skin/Cu_16.png');"
-			oncommand="CopperChrome.howto();" />
+			oncommand="Copper.howto();" />
 	</menupopup>
 
 	<!-- Old tools menu -->
 	<menupopup id="menu_ToolsPopup">
 		<menuitem label="Copper (Cu) How-To"
 			image="chrome://colorzilla/skin/Cu_16.png"
-			oncommand="CopperChrome.howto();" />
+			oncommand="Copper.howto();" />
 	</menupopup>
 
 	<!-- Customizable tool button -->
@@ -61,7 +61,7 @@
 			label="Copper (Cu) How-To"
 			image="chrome://copper/skin/Cu_16.png"
 			tooltiptext="How to use the Copper (Cu) CoAP user-agent?"
-			oncommand="CopperChrome.howto();">
+			oncommand="Copper.howto();">
 		</toolbarbutton>
 	</toolbarpalette>
 

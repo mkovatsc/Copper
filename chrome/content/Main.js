@@ -35,46 +35,41 @@
  * \author  Matthias Kovatsch <kovatsch@inf.ethz.ch>\author
  */
 
-// namespace
-Components.utils.import("resource://drafts/common.jsm");
-
 // file IO
 Components.utils.import("resource://gre/modules/NetUtil.jsm");
 
-CopperChrome.mainWindow = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+Copper.mainWindow = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
 		.getInterface(Components.interfaces.nsIWebNavigation)
 		.QueryInterface(Components.interfaces.nsIDocShellTreeItem)
 		.rootTreeItem
 		.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
 		.getInterface(Components.interfaces.nsIDOMWindow);
 
-CopperChrome.prefManager = Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefBranch);
+Copper.prefManager = Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefBranch);
 
-CopperChrome.coapVersion = 18;
+Copper.hostname = '';
+Copper.port = -1;
+Copper.path = '/';
+Copper.query = '';
 
-CopperChrome.hostname = '';
-CopperChrome.port = -1;
-CopperChrome.path = '/';
-CopperChrome.query = '';
+Copper.endpoint = null;
+Copper.observer = null;
 
-CopperChrome.client = null;
-CopperChrome.observer = null;
+Copper.resources = new Object();
+Copper.resourcesCached = true;
 
-CopperChrome.resources = new Object();
-CopperChrome.resourcesCached = true;
+Copper.payloadFile = '';
+Copper.payloadFileLoaded = false;
+Copper.payloadFileData = null;
 
-CopperChrome.payloadFile = '';
-CopperChrome.payloadFileLoaded = false;
-CopperChrome.payloadFileData = null;
+Copper.uploadMethod = 0;
+Copper.uploadBlocks = null;
+Copper.uploadHandler = null;
 
-CopperChrome.uploadMethod = 0;
-CopperChrome.uploadBlocks = null;
-CopperChrome.uploadHandler = null;
+Copper.downloadMethod = 0;
+Copper.downloadHandler = null;
 
-CopperChrome.downloadMethod = 0;
-CopperChrome.downloadHandler = null;
-
-CopperChrome.behavior = {
+Copper.behavior = {
 	requests: 'con',
 	retransmission: true,
 	sendDuplicates: false,
@@ -90,15 +85,13 @@ CopperChrome.behavior = {
 // Life cycle functions
 ////////////////////////////////////////////////////////////////////////////////
 
-CopperChrome.main = function() {
+Copper.main = function() {
 	
-	dump(Array(5).join('\n'));
-	dump('==============================================================================\n');
-	dump('= INITIALIZING COPPER ========================================================\n');
-	dump('==============================================================================\n');
+	Copper.logEvent('==============================================================================');
+	Copper.logEvent('= INITIALIZING COPPER ========================================================');
+	Copper.logEvent('==============================================================================');
 		
  	// set the Cu icon for all Copper tabs
-	// TODO: There must be a more elegant way
 	var tabbrowser = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator).getEnumerator("navigator:browser").getNext().gBrowser;  
 	for (var i=0; i<tabbrowser.browsers.length; ++i) {
 		if (tabbrowser.mTabs[i].label=='Copper (Cu) CoAP user-agent')
@@ -108,67 +101,24 @@ CopperChrome.main = function() {
 	// get settings from preferences
 	var onloadAction = null;
 	try {
-		CopperChrome.coapVersion = CopperChrome.prefManager.getIntPref('extensions.copper.coap-version');
 		
-		document.getElementById('resource_split').setAttribute('state', CopperChrome.prefManager.getBoolPref('extensions.copper.use-tree') ? 'open' : 'collapsed');
-		document.getElementById('resource_split').hidden = !CopperChrome.prefManager.getBoolPref('extensions.copper.use-tree');
+		document.getElementById('view_tree_split').setAttribute('state', Copper.prefManager.getBoolPref('extensions.copper.view-tree') ? 'open' : 'collapsed');
+		document.getElementById('view_debug_split').setAttribute('state', Copper.prefManager.getBoolPref('extensions.copper.view-debug') ? 'open' : 'collapsed');
+		document.getElementById('view_log_split').setAttribute('state', Copper.prefManager.getBoolPref('extensions.copper.view-log') ? 'open' : 'collapsed');
 		
-		onloadAction = CopperChrome.prefManager.getCharPref('extensions.copper.onload-action');
+		onloadAction = Copper.prefManager.getCharPref('extensions.copper.onload-action');
 		
-		CopperChrome.loadBehavior();
-		CopperChrome.loadDebugOptions();
+		Copper.loadBehavior();
+		Copper.loadDebugOptions();
+		Copper.initDebugContentFormats();
 		
-		if (CopperChrome.prefManager.getBoolPref('extensions.copper.plugtest.menu')) {
+		if (Copper.prefManager.getBoolPref('extensions.copper.plugtest.menu')) {
 			document.getElementById('menu_plugtest').hidden = false;
-			CopperChrome.loadPlugtest();
+			Copper.loadPlugtest();
 		}
 		
 	} catch (ex) {
-		window.setTimeout(
-				function() { window.alert('WARNING: Could not load preferences; using hardcoded defauls.'+ex); },
-				0);
-	}
-	
-	try {
-		// keep dangerous object loader local
-		let loader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"].getService(Components.interfaces.mozIJSSubScriptLoader);
-		
-		switch (CopperChrome.coapVersion) {
-			case 3:
-				loader.loadSubScript("resource://drafts/CoapPacket03.jsm");
-				break;
-			case 6:
-				loader.loadSubScript("resource://drafts/CoapPacket06.jsm");
-				break;
-			case 7:
-			case 8:
-				loader.loadSubScript("resource://drafts/CoapPacket07.jsm");
-				break;
-			case 12:
-				loader.loadSubScript("resource://drafts/CoapPacket12.jsm");
-				break;
-			case 13:
-				loader.loadSubScript("resource://drafts/CoapPacket13.jsm");
-				break;
-			case 18:
-				loader.loadSubScript("resource://drafts/CoapPacket18.jsm");
-				break;
-			default:
-				window.setTimeout(
-						function() { window.alert('WARNING: CoAP version '+CopperChrome.coapVersion+' not implemented. Using draft 18.'); },
-						0);
-				loader.loadSubScript("resource://drafts/CoapPacket18.jsm");
-				CopperChrome.coapVersion = 18;
-				break;
-		}
-		
-		document.getElementById('toolbar_version').label = 'CoAP ' + Copper.leadingZero(CopperChrome.coapVersion,2) + ' ';
-		CopperChrome.initDebugContentTypes();
-		
-	} catch (ex) {
-		window.setTimeout(
-				function() { window.alert('ERROR: Could not load protocol module ['+ex+']'); },
-				0);
+		Copper.logError(ex);
 	}
 	
 	// open location
@@ -177,315 +127,309 @@ CopperChrome.main = function() {
 		document.getElementById('packet_header').focus();
 		document.getElementById('packet_options').focus();
 		
-		CopperChrome.parseUri(document.location.href);
+		Copper.parseUri(document.location.href);
 		
 		// set up datagram and transaction layer
-		var temp = new CopperChrome.UdpClient(CopperChrome.hostname, CopperChrome.port);
-		temp.registerErrorCallback(CopperChrome.errorHandler);
-		CopperChrome.client = new CopperChrome.TransactionHandler(temp, CopperChrome.behavior.retransmissions);
-		CopperChrome.client.registerCallback(CopperChrome.defaultHandler);
+		var temp = new Copper.UdpClient(Copper.hostname, Copper.port);
+		temp.registerErrorCallback(Copper.errorHandler);
+		Copper.endpoint = new Copper.TransactionHandler(temp, Copper.behavior.retransmissions);
+		Copper.endpoint.registerCallback(Copper.defaultHandler);
 		
 		// enable observing
-		CopperChrome.observer = new CopperChrome.Observing();
+		Copper.observer = new Copper.Observing();
 		
-		CopperChrome.loadCachedResources();
-		CopperChrome.updateResourceLinks();
+		Copper.loadCachedResources();
+		Copper.updateResourceLinks();
 		
-		CopperChrome.loadLastPayload();
+		Copper.loadLastPayload();
 		
 		
 		// handle auto-request after redirect
 		if (onloadAction!='') {
 			
-			dump('INFO: Main.init [onloadAction: '+onloadAction+']\n');
+			Copper.logEvent('INFO: Main.init [onloadAction: '+onloadAction+']\n');
 			
 			window.setTimeout(
-					'CopperChrome.'+onloadAction+'();',
+					'Copper.'+onloadAction+'();',
 					0);
 			
 			// reset onloadAction
-			CopperChrome.prefManager.setCharPref('extensions.copper.onload-action', '');
+			Copper.prefManager.setCharPref('extensions.copper.onload-action', '');
 		}
 		
 	} catch( ex ) {
-		CopperChrome.errorHandler({getCopperCode:function(){return ex;},getPayload:function(){return '';}});
+		Copper.errorHandler({getCopperCode:function(){return ex;},getPayload:function(){return '';}});
 		
-	    dump('ERROR: Main.init ['+ex+']\n');
+	    Copper.logEvent('ERROR: Main.init ['+ex+']\n');
 	}
 };
 
-CopperChrome.unload = function() {
+Copper.unload = function() {
 	// shut down socket required for refresh (F5), client might be null for parseUri() redirects
-	if (CopperChrome.client!=null) {
-		CopperChrome.client.shutdown();
+	if (Copper.endpoint!=null) {
+		Copper.endpoint.shutdown();
 	}
 	
-	CopperChrome.saveBehavior();
-	CopperChrome.savePayload();
-	CopperChrome.saveDebugOptions();
-	CopperChrome.savePlugtest();
+	Copper.saveBehavior();
+	Copper.savePayload();
+	Copper.saveDebugOptions();
+	Copper.savePlugtest();
 };
 
 
 // Toolbar commands
 ////////////////////////////////////////////////////////////////////////////////
 
-CopperChrome.userGet = function() {
-	CopperChrome.client.cancelTransactions();
-	var uri = CopperChrome.checkUri(null, 'userGet');
+Copper.userGet = function() {
+	Copper.endpoint.cancelTransactions();
+	var uri = Copper.checkUri(null, 'userGet');
 	
-	CopperChrome.sendGet(uri);
+	Copper.sendGet(uri);
 };
-CopperChrome.userPost = function() {
-	CopperChrome.client.cancelTransactions();
-	var uri = CopperChrome.checkUri(null, 'userPost');
+Copper.userPost = function() {
+	Copper.endpoint.cancelTransactions();
+	var uri = Copper.checkUri(null, 'userPost');
 	
-	CopperChrome.sendPost(uri);
+	Copper.sendPost(uri);
 };
-CopperChrome.userPut = function() {
-	CopperChrome.client.cancelTransactions();
-	var uri = CopperChrome.checkUri(null, 'userPut');
+Copper.userPut = function() {
+	Copper.endpoint.cancelTransactions();
+	var uri = Copper.checkUri(null, 'userPut');
 	
-	CopperChrome.sendPut(uri);
+	Copper.sendPut(uri);
 };
-CopperChrome.userDelete = function() {
-	CopperChrome.client.cancelTransactions();
-	var uri = CopperChrome.checkUri(null, 'userDelete');
+Copper.userDelete = function() {
+	Copper.endpoint.cancelTransactions();
+	var uri = Copper.checkUri(null, 'userDelete');
 
-	CopperChrome.sendDelete(uri);
+	Copper.sendDelete(uri);
 };
-CopperChrome.userObserve = function() {
-	var uri = CopperChrome.checkUri(uri, 'observe');
+Copper.userObserve = function() {
+	var uri = Copper.checkUri(uri, 'observe');
 	
-	CopperChrome.observe(uri);
+	Copper.observe(uri);
 };
 
-CopperChrome.userDiscover = function() {
-	dump('INFO: resetting cached resources\n');
+Copper.userDiscover = function() {
+	Copper.logEvent('INFO: resetting cached resources');
 	document.getElementById('toolbar_discover').image = 'chrome://copper/skin/spinner.gif';
-	CopperChrome.prefManager.setCharPref('extensions.copper.resources.'+CopperChrome.hostname+':'+CopperChrome.port, '' );
-	CopperChrome.resources = new Object();
+	Copper.prefManager.setCharPref('extensions.copper.resources.'+Copper.hostname+':'+Copper.port, '' );
+	Copper.resources = new Object();
 	
-	CopperChrome.discover();
+	Copper.discover();
 };
 
 
 // Request commands
 ////////////////////////////////////////////////////////////////////////////////
 
-CopperChrome.sendGet = function(uri, callback) {
+Copper.sendGet = function(uri, callback) {
 	try {
 		if (!uri) throw 'No URI specified';
 		
-		CopperChrome.downloadMethod = Copper.GET;
+		Copper.downloadMethod = Copper.GET;
 		
-		if (CopperChrome.behavior.blockSize!=0) {
-			CopperChrome.sendBlockwise2(uri, parseInt(document.getElementById('debug_option_block2').value), CopperChrome.behavior.blockSize, callback);
+		if (Copper.behavior.blockSize!=0) {
+			Copper.sendBlockwise2(uri, parseInt(document.getElementById('debug_option_block2').value), Copper.behavior.blockSize, callback);
 			return;
 		}
 		
-		var message = new CopperChrome.CoapMessage(CopperChrome.getRequestType(), Copper.GET, uri);
+		var message = new Copper.CoapMessage(Copper.getRequestType(), Copper.GET, uri);
 		
-		CopperChrome.checkDebugOptions(message);
+		Copper.checkDebugOptions(message);
 		
-		CopperChrome.clearLabels();
-		CopperChrome.client.send( message, callback );
+		Copper.clearLabels();
+		Copper.endpoint.send( message, callback );
 	} catch (ex) {
-		CopperChrome.client.cancelTransactions();
-		alert('ERROR: Main.sendGet ['+ex+']');
+		Copper.logError(ex);
 	}
 };
-CopperChrome.sendBlockwise2 = function(uri, num, size, callback) {
+Copper.sendBlockwise2 = function(uri, num, size, callback) {
 	try {
 		if (!uri) throw 'No URI specified';
 		if (!num) num = 0;
-		if (!size) size = CopperChrome.behavior.blockSize;
+		if (!size) size = Copper.behavior.blockSize;
 		
-		if (CopperChrome.downloadMethod==0) {
+		if (Copper.downloadMethod==0) {
 			throw 'No download in progress, cancelling';
 		}
 		
-		if (callback) CopperChrome.downloadHandler = callback;
+		if (callback) Copper.downloadHandler = callback;
 		
-		var message = new CopperChrome.CoapMessage(CopperChrome.getRequestType(), CopperChrome.downloadMethod, uri);
+		var message = new Copper.CoapMessage(Copper.getRequestType(), Copper.downloadMethod, uri);
 		
-		CopperChrome.checkDebugOptions(message);
+		Copper.checkDebugOptions(message);
 		
 		// (re)set to useful block option
-		message.setBlock(num, size);
+		message.setBlock2(num, size);
 		
-		CopperChrome.clearLabels(num==0);
-		CopperChrome.client.send( message, CopperChrome.blockwiseHandler );
+		Copper.clearLabels(num==0);
+		Copper.endpoint.send( message, Copper.blockwiseHandler );
 	} catch (ex) {
-		CopperChrome.client.cancelTransactions();
-		alert('ERROR: Main.sendBlockwise2 ['+ex+']');
+		Copper.logError(ex);
 	}
 };
 
-CopperChrome.sendPost = function(uri, callback) {
+Copper.sendPost = function(uri, callback) {
 	var num = parseInt(document.getElementById('debug_option_block2').value);
 	
-	if (CopperChrome.downloadMethod == Copper.POST && num>0) {
-		CopperChrome.sendBlockwise2(uri, num, CopperChrome.behavior.blockSize, callback);
+	if (Copper.downloadMethod == Copper.POST && num>0) {
+		Copper.sendBlockwise2(uri, num, Copper.behavior.blockSize, callback);
 	} else {
-		CopperChrome.doUpload(Copper.POST, uri, callback);
+		Copper.doUpload(Copper.POST, uri, callback);
 	}
 };
 
-CopperChrome.sendPut = function(uri, callback) {
+Copper.sendPut = function(uri, callback) {
 	var num = parseInt(document.getElementById('debug_option_block2').value);
 	
-	if (CopperChrome.downloadMethod == Copper.PUT && num>0) {
-		CopperChrome.sendBlockwise2(uri, num, CopperChrome.behavior.blockSize, callback);
+	if (Copper.downloadMethod == Copper.PUT && num>0) {
+		Copper.sendBlockwise2(uri, num, Copper.behavior.blockSize, callback);
 	} else {
-		CopperChrome.doUpload(Copper.PUT, uri, callback);
+		Copper.doUpload(Copper.PUT, uri, callback);
 	}
 };
 
-CopperChrome.doUpload = function(method, uri, callback) {
+Copper.doUpload = function(method, uri, callback) {
 	try {
-		if (!uri) throw 'No URI specified';
+		if (uri===undefined) throw new Error('No URI specified');
 		
 		// load payload
 		let pl = '';
 		if (document.getElementById('toolbar_payload_mode').value=='page') {
 			pl = Copper.str2bytes(document.getElementById('payload_text_page').value);
 		} else {
-			if (!CopperChrome.payloadFileLoaded) {
+			if (!Copper.payloadFileLoaded) {
 				// file loading as async, wait until done
-				window.setTimeout(function() {CopperChrome.doUpload(method, uri, callback);}, 50);
+				window.setTimeout(function() {Copper.doUpload(method, uri, callback);}, 50);
 				return;
 			}
-			pl = Copper.data2bytes(CopperChrome.payloadFileData);
+			pl = Copper.data2bytes(Copper.payloadFileData);
 		}
 		
 		// store payload in case server requests blockwise upload
-		CopperChrome.uploadMethod = method; // POST or PUT
-		CopperChrome.uploadBlocks = pl;
-		CopperChrome.downloadMethod = method; // in case of Block2 response
+		Copper.uploadMethod = method; // POST or PUT
+		Copper.uploadBlocks = pl;
+		Copper.downloadMethod = method; // in case of Block2 response
 		
 		// blockwise uploads
-		if (CopperChrome.behavior.blockSize!=0 && pl.length > CopperChrome.behavior.blockSize) {
-			CopperChrome.sendBlockwise1(uri, parseInt(document.getElementById('debug_option_block1').value), CopperChrome.behavior.blockSize, callback);
+		if (Copper.behavior.blockSize!=0 && pl.length > Copper.behavior.blockSize) {
+			Copper.sendBlockwise1(uri, parseInt(document.getElementById('debug_option_block1').value), Copper.behavior.blockSize, callback);
 			return;
 		}
 		
-		var message = new CopperChrome.CoapMessage(CopperChrome.getRequestType(), method, uri, pl);
+		var message = new Copper.CoapMessage(Copper.getRequestType(), method, uri, pl);
 		
-		CopperChrome.checkDebugOptions(message);
+		Copper.checkDebugOptions(message);
 		
-		if (CopperChrome.behavior.sendSize1) {
-			dump('INFO: Send auto Size1 option\n');
+		if (Copper.behavior.sendSize1) {
+			Copper.logEvent('INFO: Send auto Size1 option\n');
 			message.setSize1(pl.length);
 			document.getElementById('debug_option_size1').value = pl.length;
 		}
 		
-		CopperChrome.clearLabels();
-		CopperChrome.client.send( message, callback );
+		Copper.clearLabels();
+		Copper.endpoint.send( message, callback );
 	} catch (ex) {
-		CopperChrome.client.cancelTransactions();
-		alert('ERROR: Main.doUpload ['+ex+']');
+		Copper.logError(ex);
 	}
 }
 
-CopperChrome.sendBlockwise1 = function(uri, num, size, callback) {
+Copper.sendBlockwise1 = function(uri, num, size, callback) {
 	try {
-		if (!uri) throw 'No URI specified';
+		if (uri===undefined) throw new Error('No URI specified');
 		if (!num) num = 0;
-		if (!size) size = CopperChrome.behavior.blockSize;
+		if (size===undefined) size = Copper.behavior.blockSize;
 		
-		if (CopperChrome.uploadBlocks==null || CopperChrome.uploadMethod==0) {
-			throw 'No upload in progress, cancelling';
+		if (Copper.uploadBlocks==null || Copper.uploadMethod==0) {
+			throw new Error('No upload in progress, cancelling');
 		}
-		if ( (num>0) && (size*(num-1) > CopperChrome.uploadBlocks.length)) { // num-1, as we are called with the num to send, not was has been send
-			throw 'Debug Block1 out of payload scope';
+		if ( (num>0) && (size*(num-1) > Copper.uploadBlocks.length)) { // num-1, as we are called with the num to send, not was has been send
+			throw new Error('Debug Block1 out of payload scope');
 		}
 		
 		let more = false;
-		let pl = CopperChrome.uploadBlocks.slice(size*num, size*(num+1));
+		let pl = Copper.uploadBlocks.slice(size*num, size*(num+1));
 		
-		if (CopperChrome.uploadBlocks.length > (num+1) * size) { // num+1, as we start counting at 0...
+		// more blocks?
+		if (Copper.uploadBlocks.length > (num+1) * size) { // num+1, as we start counting at 0...
 			more = true;
 		}
 		
-		if (callback) CopperChrome.uploadHandler = callback;
+		if (callback) Copper.uploadHandler = callback;
 		
-		var message = new CopperChrome.CoapMessage(CopperChrome.getRequestType(), CopperChrome.uploadMethod, uri, pl);
+		var message = new Copper.CoapMessage(Copper.getRequestType(), Copper.uploadMethod, uri, pl);
 		
-		CopperChrome.checkDebugOptions(message);
+		Copper.checkDebugOptions(message);
 		
-		if (CopperChrome.behavior.sendSize1) {
-			dump('INFO: Send auto Size1 option\n');
-			message.setSize1(CopperChrome.uploadBlocks.length);
-			document.getElementById('debug_option_size1').value = CopperChrome.uploadBlocks.length;
+		if (Copper.behavior.sendSize1) {
+			Copper.logEvent('INFO: Send auto Size1 option');
+			message.setSize1(Copper.uploadBlocks.length);
+			document.getElementById('debug_option_size1').value = Copper.uploadBlocks.length;
 		}
 		
 		message.setBlock1(num, size, more);
 		
-		CopperChrome.clearLabels(num==0);
-		CopperChrome.client.send( message, CopperChrome.blockwiseHandler );
+		Copper.clearLabels(num==0);
+		Copper.endpoint.send( message, Copper.blockwiseHandler );
 	} catch (ex) {
-		CopperChrome.client.cancelTransactions();
-		alert('ERROR: Main.sendBlockwise1 ['+ex+']');
+		Copper.logError(ex);
 	}
 };
 
-CopperChrome.sendDelete = function(uri, callback) {
+Copper.sendDelete = function(uri, callback) {
 	try {
 		if (!uri) throw 'No URI specified';
 		
-		CopperChrome.downloadMethod = Copper.GET;
+		Copper.downloadMethod = Copper.GET;
 		
-		var message = new CopperChrome.CoapMessage(CopperChrome.getRequestType(), Copper.DELETE, uri);
+		var message = new Copper.CoapMessage(Copper.getRequestType(), Copper.DELETE, uri);
 
 		
-		CopperChrome.checkDebugOptions(message);
+		Copper.checkDebugOptions(message);
 		
-		CopperChrome.clearLabels();
-		CopperChrome.client.send( message, callback );
+		Copper.clearLabels();
+		Copper.endpoint.send( message, callback );
 	} catch (ex) {
-		CopperChrome.client.cancelTransactions();
-		alert('ERROR: Main.sendDelete ['+ex+']');
+		Copper.logError(ex);
 	}
 };
 
-CopperChrome.observe = function(uri) {
+Copper.observe = function(uri) {
 	try {
-		CopperChrome.observer.subscribe(uri, CopperChrome.observingHandler);
+		Copper.observer.subscribe(uri, Copper.observingHandler);
 		
 	} catch (ex) {
-		CopperChrome.client.cancelTransactions();
-		alert('ERROR: Main.observe ['+ex+']');
+		Copper.logError(ex);
 	}
 };
 
-CopperChrome.discover = function(block, size) {
+Copper.discover = function(num, size) {
 	try {
-		var message = new CopperChrome.CoapMessage(CopperChrome.getRequestType(), Copper.GET, Copper.WELL_KNOWN_RESOURCES);
+		let message = new Copper.CoapMessage(Copper.getRequestType(), Copper.GET, Copper.WELL_KNOWN_RESOURCES);
 		
-		if (block!=null) {
-			if (size==null) size = CopperChrome.behavior.blockSize;
-			message.setBlock(block, size);
-		} 
+		if (num!==undefined) {
+			Copper.logEvent('INFO: Continuing discovery with Block '+num+' size '+size);
+			if (size===undefined) size = Copper.behavior.blockSize;
+			message.setBlock2(num, size);
+		}
 		
-		CopperChrome.client.send( message, CopperChrome.discoverHandler );
+		Copper.endpoint.send( message, Copper.discoverHandler );
 	} catch (ex) {
-		CopperChrome.client.cancelTransactions();
-		alert('ERROR: Main.discover ['+ex+']');
+		Copper.logError(ex);
 	}
 };
 
 // Sends a CoAP ping which is an empty CON message
-CopperChrome.ping = function() {
+Copper.ping = function() {
 	try {
-		CopperChrome.client.cancelTransactions();
+		Copper.endpoint.cancelTransactions();
 		
-		var message = new CopperChrome.CoapMessage(Copper.MSG_TYPE_CON);
+		var message = new Copper.CoapMessage(Copper.MSG_TYPE_CON);
 		
-		CopperChrome.clearLabels();
-		CopperChrome.client.send( message );
+		Copper.clearLabels();
+		Copper.endpoint.send( message, Copper.pingHandler );
 	} catch (ex) {
-		CopperChrome.client.cancelTransactions();
-		alert('ERROR: Main.ping ['+ex+']');
+		Copper.logError(ex);
 	}
 };

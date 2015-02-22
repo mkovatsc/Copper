@@ -39,111 +39,112 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 // Handle normal incoming messages, registered as default at TransactionHandler
-CopperChrome.defaultHandler = function(message) {
-	dump('INFO: defaultHandler()\n');
+Copper.defaultHandler = function(message) {
+	
+	Copper.logEvent('INFO: defaultHandler()');
 	
 	// late blocksize negotiation
-	if (message.isOption(Copper.OPTION_BLOCK) && CopperChrome.downloadMethod!=0
-			|| message.isOption(Copper.OPTION_BLOCK1) && CopperChrome.uploadMethod!=0) {
-		return CopperChrome.blockwiseHandler(message);
+	if (message.isOption(Copper.OPTION_BLOCK2) && Copper.downloadMethod!=0
+			|| message.isOption(Copper.OPTION_BLOCK1) && Copper.uploadMethod!=0) {
+		return Copper.blockwiseHandler(message);
 	}
 
-	if (message.getRTT) document.getElementById('info_host').label = '' + CopperChrome.hostname + ':' + CopperChrome.port + ' (RTT: ' + message.getRTT() + 'ms)';
+	if (message.getRTT) document.getElementById('info_host').label = '' + Copper.hostname + ':' + Copper.port + ' (RTT: ' + message.getRTT() + 'ms)';
 	
-	CopperChrome.displayMessageInfo(message);
-	CopperChrome.displayPayload(message);
+	Copper.displayMessageInfo(message);
+	Copper.displayPayload(message);
 	
-	if (message.getContentType()==Copper.CONTENT_TYPE_APPLICATION_LINK_FORMAT) {
-		CopperChrome.updateResourceLinks( CopperChrome.parseLinkFormat( document.getElementById('packet_payload').value ) );
+	if (message.getContentFormat()==Copper.CONTENT_TYPE_APPLICATION_LINK_FORMAT) {
+		Copper.updateResourceLinks( Copper.parseLinkFormat( document.getElementById('packet_payload').value ) );
 	}
 };
 
 //Handle ping responses
-CopperChrome.pingHandler = function(message) {
-	dump('INFO: pingHandler()\n');
+Copper.pingHandler = function(message) {
+	Copper.logEvent('INFO: pingHandler()');
 	
-	if (message.getRTT) document.getElementById('info_host').label = '' + CopperChrome.hostname + ':' + CopperChrome.port + ' (RTT: ' + message.getRTT() + 'ms)';
+	if (message.getRTT) document.getElementById('info_host').label = '' + Copper.hostname + ':' + Copper.port + ' (RTT: ' + message.getRTT() + 'ms)';
 
-	CopperChrome.displayMessageInfo(message);
-	CopperChrome.updateLabel('info_code', 'Pong: Remote responds to CoAP');
+	Copper.displayMessageInfo(message);
+	Copper.updateLabel('info_code', 'Pong: Remote responds to CoAP');
 };
 
 // Handle messages with block-wise transfer
-CopperChrome.blockwiseHandler = function(message) {
-	dump('INFO: blockwiseHandler()\n');
+Copper.blockwiseHandler = function(message) {
+	Copper.logEvent('INFO: blockwiseHandler()');
 	
-	CopperChrome.displayMessageInfo(message);
-	CopperChrome.updateLabel('info_code', ' (Blockwise)', true); // call after displayMessageInfo()
-	CopperChrome.displayPayload(message);
+	Copper.displayMessageInfo(message);
+	Copper.updateLabel('info_code', ' (Blockwise)', true); // call after displayMessageInfo()
+	Copper.displayPayload(message);
 	
 	if (message.isOption(Copper.OPTION_BLOCK1)) {
 		
 		// block size negotiation
 		let size = message.getBlock1Size();
-		if (CopperChrome.behavior.blockSize!=0 && CopperChrome.behavior.blockSize < size) {
-			size = CopperChrome.behavior.blockSize;
+		if (Copper.behavior.blockSize!=0 && Copper.behavior.blockSize < size) {
+			size = Copper.behavior.blockSize;
 		}
 		// calculate offset first to continue with correct num (if block size differs)
 		let offset = message.getBlock1Size() * (message.getBlock1Number() + 1);
 		let num = offset/size;
 		
-		if (message.isSuccess() && CopperChrome.uploadBlocks!=null && offset < CopperChrome.uploadBlocks.length) {
+		if (message.isSuccess() && Copper.uploadBlocks!=null && offset < Copper.uploadBlocks.length) {
 			
-			CopperChrome.updateLabel('info_code', ' (Uploading...)', true);
+			Copper.updateLabel('info_code', ' (Uploading...)', true);
 
 			// automatically count up
 			document.getElementById('debug_option_block1').value = num;
-			if (offset+size < CopperChrome.uploadBlocks.length) document.getElementById('debug_option_block1').value += '+';
+			if (offset+size < Copper.uploadBlocks.length) document.getElementById('debug_option_block1').value += '+';
 			
 			if ( !document.getElementById('chk_debug_options').checked || document.getElementById('chk_debug_option_block_auto').checked ) {
-				CopperChrome.sendBlockwise1(document.location.href, num, size);
+				Copper.sendBlockwise1(Copper.mainWindow.document.getElementById('urlbar').value, num, size);
 				return;
 			}
 		} else {
 			// finished
-			CopperChrome.uploadMethod = 0;
-			CopperChrome.uploadBlocks = null;
+			Copper.uploadMethod = 0;
+			Copper.uploadBlocks = null;
 			document.getElementById('debug_option_block1').value = ''; // important when continuing with Block1
 			
-			CopperChrome.updateLabel('info_code', ' (Upload finished)', true); // call after displayMessageInfo()
+			Copper.updateLabel('info_code', ' (Upload finished)', true); // call after displayMessageInfo()
 
 			// call custom callback
-			if (CopperChrome.uploadHandler) {
-				CopperChrome.uploadHandler(message);
-				CopperChrome.uploadHandler = null;
+			if (Copper.uploadHandler) {
+				Copper.uploadHandler(message);
+				Copper.uploadHandler = null;
 			}
 		}
 	}
 
-	if (message.isOption(Copper.OPTION_BLOCK)) {
-		if (message.getBlockMore()) {
+	if (message.isOption(Copper.OPTION_BLOCK2)) {
+		if (message.getBlock2More()) {
 			
 			// block size negotiation
-			let size = CopperChrome.negotiateBlockSize(message);
-			let offset = message.getBlockOffset();
+			let size = Copper.negotiateBlockSize(message);
+			let offset = message.getBlock2Offset();
 			let num = offset/size;
 			
 			// automatically count up
 			document.getElementById('debug_option_block2').value = num;				
 			
 			if ( !document.getElementById('chk_debug_options').checked || document.getElementById('chk_debug_option_block_auto').checked) {
-				CopperChrome.sendBlockwise2(document.location.href, num, size);
+				Copper.sendBlockwise2(Copper.mainWindow.document.getElementById('urlbar').value, num, size);
 			}
 		} else {
 			// finished
-			CopperChrome.downloadMethod = 0;
+			Copper.downloadMethod = 0;
 			document.getElementById('debug_option_block2').value = '';
 
-			CopperChrome.updateLabel('info_code', ' (Download finished)', true); // call after displayMessageInfo()
+			Copper.updateLabel('info_code', ' (Download finished)', true); // call after displayMessageInfo()
 			
-			if (message.getContentType()==Copper.CONTENT_TYPE_APPLICATION_LINK_FORMAT) {
-				CopperChrome.updateResourceLinks( CopperChrome.parseLinkFormat( document.getElementById('packet_payload').value ) );
+			if (message.getContentFormat()==Copper.CONTENT_TYPE_APPLICATION_LINK_FORMAT) {
+				Copper.updateResourceLinks( Copper.parseLinkFormat( document.getElementById('packet_payload').value ) );
 			}
 			
 			// call custom callback
-			if (CopperChrome.downloadHandler) {
-				CopperChrome.downloadHandler(message);
-				CopperChrome.downloadHandler = null;
+			if (Copper.downloadHandler) {
+				Copper.downloadHandler(message);
+				Copper.downloadHandler = null;
 			}
 		}
 	}
@@ -151,88 +152,89 @@ CopperChrome.blockwiseHandler = function(message) {
 };
 
 //Handle messages with block-wise transfer
-CopperChrome.observingHandler = function(message) {
-	dump('INFO: observingHandler()\n');
+Copper.observingHandler = function(message) {
+	Copper.logEvent('INFO: observingHandler()\n');
 	
-	CopperChrome.displayMessageInfo(message);
+	Copper.displayMessageInfo(message);
 	if (message.isOption(Copper.OPTION_OBSERVE)) {
-		CopperChrome.updateLabel('info_code', ' (Observing)', true); // call after displayMessageInfo()
+		Copper.updateLabel('info_code', ' (Observing)', true); // call after displayMessageInfo()
 	} else {
-		CopperChrome.updateLabel('info_code', ' (Observing stopped)', true); // call after displayMessageInfo()
+		Copper.updateLabel('info_code', ' (Observing stopped)', true); // call after displayMessageInfo()
 	}
-	CopperChrome.displayPayload(message);
+	Copper.displayPayload(message);
 	
 	//TODO duplicated code from blockwise handler
-	if (message.isOption(Copper.OPTION_BLOCK)) {
+	if (message.isOption(Copper.OPTION_BLOCK2)) {
 		
-		CopperChrome.updateLabel('info_code', ' (Blockwise)', true); // call after displayMessageInfo()
+		Copper.updateLabel('info_code', ' (Blockwise)', true); // call after displayMessageInfo()
 		
-		if (message.getBlockMore()) {
+		if (message.getBlock2More()) {
 			
-			CopperChrome.downloadMethod = Copper.GET;
+			Copper.downloadMethod = Copper.GET;
 			
 			// block size negotiation
-			let size = CopperChrome.negotiateBlockSize(message);
-			let offset = message.getBlockOffset();
+			let size = Copper.negotiateBlockSize(message);
+			let offset = message.getBlock2Offset();
 			let num = offset/size;
 			
-			CopperChrome.sendBlockwise2(document.location.href, num, size);
+			Copper.sendBlockwise2(Copper.mainWindow.document.getElementById('urlbar').value, num, size);
 		}
 	}
 };
 
 // Handle messages with link format payload
-CopperChrome.discoverCache = new String(); 
-CopperChrome.discoverHandler = function(message) {
-	dump('INFO: discoverHandler()\n');
-	if (message.getContentType()==Copper.CONTENT_TYPE_APPLICATION_LINK_FORMAT) {
+Copper.discoverCache = new String(); 
+Copper.discoverHandler = function(message) {
+	
+	Copper.logEvent('INFO: discoverHandler()');
+	
+	if (message.getContentFormat()==Copper.CONTENT_TYPE_APPLICATION_LINK_FORMAT) {
 		
-		if (message.isOption(Copper.OPTION_BLOCK)) {
+		if (message.isOption(Copper.OPTION_BLOCK2)) {
 			
-			if (message.getBlockMore()) {
+			if (message.getBlock2More()) {
 
 				// block size negotiation
-				let size = CopperChrome.negotiateBlockSize(message);
-				let offset = message.getBlockOffset();
+				let size = Copper.negotiateBlockSize(message);
+				let offset = message.getBlock2Offset();
 				let num = offset/size;
-				
-				CopperChrome.discover(num, size);
+				Copper.discover(num, size);
 			}
 			
-			if (message.getBlockNumber()==0) {
-				dump('INFO: Starting new discover cache\n');
-				CopperChrome.discoverCache = new String(); 
+			if (message.getBlock2Number()==0) {
+				Copper.logEvent('INFO: Starting new discover cache');
+				Copper.discoverCache = new String(); 
 			}
 			
-			CopperChrome.discoverCache += Copper.bytes2str( message.getPayload() );
+			Copper.discoverCache += Copper.bytes2str( message.getPayload() );
 			
-			if (!message.getBlockMore()) {
-				dump('INFO: Appending discover cache\n');
+			if (!message.getBlock2More()) {
+				Copper.logEvent('INFO: Appending discover cache\n');
 				// link-format
-				CopperChrome.resourcesCached = false;
-				CopperChrome.updateResourceLinks( CopperChrome.parseLinkFormat( CopperChrome.discoverCache ) );
+				Copper.resourcesCached = false;
+				Copper.updateResourceLinks( Copper.parseLinkFormat( Copper.discoverCache ) );
 
 				document.getElementById('toolbar_discover').image = 'chrome://copper/skin/tool_discover.png';
 			}
 		} else {
 			// link-format
-			CopperChrome.resourcesCached = false;
-			CopperChrome.updateResourceLinks( CopperChrome.parseLinkFormat( Copper.bytes2str( message.getPayload() ) ) );
+			Copper.resourcesCached = false;
+			Copper.updateResourceLinks( Copper.parseLinkFormat( Copper.bytes2str( message.getPayload() ) ) );
 
 			document.getElementById('toolbar_discover').image = 'chrome://copper/skin/tool_discover.png';
 		}
 	} else {
-		alert('ERROR: Main.discoverHandler [Content-Type is '+message.getContentType()+', not \'application/link-format\']');
+		Copper.logWarning(new Error("Discovery requires 'application/link-format', but received "+message.getContentFormat()));
 	}
 };
 
-CopperChrome.errorHandler = function(message) {
-	dump('INFO: errorHandler()\n');
+Copper.errorHandler = function(message) {
+	Copper.logEvent('INFO: errorHandler()\n');
 	
 	document.getElementById('group_head').setAttribute('style', 'display: none;');
 	document.getElementById('group_payload').setAttribute('style', 'display: none;');
 	
-	CopperChrome.updateLabel('info_code', 'Copper: '+ message.getCopperCode());
+	Copper.updateLabel('info_code', 'Copper: '+ message.getCopperCode());
 	
-	CopperChrome.client.cancelTransactions();
+	Copper.endpoint.cancelTransactions();
 };

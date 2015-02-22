@@ -35,7 +35,7 @@
  * \author  Matthias Kovatsch <kovatsch@inf.ethz.ch>\author
  */
 
-CopperChrome.ObserveEntry = function(uri, cb, token) {
+Copper.ObserveEntry = function(uri, cb, token) {
 	this.uri = uri;
 	this.callback = cb;
 	if (token!=null) {
@@ -44,21 +44,21 @@ CopperChrome.ObserveEntry = function(uri, cb, token) {
 	
 	return this;
 };
-CopperChrome.ObserveEntry.prototype = {
+Copper.ObserveEntry.prototype = {
 	uri : null,
 	callback: null,
 	token : null,
-	lastTID: -1
+	lastMID: -1
 };
 
-CopperChrome.Observing = function() {
+Copper.Observing = function() {
 	// maybe support multiple subscriptions via sidebar in the future
 	//this.subscriptions = new Object();
 	
 	return this;
 };
 
-CopperChrome.Observing.prototype = {
+Copper.Observing.prototype = {
 	
 	pending : null,
 	subscription : null,
@@ -70,15 +70,15 @@ CopperChrome.Observing.prototype = {
 			return;
 		}
 		
-		dump('INFO: Subscribing to ' + uri + '\n');
+		Copper.logEvent('INFO: Subscribing to ' + uri);
 		
-		var subscribe = new CopperChrome.CoapMessage(CopperChrome.getRequestType(), Copper.GET, uri);
+		var subscribe = new Copper.CoapMessage(Copper.getRequestType(), Copper.GET, uri);
 
 		// add all debug options
-		CopperChrome.checkDebugOptions(subscribe);
+		Copper.checkDebugOptions(subscribe);
 		
 		// set token depending on the behavior config
-		if (CopperChrome.behavior.observeToken && !subscribe.getToken()) {
+		if (Copper.behavior.observeToken && subscribe.getToken()) {
 			subscribe.setToken( new Array(parseInt(Math.random()*0x100), parseInt(Math.random()*0x100)) );
 			// update debug options
 			if (document.getElementById('chk_debug_options').checked) {
@@ -86,63 +86,55 @@ CopperChrome.Observing.prototype = {
 			}
 		}
 		
-		if (CopperChrome.behavior.blockSize!=0) {
-			subscribe.setBlock(0, CopperChrome.behavior.blockSize);
+		if (Copper.behavior.blockSize!=0) {
+			subscribe.setBlock2(0, Copper.behavior.blockSize);
 		}
 		
-		this.pending = new CopperChrome.ObserveEntry(uri, cb, subscribe.getToken());
+		this.pending = new Copper.ObserveEntry(uri, cb, subscribe.getToken());
 
 		var that = this;
-		CopperChrome.client.registerToken(subscribe.getToken(), CopperChrome.myBind(that, that.handle));
+		Copper.endpoint.registerToken(subscribe.getToken(), Copper.myBind(that, that.handle));
 		
 		try {
 			
-			if (CopperChrome.coapVersion < 4) {
-				subscribe.setObserve(60);
-			} else {
-				subscribe.setObserve(0);
-			}
+			subscribe.setObserve(0);
 
 			var that = this;
-			CopperChrome.clearLabels();
-			CopperChrome.client.send(subscribe, CopperChrome.myBind(that, that.handle));
+			Copper.clearLabels();
+			Copper.endpoint.send(subscribe, Copper.myBind(that, that.handle));
 		} catch (ex) {
-			alert('ERROR: Observing.subscribe ['+ex+']');
+			Copper.logError(ex);
 		}
 	},
 
 	unsubscribe : function(token) {
 		if (this.subscription) {
-			dump('INFO: Unsubscribing ' + this.subscription.uri + '\n');
-			CopperChrome.client.deRegisterToken(this.subscription.token);
+			Copper.logEvent('INFO: Unsubscribing ' + this.subscription.uri + '\n');
+			Copper.endpoint.deRegisterToken(this.subscription.token);
 			
-			if (CopperChrome.behavior.observeCancellation=='rst' && this.subscription.lastTID!=-1) {
-				// Send a RST (with new message ID)
-				try {
-					var rst = new CopperChrome.CoapMessage(Copper.MSG_TYPE_RST);
-					rst.setTID(this.subscription.lastTID);
-					CopperChrome.client.send( rst );
-				} catch (ex) {
-					alert('ERROR: Observing.unsubscribe ['+ex+']');
-				}
-			} else if (CopperChrome.behavior.observeCancellation=='cancel') {
-				try {
-					CopperChrome.downloadMethod = Copper.GET;
+			try {
+				if (Copper.behavior.observeCancellation=='rst' && this.subscription.lastMID!=-1) {
+					// Send a RST (with new message ID)
+					var rst = new Copper.CoapMessage(Copper.MSG_TYPE_RST);
+					rst.setMID(this.subscription.lastMID);
+					Copper.endpoint.send( rst );
+				} else if (Copper.behavior.observeCancellation=='cancel') {
+					Copper.downloadMethod = Copper.GET;
 					
-					let uri = CopperChrome.checkUri(); // get current URI
-					var cancel = new CopperChrome.CoapMessage(Copper.MSG_TYPE_CON, Copper.GET, uri); // always use CON
+					let uri = Copper.checkUri(); // get current URI
+					var cancel = new Copper.CoapMessage(Copper.MSG_TYPE_CON, Copper.GET, uri); // always use CON
 					cancel.setToken(this.subscription.token);
 					
 					cancel.setObserve(1);
 					
-					CopperChrome.clearLabels();
-					CopperChrome.client.send( cancel );
-				} catch (ex) {
-					alert('ERROR: Observing.unsubscribe ['+ex+']');
+					Copper.clearLabels();
+					Copper.endpoint.send( cancel );
 				}
+			} catch (ex) {
+				Copper.logError(ex);
 			}
 			
-			CopperChrome.updateLabel('info_code', 'Copper: Canceled', false); // call after displayMessageInfo()
+			Copper.updateLabel('info_code', 'Copper: Canceled', false); // call after displayMessageInfo()
 			
 			this.subscription = null;
 		}
@@ -158,30 +150,30 @@ CopperChrome.Observing.prototype = {
 			// check if server supports observing this resource
 			if (message.isOption(Copper.OPTION_OBSERVE)) {
 				
-				this.subscription = new CopperChrome.ObserveEntry(this.pending.uri, this.pending.callback, message.getToken());
+				this.subscription = new Copper.ObserveEntry(this.pending.uri, this.pending.callback, message.getToken());
 				this.pending = null;
 				
 				document.getElementById('toolbar_observe').image = 'chrome://copper/skin/tool_unobserve.png';
 				document.getElementById('toolbar_observe').label = 'Cancel ';
 
-				this.subscription.lastTID = message.getTID();
+				this.subscription.lastMID = message.getMID();
 				this.subscription.callback(message);
 				
 			} else {
 				
-				CopperChrome.client.deRegisterToken(this.pending.token);
+				Copper.endpoint.deRegisterToken(this.pending.token);
 				this.pending = null;
 				
 				message.getCopperCode = function() { return 'Resource not observable'; };
 				
-				CopperChrome.defaultHandler(message);
+				Copper.defaultHandler(message);
 			}
 		} else if (this.subscription!=null) {
-			this.subscription.lastTID = message.getTID();
+			this.subscription.lastMID = message.getMID();
 			this.subscription.callback(message);
 		} else {
 			// somehow it must have gotten here
-			CopperChrome.client.deRegisterToken(message.getToken());
+			Copper.endpoint.deRegisterToken(message.getToken());
 			
 			throw 'Missing context for Observing.handle()';
 		}
