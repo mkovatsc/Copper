@@ -99,11 +99,12 @@ Copper.addTreeResource = function(uri, attributes) {
 			node = cur;
 			continue;
 		} else {
+			let activePath = Copper.hostname+':'+Copper.port+Copper.path;
 			// path until current level
-			var path = segments.slice(0,i+1).join('/');
-			var properties = '';
+			let path = segments.slice(0,i+1).join('/');
+			let properties = '';
 			
-			var itemCell = document.createElement("treecell");
+			let itemCell = document.createElement("treecell");
 			itemCell.setAttribute('label', segments[i]);
 			itemCell.setAttribute('value', path);
 			
@@ -118,7 +119,7 @@ Copper.addTreeResource = function(uri, attributes) {
 				properties += 'observable ';
 			}
 			// highlight current location
-			if (path==Copper.path) {
+			if (path==activePath) {
 				properties += 'active ';
 			}
 			// visualize freshness
@@ -183,8 +184,11 @@ Copper.onTreeClicked = function(event) {
 	if (child.value!='twisty') {
 		
 		if(event.which == 2 ) {
+			Copper.logEvent('INFO: Middlebutton on ' + child.value);
 			event.preventDefault();
-			Copper.mainWindow.gBrowser.addTab( 'coap://' + tree.view.getCellValue(row.value, col.value) ); 
+			Copper.mainWindow.gBrowser.addTab( 'coap://' + tree.view.getCellValue(row.value, col.value) );
+		} else if(event.which == 3 ) {
+			
 		} else {
 			document.location.href = 'coap://' + tree.view.getCellValue(row.value, col.value);
 		}

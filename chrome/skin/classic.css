@@ -93,6 +93,9 @@ treechildren::-moz-tree-image() {
   margin: 0px 4px 0px 2px;
   width: 16px;
 }
+treechildren::-moz-tree-cell-text() {
+	color: darkgreen;
+}
 treechildren::-moz-tree-cell-text(hover) {
 	cursor: pointer;
 	text-decoration: underline;
@@ -111,8 +114,5 @@ treechildren::-moz-tree-cell-text(active) {
 	color: black;
 }
 treechildren::-moz-tree-cell-text(cached) {
-	color: red;
-}
-treechildren::-moz-tree-cell-text(cached active) {
-	color: darkred;
+	color: black;
 }
