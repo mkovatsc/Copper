@@ -175,7 +175,7 @@ Copper.Observing.prototype = {
 			// somehow it must have gotten here
 			Copper.endpoint.deRegisterToken(message.getToken());
 			
-			throw 'Missing context for Observing.handle()';
+			throw new Error('Missing context for Observing.handle()');
 		}
 	}
 };

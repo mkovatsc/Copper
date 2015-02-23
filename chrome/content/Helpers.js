@@ -138,8 +138,7 @@ Copper.loadPayload = function() {
 		if (Copper.payload.file!='') {
 			Copper.loadPayloadFileByName(Copper.payload.file);
 		}
-	} catch( ex ) {
-		Copper.logError(ex)
+	} catch (ex) {
 	    Copper.logEvent('INFO: no stored payload for '+Copper.hostname+':'+Copper.port);
 	}
 };
@@ -234,7 +233,7 @@ Copper.loadCachedResources = function() {
 		Copper.logEvent('INFO: loading cached resource links');
 		let loadRes = Copper.prefManager.getCharPref('extensions.copper.resources.'+Copper.hostname+':'+Copper.port);
 		Copper.resources = JSON.parse( unescape(loadRes) );
-	} catch( ex ) {
+	} catch (ex) {
 	    Copper.logEvent('INFO: no cached links for '+Copper.hostname+':'+Copper.port);
 	}
 };
@@ -257,25 +256,25 @@ Copper.parseUri = function(inputUri) {
 	    	.newURI(inputUri, null, null);
 		
 		uri = uriParser.QueryInterface(Components.interfaces.nsIURL);
-	} catch(ex) {
+	} catch (ex) {
 		// cannot parse URI
-		throw 'Invalid URI';
+		throw new Error('Invalid URI');
 	}
 	
 	// redirect to omit subsequent slash, refs (#), and params (;)
 	if (uri.filePath!='/' && uri.fileName=='') {
 		document.location.href = uri.prePath + uri.filePath.substring(0, uri.filePath.length-1) + (uri.query!='' ? '?'+uri.query : '');
-		throw 'Redirect';
+		throw new Error('Redirect');
 	} else if (uri.ref!='') {
 		document.location.href = uri.prePath + uri.filePath + (uri.query!='' ? '?'+uri.query : '');
-		throw 'Redirect';
+		throw new Error('Redirect');
 	} else if (uri.filePath.match(/\/{2,}/)) {
 		document.location.href = uri.prePath + uri.filePath.replace(/\/{2,}/g, '/') + (uri.query!='' ? '?'+uri.query : '');
-		throw 'Redirect';
+		throw new Error('Redirect');
 	}
 	
 	if (uri.port>0xFFFF) {
-		throw 'Illeagal port';
+		throw new Error('Illeagal port');
 	}
 	
 	// DNS lookup
@@ -289,7 +288,7 @@ Copper.parseUri = function(inputUri) {
 		}
 		
 	} catch (ex) {
-		throw 'Cannot resolve host';
+		throw new Error('Cannot resolve host');
 	}
 	
 	Copper.hostname = uri.host;
@@ -326,7 +325,7 @@ Copper.checkUri = function(uri, caller) {
 		document.location.href = uri;
 		
 		// required to stop execution for redirect
-		throw 'REDIRECT';
+		throw new Error('Redirect');
 	} else {
 		return Copper.path + (Copper.query ? '?'+Copper.query : '');
 	}

@@ -69,7 +69,6 @@ Copper.UdpClient.prototype = {
 	localAddr        : null,
 	
 	callback         : null,
-	errorCallback    : null,
 	ended            : false,
 	
 	transportService : null,
@@ -85,10 +84,6 @@ Copper.UdpClient.prototype = {
 		this.callback = myCB;
 	},
 	
-	registerErrorCallback : function(myCB) {
-		this.errorCallback = myCB;
-	},
-	
 	// stream observer functions
 	onStartRequest : function(request, context) {
 		;
@@ -97,9 +92,9 @@ Copper.UdpClient.prototype = {
 	onStopRequest : function(request, context, status) {
 		if (!this.ended) {
 			this.shutdown();
-			Copper.logError(new Error('Host/network unreachable'), true);
+			throw new Error('Host/network unreachable');
 		} else {
-			Copper.logWarning('Illegal state');
+			Copper.logWarning('Illegal UdpClient state');
 		}
 	},
 	
@@ -127,7 +122,7 @@ Copper.UdpClient.prototype = {
 			
 			if (this.callback) this.callback(byteArray);
 			
-		} catch( ex ) {
+		} catch (ex) {
 			Copper.logError(ex);
 		}
 	},

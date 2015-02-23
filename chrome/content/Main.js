@@ -101,6 +101,10 @@ Copper.main = function() {
 		tabbrowser.setIcon(tabbrowser.mTabs[i], 'chrome://copper/skin/Cu_16.png');
 	}
 	
+	// Header table workaround to hide useless scrollbar
+	document.getElementById('packet_header').focus();
+	document.getElementById('packet_options').focus();
+	
 	// get settings from preferences
 	var onloadAction = null;
 	try {
@@ -126,16 +130,10 @@ Copper.main = function() {
 	
 	// open location
 	try {
-		// Header table workaround to hide useless scrollbar
-		document.getElementById('packet_header').focus();
-		document.getElementById('packet_options').focus();
-		
 		Copper.parseUri(document.location.href);
 		
 		// set up datagram and transaction layer
-		var temp = new Copper.UdpClient(Copper.hostname, Copper.port);
-		temp.registerErrorCallback(Copper.errorHandler);
-		Copper.endpoint = new Copper.TransactionHandler(temp, Copper.behavior.retransmissions);
+		Copper.endpoint = new Copper.TransactionHandler(new Copper.UdpClient(Copper.hostname, Copper.port), Copper.behavior.retransmissions);
 		Copper.endpoint.registerCallback(Copper.defaultHandler);
 		
 		// enable observing
@@ -159,10 +157,9 @@ Copper.main = function() {
 			Copper.prefManager.setCharPref('extensions.copper.onload-action', '');
 		}
 		
-	} catch( ex ) {
-		Copper.errorHandler({getCopperCode:function(){return ex;},getPayload:function(){return '';}});
-		
-	    Copper.logEvent('ERROR: Main.init ['+ex+']\n');
+	} catch (ex) {
+		Copper.errorHandler({getCopperCode:function(){return ex.message;}, getPayload:function(){return ex.stacktrace;}});
+		Copper.logEvent('ERROR: ' + ex.message + '\n\t' + ex.stack.replace(/\n/, '\n\t'));
 	}
 };
 
@@ -227,7 +224,7 @@ Copper.userDiscover = function() {
 
 Copper.sendGet = function(uri, callback) {
 	try {
-		if (!uri) throw 'No URI specified';
+		if (!uri) throw new Error('No URI specified');
 		
 		Copper.downloadMethod = Copper.GET;
 		
@@ -248,12 +245,12 @@ Copper.sendGet = function(uri, callback) {
 };
 Copper.sendBlockwise2 = function(uri, num, size, callback) {
 	try {
-		if (!uri) throw 'No URI specified';
+		if (!uri) throw new Error('No URI specified');
 		if (!num) num = 0;
 		if (!size) size = Copper.behavior.blockSize;
 		
 		if (Copper.downloadMethod==0) {
-			throw 'No download in progress, cancelling';
+			throw new Error('No download in progress');
 		}
 		
 		if (callback) Copper.downloadHandler = callback;
@@ -384,7 +381,7 @@ Copper.sendBlockwise1 = function(uri, num, size, callback) {
 
 Copper.sendDelete = function(uri, callback) {
 	try {
-		if (!uri) throw 'No URI specified';
+		if (!uri) throw new Error('No URI specified');
 		
 		Copper.downloadMethod = Copper.GET;
 		

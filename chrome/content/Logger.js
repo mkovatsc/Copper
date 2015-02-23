@@ -41,7 +41,7 @@ Copper.resetLogger = function() {
 	let rows = document.getElementById('log_messages');
 	let toRemove = rows.getElementsByTagName('listitem');
 	for (let r in toRemove) {
-		try {rows.removeChild(toRemove[r]);} catch(ex){};
+		try {rows.removeChild(toRemove[r]);} catch (ex) {};
 	}
 };
 
@@ -118,7 +118,7 @@ Copper.logWarning = function(text) {
 };
 
 Copper.logError = function(error, skip) {
-	Copper.logEvent('ERROR: ' + error.message);
+	Copper.logEvent('ERROR: ' + error.message + '\n\t' + error.stack.replace(/\n/, '\n\t'));
 	if (Copper.endpoint) {
 		Copper.endpoint.cancelTransactions();
 	}

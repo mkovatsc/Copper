@@ -441,7 +441,7 @@ Copper.optionNibble = function(value) {
 	} else if (value <= 0xFFFF+269) {
 		return 14;
 	} else {
-		throw 'ERROR: CoapPacket.serialize [Nibble value larger that 526345 is not supported]';
+		throw new Error('Option delta/length larger than 65804 not allowed');
 	}
 };
 
