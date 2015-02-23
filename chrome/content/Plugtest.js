@@ -171,7 +171,7 @@ Copper.testCore03 = function() {
 	Copper.updateBehavior();
 	
 	document.getElementById('toolbar_payload_mode').value = 'page';
-	document.getElementById('payload_text_page').value = 'Copper (Cu) CC03';
+	document.getElementById('payload_text').value = 'Copper (Cu) CC03';
 	
 	Copper.sendPut( uri, Copper.testCore03checker );
 };
@@ -198,7 +198,7 @@ Copper.testCore04 = function() {
 	Copper.updateBehavior();
 	
 	document.getElementById('toolbar_payload_mode').value = 'page';
-	document.getElementById('payload_text_page').value = 'Copper (Cu) CC04';
+	document.getElementById('payload_text').value = 'Copper (Cu) CC04';
 	
 	Copper.sendPost( uri, Copper.testCore04checker );
 };
@@ -270,7 +270,7 @@ Copper.testCore07 = function() {
 	Copper.updateBehavior();
 	
 	document.getElementById('toolbar_payload_mode').value = 'page';
-	document.getElementById('payload_text_page').value = 'Copper (Cu) CC07';
+	document.getElementById('payload_text').value = 'Copper (Cu) CC07';
 	
 	Copper.sendPut(uri, Copper.testCore07checker );
 };
@@ -297,7 +297,7 @@ Copper.testCore08 = function() {
 	Copper.updateBehavior();
 	
 	document.getElementById('toolbar_payload_mode').value = 'page';
-	document.getElementById('payload_text_page').value = 'Copper (Cu) CC08';
+	document.getElementById('payload_text').value = 'Copper (Cu) CC08';
 	
 	Copper.sendPost(uri, Copper.testCore08checker );
 };
@@ -505,7 +505,7 @@ Copper.testCore18 = function() {
 	Copper.updateBehavior();
 	
 	document.getElementById('toolbar_payload_mode').value = 'page';
-	document.getElementById('payload_text_page').value = 'Copper (Cu) CC18';
+	document.getElementById('payload_text').value = 'Copper (Cu) CC18';
 	
 	Copper.sendPost( uri, Copper.testCore18checker );
 };
@@ -535,7 +535,7 @@ Copper.testCore19 = function() {
 	Copper.updateBehavior();
 	
 	document.getElementById('toolbar_payload_mode').value = 'page';
-	document.getElementById('payload_text_page').value = 'Copper (Cu) CC19';
+	document.getElementById('payload_text').value = 'Copper (Cu) CC19';
 	
 	Copper.sendPost(uri, Copper.testCore19checker );
 };
@@ -684,11 +684,11 @@ Copper.testCore22b = function() {
 	document.getElementById('debug_option_content_format').value = 'text/plain';
 	
 	document.getElementById('toolbar_payload_mode').value = 'page';
-	document.getElementById('payload_text_page').value = 'Copper (Cu) CC22b';
+	document.getElementById('payload_text').value = 'Copper (Cu) CC22b';
 	
 	// make sure to PUT a different payload
-	if (document.getElementById('payload_text_page').value==document.getElementById('packet_payload').value) {
-		document.getElementById('payload_text_page').value += '*';
+	if (document.getElementById('payload_text').value==document.getElementById('packet_payload').value) {
+		document.getElementById('payload_text').value += '*';
 	}
 	
 	Copper.sendPut(uri, Copper.testCore22bchecker );
@@ -721,7 +721,7 @@ Copper.testCore22cchecker = function(message) {
 	if (message.getCode()!=0) {
 		if (message.getCode()!=Copper.CODE_2_05_CONTENT) alert("Fail: Code should be 2.05");
 		if (message.getToken()!='empty') alert("Fail: Token should be empty");
-		if (Copper.bytes2str(message.getPayload()).indexOf(document.getElementById('payload_text_page').value)==-1) alert("Fail: Payload should be " + document.getElementById('payload_text_page').value);
+		if (Copper.bytes2str(message.getPayload()).indexOf(document.getElementById('payload_text').value)==-1) alert("Fail: Payload should be " + document.getElementById('payload_text').value);
 		if (document.getElementById('debug_option_if_match').value == document.getElementById('packet_options_etag').getAttribute('label')) alert("Fail: ETag should be different from If-Match.");
 	}
 };
@@ -742,11 +742,11 @@ Copper.testCore22d = function() {
 	document.getElementById('debug_option_content_format').value = 'text/plain';
 	
 	document.getElementById('toolbar_payload_mode').value = 'page';
-	document.getElementById('payload_text_page').value = 'Copper (Cu) CC22d';
+	document.getElementById('payload_text').value = 'Copper (Cu) CC22d';
 	
 	// make sure to PUT a different payload
-	if (document.getElementById('payload_text_page').value==document.getElementById('packet_payload').value) {
-		document.getElementById('payload_text_page').value += '*';
+	if (document.getElementById('payload_text').value==document.getElementById('packet_payload').value) {
+		document.getElementById('payload_text').value += '*';
 	}
 	
 	Copper.sendPut(uri, Copper.testCore22dchecker );
@@ -778,7 +778,7 @@ Copper.testCore23a = function() {
 	Copper.updateBehavior();
 	
 	document.getElementById('toolbar_payload_mode').value = 'page';
-	document.getElementById('payload_text_page').value = 'Copper (Cu) CC23';
+	document.getElementById('payload_text').value = 'Copper (Cu) CC23';
 	
 	Copper.sendPut(uri, Copper.testCore23achecker);
 };
@@ -882,11 +882,11 @@ Copper.testBlock03 = function() {
 	Copper.updateBehavior();
 
 	document.getElementById('toolbar_payload_mode').value = 'page';
-	document.getElementById('payload_text_page').value = '';
+	document.getElementById('payload_text').value = '';
 	for (var i=0; i<23; ++i) {
-		document.getElementById('payload_text_page').value += '|---------------[each line contains 64 bytes]-----------------|\n';
+		document.getElementById('payload_text').value += '|---------------[each line contains 64 bytes]-----------------|\n';
 	}
-	document.getElementById('payload_text_page').value += '|-[this line only has 34 bytes]-|\n';
+	document.getElementById('payload_text').value += '|-[this line only has 34 bytes]-|\n';
 	
 	Copper.sendPut(uri, Copper.testBlock03checker);
 };
@@ -915,11 +915,11 @@ Copper.testBlock04 = function() {
 	Copper.updateBehavior();
 
 	document.getElementById('toolbar_payload_mode').value = 'page';
-	document.getElementById('payload_text_page').value = '';
+	document.getElementById('payload_text').value = '';
 	for (var i=0; i<23; ++i) {
-		document.getElementById('payload_text_page').value += '|---------------[each line contains 64 bytes]-----------------|\n';
+		document.getElementById('payload_text').value += '|---------------[each line contains 64 bytes]-----------------|\n';
 	}
-	document.getElementById('payload_text_page').value += '|-[this line only has 34 bytes]-|\n';
+	document.getElementById('payload_text').value += '|-[this line only has 34 bytes]-|\n';
 	
 	Copper.sendPost(uri, Copper.testBlock04checker);
 };
@@ -948,11 +948,11 @@ Copper.testBlock05 = function() {
 	Copper.updateBehavior();
 
 	document.getElementById('toolbar_payload_mode').value = 'page';
-	document.getElementById('payload_text_page').value = '';
+	document.getElementById('payload_text').value = '';
 	for (var i=0; i<23; ++i) {
-		document.getElementById('payload_text_page').value += '|---------------[each line contains 64 bytes]-----------------|\n';
+		document.getElementById('payload_text').value += '|---------------[each line contains 64 bytes]-----------------|\n';
 	}
-	document.getElementById('payload_text_page').value += '|-[this line only has 34 bytes]-|\n';
+	document.getElementById('payload_text').value += '|-[this line only has 34 bytes]-|\n';
 	
 	Copper.sendPost(uri, Copper.testBlock05achecker);
 };
@@ -1227,7 +1227,7 @@ Copper.testObs08 = function() {
 	Copper.updateBehavior();
 	
 	document.getElementById('toolbar_payload_mode').value = 'page';
-	document.getElementById('payload_text_page').value = 'random Content-Format ' + document.getElementById('debug_option_content_format').value;
+	document.getElementById('payload_text').value = 'random Content-Format ' + document.getElementById('debug_option_content_format').value;
 	
 	Copper.doUpload(Copper.PUT, Copper.updateTestURI('/obs') ); // does not call cancelTransactions()
 };
@@ -1250,7 +1250,7 @@ Copper.testObs09 = function() {
 	Copper.updateBehavior();
 	
 	document.getElementById('toolbar_payload_mode').value = 'page';
-	document.getElementById('payload_text_page').value = document.getElementById('debug_option_content_format').value;
+	document.getElementById('payload_text').value = document.getElementById('debug_option_content_format').value;
 	
 	Copper.doUpload(Copper.PUT, Copper.updateTestURI('/obs') ); // does not call cancelTransactions()
 };

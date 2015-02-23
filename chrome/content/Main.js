@@ -58,10 +58,6 @@ Copper.observer = null;
 Copper.resources = new Object();
 Copper.resourcesCached = true;
 
-Copper.payloadFile = '';
-Copper.payloadFileLoaded = false;
-Copper.payloadFileData = null;
-
 Copper.uploadMethod = 0;
 Copper.uploadBlocks = null;
 Copper.uploadHandler = null;
@@ -80,6 +76,13 @@ Copper.behavior = {
 	blockSize: 0,
 	observeToken: true,
 	observeCancellation: 'lazy'
+};
+
+Copper.payload = {
+	mode: 'text',
+	file: '',
+	loaded: false,
+	data: null
 };
 
 // Life cycle functions
@@ -141,8 +144,7 @@ Copper.main = function() {
 		Copper.loadCachedResources();
 		Copper.updateResourceLinks();
 		
-		Copper.loadLastPayload();
-		
+		Copper.loadPayload();
 		
 		// handle auto-request after redirect
 		if (onloadAction!='') {
@@ -296,15 +298,18 @@ Copper.doUpload = function(method, uri, callback) {
 		
 		// load payload
 		let pl = '';
-		if (document.getElementById('toolbar_payload_mode').value=='page') {
-			pl = Copper.str2bytes(document.getElementById('payload_text_page').value);
-		} else {
-			if (!Copper.payloadFileLoaded) {
+		if (Copper.payload.mode=='text') {
+			pl = Copper.str2bytes(document.getElementById('payload_text').value);
+		} else if (Copper.payload.file!='') {
+			if (!Copper.payload.loaded) {
 				// file loading as async, wait until done
 				window.setTimeout(function() {Copper.doUpload(method, uri, callback);}, 50);
 				return;
 			}
-			pl = Copper.data2bytes(Copper.payloadFileData);
+			pl = Copper.data2bytes(Copper.payload.data);
+		} else {
+			Copper.logWarning('No payload data defined');
+			return;
 		}
 		
 		// store payload in case server requests blockwise upload

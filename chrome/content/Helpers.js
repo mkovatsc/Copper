@@ -124,49 +124,56 @@ Copper.saveBehavior = function() {
 };
 
 //Load last used payload from preferences, otherwise use default payload
-Copper.loadLastPayload = function() {
+Copper.loadPayload = function() {
 	
-	document.getElementById('toolbar_payload_mode').selectedIndex = 0;
-	//document.getElementById('payload_text_line').value = Copper.prefManager.getCharPref('extensions.copper.default-payload');
+	Copper.logEvent('INFO: loading payload from extensions.copper.payloads.'+Copper.hostname+':'+Copper.port+'.*');
 	
 	try {
-		document.getElementById('toolbar_payload_mode').selectedIndex = Copper.prefManager.getIntPref('extensions.copper.payloads.'+Copper.hostname+':'+Copper.port+'.mode');		
-		document.getElementById('payload_text_page').value = Copper.prefManager.getCharPref('extensions.copper.payloads.'+Copper.hostname+':'+Copper.port+'.page');
-		Copper.payloadFile = Copper.prefManager.getCharPref('extensions.copper.payloads.'+Copper.hostname+':'+Copper.port+'.file');
+		Copper.payload.mode = Copper.prefManager.getCharPref('extensions.copper.payloads.'+Copper.hostname+':'+Copper.port+'.mode');
+		Copper.payload.file = Copper.prefManager.getCharPref('extensions.copper.payloads.'+Copper.hostname+':'+Copper.port+'.file');
 		
-		if (Copper.payloadFile!='') {
-			Copper.loadPayloadFileByName(Copper.payloadFile);
+		document.getElementById('toolbar_payload_mode_' + Copper.payload.mode).setAttribute('checked', 'true');		
+		document.getElementById('payload_text').value = Copper.prefManager.getCharPref('extensions.copper.payloads.'+Copper.hostname+':'+Copper.port+'.text');
+		
+		if (Copper.payload.file!='') {
+			Copper.loadPayloadFileByName(Copper.payload.file);
 		}
-		
-		Copper.checkPayload();
 	} catch( ex ) {
-	    Copper.logEvent('INFO: no default payload for '+Copper.hostname+':'+Copper.port+' yet\n');
+		Copper.logError(ex)
+	    Copper.logEvent('INFO: no stored payload for '+Copper.hostname+':'+Copper.port);
 	}
 };
 
-Copper.checkPayload = function() {
-	if (document.getElementById('toolbar_payload_mode').value=='page') {
+Copper.payloadUpdate = function(target) {
+	
+	if (target.id=='toolbar_payload_mode_text') {
+		Copper.payload.mode = 'text';
 		document.getElementById('tabs_payload').selectedIndex = 3;
-		if (Copper.behavior.sendSize1) {
-			Copper.logEvent('INFO: Send auto Size1 option\n');
-			document.getElementById('debug_option_size1').value = document.getElementById('payload_text_page').value.length;
+		document.getElementById('payload_text').focus();
+		Copper.logEvent('INFO: Selected text payload');
+	} else if (target.id=='toolbar_payload_mode_file') {
+		Copper.logEvent('INFO: Selected file payload');
+		if (Copper.payload.file=='' || Copper.payload.data==null) {
+			if (Copper.selectPayloadFile()) {
+				Copper.payload.mode = 'file';
+			} else {
+				document.getElementById('toolbar_payload_filename').label = "Choose file...";
+			}
+		} else {
+			Copper.payload.mode = 'file';
 		}
-		document.getElementById('payload_text_page').focus();
-	} else if (document.getElementById('toolbar_payload_mode').value=='file' && Copper.payloadFile=='') {
+	} else if (target.id=='toolbar_payload_filename') {
 		Copper.selectPayloadFile();
 	} else {
-		if (Copper.behavior.sendSize1) {
-			Copper.logEvent('INFO: Send auto Size1 option\n');
-			document.getElementById('debug_option_size1').value = Copper.payloadFileData.length;
-		}
+		Copper.logWarning("Unknown payload preference: "+target.id+"="+target.value);
 	}
 }
 
 Copper.savePayload = function() {
 	if (Copper.hostname!='') {
-		Copper.prefManager.setIntPref('extensions.copper.payloads.'+Copper.hostname+':'+Copper.port+'.mode', document.getElementById('toolbar_payload_mode').selectedIndex);
-		Copper.prefManager.setCharPref('extensions.copper.payloads.'+Copper.hostname+':'+Copper.port+'.page', document.getElementById('payload_text_page').value);
-		Copper.prefManager.setCharPref('extensions.copper.payloads.'+Copper.hostname+':'+Copper.port+'.file', Copper.payloadFile);
+		Copper.prefManager.setCharPref('extensions.copper.payloads.'+Copper.hostname+':'+Copper.port+'.mode', Copper.payload.mode);
+		Copper.prefManager.setCharPref('extensions.copper.payloads.'+Copper.hostname+':'+Copper.port+'.text', document.getElementById('payload_text').value);
+		Copper.prefManager.setCharPref('extensions.copper.payloads.'+Copper.hostname+':'+Copper.port+'.file', Copper.payload.file);
 	}
 };
 
@@ -186,23 +193,21 @@ Copper.loadPayloadFileByName = function(filename) {
 Copper.selectPayloadFile = function() {
 	const nsIFilePicker = Components.interfaces.nsIFilePicker;
 	
-	Copper.payloadFile = '';
-	Copper.payloadFileData = null;
+	Copper.payload.file = '';
+	Copper.payload.data = null;
+	Copper.payload.loaded = false;
 
-	var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
+	let fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
 	fp.init(window, "Select payload file", nsIFilePicker.modeOpen);
 	fp.appendFilters(nsIFilePicker.filterAll | nsIFilePicker.filterText);
 
-	var rv = fp.show();
+	let rv = fp.show();
 	if (rv == nsIFilePicker.returnOK || rv == nsIFilePicker.returnReplace) {
-		Copper.payloadFile = fp.file.path;
+		Copper.payload.file = fp.file.path;
 		Copper.loadPayloadFile(fp.file);
+		return true;
 	} else {
-		Copper.payloadFile = '';
-		Copper.payloadFileData = null;
-		Copper.payloadFileLoaded = false;
-		document.getElementById('toolbar_payload_file').label = "Select...";
-		document.getElementById('toolbar_payload_mode').selectedIndex = 0;
+		return false;
 	}
 };
 
@@ -214,12 +219,10 @@ Copper.loadPayloadFile = function(file) {
 					Copper.logError(new Error(status));
 					return;
 				}
-				Copper.payloadFileData = NetUtil.readInputStreamToString(inputStream, inputStream.available());
-				document.getElementById('toolbar_payload_file').label = file.leafName;
-				Copper.payloadFileLoaded = true;
-				Copper.logEvent('INFO: loaded "' + file.path + '"\n');
-				
-				Copper.checkPayload();
+				Copper.payload.data = NetUtil.readInputStreamToString(inputStream, inputStream.available());
+				document.getElementById('toolbar_payload_filename').label = file.leafName;
+				Copper.logEvent("INFO: Loaded payload file '" + file.path + "'");
+				Copper.payload.loaded = true;
 			}
 		);
 };
