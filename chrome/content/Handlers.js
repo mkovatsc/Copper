@@ -48,11 +48,11 @@ Copper.defaultHandler = function(message) {
 			|| message.isOption(Copper.OPTION_BLOCK1) && Copper.uploadMethod!=0) {
 		return Copper.blockwiseHandler(message);
 	}
-
-	if (message.getRTT) document.getElementById('info_host').label = '' + Copper.hostname + ':' + Copper.port + ' (RTT: ' + message.getRTT() + 'ms)';
 	
 	Copper.displayMessageInfo(message);
 	Copper.displayPayload(message);
+	
+	if (message.getRTT) Copper.updateLabel('info_code', ' (RTT ' + message.getRTT() + ' ms)', true);
 	
 	if (message.getContentFormat()==Copper.CONTENT_TYPE_APPLICATION_LINK_FORMAT) {
 		Copper.updateResourceLinks( Copper.parseLinkFormat( document.getElementById('packet_payload').value ) );
@@ -63,10 +63,9 @@ Copper.defaultHandler = function(message) {
 Copper.pingHandler = function(message) {
 	Copper.logEvent('INFO: pingHandler()');
 	
-	if (message.getRTT) document.getElementById('info_host').label = '' + Copper.hostname + ':' + Copper.port + ' (RTT: ' + message.getRTT() + 'ms)';
-
 	Copper.displayMessageInfo(message);
 	Copper.updateLabel('info_code', 'Pong: Remote responds to CoAP');
+	if (message.getRTT) Copper.updateLabel('info_code', ' (RTT ' + message.getRTT() + ' ms)', true);
 };
 
 // Handle messages with block-wise transfer

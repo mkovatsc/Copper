@@ -284,7 +284,6 @@ Copper.parseUri = function(inputUri) {
 		while (ns.hasMore()) {
 			addresses += ns.getNextAddrAsString()+'\n';
 		}
-		if (addresses!='') document.getElementById('info_host').setAttribute('tooltiptext', addresses);
 		
 	} catch (ex) {
 		throw 'Cannot resolve host';
@@ -297,8 +296,7 @@ Copper.parseUri = function(inputUri) {
 	Copper.path = decodeURI(uri.filePath); // as for 06 and as a server workaround for 03
 	Copper.query = decodeURI(uri.query); // as for 06 and as aserver workaround for 03
 	
-	document.title = Copper.hostname + Copper.path;
-	document.getElementById('info_host').label = Copper.hostname + ':' + Copper.port;
+	document.title = Copper.hostname + ':' + Copper.port;
 };
 
 // Set the default URI and also check for modified Firefox URL bar

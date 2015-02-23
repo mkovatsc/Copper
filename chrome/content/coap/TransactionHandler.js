@@ -221,6 +221,7 @@ Copper.TransactionHandler.prototype = {
 			// calculate round trip time
 			var ms = (new Date().getTime() - this.transactions[message.getMID()].rttStart);
 			message.getRTT = function() { return ms; };
+			Copper.logEvent('INFO: MID ' +message.getMID() + ' has RTT ' + ms + ' ms');
 
 			// stop retransmission
 			Copper.logEvent('INFO: Closing MID ' + message.getMID() );
