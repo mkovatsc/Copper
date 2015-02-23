@@ -107,18 +107,14 @@ Copper.Observing.prototype = {
 		}
 	},
 
-	unsubscribe : function(token) {
+	unsubscribe : function(proactive) {
 		if (this.subscription) {
-			Copper.logEvent('INFO: Unsubscribing ' + this.subscription.uri + '\n');
-			Copper.endpoint.deRegisterToken(this.subscription.token);
 			
 			try {
-				if (Copper.behavior.observeCancellation=='rst' && this.subscription.lastMID!=-1) {
-					// Send a RST (with new message ID)
-					var rst = new Copper.CoapMessage(Copper.MSG_TYPE_RST);
-					rst.setMID(this.subscription.lastMID);
-					Copper.endpoint.send( rst );
-				} else if (Copper.behavior.observeCancellation=='cancel') {
+				if (Copper.behavior.observeCancellation=='cancel' || proactive===true) {
+
+					Copper.logEvent('INFO: Unsubscribing ' + this.subscription.uri + ' via proactive cancellation');
+					
 					Copper.downloadMethod = Copper.GET;
 					
 					let uri = Copper.checkUri(); // get current URI
@@ -128,15 +124,31 @@ Copper.Observing.prototype = {
 					cancel.setObserve(1);
 					
 					Copper.clearLabels();
-					Copper.endpoint.send( cancel );
+					var that = this;
+					Copper.endpoint.send( cancel, Copper.myBind(that, that.handle));
+					
+				} else {
+					
+					Copper.logEvent('INFO: Unsubscribing ' + this.subscription.uri + ' via reactive cancellation');
+					
+					// forget token for garbage collection
+					Copper.endpoint.deRegisterToken(this.subscription.token);
+					
+					if (Copper.behavior.observeCancellation=='rst' && this.subscription.lastMID!=-1) {
+						// Send a RST now
+						var rst = new Copper.CoapMessage(Copper.MSG_TYPE_RST);
+						rst.setMID(this.subscription.lastMID);
+						Copper.endpoint.send( rst );
+					}
+					
+					delete this.subscription;
 				}
+				
 			} catch (ex) {
 				Copper.logError(ex);
 			}
 			
-			Copper.updateLabel('info_code', 'Copper: Canceled', false); // call after displayMessageInfo()
-			
-			this.subscription = null;
+			Copper.updateLabel('info_code', 'Copper: Canceling Observe', false); // call after displayMessageInfo()
 		}
 		
 		document.getElementById('toolbar_observe').image = 'chrome://copper/skin/tool_observe.png';
@@ -144,38 +156,47 @@ Copper.Observing.prototype = {
 	},
 	
 	handle : function(message) {
-
+		
+		Copper.logEvent('OBSERVE: handle()');
+		
 		if (this.pending) {
 			
 			// check if server supports observing this resource
 			if (message.isOption(Copper.OPTION_OBSERVE)) {
 				
 				this.subscription = new Copper.ObserveEntry(this.pending.uri, this.pending.callback, message.getToken());
-				this.pending = null;
+				delete this.pending;
 				
 				document.getElementById('toolbar_observe').image = 'chrome://copper/skin/tool_unobserve.png';
 				document.getElementById('toolbar_observe').label = 'Cancel ';
 
-				this.subscription.lastMID = message.getMID();
+				this.subscription.lastMID = (message.getType()==Copper.MSG_TYPE_NON) ? message.getMID() : -1;
+				
 				this.subscription.callback(message);
 				
 			} else {
-				
 				Copper.endpoint.deRegisterToken(this.pending.token);
-				this.pending = null;
+				delete this.pending;
 				
 				message.getCopperCode = function() { return 'Resource not observable'; };
 				
 				Copper.defaultHandler(message);
 			}
-		} else if (this.subscription!=null) {
-			this.subscription.lastMID = message.getMID();
-			this.subscription.callback(message);
-		} else {
-			// somehow it must have gotten here
-			Copper.endpoint.deRegisterToken(message.getToken());
 			
-			throw new Error('Missing context for Observing.handle()');
+		} else if (this.subscription) {
+			this.subscription.lastMID = (message.getType()==Copper.MSG_TYPE_NON) ? message.getMID() : -1;
+			
+			let callback = this.subscription.callback; 
+			
+			if (message.getObserve()==null) {
+				Copper.endpoint.deRegisterToken(message.getToken());
+				delete this.subscription;
+			}
+			
+			callback(message);
+			
+		} else {
+			Copper.logError(new Error('Illegal Observe state'));
 		}
 	}
 };

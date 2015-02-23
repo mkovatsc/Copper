@@ -85,6 +85,7 @@ Copper.payload = {
 	data: null
 };
 
+
 // Life cycle functions
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -93,6 +94,9 @@ Copper.main = function() {
 	Copper.logEvent('==============================================================================');
 	Copper.logEvent('= INITIALIZING COPPER ========================================================');
 	Copper.logEvent('==============================================================================');
+	
+	window.addEventListener('beforeunload', function(event) { Copper.beforeunload(event); });
+	window.addEventListener('unload', function(event) { Copper.unload(event); });
 		
  	// set the Cu icon for all Copper tabs
 	var tabbrowser = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator).getEnumerator("navigator:browser").getNext().gBrowser;  
@@ -100,10 +104,6 @@ Copper.main = function() {
 		if (tabbrowser.mTabs[i].label=='Copper (Cu) CoAP user-agent')
 		tabbrowser.setIcon(tabbrowser.mTabs[i], 'chrome://copper/skin/Cu_16.png');
 	}
-	
-	// Header table workaround to hide useless scrollbar
-	document.getElementById('packet_header').focus();
-	document.getElementById('packet_options').focus();
 	
 	// get settings from preferences
 	var onloadAction = null;
@@ -163,7 +163,24 @@ Copper.main = function() {
 	}
 };
 
-Copper.unload = function() {
+
+Copper.beforeunload = function(event) {
+	
+	if (Copper.observer.subscription!=null) {
+		Copper.logEvent('WARNING: Leaving resource while observing');
+		Copper.updateLabel('info_code', "Copper: Still observing resource");
+		event.preventDefault();
+	}
+};
+
+Copper.unload = function(event) {
+	
+	if (Copper.observer.subscription!=null) {
+		Copper.logEvent('INFO: Canceling Observe in unload handler');
+		Copper.observer.unsubscribe(true);
+		sleep(3000);
+	}
+	
 	// shut down socket required for refresh (F5), client might be null for parseUri() redirects
 	if (Copper.endpoint!=null) {
 		Copper.endpoint.shutdown();

@@ -42,8 +42,7 @@
 		orient     = "vertical"
 		xmlns      = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
 		xmlns:html = "http://www.w3.org/1999/xhtml"
-		onload     = "Copper.main()"
-		onunload   = "Copper.unload()">
+		onload     = "Copper.main()">
 
 <script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/namespace.js"/>
 <script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/coap/CoapRFC7252.js"/>
