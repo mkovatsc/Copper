@@ -223,7 +223,7 @@
 			<groupbox>
 				<caption label="Status" />
 			<box style="overflow: hidden;">
-				<label id="info_code" value="" style="font-size: 18pt; font-weight: bold; margin: -6px 4px 2px 4px;"/>
+				<label id="info_code" value="" style="font-size: 18pt; font-weight: bold; "/>
 			</box>
 			</groupbox>
 		
@@ -334,7 +334,9 @@
 			<groupbox flex="1" style="margin-top: -2px;">
 				<caption>
 					<checkbox id="chk_debug_options" label="Debug Control"/>
-					<button label="Reset" oncommand="Copper.resetDebugOptions();" style="height: 16px;"/>
+					<button oncommand="Copper.resetDebugOptions();" style="height: 16px;">
+						<label value="Reset" style="margin: -4px 0 -4px 0;" />
+					</button>
 				</caption>
 				
 				<vbox flex="1" style="overflow: auto;">
