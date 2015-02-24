@@ -152,7 +152,7 @@ Copper.blockwiseHandler = function(message) {
 
 //Handle messages with block-wise transfer
 Copper.observingHandler = function(message) {
-	Copper.logEvent('INFO: observingHandler()\n');
+	Copper.logEvent('INFO: observingHandler()');
 	
 	Copper.displayMessageInfo(message);
 	if (message.isOption(Copper.OPTION_OBSERVE)) {
@@ -208,7 +208,7 @@ Copper.discoverHandler = function(message) {
 			Copper.discoverCache += Copper.bytes2str( message.getPayload() );
 			
 			if (!message.getBlock2More()) {
-				Copper.logEvent('INFO: Appending discover cache\n');
+				Copper.logEvent('INFO: Appending discover cache');
 				// link-format
 				Copper.resourcesCached = false;
 				Copper.updateResourceLinks( Copper.parseLinkFormat( Copper.discoverCache ) );
@@ -228,12 +228,12 @@ Copper.discoverHandler = function(message) {
 };
 
 Copper.errorHandler = function(message) {
-	Copper.logEvent('INFO: errorHandler()\n');
+	Copper.logEvent('INFO: errorHandler()');
 	
 	document.getElementById('group_head').setAttribute('style', 'display: none;');
 	document.getElementById('group_payload').setAttribute('style', 'display: none;');
 	
-	Copper.updateLabel('info_code', 'Copper: '+ message.getCopperCode());
+	Copper.updateLabel('info_code', message.getCopperCode());
 	
 	Copper.endpoint.cancelTransactions();
 };

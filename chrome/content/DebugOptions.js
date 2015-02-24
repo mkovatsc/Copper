@@ -150,7 +150,7 @@ Copper.checkDebugOptions = function(message) {
 					let uri = document.createElementNS("http://www.w3.org/1999/xhtml", "a");
 
 					uri.href = document.getElementById('debug_option_proxy_uri').value;
-					// Copper.logEvent('PARSED:\n' + uri.protocol.slice(0, -1) + '\n' + uri.hostname + '\n' + uri.port + '\n' + uri.pathname + '\n' + uri.search + '\n');
+					// Copper.logEvent('PARSED:\n' + uri.protocol.slice(0, -1) + '\n' + uri.hostname + '\n' + uri.port + '\n' + uri.pathname + '\n' + uri.search );
 
 					// parser.protocol; // => "http:"
 					// parser.hostname; // => "example.com"

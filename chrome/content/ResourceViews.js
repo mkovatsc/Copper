@@ -61,7 +61,7 @@ Copper.addTreeResource = function(uri, attributes) {
 			segments.shift();
 			segments.unshift(uriTokens[2]);
 		} else {
-			Copper.logEvent('WARNING: Non-CoAP resource ['+uri+']\n');
+			Copper.logEvent("WARNING: Non-CoAP resource "+uri+"'");
 			return;
 		}
 	} else {
@@ -71,11 +71,11 @@ Copper.addTreeResource = function(uri, attributes) {
 	}
 	
 	var node = tree;
-	//Copper.logEvent('Children: '+node.getElementsByTagName('treechildren')[0].childNodes.length+'\n');
+	//Copper.logEvent('Children: '+node.getElementsByTagName('treechildren')[0].childNodes.length);
 	
 	for (var i=0; i<segments.length; ++i) {
 		if (segments[i]=='') continue;
-		//Copper.logEvent('resource_tree'+segments.slice(0,i+1).join('_')+'\n');
+		//Copper.logEvent('resource_tree'+segments.slice(0,i+1).join('_'));
 		
 		var cur = null;
 		var nodeChildren = null;
@@ -168,7 +168,7 @@ Copper.addTreeResource = function(uri, attributes) {
 			node = item;
 		}
 	}
-	//Copper.logEvent('Children: '+tree.getElementsByTagName('treechildren')[0].childNodes.length+'\n');
+	//Copper.logEvent('Children: '+tree.getElementsByTagName('treechildren')[0].childNodes.length);
 
 };
 

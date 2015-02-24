@@ -321,7 +321,7 @@ Copper.checkUri = function(uri, caller) {
 		// schedule the request to start automatically at new location
 		Copper.prefManager.setCharPref('extensions.copper.onload-action', ''+caller);
 		
-		Copper.logEvent('INFO: Redirecting\n      from ' + uri2 + '\n      to   ' + uri + '\n');
+		Copper.logEvent('INFO: Redirecting\n      from ' + uri2 + '\n      to   ' + uri);
 		document.location.href = uri;
 		
 		// required to stop execution for redirect
@@ -337,7 +337,7 @@ Copper.parseLinkFormat = function(data) {
 	
 	// totally complicated but supports ',' and '\n' to separate links and ',' as well as '\"' within quoted strings
 	var format = data.match(/(<[^>]+>\s*(;\s*\w+\s*(=\s*(\w+|"([^"\\]*(\\.[^"\\]*)*)")\s*)?)*)/g);
-	Copper.logEvent('-parsing link-format----------------------------\n');
+	Copper.logEvent('-parsing link-format----------------------------');
 	for (var i in format) {
 		//Copper.logEvent(links[i]+'\n');
 		var elems = format[i].match(/^<([^>\?]+)[^>]*>\s*(;.+)?\s*$/);
@@ -357,14 +357,14 @@ Copper.parseLinkFormat = function(data) {
 		
 			var tokens = elems[2].match(/(;\s*\w+\s*(=\s*(\w+|"([^\\"]*(\\.[^"\\]*)*)"))?)/g);
 		
-			Copper.logEvent(' '+uri+' ('+tokens.length+')\n');
+			Copper.logEvent(' '+uri+' ('+tokens.length+')');
 		
 			for (var j in tokens) {
 				//Copper.logEvent('  '+tokens[j]+'\n');
 				var keyVal = tokens[j].match(/;\s*([^<"\s;,=]+)\s*(=\s*(([^<"\s;,]+)|"([^"\\]*(\\.[^"\\]*)*)"))?/);
 				if (keyVal) {
 					//Copper.logEvent(keyVal[0]+'\n');
-					//Copper.logEvent('   '+keyVal[1] + (keyVal[2] ? (': '+ (keyVal[4] ? keyVal[4] : keyVal[5].replace(/\\/g,''))) : '') + '\n');
+					//Copper.logEvent('   '+keyVal[1] + (keyVal[2] ? (': '+ (keyVal[4] ? keyVal[4] : keyVal[5].replace(/\\/g,''))) : ''));
 					
 					if (links[uri][keyVal[1]]!=null) {
 						
@@ -383,10 +383,10 @@ Copper.parseLinkFormat = function(data) {
 				}
 			}
 		} else {
-			Copper.logEvent(' '+uri+' (no attributes)\n');
+			Copper.logEvent(' '+uri+' (no attributes)');
 		}
 	}
-	Copper.logEvent(' -----------------------------------------------\n');
+	Copper.logEvent('------------------------------------------------');
 	
 	return links;
 };
@@ -398,7 +398,7 @@ Copper.updateResourceLinks = function(add) {
 		for (var uri in add) {
 			if (!Copper.resources[uri]) {
 				Copper.resources[uri] = add[uri];
-				Copper.logEvent('INFO: adding '+uri+' to host resources\n');
+				Copper.logEvent('INFO: adding '+uri+' to host resources');
 			}
 		}
 	}
@@ -599,6 +599,6 @@ Copper.popup = function(title, str) {
 	try {
 		Components.classes['@mozilla.org/alerts-service;1'].getService(Components.interfaces.nsIAlertsService).showAlertNotification('chrome://copper/skin/Cu_32.png',title,str);
 	} catch (ex) {
-		Copper.logEvent("WARNING: You are probably running Mac OS without Growl, which is required for notifications.\n")
+		Copper.logEvent("WARNING: You are probably running Mac OS without Growl, which is required for notifications.")
 	}
 };

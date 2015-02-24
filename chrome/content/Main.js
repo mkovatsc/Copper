@@ -147,7 +147,7 @@ Copper.main = function() {
 		// handle auto-request after redirect
 		if (onloadAction!='') {
 			
-			Copper.logEvent('INFO: Main.init [onloadAction: '+onloadAction+']\n');
+			Copper.logEvent('INFO: onloadAction defined ('+onloadAction+')');
 			
 			window.setTimeout(
 					'Copper.'+onloadAction+'();',
@@ -156,6 +156,8 @@ Copper.main = function() {
 			// reset onloadAction
 			Copper.prefManager.setCharPref('extensions.copper.onload-action', '');
 		}
+		
+		Copper.updateLabel('info_code', "Opened " + document.location.href);
 		
 	} catch (ex) {
 		Copper.errorHandler({getCopperCode:function(){return ex.message;}, getPayload:function(){return ex.stacktrace;}});
@@ -342,7 +344,7 @@ Copper.doUpload = function(method, uri, callback) {
 		Copper.checkDebugOptions(message);
 		
 		if (Copper.behavior.sendSize1) {
-			Copper.logEvent('INFO: Send auto Size1 option\n');
+			Copper.logEvent('INFO: Send auto Size1 option');
 			message.setSize1(pl.length);
 			document.getElementById('debug_option_size1').value = pl.length;
 		}
