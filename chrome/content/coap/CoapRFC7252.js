@@ -473,7 +473,7 @@ Copper.data2bytes = function(data) {
 	return b;
 };
 
-Copper.utf8 = Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefBranch).getBoolPref('extensions.lwm2m-devkit.encode-utf-8');
+Copper.utf8 = Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefBranch).getBoolPref('extensions.copper.encode-utf-8');
 
 Copper.str2bytes = function(str) {
 
