@@ -187,6 +187,8 @@ Copper.discoverHandler = function(message) {
 	
 	Copper.logEvent('INFO: discoverHandler()');
 	
+	if (message.getCode()!=Copper.CODE_2_05_CONTENT) return;
+	
 	if (message.getContentFormat()==Copper.CONTENT_TYPE_APPLICATION_LINK_FORMAT) {
 		
 		Copper.updateLabel('info_code', 'Discovering');

@@ -310,8 +310,6 @@ Copper.TransactionHandler.prototype = {
 			// separate response
 			if (message.getType()==Copper.MSG_TYPE_ACK && message.getCode()==Copper.EMPTY) {
 				message.getCopperCode = function() { return 'Separate response inbound'; };
-				this.defaultCB(message);
-				return;
 			}
 		}
 		

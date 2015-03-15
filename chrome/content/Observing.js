@@ -159,6 +159,8 @@ Copper.Observing.prototype = {
 		
 		Copper.logEvent('OBSERVE: handle()');
 		
+		if (message.getCode()==Copper.EMPTY) return;
+		
 		if (this.pending) {
 			
 			// check if server supports observing this resource

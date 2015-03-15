@@ -170,7 +170,7 @@ Copper.testCore03 = function() {
 	Copper.behavior.blockSize = 0;
 	Copper.updateBehavior();
 	
-	document.getElementById('toolbar_payload_mode').value = 'page';
+	Copper.payload.mode = 'text';
 	document.getElementById('payload_text').value = 'Copper (Cu) CC03';
 	
 	Copper.sendPut( uri, Copper.testCore03checker );
@@ -197,7 +197,7 @@ Copper.testCore04 = function() {
 	Copper.behavior.blockSize = 0;
 	Copper.updateBehavior();
 	
-	document.getElementById('toolbar_payload_mode').value = 'page';
+	Copper.payload.mode = 'text';
 	document.getElementById('payload_text').value = 'Copper (Cu) CC04';
 	
 	Copper.sendPost( uri, Copper.testCore04checker );
@@ -269,7 +269,7 @@ Copper.testCore07 = function() {
 	Copper.behavior.blockSize = 0;
 	Copper.updateBehavior();
 	
-	document.getElementById('toolbar_payload_mode').value = 'page';
+	Copper.payload.mode = 'text';
 	document.getElementById('payload_text').value = 'Copper (Cu) CC07';
 	
 	Copper.sendPut(uri, Copper.testCore07checker );
@@ -296,7 +296,7 @@ Copper.testCore08 = function() {
 	Copper.behavior.blockSize = 0;
 	Copper.updateBehavior();
 	
-	document.getElementById('toolbar_payload_mode').value = 'page';
+	Copper.payload.mode = 'text';
 	document.getElementById('payload_text').value = 'Copper (Cu) CC08';
 	
 	Copper.sendPost(uri, Copper.testCore08checker );
@@ -504,7 +504,7 @@ Copper.testCore18 = function() {
 	Copper.behavior.blockSize = 0;
 	Copper.updateBehavior();
 	
-	document.getElementById('toolbar_payload_mode').value = 'page';
+	Copper.payload.mode = 'text';
 	document.getElementById('payload_text').value = 'Copper (Cu) CC18';
 	
 	Copper.sendPost( uri, Copper.testCore18checker );
@@ -534,7 +534,7 @@ Copper.testCore19 = function() {
 	Copper.behavior.blockSize = 0;
 	Copper.updateBehavior();
 	
-	document.getElementById('toolbar_payload_mode').value = 'page';
+	Copper.payload.mode = 'text';
 	document.getElementById('payload_text').value = 'Copper (Cu) CC19';
 	
 	Copper.sendPost(uri, Copper.testCore19checker );
@@ -683,7 +683,7 @@ Copper.testCore22b = function() {
 	document.getElementById('debug_option_if_match').value = document.getElementById('packet_options_etag').getAttribute('label');
 	document.getElementById('debug_option_content_format').value = 'text/plain';
 	
-	document.getElementById('toolbar_payload_mode').value = 'page';
+	Copper.payload.mode = 'text';
 	document.getElementById('payload_text').value = 'Copper (Cu) CC22b';
 	
 	// make sure to PUT a different payload
@@ -741,7 +741,7 @@ Copper.testCore22d = function() {
 	document.getElementById('debug_option_if_match').value = document.getElementById('packet_options_etag').getAttribute('label');
 	document.getElementById('debug_option_content_format').value = 'text/plain';
 	
-	document.getElementById('toolbar_payload_mode').value = 'page';
+	Copper.payload.mode = 'text';
 	document.getElementById('payload_text').value = 'Copper (Cu) CC22d';
 	
 	// make sure to PUT a different payload
@@ -777,7 +777,7 @@ Copper.testCore23a = function() {
 	Copper.behavior.blockSize = 0;
 	Copper.updateBehavior();
 	
-	document.getElementById('toolbar_payload_mode').value = 'page';
+	Copper.payload.mode = 'text';
 	document.getElementById('payload_text').value = 'Copper (Cu) CC23';
 	
 	Copper.sendPut(uri, Copper.testCore23achecker);
@@ -881,7 +881,7 @@ Copper.testBlock03 = function() {
 	Copper.behavior.blockSize = 64;
 	Copper.updateBehavior();
 
-	document.getElementById('toolbar_payload_mode').value = 'page';
+	Copper.payload.mode = 'text';
 	document.getElementById('payload_text').value = '';
 	for (var i=0; i<23; ++i) {
 		document.getElementById('payload_text').value += '|---------------[each line contains 64 bytes]-----------------|\n';
@@ -914,7 +914,7 @@ Copper.testBlock04 = function() {
 	Copper.behavior.blockSize = 64;
 	Copper.updateBehavior();
 
-	document.getElementById('toolbar_payload_mode').value = 'page';
+	Copper.payload.mode = 'text';
 	document.getElementById('payload_text').value = '';
 	for (var i=0; i<23; ++i) {
 		document.getElementById('payload_text').value += '|---------------[each line contains 64 bytes]-----------------|\n';
@@ -947,7 +947,7 @@ Copper.testBlock05 = function() {
 	Copper.behavior.blockSize = 64;
 	Copper.updateBehavior();
 
-	document.getElementById('toolbar_payload_mode').value = 'page';
+	Copper.payload.mode = 'text';
 	document.getElementById('payload_text').value = '';
 	for (var i=0; i<23; ++i) {
 		document.getElementById('payload_text').value += '|---------------[each line contains 64 bytes]-----------------|\n';
@@ -1226,7 +1226,7 @@ Copper.testObs08 = function() {
 	Copper.behavior.blockSize = 0;
 	Copper.updateBehavior();
 	
-	document.getElementById('toolbar_payload_mode').value = 'page';
+	Copper.payload.mode = 'text';
 	document.getElementById('payload_text').value = 'random Content-Format ' + document.getElementById('debug_option_content_format').value;
 	
 	Copper.doUpload(Copper.PUT, Copper.updateTestURI('/obs') ); // does not call cancelTransactions()
@@ -1249,7 +1249,7 @@ Copper.testObs09 = function() {
 	Copper.behavior.blockSize = 0;
 	Copper.updateBehavior();
 	
-	document.getElementById('toolbar_payload_mode').value = 'page';
+	Copper.payload.mode = 'text';
 	document.getElementById('payload_text').value = document.getElementById('debug_option_content_format').value;
 	
 	Copper.doUpload(Copper.PUT, Copper.updateTestURI('/obs') ); // does not call cancelTransactions()
