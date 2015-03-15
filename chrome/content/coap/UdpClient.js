@@ -57,28 +57,16 @@ Copper.UdpClient = function(remoteHost, remotePort) {
 	
 	this.pump.init(this.inputStream, -1, -1, 0, 0, false);
 	this.pump.asyncRead(this, null);
+
+	this.localAddr = null;
+	this.callback = null;
+	this.lastSend = null;
+	this.ended = false;
 	
 	return this;
 };
 
 Copper.UdpClient.prototype = {
-
-	host             : '',
-	port             : -1,
-	
-	localAddr        : null,
-	
-	callback         : null,
-	ended            : false,
-	
-	transportService : null,
-	pump             : null,
-	socket           : null,
-	outputStream     : null,
-	inputStream      : null,
-	sis : null,
-	
-	lastSend : null,
 	
 	register : function(myCB) {
 		this.callback = myCB;
@@ -86,7 +74,7 @@ Copper.UdpClient.prototype = {
 	
 	// stream observer functions
 	onStartRequest : function(request, context) {
-		;
+		// do nothing
 	},
 	
 	onStopRequest : function(request, context, status) {
@@ -100,27 +88,29 @@ Copper.UdpClient.prototype = {
 	
 	onDataAvailable : function(request, context, inputStream, offset, count) {
 		try {
-			// inputStream is for native code only, hence, using nsIScriptableInputStream
-			var sis = Components.classes["@mozilla.org/scriptableinputstream;1"].createInstance(Components.interfaces.nsIScriptableInputStream);
+			let sis = Components.classes["@mozilla.org/scriptableinputstream;1"].createInstance(Components.interfaces.nsIScriptableInputStream);
 			sis.init(inputStream);
 			
-			// read() cannot handle zero bytes in strings, readBytes() coming in FF4
-			var byteArray = new Array(count);
+			var byteArray = new Array();
 			for (let i=0; i<count; i++) {
-				//var ch = sis.readBytes(1); // FF4
-				var ch = sis.read(1);
 				
-				byteArray[i] = ch.charCodeAt(0);
+				byteArray.push( sis.readBytes(1).charCodeAt(0) );
 				
-				// pre FF4 workaround
-				if (isNaN(byteArray[i])) byteArray[i] = 0x00;
-				
-				//showByte(byteArray[i])
+				// workaround for concatenated datagrams (UDP transport is unfortunately a stream)
+				if (i==3 && byteArray[1]==0 && count>4) {
+					Copper.logEvent('UDP: Concatenated 4 + ' + (count-4) + ' bytes');
+					if (this.callback) this.callback(byteArray);
+					// reset for next datagram
+					i = -1; // i++ still coming
+					count -= 4;
+					byteArray = new Array();
+				}
 			}
 			
 			Copper.logEvent('UDP: Received ' + byteArray.length + ' bytes');
 			
 			if (this.callback) this.callback(byteArray);
+			
 			
 		} catch (ex) {
 			Copper.logError(ex);

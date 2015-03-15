@@ -319,7 +319,6 @@ Copper.CoapMessage.prototype = {
 			case Copper.OPTION_IF_MATCH:
 				return Copper.bytes2hex(opt);
 			default:
-				alert(optNumber);
 				return Copper.bytes2hex(opt);
 		}
 		return null;

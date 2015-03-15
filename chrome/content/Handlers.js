@@ -189,6 +189,8 @@ Copper.discoverHandler = function(message) {
 	
 	if (message.getContentFormat()==Copper.CONTENT_TYPE_APPLICATION_LINK_FORMAT) {
 		
+		Copper.updateLabel('info_code', 'Discovering');
+		
 		if (message.isOption(Copper.OPTION_BLOCK2)) {
 			
 			if (message.getBlock2More()) {

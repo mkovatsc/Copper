@@ -265,15 +265,15 @@ Copper.TransactionHandler.prototype = {
 			// request matching by token
 			if (this.requests[message.getToken()]) {
 				
-				// implicit acknowledgement
+				// separate response
 				if (!this.registeredMIDs[message.getMID()]) {
 					if (message.getType()==Copper.MSG_TYPE_CON || message.getType()==Copper.MSG_TYPE_NON) {
-						Copper.logEvent('INFO: Implicit acknowledgement for token: '+message.getToken() );
-						// implicit acknowledgement
+						Copper.logEvent('INFO: Separate response for token: '+message.getToken() );
+						// stop retransmission if implicit acknowledgement
 						this.stopRetransmission(message.getToken());
 					}
 				}
-
+				
 				callback = this.requests[message.getToken()];
 				
 				delete this.requests[message.getToken()];
@@ -305,12 +305,14 @@ Copper.TransactionHandler.prototype = {
 		} else {
 			callback = this.registeredMIDs[message.getMID()];
 			
-			// separate response
-			if (message.getType()==Copper.MSG_TYPE_ACK && callback) {
-				message.getCopperCode = function() { return 'Separate response inbound'; };
-			}
-			
 			delete this.registeredMIDs[message.getMID()];
+			
+			// separate response
+			if (message.getType()==Copper.MSG_TYPE_ACK && message.getCode()==Copper.EMPTY) {
+				message.getCopperCode = function() { return 'Separate response inbound'; };
+				this.defaultCB(message);
+				return;
+			}
 		}
 		
 		// callback might set reply for message used by deduplication

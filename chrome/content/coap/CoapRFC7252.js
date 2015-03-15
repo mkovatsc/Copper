@@ -347,6 +347,8 @@ Copper.serialize = function(message) {
 	
 Copper.parse = function(packet) {
 	
+	Copper.logEvent('PACKET (hex): ' + packet.map(function(x){return x.toString(16).toUpperCase();}));
+	
 	// first byte: version, type, and option count
 	let tempByte = packet.shift();
 	let tokenLength = parseInt(0x0F & tempByte);
@@ -557,7 +559,7 @@ Copper.hex2bytes = function(h) {
 
 Copper.bytes2hex = function(b) {
 	
-	if (!Array.isArray(b) || b.length==0) {
+	if (!b || !Array.isArray(b) || b.length==0) {
 		return 'empty';
 	}
 	
