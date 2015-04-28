@@ -1130,9 +1130,11 @@ Copper.testObs01 = function() {
 	var uri = Copper.checkUri( Copper.updateTestURI('/obs'), 'testObs01'); // unused since we "click" observe
 	
 	if (document.getElementById('toolbar_observe').label == 'Cancel ') {
-		Copper.behavior.observeCancellation = 'rst';
+		Copper.behavior.observeCancellation = 'get';
 		Copper.updateBehavior();
 		document.getElementById('toolbar_observe').click();
+		window.setImmediate(function() { Copper.testObs01(); });
+		return;
 	}
 	
 	Copper.resetDebugOptions();
@@ -1146,15 +1148,35 @@ Copper.testObs01 = function() {
 	
 	document.getElementById('toolbar_observe').click();
 };
-Copper.testObs02 = function() {
-	var uri = Copper.checkUri( Copper.updateTestURI('/obs-non'), 'testObs02'); // unused since we "click" observe
+
+Copper.testObs06 = function() {
+	Copper.checkUri( Copper.updateTestURI('/obs'), 'testObs06');
 	
-	if (document.getElementById('toolbar_observe').label == 'Cancel ') {
-		Copper.behavior.observeCancellation = 'rst';
-		Copper.updateBehavior();
-		document.getElementById('toolbar_observe').click();
+	if (document.getElementById('toolbar_observe').label != 'Cancel ') {
+		alert('Run OBS_01 first and wait for notifications.');
+		return;
 	}
 	
+	// reactive cancellation
+	Copper.behavior.observeCancellation = 'rst';
+	Copper.updateBehavior();
+	
+	document.getElementById('toolbar_observe').click();
+};
+
+Copper.testObs02 = function() {
+	Copper.checkUri( Copper.updateTestURI('/obs-non'), 'testObs02');
+	
+	// cancel existing observe
+	if (document.getElementById('toolbar_observe').label == 'Cancel ') {
+		Copper.behavior.observeCancellation = 'get';
+		Copper.updateBehavior();
+		document.getElementById('toolbar_observe').click();
+		window.setImmediate(function() { Copper.testObs02(); });
+		return;
+	}
+	
+	// start new observe
 	Copper.resetDebugOptions();
 	
 	Copper.behavior.requests = 'non';
@@ -1167,11 +1189,14 @@ Copper.testObs02 = function() {
 	document.getElementById('toolbar_observe').click();
 };
 Copper.testObs12 = function() {
+	Copper.checkUri( Copper.updateTestURI('/obs-non'), 'testObs12');
+
 	if (document.getElementById('toolbar_observe').label != 'Cancel ') {
-		alert('Run OBS_01 first and wait for notifications.');
+		alert('Run OBS_02 first and wait for notifications.');
 		return;
 	}
 	
+	// proactive cancellation
 	Copper.behavior.requests = 'con';
 	Copper.behavior.retransmissions = true;
 	Copper.behavior.sendDuplicates = false;
@@ -1179,41 +1204,59 @@ Copper.testObs12 = function() {
 	Copper.behavior.observeCancellation = 'get';
 	Copper.updateBehavior();
 	
-	Copper.updateTestURI('/obs');
-	
 	document.getElementById('toolbar_observe').click();
 };
+
 Copper.testObs04 = function() {
-	alert('The Max-Age entry option turns red when the representation becomes stale.');
+	alert('Once Copper receives notifications, turn off the server.\nThe Max-Age entry option turns red when the representation becomes stale as an indicator to re-register.');
 	
 	if (document.getElementById('toolbar_observe').label != 'Cancel ') {
 		Copper.testObs01();
 	}
 };
+
 Copper.testObs05 = function() {
-	document.location.reload();
-};
-Copper.testObs06 = function() {
+	Copper.checkUri( Copper.updateTestURI('/obs-non'), 'testObs05');
+	
+	alert('Copper will reboot after two notifications (12 seconds).\nUse Wireshark to confirm that the server eventually stops sending notifications.');
+
 	if (document.getElementById('toolbar_observe').label != 'Cancel ') {
-		alert('Run OBS_01 first and wait for notifications.');
-		return;
+		Copper.testObs02();
 	}
 	
-	Copper.behavior.requests = 'con';
-	Copper.behavior.retransmissions = true;
-	Copper.behavior.sendDuplicates = false;
-	Copper.behavior.blockSize = 0;
-	Copper.behavior.observeCancellation = 'rst';
-	Copper.updateBehavior();
-	
-	Copper.updateTestURI('/obs');
-	
-	document.getElementById('toolbar_observe').click();
+	window.setTimeout(
+		function() {
+			// prevent check
+			delete Copper.observer.subscription;
+			// reload
+			document.location.reload();
+		},
+		12000);
 };
+
+Copper.testObs07 = function() {
+
+	Copper.checkUri( Copper.updateTestURI('/obs'), 'testObs07');
+	
+	alert('Copper will delete the resource after two notifications (12 seconds).\nConfirm that the server stops sending notifications after sending a 4.04 Not Found.');
+
+	if (document.getElementById('toolbar_observe').label != 'Cancel ') {
+		Copper.testObs01();
+	}
+	
+	window.setTimeout(
+			function() { Copper.sendDelete('/obs'); },
+			12000);
+};
+
 Copper.testObs08 = function() {
+
+	Copper.checkUri( Copper.updateTestURI('/obs'), 'testObs08');
+
+	alert('Copper will change the resource with a new Content-Format after two notifications (12 seconds).\nConfirm that the server stops sending notifications after sending a 4.06 Not Acceptable.');
+
 	if (document.getElementById('toolbar_observe').label != 'Cancel ' || !document.getElementById('packet_options_content-format')) {
-		alert('Run OBS_01 first and wait for notifications with the Content-Format option.');
-		return;
+		Copper.testObs01();
 	}
 
 	Copper.resetDebugOptions();
@@ -1229,12 +1272,18 @@ Copper.testObs08 = function() {
 	Copper.payload.mode = 'text';
 	document.getElementById('payload_text').value = 'random Content-Format ' + document.getElementById('debug_option_content_format').value;
 	
-	Copper.doUpload(Copper.PUT, Copper.updateTestURI('/obs') ); // does not call cancelTransactions()
+	window.setTimeout(
+			function() { Copper.doUpload(Copper.PUT, Copper.updateTestURI('/obs') ); }, // does not call cancelTransactions()
+			12000);
 };
+
 Copper.testObs09 = function() {
+	Copper.checkUri( Copper.updateTestURI('/obs'), 'testObs08');
+
+	alert('Copper will change the resource with the same Content-Format after two notifications (12 seconds).\nConfirm that the server sends a notifications with the Content-Format name as payload.');
+
 	if (document.getElementById('toolbar_observe').label != 'Cancel ' || !document.getElementById('packet_options_content-format')) {
-		alert('Run OBS_01 first and wait for notifications with the Content-Format option.');
-		return;
+		Copper.testObs01();
 	}
 	
 	alert('Due to Firefox\'s stream-based UDP API, the ACK and the notification are probably concatenated.\n(One message appears to be missing, the other has a funny payload.)');
@@ -1244,7 +1293,7 @@ Copper.testObs09 = function() {
 	document.getElementById('debug_option_content_format').value = document.getElementById('packet_options_content-format').getAttribute('label');
 	
 	Copper.behavior.requests = 'con';
-	Copper.behavior.retransmissions = false; // set to false to avoid retransmission due to concatenation problem
+	Copper.behavior.retransmissions = true;
 	Copper.behavior.sendDuplicates = false;
 	Copper.behavior.blockSize = 0;
 	Copper.updateBehavior();
@@ -1252,13 +1301,19 @@ Copper.testObs09 = function() {
 	Copper.payload.mode = 'text';
 	document.getElementById('payload_text').value = document.getElementById('debug_option_content_format').value;
 	
-	Copper.doUpload(Copper.PUT, Copper.updateTestURI('/obs') ); // does not call cancelTransactions()
+	window.setTimeout(
+			function() { Copper.doUpload(Copper.PUT, Copper.updateTestURI('/obs') ); }, // does not call cancelTransactions()
+			12000);
 };
 
 Copper.testObs10 = function() {
-	var uri = Copper.checkUri( Copper.updateTestURI('/obs'), 'testObs10'); // unused since we "click" observe
+	Copper.checkUri( Copper.updateTestURI('/obs'), 'testObs10'); // unused since we "click" observe
 	
-	Copper.testObs01();
+	alert('Copper will send an unrelated GET request after two notifications (12 seconds).\nConfirm the response and continuous notifications in the log.');
+	
+	if (document.getElementById('toolbar_observe').label != 'Cancel ') {
+		Copper.testObs01();
+	}
 	
 	window.setTimeout(
 			function() { Copper.sendGet('/obs'); },
