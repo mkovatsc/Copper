@@ -180,7 +180,6 @@ Copper.unload = function(event) {
 	if (Copper.observer.subscription!=null) {
 		Copper.logEvent('INFO: Canceling Observe in unload handler');
 		Copper.observer.unsubscribe(true);
-		sleep(3000);
 	}
 	
 	// shut down socket required for refresh (F5), client might be null for parseUri() redirects
