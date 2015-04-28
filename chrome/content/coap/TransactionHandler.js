@@ -121,6 +121,8 @@ Copper.TransactionHandler.prototype = {
 		this.requests = new Object();
 		this.registeredTokens = new Object();
 		this.registeredMIDs = new Object();
+		
+		Copper.observer.clean();
 	},
 	
 	registerToken : function(token, cb) {

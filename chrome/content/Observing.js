@@ -111,7 +111,7 @@ Copper.Observing.prototype = {
 		if (this.subscription) {
 			
 			try {
-				if (Copper.behavior.observeCancellation=='cancel' || proactive===true) {
+				if (Copper.behavior.observeCancellation=='get' || proactive===true) {
 
 					Copper.logEvent('INFO: Unsubscribing ' + this.subscription.uri + ' via proactive cancellation');
 					
@@ -141,7 +141,7 @@ Copper.Observing.prototype = {
 						Copper.endpoint.send( rst );
 					}
 					
-					delete this.subscription;
+					this.clean();
 				}
 				
 			} catch (ex) {
@@ -150,9 +150,6 @@ Copper.Observing.prototype = {
 			
 			Copper.updateLabel('info_code', 'Copper: Canceling Observe', false); // call after displayMessageInfo()
 		}
-		
-		document.getElementById('toolbar_observe').image = 'chrome://copper/skin/tool_observe.png';
-		document.getElementById('toolbar_observe').label = 'Observe';
 	},
 	
 	handle : function(message) {
@@ -190,9 +187,9 @@ Copper.Observing.prototype = {
 			
 			let callback = this.subscription.callback; 
 			
-			if (message.getObserve()==null) {
+			if (message.getObserve()==null || !message.isSuccess()) {
 				Copper.endpoint.deRegisterToken(message.getToken());
-				delete this.subscription;
+				this.clean();
 			}
 			
 			callback(message);
@@ -200,5 +197,12 @@ Copper.Observing.prototype = {
 		} else {
 			Copper.logError(new Error('Illegal Observe state'));
 		}
+	},
+	
+	clean : function() {
+		delete this.subscription;
+				
+		document.getElementById('toolbar_observe').image = 'chrome://copper/skin/tool_observe.png';
+		document.getElementById('toolbar_observe').label = 'Observe';
 	}
 };
