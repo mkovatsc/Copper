@@ -565,7 +565,11 @@ Copper.bytes2hex = function(b) {
 	
 	var hex = '0x';
 	for (let k in b) {
-		hex += Copper.leadingZero(b[k].toString(16).toUpperCase());
+		if (b[k]!==undefined) {
+			hex += Copper.leadingZero(b[k].toString(16).toUpperCase());
+		} else {
+			hex += '--';
+		}
 	}
 	
 	return hex;
