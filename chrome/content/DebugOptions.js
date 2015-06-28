@@ -41,7 +41,7 @@
 Copper.initDebugContentFormats = function() {
 	for (var i = 0; i<100; ++i) {
 		var name = '';
-		if ( (name = Copper.getContentFormatName(i))!='unknown') {
+		if ( (name = Copper.getContentFormatName(i))!='unknown/unknown') {
 		
 			var menuitem1 = document.createElement('menuitem');
 			var menuitem2 = document.createElement('menuitem');
