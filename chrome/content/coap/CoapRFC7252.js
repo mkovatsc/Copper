@@ -127,6 +127,7 @@ Copper.__defineGetter__("CONTENT_TYPE_APPLICATION_FASTINFOSET", function() { ret
 Copper.__defineGetter__("CONTENT_TYPE_APPLICATION_SOAP_FASTINFOSET", function() { return 49; }); // 04
 Copper.__defineGetter__("CONTENT_TYPE_APPLICATION_JSON", function() { return 50; }); // 04
 Copper.__defineGetter__("CONTENT_TYPE_APPLICATION_X_OBIX_BINARY", function() { return 51; });
+Copper.__defineGetter__("CONTENT_TYPE_APPLICATION_CBOR", function() { return 60; }); // 04
 Copper.__defineGetter__("CONTENT_TYPE_APPLICATION_VND_OMA_LWM2M_TEXT", function() { return 1541; });
 Copper.__defineGetter__("CONTENT_TYPE_APPLICATION_VND_OMA_LWM2M_TLV", function() { return 1542; });
 Copper.__defineGetter__("CONTENT_TYPE_APPLICATION_VND_OMA_LWM2M_JSON", function() { return 1543; });
@@ -232,6 +233,7 @@ Copper.getContentFormatName = function(type) {
 	case Copper.CONTENT_TYPE_APPLICATION_SOAP_FASTINFOSET: return 'application/soap+fastinfoset'; break;
 	case Copper.CONTENT_TYPE_APPLICATION_JSON: return 'application/json'; break;
 	case Copper.CONTENT_TYPE_APPLICATION_X_OBIX_BINARY: return 'application/x-obix-binary'; break;
+	case Copper.CONTENT_TYPE_APPLICATION_CBOR: return 'application/cbor'; break;
 	case Copper.CONTENT_TYPE_APPLICATION_VND_OMA_LWM2M_TEXT: return 'application/vnd.oma.lwm2m+text'; break;
 	case Copper.CONTENT_TYPE_APPLICATION_VND_OMA_LWM2M_TLV: return 'application/vnd.oma.lwm2m+tlv'; break;
 	case Copper.CONTENT_TYPE_APPLICATION_VND_OMA_LWM2M_JSON: return 'application/vnd.oma.lwm2m+json'; break;
