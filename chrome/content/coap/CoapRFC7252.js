@@ -510,24 +510,30 @@ Copper.bytes2str = function(b) {
 		
 		let c = b[i] & 0xFF;
 		
-		if (c < 128 || !Copper.utf8) {
+		if (c == 10 || (c >= 32 && c < 127)) {
 			str += String.fromCharCode(c);
-		} else if((c > 191) && (c < 224) && (i+1 < b.length)) {
+		} else if(Copper.utf8 && (c > 191) && (c < 224) && (i+1 < b.length) && (b[i+1] & 0xc0) == 0x80) {
 			let c2 = b[i+1] & 0xFF;
 			str += String.fromCharCode(((c & 31) << 6) | (c2 & 63));
 			i += 1;
-		} else if (c < 240 && (i+2 < b.length)) {
+		} else if (Copper.utf8 && c >= 224 && c < 240 && (i+2 < b.length) && (b[i+1] & 0xc0) == 0x80 && (b[i+2] & 0xc0) == 0x80) {
 			let c2 = b[i+1] & 0xFF;
 			let c3 = b[i+2] & 0xFF;
 			str += String.fromCharCode(((c & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63));
 			i += 2;
-		} else if (i+3 < b.length) {
+		} else if (Copper.utf8 && c >= 240 && i+3 < b.length) {
 			Copper.logEvent('4-byte UTF-8');
 			str += String.fromCharCode(0xFFFD); // char '�'
 			i += 3;
-		} else {
+		} else if (Copper.utf8 && c >= 128) {
 			Copper.logEvent('Incomplete UTF-8 encoding');
 			str += String.fromCharCode(0xFFFD); // char '�'
+		} else {
+			if (c < 32)
+				str += String.fromCharCode(0x2400 + c); // replacement character block
+			else
+				str += String.fromCharCode(0xFFFD); // char '�'
+//			str += "\\x" + (c < 16 ? "0" : "") + c.toString(16);
 		}
 	}
 	return str;
