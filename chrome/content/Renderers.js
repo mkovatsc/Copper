@@ -84,7 +84,7 @@ Copper.renderBinary = function(message) {
 		if (i % 16 == 15) {
 			Copper.updateLabel('packet_payload', ' | ', true);
 			for (var j=i-15; j<=i; ++j) {
-				if (pl[j] < 32) {
+				if (pl[j] < 32 || pl[j] >= 127) {
 					Copper.updateLabel('packet_payload', '·', true);
 				} else {
 					Copper.updateLabel('packet_payload', String.fromCharCode(pl[j] & 0xFF), true);
