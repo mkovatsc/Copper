@@ -157,7 +157,7 @@ Copper.main = function() {
 			Copper.prefManager.setCharPref('extensions.copper.onload-action', '');
 		}
 		
-		Copper.updateLabel('info_code', "Opened " + document.location.href);
+		Copper.updateLabel('info_code', "Opened " + decodeURI(document.location.href));
 		
 	} catch (ex) {
 		Copper.errorHandler({getCopperCode:function(){return ex.message;}, getPayload:function(){return ex.stacktrace;}});

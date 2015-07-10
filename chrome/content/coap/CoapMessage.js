@@ -571,7 +571,7 @@ Copper.CoapMessage.prototype = {
 			this.setOption(Copper.OPTION_URI_HOST, uri.hostname);
 		}
 		if (uri.pathname.length>1) {
-			this.setOption(Copper.OPTION_URI_PATH, uri.pathname.substr(1));
+			this.setOption(Copper.OPTION_URI_PATH, decodeURI(uri.pathname.substr(1)));
 		}
 		if (uri.search.length>1) {
 			this.setOption(Copper.OPTION_URI_QUERY, uri.search.substr(1));
