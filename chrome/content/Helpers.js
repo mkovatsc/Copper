@@ -493,6 +493,7 @@ Copper.displayMessageInfo = function(message) {
 };
 
 Copper.displayCache = null;
+Copper.displayInvalid = false;
 
 Copper.displayPayload = function(message) {
 	
@@ -500,11 +501,20 @@ Copper.displayPayload = function(message) {
 		return;
 	}
 	
-	// TODO block management
+	// complete payload or first received block
 	if (!message.isOption(Copper.OPTION_BLOCK2) || message.getBlock2Number()==0 || Copper.displayCache==null) {
 		Copper.displayCache = new Copper.CoapMessage(0,0);
 		Copper.displayCache.setContentType(message.getContentFormat());
-		document.getElementById('info_payload').label='Payload ('+message.getPayload().length+')';
+		
+		if (message.isOption(Copper.OPTION_BLOCK2) && message.getBlock2Number()!=0) {
+			document.getElementById('info_payload').label='Partial Payload ('+message.getPayload().length+')';
+			Copper.displayInvalid = true;
+		} else {
+			document.getElementById('info_payload').label='Payload ('+message.getPayload().length+')';
+			Copper.displayInvalid = false;
+		}
+	
+	// additional blocks
 	} else {
 		document.getElementById('info_payload').label='Combined Payload ('+ (Copper.displayCache.getPayload().length + message.getPayload().length)  +')';
 	}
@@ -531,7 +541,8 @@ Copper.displayPayload = function(message) {
 			break;
 		case Copper.CONTENT_TYPE_APPLICATION_JSON:
 			Copper.renderText(Copper.displayCache);
-			Copper.renderJSON(Copper.displayCache);
+			// only render full representation to avoid parsing errors
+			if (!Copper.displayInvalid && !message.getBlock2More()) Copper.renderJSON(Copper.displayCache);
 			break;
 		case Copper.CONTENT_TYPE_APPLICATION_LINK_FORMAT:
 			Copper.renderText(Copper.displayCache);
@@ -543,6 +554,7 @@ Copper.displayPayload = function(message) {
 	
 	if (!message.getBlock2More()) {
 		delete Copper.displayCache;
+		Copper.displayInvalid = false;
 	}
 };
 
