@@ -37,6 +37,7 @@ pref("extensions.copper.encode-utf-8", true);
 pref("extensions.copper.behavior.auto-discover", false);
 pref("extensions.copper.behavior.requests", "con");
 pref("extensions.copper.behavior.retransmissions", true);
+pref("extensions.copper.behavior.oic", true);
 pref("extensions.copper.behavior.send-duplicates", false);
 pref("extensions.copper.behavior.show-unknown", false);
 pref("extensions.copper.behavior.reject-unknown", true);

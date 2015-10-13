@@ -57,6 +57,7 @@
 <script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/Observing.js"/>
 <script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/Plugtest.js"/>
 <script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/Logger.js"/>
+<script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/cbor.js"/>
 <script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/Main.js"/>
 
 <panel id="panel_event_log" position="bottomright topright" style="margin-top: 1px;">
@@ -95,6 +96,8 @@
 	    <menupopup>
 	      <menuitem id="menu_behavior_requests_con" label="CON requests" type="radio" name="request" value="con"/>
 	      <menuitem id="menu_behavior_requests_non" label="NON requests" type="radio" name="request" value="non"/>
+			<menuseparator/>
+			<menuitem id="menu_behavior_oic" label="OIC Mode" type="checkbox" tooltiptext="Use OIC compliant resource discovery"/>
 			<menuseparator/>
 			<menuitem id="menu_behavior_retransmissions" label="Retransmissions" type="checkbox" tooltiptext="Retransmit unconfirmed messages"/>
 			<menuitem id="menu_behavior_send_duplicates" label="Send Duplicates" type="checkbox" tooltiptext="Do not increase MID"/>

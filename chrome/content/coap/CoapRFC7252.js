@@ -133,7 +133,17 @@ Copper.__defineGetter__("CONTENT_TYPE_APPLICATION_VND_OMA_LWM2M_TLV", function()
 Copper.__defineGetter__("CONTENT_TYPE_APPLICATION_VND_OMA_LWM2M_JSON", function() { return 1543; });
 Copper.__defineGetter__("CONTENT_TYPE_APPLICATION_VND_OMA_LWM2M_OPAQUE", function() { return 1544; });
 
-Copper.__defineGetter__("WELL_KNOWN_RESOURCES", function() { return '/.well-known/core'; });
+Copper.__defineGetter__("WELL_KNOWN_RESOURCES", function() { 
+    if(Copper.behavior.oic) return '/oic/res'; 
+    return '/.well-known/core';
+});
+
+Copper.__defineGetter__("WELL_KNOWN_PATH", function() { 
+    if(Copper.behavior.oic) return '/oic'; 
+    return '/.well-known';
+});
+
+
 
 //Registries
 ////////////////////////////////////////////////////////////////////////////////

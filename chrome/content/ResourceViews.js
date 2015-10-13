@@ -109,7 +109,7 @@ Copper.addTreeResource = function(uri, attributes) {
 			itemCell.setAttribute('value', path);
 			
 			// special icon
-			if (path.match(/\/\.well-known$/)) {
+			if (path.match(Copper.WELL_KNOWN_PATH+'$')) {
 				properties += 'wellknown ';
 			} else if (path==Copper.hostname+':'+Copper.port) {
 				properties += 'host ';
@@ -138,9 +138,14 @@ Copper.addTreeResource = function(uri, attributes) {
 					if (attrib=='ct' && attributes[attrib]=='40') {
 						properties += 'discovery ';
 					}
-					
 					if (tooltiptext) tooltiptext += '\n';
-					tooltiptext += attrib + '="'+attributes[attrib]+'"';
+                    if(!(typeof (attributes[attrib]) === "string")) {
+                        attributes[attrib] = JSON.stringify(attributes[attrib], Copper.stringifyReplacer );
+                        // Strinify alreday adds double quotes 
+                        tooltiptext += attrib + '='+attributes[attrib]+'';
+                    } else {
+                        tooltiptext += attrib + '="'+attributes[attrib]+'"';
+                    }
 				}
 				var itemCellAttrib = document.createElement("treecell");
 				itemCellAttrib.setAttribute('value', tooltiptext);

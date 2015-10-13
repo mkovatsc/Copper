@@ -116,7 +116,6 @@ Copper.renderBinary = function(message) {
 	document.getElementById('tabs_payload').selectedIndex = 0;
 };
 
-
 Copper.renderLinkFormat = function(message) {
 	
 	// Print raw Link Format in case parsing fails
@@ -256,6 +255,29 @@ Copper.renderLinkFormatUtils = {
 	}
 };
 
+Copper.renderCBORFormat = function(message) {
+            
+	// The box for output at the top-level
+	document.getElementById('rendered_img').style.display = 'none';
+    var view = document.getElementById('rendered_div');
+    view.style.display = 'block';
+    
+    while (view.hasChildNodes()) {
+    	view.removeChild(view.firstChild);
+    }
+
+    view.setAttribute("class", "json-content");
+    var parsedObj = Copper.parseCBORFormat(message.getPayload());
+    // Turn the Javascript object into XUL objects
+    if (typeof parsedObj == 'object') {
+        view.appendChild( Copper.renderJSONutils.getXulObject(parsedObj) );
+        document.getElementById('tab_rendered').style.backgroundColor = '';
+        document.getElementById('tabs_payload').selectedIndex = 1;
+    } else {
+        Copper.logError(new Error('Top level element is not a JSON object'));
+    }
+};
+
 Copper.renderJSON = function(message) {
 	
 	// Print raw JSON in case parsing fails
@@ -300,6 +322,14 @@ Copper.renderJSONutils = {
 		}
 
 		var xulObj = document.createElementNS(this.htmlns, "ul");
+
+        if(value instanceof Uint8Array) {
+				var label = document.createElement("label");
+   				label.setAttribute("value", JSON.stringify(value, Copper.stringifyReplacer));
+				xulObj.appendChild(label);
+            //xulObj.setAttribute("class", "label");
+            //xulObj.setAttribute("value", JSON.stringify(value, Copper.stringifyReplacer));
+        } else 
 
 		if (Array.isArray(value)) {
 			xulObj.setAttribute("class", "array");
