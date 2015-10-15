@@ -323,14 +323,6 @@ Copper.renderJSONutils = {
 
 		var xulObj = document.createElementNS(this.htmlns, "ul");
 
-        if(value instanceof Uint8Array) {
-				var label = document.createElement("label");
-   				label.setAttribute("value", JSON.stringify(value, Copper.stringifyReplacer));
-				xulObj.appendChild(label);
-            //xulObj.setAttribute("class", "label");
-            //xulObj.setAttribute("value", JSON.stringify(value, Copper.stringifyReplacer));
-        } else 
-
 		if (Array.isArray(value)) {
 			xulObj.setAttribute("class", "array");
 
@@ -371,6 +363,10 @@ Copper.renderJSONutils = {
 			label.setAttribute("value", key + ":");
 			xulChild.appendChild(label);
 		}
+
+        if(value instanceof Uint8Array) {
+            value = JSON.stringify(value, Copper.stringifyReplacer);
+        }
 
 		if (typeof value == 'object' && value != null) {
 			xulChild.appendChild( this.getXulObject(value) );

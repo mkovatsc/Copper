@@ -139,10 +139,17 @@ Copper.addTreeResource = function(uri, attributes) {
 						properties += 'discovery ';
 					}
 					if (tooltiptext) tooltiptext += '\n';
+                    // if it is not a string we will stringify for the toolbox
                     if(!(typeof (attributes[attrib]) === "string")) {
-                        attributes[attrib] = JSON.stringify(attributes[attrib], Copper.stringifyReplacer );
-                        // Strinify alreday adds double quotes 
-                        tooltiptext += attrib + '='+attributes[attrib]+'';
+                        var tmp = JSON.stringify(attributes[attrib], Copper.stringifyReplacer );
+                        // strinigy adds quotes which we add below already, so trim them
+                        if(tmp.charAt(0)==='"')
+                            tmp = tmp.substr(1, tmp.length-2);
+                        attributes[attrib] = tmp;
+                    }
+                    // Don't put quotes around json objects, looks ugly
+                    if(attributes[attrib].charAt(0) === '{') {
+                        tooltiptext += attrib + '='+attributes[attrib];
                     } else {
                         tooltiptext += attrib + '="'+attributes[attrib]+'"';
                     }

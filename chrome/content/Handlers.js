@@ -54,8 +54,6 @@ Copper.defaultHandler = function(message) {
 	
 	if (message.getRTT) Copper.updateLabel('info_code', ' (RTT ' + message.getRTT() + ' ms)', true);
 	
-
-
     if (message.getContentFormat()==Copper.CONTENT_TYPE_APPLICATION_LINK_FORMAT) {
 		Copper.updateResourceLinks( Copper.parseLinkFormat( document.getElementById('packet_payload').value ) );
     } else if (message.getContentFormat()==Copper.CONTENT_TYPE_APPLICATION_CBOR &&
@@ -196,8 +194,13 @@ Copper.discoverHandler = function(message) {
 	
 	if (message.getCode()!=Copper.CODE_2_05_CONTENT) return;
 	
-	if (message.getContentFormat()==Copper.CONTENT_TYPE_APPLICATION_LINK_FORMAT 
-            || message.getContentFormat()==Copper.CONTENT_TYPE_APPLICATION_CBOR) {
+    Copper.logEvent('INFO: discovery of ' + message.getOption(Copper.OPTION_URI_PATH) );
+//	if (message.getContentFormat()==Copper.CONTENT_TYPE_APPLICATION_LINK_FORMAT
+//            || ((message.getContentFormat()==Copper.CONTENT_TYPE_APPLICATION_CBOR) &&
+//                (Copper.WELL_KNOWN_RESOURCES.indexOf(message.getOption(Copper.OPTION_URI_PATH)) > -1))) {
+
+		if (message.getContentFormat()==Copper.CONTENT_TYPE_APPLICATION_LINK_FORMAT
+            || (message.getContentFormat()==Copper.CONTENT_TYPE_APPLICATION_CBOR)) {
 		
 		Copper.updateLabel('info_code', 'Discovering');
 		
@@ -214,31 +217,21 @@ Copper.discoverHandler = function(message) {
 			
 			if (message.getBlock2Number()==0) {
 				Copper.logEvent('INFO: Starting new discover cache');
-                if (message.getContentFormat()==Copper.CONTENT_TYPE_APPLICATION_LINK_FORMAT) {
-                    Copper.discoverCache = new String(); 
-                } else if (message.getContentFormat()==Copper.CONTENT_TYPE_APPLICATION_CBOR) {
                     Copper.discoverCache = new Array(); 
-                }
-
 			}
 			
-			if (message.getContentFormat()==Copper.CONTENT_TYPE_APPLICATION_LINK_FORMAT) {
-                Copper.discoverCache += Copper.bytes2str( message.getPayload() );
-            } else if (message.getContentFormat()==Copper.CONTENT_TYPE_APPLICATION_CBOR) {
                 Copper.discoverCache.concat( message.getPayload() );
-            }
 			
 			if (!message.getBlock2More()) {
 				Copper.logEvent('INFO: Appending discover cache');
 				// link-format
 				Copper.resourcesCached = false;
                 if (message.getContentFormat()==Copper.CONTENT_TYPE_APPLICATION_LINK_FORMAT) {
-                    Copper.updateResourceLinks( Copper.parseLinkFormat( Copper.discoverCache ) );
-                } else if (message.getContentFormat()==Copper.CONTENT_TYPE_APPLICATION_CBOR &&
-                        (Copper.WELL_KNOWN_RESOURCES.indexOf(message.getOption(Copper.OPTION_URI_PATH)) > -1)) {
+                    Copper.discoverCache = Copper.bytes2str(Copper.discoverCache);
+                } else if (message.getContentFormat()==Copper.CONTENT_TYPE_APPLICATION_CBOR) {
                     Copper.discoverCache = Copper.parseCBORFormat(Copper.discoverCache);
-                    Copper.updateResourceLinks( Copper.parseLinkFormat( Copper.discoverCache ) );
                 }
+                Copper.updateResourceLinks( Copper.parseLinkFormat( Copper.discoverCache ) );
 
 
 				document.getElementById('toolbar_discover').image = 'chrome://copper/skin/tool_discover.png';
@@ -246,19 +239,18 @@ Copper.discoverHandler = function(message) {
 		} else {
 			// link-format
 			Copper.resourcesCached = false;
-
-
                 if (message.getContentFormat()==Copper.CONTENT_TYPE_APPLICATION_LINK_FORMAT) {
-                    Copper.updateResourceLinks( Copper.parseLinkFormat( Copper.bytes2str( message.getPayload() ) ) );
-                } else if (message.getContentFormat()==Copper.CONTENT_TYPE_APPLICATION_CBOR &&
-                        (Copper.WELL_KNOWN_RESOURCES.indexOf(message.getOption(Copper.OPTION_URI_PATH)) > -1)) {
+                    Copper.discoverCache = Copper.bytes2str( message.getPayload() );
+                } else if (message.getContentFormat()==Copper.CONTENT_TYPE_APPLICATION_CBOR) {
                     Copper.discoverCache = Copper.parseCBORFormat(message.getPayload());
-                    Copper.updateResourceLinks( Copper.parseLinkFormat( Copper.discoverCache ) );
                 }
-
+                Copper.updateResourceLinks( Copper.parseLinkFormat( Copper.discoverCache ) );
 
 			document.getElementById('toolbar_discover').image = 'chrome://copper/skin/tool_discover.png';
 		}
+        Copper.displayMessageInfo(message);
+        Copper.displayPayload(message);
+	
 	} else {
 		Copper.logWarning(new Error("Discovery requires 'application/link-format', but received "+message.getContentFormat()));
 	}
