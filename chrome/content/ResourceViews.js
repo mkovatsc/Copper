@@ -182,9 +182,7 @@ Copper.onTreeClicked = function(event) {
 	
 	// child.value: {image, text}
 	if (child.value!='twisty') {
-		
-		if(event.which == 2 ) {
-			Copper.logEvent('INFO: Middlebutton on ' + child.value);
+		if(event.ctrlKey || event.shiftKey || event.which == 2 ) {
 			event.preventDefault();
 			Copper.mainWindow.gBrowser.addTab( 'coap://' + tree.view.getCellValue(row.value, col.value) );
 		} else if(event.which == 3 ) {
