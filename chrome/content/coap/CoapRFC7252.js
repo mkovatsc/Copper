@@ -309,7 +309,8 @@ Copper.serialize = function(message) {
 			} else {
 				splitOption.push(message.options[optTypeIt][1]);
 			}
-			
+
+			let opt;
 			while ((opt = splitOption.shift())) {
 			
 				let optDelta = optTypeIt - optNumber;
@@ -387,8 +388,8 @@ Copper.parse = function(packet) {
 	
 	while ((tempByte = packet.shift())>0) {
 		if (tempByte!=0xFF) {
-			optDelta = ((0xF0 & tempByte) >>> 4);
-	    	optLen = (0x0F & tempByte);
+			let optDelta = ((0xF0 & tempByte) >>> 4);
+	    	let optLen = (0x0F & tempByte);
 	    	
 	    	if (optDelta==13) {
 	    		optDelta += packet.shift();

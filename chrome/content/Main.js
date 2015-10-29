@@ -131,7 +131,12 @@ Copper.main = function() {
 	// open location
 	try {
 		Copper.parseUri(document.location.href);
-		
+	} catch (ex) {
+        // default to multicast destination if the user doesn't have a specific host
+        document.location.href = 'coap://[ff02:0:0:0:0:0:0:fd]:5683';
+        return;
+    }
+    try {
 		// set up datagram and transaction layer
 		Copper.endpoint = new Copper.TransactionHandler(new Copper.UdpClient(Copper.hostname, Copper.port), Copper.behavior.retransmissions);
 		Copper.endpoint.registerCallback(Copper.defaultHandler);
@@ -168,7 +173,7 @@ Copper.main = function() {
 
 Copper.beforeunload = function(event) {
 	
-	if (Copper.observer.subscription!=null) {
+	if (Copper.observer != null && Copper.observer.subscription!=null) {
 		Copper.logEvent('WARNING: Leaving resource while observing');
 		Copper.updateLabel('info_code', "Copper: Still observing resource");
 		event.preventDefault();
@@ -177,7 +182,7 @@ Copper.beforeunload = function(event) {
 
 Copper.unload = function(event) {
 	
-	if (Copper.observer.subscription!=null) {
+	if (Copper.observer != null && Copper.observer.subscription!=null) {
 		Copper.logEvent('INFO: Canceling Observe in unload handler');
 		Copper.observer.unsubscribe(true);
 	}
@@ -227,13 +232,19 @@ Copper.userObserve = function() {
 	Copper.observe(uri);
 };
 
+Copper.discovering = null;
 Copper.userDiscover = function() {
-	Copper.logEvent('INFO: resetting cached resources');
-	document.getElementById('toolbar_discover').image = 'chrome://copper/skin/spinner.gif';
-	Copper.prefManager.setCharPref('extensions.copper.resources.'+Copper.hostname+':'+Copper.port, '' );
-	Copper.resources = new Object();
-	
-	Copper.discover();
+    if(null == Copper.discovering) {
+	   document.getElementById('toolbar_discover').image = 'chrome://copper/skin/spinner.gif';
+	   Copper.prefManager.setCharPref('extensions.copper.resources.'+Copper.hostname+':'+Copper.port, '' );
+	   Copper.logEvent('INFO: resetting cached resources');
+	   Copper.resources = new Object();
+	   Copper.discovering = Copper.startDiscovery();
+    } else {
+        document.getElementById('toolbar_discover').image = 'chrome://copper/skin/tool_discover.png';
+        Copper.stopDiscovery(Copper.discovering);
+        Copper.discovering = null;
+    }
 };
 
 
@@ -424,7 +435,7 @@ Copper.observe = function(uri) {
 	}
 };
 
-Copper.discover = function(num, size) {
+Copper.startDiscovery = function(num, size) {
 	try {
 		let message = new Copper.CoapMessage(Copper.getRequestType(), Copper.GET, Copper.WELL_KNOWN_RESOURCES);
 		
@@ -434,11 +445,16 @@ Copper.discover = function(num, size) {
 			message.setBlock2(num, size);
 		}
 		
-		Copper.endpoint.send( message, Copper.discoverHandler );
+		Copper.endpoint.send( message, Copper.discoverHandler);
+        return {mid: message.getMID(), tid: message.getToken()};
 	} catch (ex) {
 		Copper.logError(ex);
 	}
 };
+
+Copper.stopDiscovery = function(myDiscovery) {
+    Copper.endpoint.unregister(myDiscovery.mid, myDiscovery.tid);
+}
 
 // Sends a CoAP ping which is an empty CON message
 Copper.ping = function() {

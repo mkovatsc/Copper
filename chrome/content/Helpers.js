@@ -344,7 +344,7 @@ Copper.parseCBORFormat = function(data) {
     for(var i=0; i < abs; i++)
         abv.setUint8(i, data[i]);
     return Copper.decode(ab);
-}
+};
 
 Copper.parseLinkFormat = function(data) {
     // This should really take another parameter, maybe the wk url 
@@ -360,17 +360,23 @@ Copper.parseLinkFormat = function(data) {
 
 Copper.parseOICLinkFormat = function(data) {
 	var links = new Object();
-	
+    var baseURL = "coap://"+ data.from.address + ':' + data.from.port; 
+    var elm = data[0].links;
+
     // add all links
-    elm = data[0].links;
     for (var i = 0; i<elm.length; i++)
     {
+        if(-1 === elm[i].href.indexOf('://')) {
+            let sep = (0 === elm[i].href.indexOf('/')) ? '': '/';
+            elm[i].href = baseURL + sep + elm[i].href;
+        }
+            
         links[elm[i].href] = elm[i];
         delete elm[i]['href'];  
     }
     // add oic/res
     delete data[0]['links'];
-    links[Copper.WELL_KNOWN_RESOURCES] = data[0];
+    links[baseURL + Copper.WELL_KNOWN_RESOURCES] = data[0];
     return links;
 };
 

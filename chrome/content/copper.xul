@@ -49,6 +49,9 @@
 <script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/coap/CoapMessage.js"/>
 <script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/coap/TransactionHandler.js"/>
 <script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/coap/UdpClient.js"/>
+<!--
+<script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/coap/Discovery.js"/>
+-->
 <script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/ResourceViews.js"/>
 <script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/Helpers.js"/>
 <script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/Handlers.js"/>

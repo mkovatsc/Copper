@@ -187,13 +187,13 @@ Copper.observingHandler = function(message) {
 };
 
 // Handle messages with link format payload
-Copper.discoverCache; 
-Copper.discoverHandler = function(message) {
+Copper.discoverCache = null; 
+Copper.discoverHandler = function(message, stoppedListening) {
 	
 	Copper.logEvent('INFO: discoverHandler()');
 	
 	if (message.getCode()!=Copper.CODE_2_05_CONTENT) return;
-	
+
     Copper.logEvent('INFO: discovery of ' + message.getOption(Copper.OPTION_URI_PATH) );
 //	if (message.getContentFormat()==Copper.CONTENT_TYPE_APPLICATION_LINK_FORMAT
 //            || ((message.getContentFormat()==Copper.CONTENT_TYPE_APPLICATION_CBOR) &&
@@ -231,10 +231,8 @@ Copper.discoverHandler = function(message) {
                 } else if (message.getContentFormat()==Copper.CONTENT_TYPE_APPLICATION_CBOR) {
                     Copper.discoverCache = Copper.parseCBORFormat(Copper.discoverCache);
                 }
+                    Copper.discoverCache.from = message.from;
                 Copper.updateResourceLinks( Copper.parseLinkFormat( Copper.discoverCache ) );
-
-
-				document.getElementById('toolbar_discover').image = 'chrome://copper/skin/tool_discover.png';
 			}
 		} else {
 			// link-format
@@ -244,12 +242,14 @@ Copper.discoverHandler = function(message) {
                 } else if (message.getContentFormat()==Copper.CONTENT_TYPE_APPLICATION_CBOR) {
                     Copper.discoverCache = Copper.parseCBORFormat(message.getPayload());
                 }
+                Copper.discoverCache.from = message.from;
                 Copper.updateResourceLinks( Copper.parseLinkFormat( Copper.discoverCache ) );
-
-			document.getElementById('toolbar_discover').image = 'chrome://copper/skin/tool_discover.png';
 		}
+        if(stoppedListening) {
+            document.getElementById('toolbar_discover').image = 'chrome://copper/skin/tool_discover.png';
+            Copper.displayPayload(message);
+        }
         Copper.displayMessageInfo(message);
-        Copper.displayPayload(message);
 	
 	} else {
 		Copper.logWarning(new Error("Discovery requires 'application/link-format', but received "+message.getContentFormat()));
