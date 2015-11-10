@@ -133,7 +133,7 @@ Copper.main = function() {
 		Copper.parseUri(document.location.href);
 	} catch (ex) {
         // default to multicast destination if the user doesn't have a specific host
-        document.location.href = 'coap://[ff02:0:0:0:0:0:0:fd]:5683';
+        document.location.href = 'coap://[ff05:0:0:0:0:0:0:fd]:5683';
         return;
     }
     try {
@@ -438,6 +438,7 @@ Copper.observe = function(uri) {
 Copper.startDiscovery = function(num, size) {
 	try {
 		let message = new Copper.CoapMessage(Copper.getRequestType(), Copper.GET, Copper.WELL_KNOWN_RESOURCES);
+		Copper.checkDebugOptions(message);
 		
 		if (num!==undefined) {
 			Copper.logEvent('INFO: Continuing discovery with Block '+num+' size '+size);

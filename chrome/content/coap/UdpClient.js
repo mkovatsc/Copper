@@ -16,7 +16,7 @@ Copper.UdpClient = function (remoteHost, remotePort) {
     this.callback = null;
     this.lastSend = null;
     this.ended = false;
-
+    Copper.logEvent("localAddr" + this.socket.localAddr);
     return this;
 };
 
@@ -85,11 +85,12 @@ Copper.UdpClient.prototype = {
             let host = Copper.hostname.replace(/\[/,'').replace(/\]/,'');
             Copper.logEvent('UDP: Sent ' + message.length + ' bytes to ' + host +' on port '+ Copper.port);
             Copper.logEvent("send " +this.socket.send(host, Copper.port, rawMessage, rawMessage.length));
-            if('ff02:0:0:0:0:0:0:fd' === host) {
+            if('ff05:0:0:0:0:0:0:fd' === host) {
                 Copper.logEvent('UDP: Sent ' + message.length + ' bytes to ' + "224.0.1.187" +' on port '+ Copper.port);
                 Copper.logEvent("also send v4 multicast"+this.socketf.send("224.0.1.187", Copper.port, rawMessage, rawMessage.length));
             }
 
+            //Copper.logEvent("send localAddr" + this.socket.localAddr);
         } catch (ex) {
             Copper.logError(ex);
         }
