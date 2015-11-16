@@ -195,11 +195,8 @@ Copper.discoverHandler = function(message, stoppedListening) {
 	if (message.getCode()!=Copper.CODE_2_05_CONTENT) return;
 
     Copper.logEvent('INFO: discovery of ' + message.getOption(Copper.OPTION_URI_PATH) );
-//	if (message.getContentFormat()==Copper.CONTENT_TYPE_APPLICATION_LINK_FORMAT
-//            || ((message.getContentFormat()==Copper.CONTENT_TYPE_APPLICATION_CBOR) &&
-//                (Copper.WELL_KNOWN_RESOURCES.indexOf(message.getOption(Copper.OPTION_URI_PATH)) > -1))) {
 
-		if (message.getContentFormat()==Copper.CONTENT_TYPE_APPLICATION_LINK_FORMAT
+    if (message.getContentFormat()==Copper.CONTENT_TYPE_APPLICATION_LINK_FORMAT
             || (message.getContentFormat()==Copper.CONTENT_TYPE_APPLICATION_CBOR)) {
 		
 		Copper.updateLabel('info_code', 'Discovering');

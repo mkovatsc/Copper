@@ -268,6 +268,9 @@ Copper.renderCBORFormat = function(message) {
 
     view.setAttribute("class", "json-content");
     var parsedObj = Copper.parseCBORFormat(message.getPayload());
+	Copper.updateLabel('packet_payload', 
+            JSON.stringify(parsedObj, Copper.stringifyReplacer), 
+            false);
     // Turn the Javascript object into XUL objects
     if (typeof parsedObj == 'object') {
         view.appendChild( Copper.renderJSONutils.getXulObject(parsedObj) );

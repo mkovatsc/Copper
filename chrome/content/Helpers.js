@@ -343,11 +343,22 @@ Copper.parseCBORFormat = function(data) {
     let abv = new DataView(ab); 
     for(var i=0; i < abs; i++)
         abv.setUint8(i, data[i]);
-    return Copper.decode(ab);
+    return Copper.cbor.decode(ab);
 };
 
+Copper.createCBORFormat = function (obj) {
+    let ab = Copper.cbor.encode(obj);
+    let abv = new DataView(ab); 
+    let abs = abv.byteLength;
+    let a = new Array(abs);
+    for(var i=0; i < abs; i++)
+        a[i] = abv.getUint8(i, abv[i]);
+    return a;
+}
+
 Copper.parseLinkFormat = function(data) {
-    // This should really take another parameter, maybe the wk url 
+    // This should really be based on rt=oic.rt.res
+    // but iotivity doesn't set this yet.
     if ( (data instanceof Array) &&
             (data.length != 0) && 
             ((data[0].links) instanceof Array) ) 
@@ -469,9 +480,15 @@ Copper.updateResourceLinks = function(add) {
 	
 	// add well-known resource to resource cache
 	if (!Copper.resources[Copper.WELL_KNOWN_RESOURCES]) {
-		Copper.resources[Copper.WELL_KNOWN_RESOURCES] = new Object();
-		Copper.resources[Copper.WELL_KNOWN_RESOURCES]['ct'] = 40;
-		Copper.resources[Copper.WELL_KNOWN_RESOURCES]['title'] = 'Resource discovery';
+        if (Copper.behavior.oic) {
+            // OIC parsing will add the well known already
+            //Copper.resources[Copper.WELL_KNOWN_RESOURCES] = new Object();
+            //Copper.resources[Copper.WELL_KNOWN_RESOURCES]['rt'] = 'oic.wk.res';
+        } else {
+            Copper.resources[Copper.WELL_KNOWN_RESOURCES] = new Object();
+            Copper.resources[Copper.WELL_KNOWN_RESOURCES]['ct'] = 40;
+            Copper.resources[Copper.WELL_KNOWN_RESOURCES]['title'] = 'Resource discovery';
+        }
 	}
 	
 	Copper.clearTree();

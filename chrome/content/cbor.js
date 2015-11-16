@@ -22,11 +22,12 @@
  * SOFTWARE.
  */
 
-Copper.POW_2_24 = Math.pow(2, -24);
-Copper.POW_2_32 = Math.pow(2, 32);   
-Copper.POW_2_53 = Math.pow(2, 53);
+Copper.cbor = new Object();
+Copper.cbor.POW_2_24 = Math.pow(2, -24);
+Copper.cbor.POW_2_32 = Math.pow(2, 32);   
+Copper.cbor.POW_2_53 = Math.pow(2, 53);
 
-Copper.encode = function (value) {
+Copper.cbor.encode = function (value) {
   var data = new ArrayBuffer(256);
   var dataView = new DataView(data);
   var lastLength;
@@ -71,8 +72,8 @@ Copper.encode = function (value) {
     write(ensureSpace(4).setUint32(offset, value));
   }
   function writeUint64(value) {
-    var low = value % POW_2_32;
-    var high = (value - low) / POW_2_32;
+    var low = value % Copper.cbor.POW_2_32;
+    var high = (value - low) / Copper.cbor.POW_2_32;
     var dataView = ensureSpace(8);
     dataView.setUint32(offset, high);
     dataView.setUint32(offset + 4, low);
@@ -111,9 +112,9 @@ Copper.encode = function (value) {
     switch (typeof value) {
       case "number":
         if (Math.floor(value) === value) {
-          if (0 <= value && value <= POW_2_53)
+          if (0 <= value && value <= Copper.cbor.POW_2_53)
             return writeTypeAndLength(0, value);
-          if (-POW_2_53 <= value && value < 0)
+          if (-Copper.cbor.POW_2_53 <= value && value < 0)
             return writeTypeAndLength(1, -(value + 1));
         }
         writeUint8(0xfb);
@@ -182,7 +183,7 @@ Copper.encode = function (value) {
   return ret;
 }
 
-Copper.decode = function (data, tagger, simpleValue) {
+Copper.cbor.decode = function (data, tagger, simpleValue) {
   var dataView = new DataView(data);
   var offset = 0;
   
@@ -212,7 +213,7 @@ Copper.decode = function (data, tagger, simpleValue) {
     else if (exponent !== 0)
       exponent += (127 - 15) << 10;
     else if (fraction !== 0)
-      return fraction * POW_2_24;
+      return fraction * Copper.cbor.POW_2_24;
     
     tempDataView.setUint32(0, sign << 16 | exponent << 13 | fraction << 13);
     return tempDataView.getFloat32(0);
@@ -233,7 +234,7 @@ Copper.decode = function (data, tagger, simpleValue) {
     return read(dataView.getUint32(offset), 4);
   }
   function readUint64() {
-    return readUint32() * POW_2_32 + readUint32();
+    return readUint32() * Copper.cbor.POW_2_32 + readUint32();
   }
   function readBreak() {
     if (dataView.getUint8(offset) !== 0xff)

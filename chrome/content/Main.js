@@ -285,6 +285,9 @@ Copper.sendBlockwise2 = function(uri, num, size, callback) {
 		if (callback) Copper.downloadHandler = callback;
 		
 		var message = new Copper.CoapMessage(Copper.getRequestType(), Copper.downloadMethod, uri);
+        if(undefined !== pl.format) {
+            message.setContentType(format);
+        }
 		
 		Copper.checkDebugOptions(message);
 		
@@ -324,8 +327,16 @@ Copper.doUpload = function(method, uri, callback) {
 		
 		// load payload
 		let pl = '';
+
 		if (Copper.payload.mode=='text') {
-			pl = Copper.str2bytes(document.getElementById('payload_text').value);
+            if (Copper.behavior.oic) {
+                // Default for oic is to use CBOR encoding
+                let str = document.getElementById('payload_text').value;
+                pl = Copper.createCBORFormat(JSON.parse(str));
+                pl.format = Copper.CONTENT_TYPE_APPLICATION_CBOR;
+            } else {
+                pl = Copper.str2bytes(document.getElementById('payload_text').value);
+            }
 		} else if (Copper.payload.file!='') {
 			if (!Copper.payload.loaded) {
 				// file loading as async, wait until done
@@ -350,6 +361,9 @@ Copper.doUpload = function(method, uri, callback) {
 		}
 		
 		var message = new Copper.CoapMessage(Copper.getRequestType(), method, uri, pl);
+        if(undefined !== pl.format) {
+            message.setContentType(pl.format);
+        }
 		
 		Copper.checkDebugOptions(message);
 		
@@ -390,6 +404,9 @@ Copper.sendBlockwise1 = function(uri, num, size, callback) {
 		if (callback) Copper.uploadHandler = callback;
 		
 		var message = new Copper.CoapMessage(Copper.getRequestType(), Copper.uploadMethod, uri, pl);
+        if(undefined !== pl.format) {
+            message.setContentType(format);
+        }
 		
 		Copper.checkDebugOptions(message);
 		
