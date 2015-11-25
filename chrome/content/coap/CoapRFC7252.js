@@ -360,7 +360,7 @@ Copper.serialize = function(message) {
 	
 Copper.parse = function(packet) {
 	
-	Copper.logEvent('PACKET (hex): ' + packet.map(function(x){return x.toString(16).toUpperCase();}));
+	//Copper.logEvent('PACKET (hex): ' + packet.map(function(x){return x.toString(16).toUpperCase();}));
 	
 	// first byte: version, type, and option count
 	let tempByte = packet.shift();
@@ -535,11 +535,11 @@ Copper.bytes2str = function(b) {
 			str += String.fromCharCode((c1 << 12) | (c2 << 6) | c3);
 			i += 2;
 		} else if (Copper.utf8 && c >= 240 && i+3 < b.length) {
-			Copper.logEvent('4-byte UTF-8');
+			//Copper.logEvent('4-byte UTF-8');
 			str += String.fromCharCode(0xFFFD); // char '�'
 			i += 3;
 		} else if (Copper.utf8 && c >= 128) {
-			Copper.logEvent('Incomplete UTF-8 encoding');
+			//Copper.logEvent('Incomplete UTF-8 encoding');
 			str += String.fromCharCode(0xFFFD); // char '�'
 		} else {
 			if (c < 32)

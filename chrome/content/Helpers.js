@@ -356,23 +356,30 @@ Copper.createCBORFormat = function (obj) {
     return a;
 }
 
-Copper.parseLinkFormat = function(data) {
+Copper.parseLinkFormat = function(cache) {
     // This should really be based on rt=oic.rt.res
     // but iotivity doesn't set this yet.
-    if ( (data instanceof Array) &&
-            (data.length != 0) && 
-            ((data[0].links) instanceof Array) ) 
-    {
-                return Copper.parseOICLinkFormat( data );
+    let data = cache.payloads;
+    let from = cache.from;
+    if ( data instanceof Array ) {
+        var baseURL = "coap://"+ from.address + ':' + from.port; 
+        var links = new Object();
+        for (var i = 0; i < data.length; i++) { 
+            if((data[i].links) instanceof Array) 
+            {
+                Copper.parseOICLinkFormat(data[i], baseURL, links);
+            }
+        }
+        delete data[0]['links'];
+        links[baseURL + Copper.WELL_KNOWN_RESOURCES] = data[0];
+        return links;
     }
     return Copper.parseRawLinkFormat (data);
 
 };
 
-Copper.parseOICLinkFormat = function(data) {
-	var links = new Object();
-    var baseURL = "coap://"+ data.from.address + ':' + data.from.port; 
-    var elm = data[0].links;
+Copper.parseOICLinkFormat = function(data, baseURL, olinks) {
+    var elm = data.links;
 
     // add all links
     for (var i = 0; i<elm.length; i++)
@@ -382,13 +389,11 @@ Copper.parseOICLinkFormat = function(data) {
             elm[i].href = baseURL + sep + elm[i].href;
         }
             
-        links[elm[i].href] = elm[i];
+        olinks[elm[i].href] = elm[i];
         delete elm[i]['href'];  
     }
     // add oic/res
-    delete data[0]['links'];
-    links[baseURL + Copper.WELL_KNOWN_RESOURCES] = data[0];
-    return links;
+    return olinks;
 };
 
 Copper.parseRawLinkFormat = function(data) {

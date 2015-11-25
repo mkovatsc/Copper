@@ -52,6 +52,7 @@ Copper.port = -1;
 Copper.path = '/';
 Copper.query = '';
 
+Copper.endpoints = {};
 Copper.endpoint = null;
 Copper.observer = null;
 
@@ -138,7 +139,7 @@ Copper.main = function() {
     }
     try {
 		// set up datagram and transaction layer
-		Copper.endpoint = new Copper.TransactionHandler(new Copper.UdpClient(Copper.hostname, Copper.port), Copper.behavior.retransmissions);
+		Copper.endpoint = Copper.getEndpoint(Copper.hostname, Copper.port);
 		Copper.endpoint.registerCallback(Copper.defaultHandler);
 		
 		// enable observing
@@ -168,6 +169,13 @@ Copper.main = function() {
 		Copper.errorHandler({getCopperCode:function(){return ex.message;}, getPayload:function(){return ex.stacktrace;}});
 		Copper.logEvent('ERROR: ' + ex.message + '\n\t' + ex.stack.replace(/\n/, '\n\t'));
 	}
+};
+
+Copper.getEndpoint = function (addr, port) {
+    let domain = "["+addr+"]:"+ port;
+    if(Copper.endpoints[domain] == null) 
+        Copper.endpoints[domain] = new Copper.TransactionHandler(new Copper.UdpClient(addr, port), Copper.behavior.retransmissions);
+    return Copper.endpoints[domain];
 };
 
 
@@ -285,9 +293,6 @@ Copper.sendBlockwise2 = function(uri, num, size, callback) {
 		if (callback) Copper.downloadHandler = callback;
 		
 		var message = new Copper.CoapMessage(Copper.getRequestType(), Copper.downloadMethod, uri);
-        if(undefined !== pl.format) {
-            message.setContentType(format);
-        }
 		
 		Copper.checkDebugOptions(message);
 		
@@ -452,7 +457,7 @@ Copper.observe = function(uri) {
 	}
 };
 
-Copper.startDiscovery = function(num, size) {
+Copper.startDiscovery = function(dst, num, size) {
 	try {
 		let message = new Copper.CoapMessage(Copper.getRequestType(), Copper.GET, Copper.WELL_KNOWN_RESOURCES);
 		Copper.checkDebugOptions(message);
@@ -462,8 +467,10 @@ Copper.startDiscovery = function(num, size) {
 			if (size===undefined) size = Copper.behavior.blockSize;
 			message.setBlock2(num, size);
 		}
-		
-		Copper.endpoint.send( message, Copper.discoverHandler);
+        if(undefined === dst)
+            Copper.getEndpoint(Copper.hostname, Copper.port).send( message, Copper.discoverHandler); 
+        else
+            Copper.getEndpoint(dst.address, dst.port).send( message, Copper.discoverHandler);
         return {mid: message.getMID(), tid: message.getToken()};
 	} catch (ex) {
 		Copper.logError(ex);
