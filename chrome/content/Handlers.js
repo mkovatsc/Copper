@@ -237,7 +237,8 @@ Copper.discoverHandler = function(message, stoppedListening) {
         } else {
             // link-format
             Copper.resourcesCached = false;
-            Copper.discoverCache[domain].from = from;
+            Copper.discoverCache[domain] = {};
+            Copper.discoverCache[domain].from = message.from;
             if (message.getContentFormat()==Copper.CONTENT_TYPE_APPLICATION_LINK_FORMAT) {
                 Copper.discoverCache[domain].payloads = Copper.bytes2str( message.getPayload() );
             } else {
