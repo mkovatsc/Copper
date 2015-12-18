@@ -47,6 +47,7 @@ Copper.getRequestType = function() {
 Copper.loadBehavior = function() {
 	Copper.behavior.requests = Copper.prefManager.getCharPref('extensions.copper.behavior.requests');
 	Copper.behavior.retransmissions = Copper.prefManager.getBoolPref('extensions.copper.behavior.retransmissions');
+	Copper.behavior.oic = Copper.prefManager.getBoolPref('extensions.copper.behavior.oic');
 	Copper.behavior.sendDuplicates = Copper.prefManager.getBoolPref('extensions.copper.behavior.send-duplicates');
 	Copper.behavior.showUnknown = Copper.prefManager.getBoolPref('extensions.copper.behavior.show-unknown');
 	Copper.behavior.rejectUnknown = Copper.prefManager.getBoolPref('extensions.copper.behavior.reject-unknown');
@@ -62,6 +63,7 @@ Copper.loadBehavior = function() {
 // sync XUL menu with behavior object
 Copper.updateBehavior = function() {
 	document.getElementById('menu_behavior_requests_' + Copper.behavior.requests).setAttribute('checked', 'true');
+	document.getElementById('menu_behavior_oic').setAttribute('checked', Copper.behavior.oic);
 	document.getElementById('menu_behavior_retransmissions').setAttribute('checked', Copper.behavior.retransmissions);
 	document.getElementById('menu_behavior_send_duplicates').setAttribute('checked', Copper.behavior.sendDuplicates);
 	document.getElementById('menu_behavior_show_unknown').setAttribute('checked', Copper.behavior.showUnknown);
@@ -78,6 +80,10 @@ Copper.updateBehavior = function() {
 Copper.behaviorUpdate = function(target) {
 	if (target.id.substr(0,22)=='menu_behavior_requests') {
 		Copper.behavior.requests = target.value;
+	} else if (target.id=='menu_behavior_oic') {
+		Copper.behavior.oic = target.getAttribute('checked')=='true'; 
+        Copper.resources = new Object();
+		Copper.updateResourceLinks();
 	} else if (target.id=='menu_behavior_retransmissions') {
 		Copper.behavior.retransmissions = target.getAttribute('checked')=='true'; 
 		Copper.endpoint.setRetransmissions(Copper.behavior.retransmissions);
@@ -331,10 +337,69 @@ Copper.checkUri = function(uri, caller) {
 	}
 };
 
-Copper.parseLinkFormat = function(data) {
+Copper.parseCBORFormat = function(data) {
+    let abs = data.length;
+    let ab = new ArrayBuffer(abs);
+    let abv = new DataView(ab); 
+    for(var i=0; i < abs; i++)
+        abv.setUint8(i, data[i]);
+    return Copper.cbor.decode(ab);
+};
+
+Copper.createCBORFormat = function (obj) {
+    let ab = Copper.cbor.encode(obj);
+    let abv = new DataView(ab); 
+    let abs = abv.byteLength;
+    let a = new Array(abs);
+    for(var i=0; i < abs; i++)
+        a[i] = abv.getUint8(i, abv[i]);
+    return a;
+}
+
+Copper.parseLinkFormat = function(cache) {
+    // This should really be based on rt=oic.rt.res
+    // but iotivity doesn't set this yet.
+    let data = cache.payloads;
+    let from = cache.from;
+    if ( data instanceof Array ) {
+        var baseURL = "coap://"+ from.address + ':' + from.port; 
+        var links = new Object();
+        for (var i = 0; i < data.length; i++) { 
+            if((data[i].links) instanceof Array) 
+            {
+                Copper.parseOICLinkFormat(data[i], baseURL, links);
+            }
+        }
+        delete data[0]['links'];
+        links[baseURL + Copper.WELL_KNOWN_RESOURCES] = data[0];
+        return links;
+    }
+    return Copper.parseRawLinkFormat (data);
+
+};
+
+Copper.parseOICLinkFormat = function(data, baseURL, olinks) {
+    var elm = data.links;
+
+    // add all links
+    for (var i = 0; i<elm.length; i++)
+    {
+        if(-1 === elm[i].href.indexOf('://')) {
+            let sep = (0 === elm[i].href.indexOf('/')) ? '': '/';
+            elm[i].href = baseURL + sep + elm[i].href;
+        }
+            
+        olinks[elm[i].href] = elm[i];
+        delete elm[i]['href'];  
+    }
+    // add oic/res
+    return olinks;
+};
+
+Copper.parseRawLinkFormat = function(data) {
 	
-	var links = new Object();
-	
+    var links = new Object();
+
 	// totally complicated but supports ',' and '\n' to separate links and ',' as well as '\"' within quoted strings
 	var format = data.match(/(<[^>]+>\s*(;\s*\w+\s*(=\s*(\w+|"([^"\\]*(\\.[^"\\]*)*)")\s*)?)*)/g);
 	Copper.logEvent('-parsing link-format----------------------------');
@@ -391,6 +456,21 @@ Copper.parseLinkFormat = function(data) {
 	return links;
 };
 
+Copper.stringifyReplacer = function(key, value) {
+    var ua = this[key];
+    if(value instanceof Uint8Array) {
+        // Copper.logEvent('replacestringify ' + (typeof value) + ' ['+key+'] = ' + value);
+        var h='';
+        for (var i = 0; i<ua.length; i++) {
+            h += ua[i].toString(16)
+        }
+        return h;
+    } else {
+        //Copper.logEvent('stringify ' + (typeof value) + ' key = '+key+'; value = ' + this[key]);
+        return value;    
+    }
+}
+
 Copper.updateResourceLinks = function(add) {
 	
 	// merge links
@@ -405,9 +485,15 @@ Copper.updateResourceLinks = function(add) {
 	
 	// add well-known resource to resource cache
 	if (!Copper.resources[Copper.WELL_KNOWN_RESOURCES]) {
-		Copper.resources[Copper.WELL_KNOWN_RESOURCES] = new Object();
-		Copper.resources[Copper.WELL_KNOWN_RESOURCES]['ct'] = 40;
-		Copper.resources[Copper.WELL_KNOWN_RESOURCES]['title'] = 'Resource discovery';
+        if (Copper.behavior.oic) {
+            // OIC parsing will add the well known already
+            //Copper.resources[Copper.WELL_KNOWN_RESOURCES] = new Object();
+            //Copper.resources[Copper.WELL_KNOWN_RESOURCES]['rt'] = 'oic.wk.res';
+        } else {
+            Copper.resources[Copper.WELL_KNOWN_RESOURCES] = new Object();
+            Copper.resources[Copper.WELL_KNOWN_RESOURCES]['ct'] = 40;
+            Copper.resources[Copper.WELL_KNOWN_RESOURCES]['title'] = 'Resource discovery';
+        }
 	}
 	
 	Copper.clearTree();
@@ -427,7 +513,7 @@ Copper.updateResourceLinks = function(add) {
 	}
 	
 	// save in cache
-	let saveRes = JSON.stringify(Copper.resources);
+	let saveRes = JSON.stringify(Copper.resources, Copper.stringifyReplacer);
 	if (Copper.hostname!='') Copper.prefManager.setCharPref('extensions.copper.resources.'+Copper.hostname+':'+Copper.port, escape(saveRes));
 };
 
@@ -548,6 +634,11 @@ Copper.displayPayload = function(message) {
 			Copper.renderText(Copper.displayCache);
 			Copper.renderLinkFormat(Copper.displayCache);
 			break;
+        case Copper.CONTENT_TYPE_APPLICATION_CBOR:
+			if (!Copper.displayInvalid && !message.getBlock2More()) {
+                Copper.renderCBORFormat(Copper.displayCache);
+            };			
+            break;
 		default:
 			Copper.renderText(Copper.displayCache);
 	}

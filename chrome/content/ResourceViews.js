@@ -109,7 +109,7 @@ Copper.addTreeResource = function(uri, attributes) {
 			itemCell.setAttribute('value', path);
 			
 			// special icon
-			if (path.match(/\/\.well-known$/)) {
+			if (path.match(Copper.WELL_KNOWN_PATH+'$')) {
 				properties += 'wellknown ';
 			} else if (path==Copper.hostname+':'+Copper.port) {
 				properties += 'host ';
@@ -138,9 +138,21 @@ Copper.addTreeResource = function(uri, attributes) {
 					if (attrib=='ct' && attributes[attrib]=='40') {
 						properties += 'discovery ';
 					}
-					
 					if (tooltiptext) tooltiptext += '\n';
-					tooltiptext += attrib + '="'+attributes[attrib]+'"';
+                    // if it is not a string we will stringify for the toolbox
+                    if(!(typeof (attributes[attrib]) === "string")) {
+                        var tmp = JSON.stringify(attributes[attrib], Copper.stringifyReplacer );
+                        // strinigy adds quotes which we add below already, so trim them
+                        if(tmp.charAt(0)==='"')
+                            tmp = tmp.substr(1, tmp.length-2);
+                        attributes[attrib] = tmp;
+                    }
+                    // Don't put quotes around json objects, looks ugly
+                    if(attributes[attrib].charAt(0) === '{') {
+                        tooltiptext += attrib + '='+attributes[attrib];
+                    } else {
+                        tooltiptext += attrib + '="'+attributes[attrib]+'"';
+                    }
 				}
 				var itemCellAttrib = document.createElement("treecell");
 				itemCellAttrib.setAttribute('value', tooltiptext);

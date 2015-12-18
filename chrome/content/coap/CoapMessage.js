@@ -378,7 +378,14 @@ Copper.CoapMessage.prototype = {
 	getContentFormat : function(readable) {
 		var opt = this.getOption(Copper.OPTION_CONTENT_FORMAT); // integer
 
-		if (opt==null) return null;
+		if (opt==null) {
+            if (Copper.behavior.oic) {
+                // OIC application context defaults to 
+                return Copper.CONTENT_TYPE_APPLICATION_CBOR;
+            } else {
+                return null;
+            }
+        } 
 		
 		if (readable) {
 			return new Array(Copper.getContentFormatName(opt), opt);
@@ -839,6 +846,20 @@ Copper.CoapMessage.prototype = {
 		return this.payload;
 	},
 	getPayloadText : function() {
+        if(this.getContentFormat() == Copper.CONTENT_TYPE_APPLICATION_CBOR 
+	//) {    
+	    || ((null == this.getContentFormat()) && Copper.behavior.oic ) ) {
+            // last block arrived, attempt decode
+            if( (this.isOption(Copper.OPTION_BLOCK2)) &&
+		    this.getBlock2More())
+            {
+                return Copper.bytes2str(this.payload);
+            } else {
+                // all data is available to decode the cbor format
+                return Copper.bytes2str(this.payload);
+                //return JSON.stringify(Copper.parseCBORFormat(this.payload));
+            }
+       }
 		return Copper.bytes2str(this.payload);
 	},
 	setPayload : function(pl) {

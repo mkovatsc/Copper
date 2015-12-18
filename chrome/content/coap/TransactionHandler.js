@@ -143,6 +143,14 @@ Copper.TransactionHandler.prototype = {
 	send : function(message, reqCB) {
 		
 		if (this.client.ended) return;
+
+        if(null != reqCB) {
+            if(0 == Copper.hostname.indexOf('[ff0') || 0 == Copper.hostname.indexOf('224'))
+                reqCB.isMulticast = true;
+            else 
+                reqCB.isMulticast = false;
+        }
+
 		
 		// set MID for message
 		if (message.getMID()==-1) {
@@ -191,6 +199,11 @@ Copper.TransactionHandler.prototype = {
 		this.client.send( Copper.serialize(message) );
 	},
 	
+    unregister(mid, tid) {
+				delete this.requests[tid];
+				delete this.registeredMIDs[mid];
+    },
+    
 	resend : function(mid) {
 		if (Copper.behavior.retransmissions && this.transactions[mid]!==undefined && (this.transactions[mid].message.getRetries() < Copper.MAX_RETRANSMIT)) {
 			
@@ -213,9 +226,12 @@ Copper.TransactionHandler.prototype = {
 		}
 	},
 	
-	handle : function(datagram) {
+	handle : function(datagram, from) {
 		// parse byte message to CoAP message
 		let message = Copper.parse(datagram);
+        // Common case is to stop listening except when using multicast
+        let stoppedListening = true;
+        message.from = from;
 		
 		Copper.logMessage(message, false);
 		
@@ -233,7 +249,10 @@ Copper.TransactionHandler.prototype = {
 			delete this.transactions[message.getMID()];
 			
 		// filter duplicates
-		} else if (this.dupFilter.indexOf(message.getMID()) != -1) {
+		} else if (this.dupFilter.findIndex(function (element, index, array) { 
+            return (element.mid == message.getMID() && 
+                    element.addr == message.from.address && 
+                    element.port == message.from.port);}) != -1) {
 			
 			if (message.getType()==Copper.MSG_TYPE_CON) {
 				var reply = this.dupCache[message.getMID()];
@@ -277,9 +296,14 @@ Copper.TransactionHandler.prototype = {
 				}
 				
 				callback = this.requests[message.getToken()];
-				
-				delete this.requests[message.getToken()];
-				delete this.registeredMIDs[message.getMID()];
+				if(callback.isMulticast === undefined || callback.isMulticast === false) {
+                    // multicast may receive multiple messages from different servers with same mid
+                    // so we will not delete the callbacks just yet
+				    delete this.requests[message.getToken()];
+				    delete this.registeredMIDs[message.getMID()];
+                } else {
+                    stoppedListening = false;
+                }
 			
 			// check registered Tokens, e.g., subscriptions
 			} else if (this.registeredTokens[message.getToken()]) {
@@ -318,7 +342,7 @@ Copper.TransactionHandler.prototype = {
 		// callback might set reply for message used by deduplication
 		if (callback) {
 			try {
-				callback(message);
+				callback(message, stoppedListening);
 			} catch (ex) {
 				ex.message = 'Message callback failed:\n' + ex.message;
 				Copper.logError(ex);
@@ -334,14 +358,14 @@ Copper.TransactionHandler.prototype = {
 		
 		// add to duplicates filter
 		if (message.getType()!=Copper.MSG_TYPE_RST) {
-			this.dupFilter.unshift(message.getMID());
+			this.dupFilter.unshift({mid:message.getMID(), addr:message.from.address, port: message.from.port});
 			if (message.reply) this.dupCache[message.getMID()] = message.reply;
 			if (this.dupFilter.length>10) {
 				delete this.dupCache[this.dupFilter.pop()];
 			}
 		}
 	},
-	
+
 	ack : function(mid) {
 		var ack = new Copper.CoapMessage(Copper.MSG_TYPE_ACK);
 		ack.setMID( mid );

@@ -133,7 +133,17 @@ Copper.__defineGetter__("CONTENT_TYPE_APPLICATION_VND_OMA_LWM2M_TLV", function()
 Copper.__defineGetter__("CONTENT_TYPE_APPLICATION_VND_OMA_LWM2M_JSON", function() { return 1543; });
 Copper.__defineGetter__("CONTENT_TYPE_APPLICATION_VND_OMA_LWM2M_OPAQUE", function() { return 1544; });
 
-Copper.__defineGetter__("WELL_KNOWN_RESOURCES", function() { return '/.well-known/core'; });
+Copper.__defineGetter__("WELL_KNOWN_RESOURCES", function() { 
+    if(Copper.behavior.oic) return '/oic/res'; 
+    return '/.well-known/core';
+});
+
+Copper.__defineGetter__("WELL_KNOWN_PATH", function() { 
+    if(Copper.behavior.oic) return '/oic'; 
+    return '/.well-known';
+});
+
+
 
 //Registries
 ////////////////////////////////////////////////////////////////////////////////
@@ -299,7 +309,8 @@ Copper.serialize = function(message) {
 			} else {
 				splitOption.push(message.options[optTypeIt][1]);
 			}
-			
+
+			let opt;
 			while ((opt = splitOption.shift())) {
 			
 				let optDelta = optTypeIt - optNumber;
@@ -349,7 +360,7 @@ Copper.serialize = function(message) {
 	
 Copper.parse = function(packet) {
 	
-	Copper.logEvent('PACKET (hex): ' + packet.map(function(x){return x.toString(16).toUpperCase();}));
+	//Copper.logEvent('PACKET (hex): ' + packet.map(function(x){return x.toString(16).toUpperCase();}));
 	
 	// first byte: version, type, and option count
 	let tempByte = packet.shift();
@@ -377,8 +388,8 @@ Copper.parse = function(packet) {
 	
 	while ((tempByte = packet.shift())>0) {
 		if (tempByte!=0xFF) {
-			optDelta = ((0xF0 & tempByte) >>> 4);
-	    	optLen = (0x0F & tempByte);
+			let optDelta = ((0xF0 & tempByte) >>> 4);
+	    	let optLen = (0x0F & tempByte);
 	    	
 	    	if (optDelta==13) {
 	    		optDelta += packet.shift();
@@ -524,11 +535,11 @@ Copper.bytes2str = function(b) {
 			str += String.fromCharCode((c1 << 12) | (c2 << 6) | c3);
 			i += 2;
 		} else if (Copper.utf8 && c >= 240 && i+3 < b.length) {
-			Copper.logEvent('4-byte UTF-8');
+			//Copper.logEvent('4-byte UTF-8');
 			str += String.fromCharCode(0xFFFD); // char '�'
 			i += 3;
 		} else if (Copper.utf8 && c >= 128) {
-			Copper.logEvent('Incomplete UTF-8 encoding');
+			//Copper.logEvent('Incomplete UTF-8 encoding');
 			str += String.fromCharCode(0xFFFD); // char '�'
 		} else {
 			if (c < 32)
