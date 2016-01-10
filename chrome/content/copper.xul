@@ -100,7 +100,7 @@
 			<menuitem id="menu_behavior_send_duplicates" label="Send Duplicates" type="checkbox" tooltiptext="Do not increase MID"/>
 			<menuseparator/>
 			<menuitem id="menu_behavior_show_unknown" label="Display unknown" type="checkbox" tooltiptext="Display messages with unknown tokens"/>
-			<menuitem id="menu_behavior_reject_unknown" label="Reject unkown NONs" type="checkbox" tooltiptext="Send a Reset for unknown Non-Confirmables"/>
+			<menuitem id="menu_behavior_reject_unknown" label="Reject unkown" type="checkbox" tooltiptext="Send a Reset for messages with unknown Tokens"/>
 			<menuseparator/>
 			<menuitem id="menu_behavior_send_uri_host" label="Send Uri-Host" type="checkbox" tooltiptext="Enable virtual hosts and send Uri-Host option"/>
 			<menuitem id="menu_behavior_send_size1" label="Send auto Size1" type="checkbox" tooltiptext="Automatically indicate request representation size"/>

@@ -295,7 +295,7 @@ Copper.TransactionHandler.prototype = {
 					this.defaultCB(message);
 				}
 				
-				if (message.getType()==Copper.MSG_TYPE_CON || (message.getType()==Copper.MSG_TYPE_NON && Copper.behavior.rejectUnknown)) {
+				if (Copper.behavior.rejectUnknown && (message.getType()==Copper.MSG_TYPE_CON || message.getType()==Copper.MSG_TYPE_NON)) {
 					Copper.logEvent('INFO: Rejecting unknown token');
 					this.reset(message.getMID());
 				}
