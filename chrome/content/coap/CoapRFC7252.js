@@ -133,6 +133,11 @@ Copper.__defineGetter__("CONTENT_TYPE_APPLICATION_VND_OMA_LWM2M_TLV", function()
 Copper.__defineGetter__("CONTENT_TYPE_APPLICATION_VND_OMA_LWM2M_JSON", function() { return 1543; });
 Copper.__defineGetter__("CONTENT_TYPE_APPLICATION_VND_OMA_LWM2M_OPAQUE", function() { return 1544; });
 
+Copper.__defineGetter__("CONTENT_TYPE_APPLICATION_THING_DESCRIPTION_JSON", function() { return 65200; });
+Copper.__defineGetter__("CONTENT_TYPE_APPLICATION_BULLETIN_BOARD_JSON", function() { return 65201; });
+Copper.__defineGetter__("CONTENT_TYPE_APPLICATION_LIGHTING_CONFIG_JSON", function() { return 65202; });
+Copper.__defineGetter__("CONTENT_TYPE_APPLICATION_LIGHTING_JSON", function() { return 65203; });
+
 Copper.__defineGetter__("WELL_KNOWN_RESOURCES", function() { return '/.well-known/core'; });
 
 //Registries

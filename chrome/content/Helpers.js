@@ -540,6 +540,10 @@ Copper.displayPayload = function(message) {
 			Copper.renderEXI(Copper.displayCache);
 			break;
 		case Copper.CONTENT_TYPE_APPLICATION_JSON:
+		case Copper.CONTENT_TYPE_APPLICATION_THING_DESCRIPTION_JSON:
+		case Copper.CONTENT_TYPE_APPLICATION_LIGHTING_CONFIG_JSON:
+		case Copper.CONTENT_TYPE_APPLICATION_LIGHTING_JSON:
+		case Copper.CONTENT_TYPE_APPLICATION_BULLETIN_BOARD_JSON:
 			Copper.renderText(Copper.displayCache);
 			// only render full representation to avoid parsing errors
 			if (!Copper.displayInvalid && !message.getBlock2More()) Copper.renderJSON(Copper.displayCache);
