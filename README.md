@@ -14,8 +14,9 @@ A Firefox add-on to browse the Internet of Things
  - Linux: `~/.mozilla/firefox/xxxxxxxx.default/extensions/`
  - MacOS: `~/Library/Application Support/Firefox/Profiles/xxxxxxxx.default/extensions/`
 3. Write the path to the Copper sources (i.e., the directory that contains `install.rdf` and `chrome.manifest`) with (back)slash at the end to the file (e.g., `D:\Projects\Git\Copper\`).
-4. Restart Firefox.
-5. Optionally use [about:config](about:config) with the filter "copper" to clean up old configurations.
+4. Since Firefox 43 you need to **allow unsigned add-ons** by opening [about:config](about:config) and setting `xpinstall.signatures.required` to false.
+5. Restart Firefox.
+6. Optionally use [about:config](about:config) with the filter "copper" to clean up old configurations.
 
 Copper should show up in the add-ons list. You can now enter CoAP URIs (e.g., [coap://vs0.inf.ethz.ch/](coap://vs0.inf.ethz.ch/)) into the address bar and will have a user interface to interact with the CoAP resources on a server. The detailed log output is available through the rectangular button on the top right, next to the preferences button.
 
