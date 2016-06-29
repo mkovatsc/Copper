@@ -231,7 +231,7 @@
 		
 	<!-- resource tree -->
 		
-				<vbox style="width: 16em;">
+				<vbox width="220" id="view_tree_box">
 					<tree id="resource_tree" flex="1" treelines="true" seltype="single" hidecolumnpicker="true" onclick="Copper.onTreeClicked(event)" onmousemove="Copper.onTreeHover(event)">
 						<treecols>
 							<treecol primary="true" hideheader="true" flex="1"/>
@@ -328,7 +328,7 @@
 	<!-- collapsable debug sidebar -->
 	
 		<splitter collapse="after" resizebefore="farthest" id="view_debug_split">
-			<grippy/>
+			<grippy />
 		</splitter>
 		<vbox id="sidebar" style="width: 18.5em;"><!-- 18.5em to avoid scrollbar on Linux -->
 			<groupbox flex="1" style="margin-top: -2px;">
@@ -493,7 +493,7 @@
 		<grippy/>
 	</splitter>
 	
-	<box height="216">
+	<box height="216" id="view_log_box">
 	
 	<groupbox flex="1">
 		<caption label="CoAP Message Log" />

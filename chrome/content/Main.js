@@ -115,6 +115,7 @@ Copper.main = function() {
 		
 		onloadAction = Copper.prefManager.getCharPref('extensions.copper.onload-action');
 		
+		Copper.loadWindow();
 		Copper.loadBehavior();
 		Copper.loadDebugOptions();
 		Copper.initDebugContentFormats();
@@ -191,6 +192,7 @@ Copper.unload = function(event) {
 	Copper.savePayload();
 	Copper.saveDebugOptions();
 	Copper.savePlugtest();
+	Copper.saveWindow();
 };
 
 

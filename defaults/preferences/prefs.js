@@ -72,3 +72,8 @@ pref("extensions.copper.plugtest.menu", false);
 pref("extensions.copper.plugtest.proxy", false);
 pref("extensions.copper.plugtest.origin-server", "");
 pref("extensions.copper.plugtest.current", 0);
+pref("extensions.copper.windows.view-tree-state", "open");
+pref("extensions.copper.windows.view-log-state", "open");
+pref("extensions.copper.windows.view-debug-state", "open");
+pref("extensions.copper.windows.view-tree-box", "220");
+pref("extensions.copper.windows.view-debug-box", "216");

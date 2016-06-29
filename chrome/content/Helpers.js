@@ -59,6 +59,13 @@ Copper.loadBehavior = function() {
 	// init menu
 	Copper.updateBehavior();
 };
+Copper.loadWindow = function() {
+	document.getElementById('view_tree_box').setAttribute('width', Copper.prefManager.getCharPref('extensions.copper.window.view-tree-box'));
+	document.getElementById('view_tree_split').setAttribute('state', Copper.prefManager.getCharPref('extensions.copper.window.view-tree-state'));
+	document.getElementById('view_log_box').setAttribute('height', Copper.prefManager.getCharPref('extensions.copper.window.view-log-box'));
+	document.getElementById('view_log_split').setAttribute('state', Copper.prefManager.getCharPref('extensions.copper.window.view-log-state'));
+	document.getElementById('view_debug_split').setAttribute('state', Copper.prefManager.getCharPref('extensions.copper.window.view-debug-state'));
+};
 // sync XUL menu with behavior object
 Copper.updateBehavior = function() {
 	document.getElementById('menu_behavior_requests_' + Copper.behavior.requests).setAttribute('checked', 'true');
@@ -121,6 +128,14 @@ Copper.saveBehavior = function() {
 	Copper.prefManager.setIntPref('extensions.copper.behavior.block-size', Copper.behavior.blockSize);
 	Copper.prefManager.setBoolPref('extensions.copper.behavior.observe-token', Copper.behavior.observeToken);
 	Copper.prefManager.setCharPref('extensions.copper.behavior.observe-cancellation', Copper.behavior.observeCancellation);
+};
+// save to preferences
+Copper.saveWindow = function() {
+	Copper.prefManager.setCharPref('extensions.copper.window.view-tree-box', document.getElementById('view_tree_box').getAttribute('width'));
+	Copper.prefManager.setCharPref('extensions.copper.window.view-tree-state', document.getElementById('view_tree_split').getAttribute('state'));
+	Copper.prefManager.setCharPref('extensions.copper.window.view-log-box', document.getElementById('view_log_box').getAttribute('height'));
+	Copper.prefManager.setCharPref('extensions.copper.window.view-log-state', document.getElementById('view_log_split').getAttribute('state'));
+	Copper.prefManager.setCharPref('extensions.copper.window.view-debug-state', document.getElementById('view_debug_split').getAttribute('state'));
 };
 
 //Load last used payload from preferences, otherwise use default payload
