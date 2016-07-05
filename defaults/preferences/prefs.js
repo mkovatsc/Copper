@@ -77,3 +77,4 @@ pref("extensions.copper.windows.view-log-state", "open");
 pref("extensions.copper.windows.view-debug-state", "open");
 pref("extensions.copper.windows.view-tree-box", "220");
 pref("extensions.copper.windows.view-debug-box", "216");
+pref("extensions.copper.window.view-tree-scroll", "0");

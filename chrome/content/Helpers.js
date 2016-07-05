@@ -131,6 +131,7 @@ Copper.saveBehavior = function() {
 };
 // save to preferences
 Copper.saveWindow = function() {
+	Copper.prefManager.setCharPref('extensions.copper.window.view-tree-scroll', document.getElementById('resource_tree').treeBoxObject.getFirstVisibleRow());
 	Copper.prefManager.setCharPref('extensions.copper.window.view-tree-box', document.getElementById('view_tree_box').getAttribute('width'));
 	Copper.prefManager.setCharPref('extensions.copper.window.view-tree-state', document.getElementById('view_tree_split').getAttribute('state'));
 	Copper.prefManager.setCharPref('extensions.copper.window.view-log-box', document.getElementById('view_log_box').getAttribute('height'));
@@ -440,6 +441,9 @@ Copper.updateResourceLinks = function(add) {
 		// add to tree view
 		Copper.addTreeResource( decodeURI(uri), Copper.resources[uri] );
 	}
+	
+	// restore scroll position
+	document.getElementById('resource_tree').treeBoxObject.scrollToRow(Copper.prefManager.getCharPref('extensions.copper.window.view-tree-scroll'));
 	
 	// save in cache
 	let saveRes = JSON.stringify(Copper.resources);
