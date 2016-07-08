@@ -65,6 +65,7 @@ Copper.loadWindow = function() {
 	document.getElementById('view_log_box').setAttribute('height', Copper.prefManager.getCharPref('extensions.copper.window.view-log-box'));
 	document.getElementById('view_log_split').setAttribute('state', Copper.prefManager.getCharPref('extensions.copper.window.view-log-state'));
 	document.getElementById('view_debug_split').setAttribute('state', Copper.prefManager.getCharPref('extensions.copper.window.view-debug-state'));
+	document.getElementById('tabs_payload').selectedIndex = Copper.prefManager.getIntPref('extensions.copper.window.view-tab-index');
 };
 // sync XUL menu with behavior object
 Copper.updateBehavior = function() {
@@ -137,6 +138,7 @@ Copper.saveWindow = function() {
 	Copper.prefManager.setCharPref('extensions.copper.window.view-log-box', document.getElementById('view_log_box').getAttribute('height'));
 	Copper.prefManager.setCharPref('extensions.copper.window.view-log-state', document.getElementById('view_log_split').getAttribute('state'));
 	Copper.prefManager.setCharPref('extensions.copper.window.view-debug-state', document.getElementById('view_debug_split').getAttribute('state'));
+	Copper.prefManager.setIntPref('extensions.copper.window.view-tab-index', document.getElementById('tabs_payload').selectedIndex);
 };
 
 //Load last used payload from preferences, otherwise use default payload
