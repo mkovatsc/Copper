@@ -118,7 +118,7 @@
 	    	<menuitem id="menu_behavior_token_observe" label="Observe Token" type="checkbox" tooltiptext="Enforce non-default Token option for observing"/>
 	    	<menuseparator/>
 	      <menuitem id="menu_behavior_observe_lazy" label="Lazy Observe cancel" type="radio" name="observe" value="lazy" tooltiptext="Only remove subscription, send lazy RST later (can be used for MID matching at server)"/>
-	      <menuitem id="menu_behavior_observe_get" label="GET Observe cancel" type="radio" name="observe" value="get" tooltiptext="Send a GET without Observe option to notify server"/>
+	      <menuitem id="menu_behavior_observe_get" label="GET Observe cancel" type="radio" name="observe" value="get" tooltiptext="Send a GET with Observe = 1"/>
 	      <menuitem id="menu_behavior_observe_rst" label="RST Observe cancel" type="radio" name="observe" value="rst" tooltiptext="Send a RST right away (does not work with MID matching as new MID is used)"/>
 	    </menupopup>
 	  </toolbarbutton>
