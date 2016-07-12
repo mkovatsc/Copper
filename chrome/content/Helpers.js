@@ -639,3 +639,13 @@ Copper.popup = function(title, str) {
 		Copper.logEvent("WARNING: You are probably running Mac OS without Growl, which is required for notifications.")
 	}
 };
+
+Copper.payloadFontSize = 100;
+Copper.decPayloadFontSize = function() {
+	Copper.payloadFontSize -= 10;
+	document.getElementById('tabs_style').style.fontSize=Copper.payloadFontSize+'%';
+};
+Copper.incPayloadFontSize = function() {
+	Copper.payloadFontSize += 10;
+	document.getElementById('tabs_style').style.fontSize=Copper.payloadFontSize+'%';
+};
