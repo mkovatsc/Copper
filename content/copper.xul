@@ -223,9 +223,8 @@
 		<vbox flex="1"><!-- title + content -->
 		
 			<groupbox>
-				<caption label="Status" />
 			<box style="overflow: hidden;">
-				<label id="info_code" value="" style="font-size: 18pt; font-weight: bold; "/>
+				<label id="info_code" value="" style="font-size: 18pt; font-weight: bold;"/>
 			</box>
 			</groupbox>
 		
