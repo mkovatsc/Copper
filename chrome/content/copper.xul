@@ -44,6 +44,8 @@
 		xmlns:html = "http://www.w3.org/1999/xhtml"
 		onload     = "Copper.main()">
 
+<html:link rel="icon" href="chrome://copper/skin/Cu_16.png" style="display:none"/>
+
 <script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/namespace.js"/>
 <script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/coap/CoapRFC7252.js"/>
 <script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/coap/CoapMessage.js"/>
