@@ -97,13 +97,6 @@ Copper.main = function() {
 	
 	window.addEventListener('beforeunload', function(event) { Copper.beforeunload(event); });
 	window.addEventListener('unload', function(event) { Copper.unload(event); });
-		
- 	// set the Cu icon for all Copper tabs
-	var tabbrowser = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator).getEnumerator("navigator:browser").getNext().gBrowser;  
-	for (var i=0; i<tabbrowser.browsers.length; ++i) {
-		if (tabbrowser.mTabs[i].label=='Copper (Cu) CoAP user-agent')
-		tabbrowser.setIcon(tabbrowser.mTabs[i], 'chrome://copper/skin/Cu_16.png');
-	}
 	
 	// get settings from preferences
 	var onloadAction = null;
@@ -126,7 +119,7 @@ Copper.main = function() {
 		}
 		
 	} catch (ex) {
-		Copper.logError(ex);
+		Copper.logError('Error while loading preferences:\n' + ex);
 	}
 	
 	// open location
@@ -151,8 +144,16 @@ Copper.main = function() {
 			Copper.logEvent('INFO: onloadAction defined ('+onloadAction+')');
 			
 			window.setTimeout(
-					'Copper.'+onloadAction+'();',
-					0);
+					function(action) {
+						switch (action) {
+							case 'userGet': Copper.userGet(); break;
+							case 'userPost': Copper.userPost(); break;
+							case 'userPut': Copper.userPut(); break;
+							case 'userDelete': Copper.userDelete(); break;
+							case 'userObserve': Copper.userObserve(); break;
+						}
+					},
+					0, onloadAction);
 			
 			// reset onloadAction
 			Copper.prefManager.setCharPref('extensions.copper.onload-action', '');
@@ -224,7 +225,7 @@ Copper.userDelete = function() {
 	Copper.sendDelete(uri);
 };
 Copper.userObserve = function() {
-	var uri = Copper.checkUri(uri, 'observe');
+	var uri = Copper.checkUri(uri, 'userObserve');
 	
 	Copper.observe(uri);
 };

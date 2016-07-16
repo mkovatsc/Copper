@@ -295,20 +295,6 @@ Copper.parseUri = function(inputUri) {
 		throw new Error('Illeagal port');
 	}
 	
-	// DNS lookup
-	try {
-		// deliberately ignoring broken/undocumented asyncResolve()
-		var ns = Components.classes["@mozilla.org/network/dns-service;1"].createInstance(Components.interfaces.nsIDNSService).resolve(uri.host.replace(/%.+$/, ''), 0);
-		
-		var addresses = '';
-		while (ns.hasMore()) {
-			addresses += ns.getNextAddrAsString()+'\n';
-		}
-		
-	} catch (ex) {
-		throw new Error('Cannot resolve host');
-	}
-	
 	Copper.hostname = uri.host;
 	if (Copper.hostname.indexOf(':')!=-1) Copper.hostname = '['+Copper.hostname+']';
 	
