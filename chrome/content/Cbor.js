@@ -399,6 +399,6 @@ var obj = { encode: encode, decode: decode };
 if (typeof define === "function" && define.amd)
   define("cbor/cbor", obj);
 else if (!global.CBOR)
-  global.CBOR = obj;
+  global.cbor = obj;
 
-})(this);
+})(Copper);

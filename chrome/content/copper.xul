@@ -60,7 +60,7 @@
 <script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/Observing.js"/>
 <script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/Plugtest.js"/>
 <script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/Logger.js"/>
-<script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/cbor.js"/>
+<script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/Cbor.js"/>
 <script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/Main.js"/>
 
 <panel id="panel_event_log" position="bottomright topright" style="margin-top: 1px;">
