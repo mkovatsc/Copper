@@ -119,6 +119,7 @@ Copper.behaviorUpdate = function(target) {
 Copper.saveBehavior = function() {
 	Copper.prefManager.setCharPref('extensions.copper.behavior.requests', Copper.behavior.requests);
 	Copper.prefManager.setBoolPref('extensions.copper.behavior.retransmissions', Copper.behavior.retransmissions);
+	Copper.prefManager.setBoolPref('extensions.copper.behavior.oic', Copper.behavior.oic);
 	Copper.prefManager.setBoolPref('extensions.copper.behavior.send-duplicates', Copper.behavior.sendDuplicates);
 	Copper.prefManager.setBoolPref('extensions.copper.behavior.show-unknown', Copper.behavior.showUnknown);
 	Copper.prefManager.setBoolPref('extensions.copper.behavior.reject-unknown', Copper.behavior.rejectUnknown);

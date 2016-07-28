@@ -134,7 +134,13 @@ Copper.main = function() {
 		Copper.parseUri(document.location.href);
 	} catch (ex) {
         // default to multicast destination if the user doesn't have a specific host
-        document.location.href = 'coap://[ff05:0:0:0:0:0:0:fd]:5683';
+        if (Copper.behavior.oic) {
+            // Use the 'All OCF Nodes' multicast address
+            document.location.href = 'coap://[ff05:0:0:0:0:0:0:158]:5683';
+        } else {
+            // Use the 'All CoAP Nodes' multicast address
+            document.location.href = 'coap://[ff05:0:0:0:0:0:0:fd]:5683';
+        }
         return;
     }
     try {
