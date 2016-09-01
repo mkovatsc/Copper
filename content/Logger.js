@@ -118,13 +118,17 @@ Copper.logWarning = function(text) {
 };
 
 Copper.logError = function(error, skip) {
-	Copper.logEvent('ERROR: ' + error.message + '\n\t' + error.stack.replace(/\n/, '\n\t'));
+	var message = 'ERROR: ' + error.message;
+	if (!skip && error.stack) {
+		message += '\n\t' + error.stack.replace(/\n/, '\n\t');
+	}
+	Copper.logEvent(message);
 	if (Copper.endpoint) {
 		Copper.endpoint.cancelTransactions();
 	}
 	window.setTimeout(
-			function() { alert('ERROR: '+ error.message + (skip ? '' : '\n\nStacktrace:\n' + error.stack)); },
-			0);
+			function(msg) { alert(msg); },
+			0, message);
 };
 
 Copper.debug = function(object) {
