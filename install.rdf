@@ -4,7 +4,7 @@
 	<Description about="urn:mozilla:install-manifest">
 		<em:id>copper@vs.inf.ethz.ch</em:id>
 		<em:name>Copper (Cu)</em:name>
-		<em:version>1.0.0</em:version>
+		<em:version>1.0.1-SNAPSHOT</em:version>
 		<em:type>2</em:type>
 		<em:multiprocessCompatible>true</em:multiprocessCompatible>
 		<em:unpack>true</em:unpack>
