@@ -866,7 +866,6 @@ Copper.CoapMessage.prototype = {
 			case Copper.CONTENT_TYPE_APPLICATION_CBOR:
 			case Copper.CONTENT_TYPE_APPLICATION_VND_OMA_LWM2M_TEXT:
 			case Copper.CONTENT_TYPE_APPLICATION_VND_OMA_LWM2M_JSON:
-			case null:
 				return true;
 				
 			case Copper.CONTENT_TYPE_IMAGE_GIF:
@@ -882,6 +881,7 @@ Copper.CoapMessage.prototype = {
 			case Copper.CONTENT_TYPE_APPLICATION_X_OBIX_BINARY:
 			case Copper.CONTENT_TYPE_APPLICATION_VND_OMA_LWM2M_TLV:
 			case Copper.CONTENT_TYPE_APPLICATION_VND_OMA_LWM2M_OPAQUE:
+			case null:
 			default:
 				return false;
 		}
