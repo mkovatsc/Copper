@@ -511,6 +511,7 @@ Copper.str2bytes = function(str) {
 Copper.bytes2str = function(b) {
 
 	let str = '';
+	var replaced = 0;
 	for (let i=0; i<b.length; ++i) {
 		
 		let c = b[i] & 0xFF;
@@ -529,19 +530,26 @@ Copper.bytes2str = function(b) {
 			str += String.fromCharCode((c1 << 12) | (c2 << 6) | c3);
 			i += 2;
 		} else if (Copper.utf8 && c >= 240 && i+3 < b.length) {
-			Copper.logEvent('4-byte UTF-8');
+			// 4-byte UTF-8
 			str += String.fromCharCode(0xFFFD); // char '�'
+			replaced++;
 			i += 3;
 		} else if (Copper.utf8 && c >= 128) {
-			Copper.logEvent('Incomplete UTF-8 encoding');
+			// Incomplete UTF-8 encoding
 			str += String.fromCharCode(0xFFFD); // char '�'
+			replaced++;
 		} else {
-			if (c < 32)
+			if (c < 32) {
 				str += String.fromCharCode(0x2400 + c); // replacement character block
-			else
+			} else {
 				str += String.fromCharCode(0xFFFD); // char '�'
+				replaced++;
+			}
 //			str += "\\x" + (c < 16 ? "0" : "") + c.toString(16);
 		}
+	}
+	if (replaced > 0) {
+		Copper.logEvent('bytes2str: replaced ' + replaced + ' invalid characters');
 	}
 	return str;
 };
