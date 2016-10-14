@@ -838,9 +838,6 @@ Copper.CoapMessage.prototype = {
 	getPayload : function() {
 		return this.payload;
 	},
-	getPayloadText : function() {
-		return Copper.bytes2str(this.payload);
-	},
 	setPayload : function(pl) {
 		if (!Array.isArray(pl)) pl = Copper.str2bytes(pl);
 		this.payload = pl;
@@ -884,6 +881,13 @@ Copper.CoapMessage.prototype = {
 			case null:
 			default:
 				return false;
+		}
+	},
+	getPayloadText : function() {
+		if (this.isPrintable()) {
+			return Copper.bytes2str(this.payload);
+		} else {
+			return Copper.bytes2hex(this.payload);
 		}
 	},
 	
