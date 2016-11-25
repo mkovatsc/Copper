@@ -340,7 +340,7 @@ Copper.parseLinkFormat = function(data) {
 	var links = new Object();
 	
 	// totally complicated but supports ',' and '\n' to separate links and ',' as well as '\"' within quoted strings
-	var format = data.match(/(<[^>]+>\s*(;\s*\w+\s*(=\s*(\w+|"([^"\\]*(\\.[^"\\]*)*)")\s*)?)*)/g);
+	var format = data.match(/(<[^>]+>\s*(;\s*\w+\s*(=\s*([^",;][^,;]*|"([^"\\]*(\\.[^"\\]*)*)")\s*)?)*)/g);
 	Copper.logEvent('-parsing link-format----------------------------');
 	for (var i in format) {
 		//Copper.logEvent(links[i]+'\n');
@@ -359,16 +359,16 @@ Copper.parseLinkFormat = function(data) {
 		
 		if (elems[2]) {
 		
-			var tokens = elems[2].match(/(;\s*\w+\s*(=\s*(\w+|"([^\\"]*(\\.[^"\\]*)*)"))?)/g);
+			var tokens = elems[2].match(/(;\s*\w+\s*(=\s*([^",;][^,;]+|"([^\\"]*(\\.[^"\\]*)*)"))?)/g);
 		
 			Copper.logEvent(' '+uri+' ('+tokens.length+')');
 		
 			for (var j in tokens) {
 				//Copper.logEvent('  '+tokens[j]+'\n');
-				var keyVal = tokens[j].match(/;\s*([^<"\s;,=]+)\s*(=\s*(([^<"\s;,]+)|"([^"\\]*(\\.[^"\\]*)*)"))?/);
+				var keyVal = tokens[j].match(/;\s*([^<"\s;,=]+)\s*(=\s*(([0-9]+)|([^<"\s;,]+)|"([^"\\]*(\\.[^"\\]*)*)"))?/);
 				if (keyVal) {
 					//Copper.logEvent(keyVal[0]+'\n');
-					//Copper.logEvent('   '+keyVal[1] + (keyVal[2] ? (': '+ (keyVal[4] ? keyVal[4] : keyVal[5].replace(/\\/g,''))) : ''));
+					//Copper.logEvent('   '+keyVal[1] + (keyVal[2] ? (': '+ (keyVal[4] ? keyVal[4] : keyVal[5] ? keyVal[5] : keyVal[6].replace(/\\/g,''))) : ''));
 					
 					if (links[uri][keyVal[1]]!=null) {
 						
@@ -378,11 +378,11 @@ Copper.parseLinkFormat = function(data) {
 							links[uri][keyVal[1]].push(temp);
 						}
 						
-						links[uri][keyVal[1]].push(keyVal[2] ? (keyVal[4] ? parseInt(keyVal[4]) : keyVal[5].replace(/\\/g,'')) : true);
+						links[uri][keyVal[1]].push(keyVal[2] ? (keyVal[4] ? parseInt(keyVal[4]) : keyVal[5] ? keyVal[5] : keyVal[6].replace(/\\/g,'')) : true);
 						
 					} else {
 						
-						links[uri][keyVal[1]] = keyVal[2] ? (keyVal[4] ? parseInt(keyVal[4]) : keyVal[5].replace(/\\/g,'')) : true;
+						links[uri][keyVal[1]] = keyVal[2] ? (keyVal[4] ? parseInt(keyVal[4]) : keyVal[5] ? keyVal[5] : keyVal[6].replace(/\\/g,'')) : true;
 					}
 				}
 			}
