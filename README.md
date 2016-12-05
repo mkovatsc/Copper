@@ -1,8 +1,8 @@
-## Mozilla broke protocol handler support in FF 50
+## Issue: No Copper since FF 50
 
 Since version 50, Firefox simply forwards all schemes to the default handler, that is, search. Also FireFTP and other extensions show this problem. Even non-protocol related add-ons show strange behavior in my browser (e.g., All-in-One Sidebar).
 
-Oddly, Copper still works in my existing profiles. Only new installations make it fail and open Google search.
+Quick fix: Set `browser.tabs.remote.autostart.2` to `false` using `about:config`
 
 
 Copper (Cu) CoAP user-agent
