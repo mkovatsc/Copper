@@ -25,7 +25,7 @@ A Firefox add-on to browse the Internet of Things
 5. Restart Firefox.
 6. Optionally use [about:config](about:config) with the filter "copper" to clean up old configurations.
 
-Copper should show up in the add-ons list. You can now enter CoAP URIs (e.g., [coap://vs0.inf.ethz.ch/](coap://vs0.inf.ethz.ch/)) into the address bar and will have a user interface to interact with the CoAP resources on a server. The detailed log output is available through the rectangular button on the top right, next to the preferences button.
+Copper should show up in the add-ons list. You can now enter CoAP URIs (e.g., [coap://californium.eclipse.org/](coap://californium.eclipse.org/)) into the address bar and will have a user interface to interact with the CoAP resources on a server. The detailed log output is available through the rectangular button on the top right, next to the preferences button.
 
 ### See also:
 
