@@ -119,7 +119,7 @@ Copper.main = function() {
 		}
 		
 	} catch (ex) {
-		Copper.logError('Error while loading preferences:\n' + ex);
+		Copper.logError(ex);
 	}
 	
 	// open location

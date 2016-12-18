@@ -260,6 +260,30 @@ Copper.renderLinkFormatUtils = {
 	}
 };
 
+Copper.renderCBOR = function(message) {
+	// The box for output at the top-level
+	document.getElementById('rendered_img').style.display = 'none';
+
+	var view = document.getElementById('rendered_div');
+	view.style.display = 'block';
+
+	while (view.hasChildNodes()) {
+		view.removeChild(view.firstChild);
+	}
+
+	view.setAttribute("class", "json-content");
+	var parsedObj = Copper.parseCBOR(message.getPayload());
+
+	// Turn the Javascript object into XUL objects
+	if (typeof parsedObj == 'object') {
+		view.appendChild( Copper.renderJSONutils.getXulObject(parsedObj) );
+		document.getElementById('tab_rendered').style.backgroundColor = '';
+		document.getElementById('tabs_payload').selectedIndex = 1;
+	} else {
+		Copper.logError(new Error('Top level element is not an object'));
+	}
+};
+
 Copper.renderJSON = function(message) {
 
 	// Print raw JSON in case parsing fails
@@ -344,6 +368,10 @@ Copper.renderJSONutils = {
 			label.setAttribute("class", "label");
 			label.setAttribute("value", key + ":");
 			xulChild.appendChild(label);
+		}
+		
+		if(value instanceof Uint8Array) {
+			value = JSON.stringify(value);
 		}
 
 		if (typeof value == 'object' && value != null) {

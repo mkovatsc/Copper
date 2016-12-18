@@ -335,6 +335,31 @@ Copper.checkUri = function(uri, caller) {
 	}
 };
 
+Copper.parseCBOR = function(data) {
+	try {
+		let abs = data.length;
+		let ab = new ArrayBuffer(abs);
+		let abv = new DataView(ab);
+		for(var i=0; i < abs; i++)
+			abv.setUint8(i, data[i]);
+		let ret = Copper.cbor.decode(ab);
+		return ret;
+	} catch(ex) {
+		Copper.logError(new Error('Cannot parse CBOR'), true);
+		return new Object();
+	}
+};
+
+Copper.createCBOR = function (obj) {
+    let ab = Copper.cbor.encode(obj);
+    let abv = new DataView(ab);
+    let abs = abv.byteLength;
+    let a = new Array(abs);
+    for(var i=0; i < abs; i++)
+        a[i] = abv.getUint8(i, abv[i]);
+    return a;
+}
+
 Copper.parseLinkFormat = function(data) {
 	
 	var links = new Object();
@@ -540,10 +565,11 @@ Copper.displayPayload = function(message) {
 		case Copper.CONTENT_TYPE_VIDEO_RAW:
 		case Copper.CONTENT_TYPE_APPLICATION_OCTET_STREAM:
 		case Copper.CONTENT_TYPE_APPLICATION_X_OBIX_BINARY:
-			Copper.renderBinary(Copper.displayCache);
+			// only render full representation to avoid slow down
+			if (!message.getBlock2More()) Copper.renderBinary(Copper.displayCache);
 			break;
 		case Copper.CONTENT_TYPE_APPLICATION_EXI:
-			Copper.renderBinary(Copper.displayCache);
+			if (!message.getBlock2More()) Copper.renderBinary(Copper.displayCache);
 			Copper.renderEXI(Copper.displayCache);
 			break;
 		case Copper.CONTENT_TYPE_APPLICATION_JSON:
@@ -554,6 +580,10 @@ Copper.displayPayload = function(message) {
 			Copper.renderText(Copper.displayCache);
 			// only render full representation to avoid parsing errors
 			if (!Copper.displayInvalid && !message.getBlock2More()) Copper.renderJSON(Copper.displayCache);
+			break;
+		case Copper.CONTENT_TYPE_APPLICATION_CBOR:
+			if (!Copper.displayInvalid && !message.getBlock2More()) Copper.renderBinary(Copper.displayCache);
+			if (!Copper.displayInvalid && !message.getBlock2More()) Copper.renderCBOR(Copper.displayCache);
 			break;
 		case Copper.CONTENT_TYPE_APPLICATION_LINK_FORMAT:
 			Copper.renderText(Copper.displayCache);

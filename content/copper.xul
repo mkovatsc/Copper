@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright (c) 2014, Institute for Pervasive Computing, ETH Zurich.
+  Copyright (c) 2016, Institute for Pervasive Computing, ETH Zurich.
   All rights reserved.
   
   Redistribution and use in source and binary forms, with or without
@@ -54,6 +54,7 @@
 <script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/ResourceViews.js"/>
 <script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/Helpers.js"/>
 <script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/Handlers.js"/>
+<script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/cbor-js/cbor.js"/>
 <script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/Renderers.js"/>
 <script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/DebugOptions.js"/>
 <script type="application/x-javascript" charset="utf-8" src="chrome://copper/content/Observing.js"/>
