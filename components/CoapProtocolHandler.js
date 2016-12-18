@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, Institute for Pervasive Computing, ETH Zurich.
+ * Copyright (c) 2016, Institute for Pervasive Computing, ETH Zurich.
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,10 @@ if ("undefined" == typeof(CopperProtocol)) {
 CopperProtocol.__defineGetter__("CLASS_ID", function() { return [Components.ID('{6ffeeb10-91cc-0854-a554-81cf891ced50}')]; });
 CopperProtocol.__defineGetter__("CLASS_SCHEME", function() { return ['coap']; });
 CopperProtocol.__defineGetter__("CLASS_DEFAULT_PORT", function() { return [-1]; });
-CopperProtocol.__defineGetter__("CLASS_NAME", function() { return ['CoAP protocol']; });
+CopperProtocol.__defineGetter__("CLASS_FLAGS", function() { return [Components.interfaces.nsIProtocolHandler.URI_LOADABLE_BY_ANYONE]; });
+CopperProtocol.__defineGetter__("CLASS_NAME", function() { return ['CoAP (RFC 7252)']; });
+
+CopperProtocol.__defineGetter__("SECURITY", function() { return Components.interfaces.nsILoadInfo.SEC_SANDBOXED | Components.interfaces.nsILoadInfo.SEC_ALLOW_CHROME; });
 
 /**
  * Handles the CoAP protocol
@@ -54,10 +57,10 @@ CopperProtocol.__defineGetter__("CLASS_NAME", function() { return ['CoAP protoco
 CopperProtocol.Handler = function() {};
 
 CopperProtocol.Handler.prototype = {
-	classID: CopperProtocol.CLASS_ID[0],
 	
-	scheme: CopperProtocol.CLASS_SCHEME[0],
 	defaultPort : CopperProtocol.CLASS_DEFAULT_PORT[0],
+	protocolFlags : CopperProtocol.CLASS_FLAGS[0],
+	scheme: CopperProtocol.CLASS_SCHEME[0], 
 
 	allowPort: function(port, scheme) {
 		return false;
@@ -75,7 +78,6 @@ CopperProtocol.Handler.prototype = {
 		 */
 		
 		try {
-		
 			var uri = Components.classes["@mozilla.org/network/standard-url;1"].createInstance(Components.interfaces.nsIStandardURL);
 			uri.init(Components.interfaces.nsIStandardURL.URLTYPE_AUTHORITY, this.defaultPort, aSpec, aCharset, aBaseURI);
 			
@@ -86,15 +88,10 @@ CopperProtocol.Handler.prototype = {
 			return uri = Components.classes["@mozilla.org/network/simple-uri;1"].createInstance(Components.interfaces.nsIURI);
 		}
 	},
-
-	newChannel : function(aInputURI) {
-		try {
+	
+	newChannel : function(aURI) {
 			var ioService = Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService);
-			return ioService.newChannel("chrome://copper/content/copper.xul", null, null);
-			
-		} catch (ex) {
-			
-		}
+			return ioService.newChannel2("chrome://copper/content/copper.xul", null, null, null, null, null, CopperProtocol.SECURITY, null);
 	},
 
   /**
