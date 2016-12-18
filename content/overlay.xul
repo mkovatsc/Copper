@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-  Copyright (c) 2014, Institute for Pervasive Computing, ETH Zurich.
+  Copyright (c) 2016, Institute for Pervasive Computing, ETH Zurich.
   All rights reserved.
   
   Redistribution and use in source and binary forms, with or without
@@ -38,30 +38,30 @@
 	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 	
 	<script type="application/x-javascript" src="chrome://copper/content/namespace.js"/> 
-	<script type="application/x-javascript" src="chrome://copper/content/Howto.js"/>
+	<script type="application/x-javascript" src="chrome://copper/content/Launcher.js"/>
 
 	<!-- Web developer tool bar -->
 	<menupopup id="appmenu_webDeveloper_popup">
-		<menuitem label="Copper (Cu) How-To"
+		<menuitem label="Copper (Cu) Launcher"
 			class="menuitem-iconic"
 			style="list-style-image: url('chrome://copper/skin/Cu_16.png');"
-			oncommand="Copper.howto();" />
+			oncommand="Copper.launch();" />
 	</menupopup>
 
 	<!-- Old tools menu -->
 	<menupopup id="menu_ToolsPopup">
-		<menuitem label="Copper (Cu) How-To"
+		<menuitem label="Copper (Cu) Launcher"
 			image="chrome://colorzilla/skin/Cu_16.png"
-			oncommand="Copper.howto();" />
+			oncommand="Copper.launch();" />
 	</menupopup>
 
 	<!-- Customizable tool button -->
 	<toolbarpalette id="BrowserToolbarPalette">
 		<toolbarbutton id="copper-toolbar-button" class="chromeclass-toolbar-additional"
-			label="Copper (Cu) How-To"
+			label="Copper (Cu) Launcher"
 			image="chrome://copper/skin/Cu_16.png"
-			tooltiptext="How to use the Copper (Cu) CoAP user-agent?"
-			oncommand="Copper.howto();">
+			tooltiptext="Start the Copper (Cu) CoAP user-agent"
+			oncommand="Copper.launch();">
 		</toolbarbutton>
 	</toolbarpalette>
 

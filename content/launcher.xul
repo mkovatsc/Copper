@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-  Copyright (c) 2014, Institute for Pervasive Computing, ETH Zurich.
+  Copyright (c) 2016, Institute for Pervasive Computing, ETH Zurich.
   All rights reserved.
   
   Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,7 @@
 
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
 
-<dialog id="copper-howto-window" buttons="accept" title="Copper (Cu) How-To"
+<dialog id="copper-launcher-window" buttons="accept" title="Copper (Cu) Launcher"
 	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
 	<hbox style="margin-top: 40px;">
@@ -56,7 +56,7 @@
 			<description width="250">
 				You can try with
 			</description>
-			<textbox value="coap://vs0.inf.ethz.ch/" readonly="true" style="text-align: center; padding: 5px; margin: 10px;" />
+			<textbox value="coap://californium.eclipse.org/" readonly="true" style="text-align: center; padding: 5px; margin: 10px;" />
 			<description style="text-align: center;">
 				(copy &amp; paste to browser address)
 			</description>

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, Institute for Pervasive Computing, ETH Zurich.
+ * Copyright (c) 2016, Institute for Pervasive Computing, ETH Zurich.
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@ Copper.check = function() {
 	
 		let id = 'copper-toolbar-button';
 		
-		// install the Cu toolbar button for the how-to
+		// install the Cu toolbar button for the launcher
 	    if (!document.getElementById(id)) {
 	        var toolbar = document.getElementById('addon-bar');
 	
@@ -59,7 +59,7 @@ Copper.check = function() {
 	}
 };
 
-Copper.hideHowto = function() {
+Copper.hideLauncher = function() {
 
 	let id = 'copper-toolbar-button';
 	
@@ -74,9 +74,9 @@ Copper.hideHowto = function() {
     Copper.firstRun = false;
 };
 
-Copper.howto = function() {
-	window.openDialog('chrome://copper/content/howto.xul', 'HowTo', 'chrome,titlebar,toolbar,centerscreen,modal');
-	Copper.hideHowto();
+Copper.launch = function() {
+	window.openDialog('chrome://copper/content/launcher.xul', 'Launcher', 'chrome,titlebar,toolbar,centerscreen,modal');
+	Copper.hideLauncher();
 	document.getElementById('urlbar').focus();
 };
 
