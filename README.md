@@ -4,6 +4,10 @@ Since version 50, Firefox simply forwards all schemes to the default handler, th
 
 Quick fix: Set `browser.tabs.remote.autostart.2` to `false` using `about:config`
 
+## Info: Copper for Google Chrome
+
+Copper is now also available for the Chrome browser: [Copper (Cu4Cr)](https://github.com/mkovatsc/Copper4Cr)
+
 
 Copper (Cu) CoAP user-agent
 ===========================
