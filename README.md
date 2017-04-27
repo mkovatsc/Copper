@@ -1,18 +1,9 @@
-## Issue: No Copper since FF 50
-
-Since version 50, Firefox simply forwards all schemes to the default handler, that is, search. Also FireFTP and other extensions show this problem. Even non-protocol related add-ons show strange behavior in my browser (e.g., All-in-One Sidebar).
-
-Quick fix: Set `browser.tabs.remote.autostart.2` to `false` using `about:config`
-
-## Info: Copper for Google Chrome
-
-Copper is now also available for the Chrome browser: [Copper (Cu4Cr)](https://github.com/mkovatsc/Copper4Cr)
-
-
 Copper (Cu) CoAP user-agent
 ===========================
 
 Implements [RFC7252](http://tools.ietf.org/html/rfc7252)
+
+Also see [Copper (Cu4Cr)](https://github.com/mkovatsc/Copper4Cr)
 
 A Firefox add-on to browse the Internet of Things
 -------------------------------------------------
