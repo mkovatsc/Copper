@@ -79,7 +79,7 @@ Copper.addTreeResource = function(uri, attributes) {
 		
 		var cur = null;
 		var nodeChildren = null;
-		for (var k in node.childNodes) {
+		for (var k of Object.keys(node.childNodes)) {
 			if (node.childNodes[k].nodeName=='treechildren') {
 				nodeChildren = node.childNodes[k];
 				break;
@@ -87,7 +87,7 @@ Copper.addTreeResource = function(uri, attributes) {
 		}
 		
 		// getElementsByName() would be nice
-		for (var j in nodeChildren.childNodes) {
+		for (var j of Object.keys(nodeChildren.childNodes)) {
 			if (nodeChildren.childNodes[j] && nodeChildren.childNodes[j].name && nodeChildren.childNodes[j].name==segments[i]) {
 				cur = nodeChildren.childNodes[j];
 				break;
