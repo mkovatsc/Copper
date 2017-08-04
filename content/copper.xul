@@ -73,10 +73,13 @@
 	</toolbaritem>
 	<toolbaritem id="toolbar_methods">
 		<toolbarseparator/>
-		<toolbarbutton id="toolbar_get" label="GET" image="chrome://copper/skin/tool_get.png" oncommand="Copper.userGet();"/>
-		<toolbarbutton id="toolbar_post" label="POST" image="chrome://copper/skin/tool_post.png" oncommand="Copper.userPost();"/>
-		<toolbarbutton id="toolbar_put" label="PUT" image="chrome://copper/skin/tool_put.png" oncommand="Copper.userPut();"/>
-		<toolbarbutton id="toolbar_delete" label="DELETE" image="chrome://copper/skin/tool_delete.png" oncommand="Copper.userDelete();"/>
+		<toolbarbutton id="toolbar_get" label="GET" image="chrome://copper/skin/tool_get.png" oncommand="Copper.userRequest(Copper.GET);"/>
+		<toolbarbutton id="toolbar_fetch" label="FETCH" image="chrome://copper/skin/tool_get.png" oncommand="Copper.userRequest(Copper.FETCH);" hidden="true"/>
+		<toolbarbutton id="toolbar_post" label="POST" image="chrome://copper/skin/tool_post.png" oncommand="Copper.userRequest(Copper.POST);"/>
+		<toolbarbutton id="toolbar_patch" label="PATCH" image="chrome://copper/skin/tool_post.png" oncommand="Copper.userRequest(Copper.PATCH);" hidden="true"/>
+		<toolbarbutton id="toolbar_put" label="PUT" image="chrome://copper/skin/tool_put.png" oncommand="Copper.userRequest(Copper.PUT);"/>
+		<toolbarbutton id="toolbar_ipatch" label="iPATCH" image="chrome://copper/skin/tool_put.png" oncommand="Copper.userRequest(Copper.IPATCH);" hidden="true"/>
+		<toolbarbutton id="toolbar_delete" label="DELETE" image="chrome://copper/skin/tool_delete.png" oncommand="Copper.userRequest(Copper.DELETE);"/>
 		<toolbarspacer/>
 		<toolbarbutton id="toolbar_observe" label="Observe" tooltiptext="Subscribe to the resource" image="chrome://copper/skin/tool_observe.png" oncommand="Copper.userObserve();"/>
 		<toolbarseparator/>

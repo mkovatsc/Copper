@@ -118,6 +118,12 @@ Copper.main = function() {
 			Copper.loadPlugtest();
 		}
 		
+		if (Copper.prefManager.getBoolPref('extensions.copper.enable-etch')) {
+			document.getElementById('toolbar_fetch').hidden = false;
+			document.getElementById('toolbar_patch').hidden = false;
+			document.getElementById('toolbar_ipatch').hidden = false;
+		}
+		
 	} catch (ex) {
 		Copper.logError(ex);
 	}
@@ -146,11 +152,8 @@ Copper.main = function() {
 			window.setTimeout(
 					function(action) {
 						switch (action) {
-							case 'userGet': Copper.userGet(); break;
-							case 'userPost': Copper.userPost(); break;
-							case 'userPut': Copper.userPut(); break;
-							case 'userDelete': Copper.userDelete(); break;
 							case 'userObserve': Copper.userObserve(); break;
+							default: Copper.userRequest(action); break;
 						}
 					},
 					0, onloadAction);
@@ -200,32 +203,15 @@ Copper.unload = function(event) {
 // Toolbar commands
 ////////////////////////////////////////////////////////////////////////////////
 
-Copper.userGet = function() {
+Copper.userRequest = function(method) {
 	Copper.endpoint.cancelTransactions();
-	var uri = Copper.checkUri(null, 'userGet');
+	var uri = Copper.checkUri(null, method);
 	
-	Copper.sendGet(uri);
+	Copper.sendRequest(method, uri);
 };
-Copper.userPost = function() {
-	Copper.endpoint.cancelTransactions();
-	var uri = Copper.checkUri(null, 'userPost');
-	
-	Copper.sendPost(uri);
-};
-Copper.userPut = function() {
-	Copper.endpoint.cancelTransactions();
-	var uri = Copper.checkUri(null, 'userPut');
-	
-	Copper.sendPut(uri);
-};
-Copper.userDelete = function() {
-	Copper.endpoint.cancelTransactions();
-	var uri = Copper.checkUri(null, 'userDelete');
 
-	Copper.sendDelete(uri);
-};
 Copper.userObserve = function() {
-	var uri = Copper.checkUri(uri, 'userObserve');
+	var uri = Copper.checkUri(null, 'userObserve');
 	
 	Copper.observe(uri);
 };
@@ -243,27 +229,41 @@ Copper.userDiscover = function() {
 // Request commands
 ////////////////////////////////////////////////////////////////////////////////
 
-Copper.sendGet = function(uri, callback) {
-	try {
-		if (!uri) throw new Error('No URI specified');
-		
-		Copper.downloadMethod = Copper.GET;
+Copper.sendRequest = function(method, uri, callback) {
+	if (!uri) throw new Error('No URI specified');
+	
+	Copper.downloadMethod = method;
+	
+	if (method == Copper.GET || method == Copper.DELETE) {
 		
 		if (Copper.behavior.blockSize!=0) {
 			Copper.sendBlockwise2(uri, parseInt(document.getElementById('debug_option_block2').value), Copper.behavior.blockSize, callback);
 			return;
 		}
 		
-		var message = new Copper.CoapMessage(Copper.getRequestType(), Copper.GET, uri);
+		try {
+			var message = new Copper.CoapMessage(Copper.getRequestType(), method, uri);
+			
+			Copper.checkDebugOptions(message);
+			
+			Copper.clearLabels();
+			Copper.endpoint.send( message, callback );
+		} catch (ex) {
+			Copper.logError(ex);
+		}
+	
+	} else {
+	
+		var num = parseInt(document.getElementById('debug_option_block2').value);
 		
-		Copper.checkDebugOptions(message);
-		
-		Copper.clearLabels();
-		Copper.endpoint.send( message, callback );
-	} catch (ex) {
-		Copper.logError(ex);
+		if (Copper.downloadMethod == method && num>0) {
+			Copper.sendBlockwise2(uri, num, Copper.behavior.blockSize, callback);
+		} else {
+			Copper.doUpload(method, uri, callback);
+		}
 	}
 };
+
 Copper.sendBlockwise2 = function(uri, num, size, callback) {
 	try {
 		if (!uri) throw new Error('No URI specified');
@@ -287,26 +287,6 @@ Copper.sendBlockwise2 = function(uri, num, size, callback) {
 		Copper.endpoint.send( message, Copper.blockwiseHandler );
 	} catch (ex) {
 		Copper.logError(ex);
-	}
-};
-
-Copper.sendPost = function(uri, callback) {
-	var num = parseInt(document.getElementById('debug_option_block2').value);
-	
-	if (Copper.downloadMethod == Copper.POST && num>0) {
-		Copper.sendBlockwise2(uri, num, Copper.behavior.blockSize, callback);
-	} else {
-		Copper.doUpload(Copper.POST, uri, callback);
-	}
-};
-
-Copper.sendPut = function(uri, callback) {
-	var num = parseInt(document.getElementById('debug_option_block2').value);
-	
-	if (Copper.downloadMethod == Copper.PUT && num>0) {
-		Copper.sendBlockwise2(uri, num, Copper.behavior.blockSize, callback);
-	} else {
-		Copper.doUpload(Copper.PUT, uri, callback);
 	}
 };
 
@@ -395,24 +375,6 @@ Copper.sendBlockwise1 = function(uri, num, size, callback) {
 		
 		Copper.clearLabels(num==0);
 		Copper.endpoint.send( message, Copper.blockwiseHandler );
-	} catch (ex) {
-		Copper.logError(ex);
-	}
-};
-
-Copper.sendDelete = function(uri, callback) {
-	try {
-		if (!uri) throw new Error('No URI specified');
-		
-		Copper.downloadMethod = Copper.GET;
-		
-		var message = new Copper.CoapMessage(Copper.getRequestType(), Copper.DELETE, uri);
-
-		
-		Copper.checkDebugOptions(message);
-		
-		Copper.clearLabels();
-		Copper.endpoint.send( message, callback );
 	} catch (ex) {
 		Copper.logError(ex);
 	}

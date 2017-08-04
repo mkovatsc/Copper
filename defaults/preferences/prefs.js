@@ -33,6 +33,7 @@ pref("extensions.copper.first-run", true);
 pref("extensions.copper.view-tree", true);
 pref("extensions.copper.view-debug", true);
 pref("extensions.copper.view-log", true);
+pref("extensions.copper.enable-etch", true);
 pref("extensions.copper.encode-utf-8", true);
 pref("extensions.copper.behavior.auto-discover", false);
 pref("extensions.copper.behavior.requests", "con");

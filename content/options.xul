@@ -42,6 +42,7 @@
      
 	<prefpane label="Copper Preferences">
 		<preferences>
+			<preference id="enable-etch" name="extensions.copper.enable-etch" type="bool"/>
 			<preference id="encode-utf-8" name="extensions.copper.encode-utf-8" type="bool"/>
 			<preference id="plugtest" name="extensions.copper.plugtest.menu" type="bool"/>
 		</preferences>
@@ -66,6 +67,9 @@
 					<column flex="1"/>
 				</columns>
 				<rows>
+					<row>
+						<checkbox id="enable-etch" preference="enable-etch" label="Enable draft-ietf-core-etch methods"/>
+					</row>
 					<row>
 						<checkbox id="encode_utf_8" preference="encode-utf-8" label="Use UTF-8 encoding"/>
 					</row>

@@ -78,6 +78,9 @@ Copper.__defineGetter__("GET", function() { return 1; });
 Copper.__defineGetter__("POST", function() { return 2; });
 Copper.__defineGetter__("PUT", function() { return 3; });
 Copper.__defineGetter__("DELETE", function() { return 4; });
+Copper.__defineGetter__("FETCH", function() { return 5; });
+Copper.__defineGetter__("PATCH", function() { return 6; });
+Copper.__defineGetter__("IPATCH", function() { return 7; });
 
 Copper.__defineGetter__("CODE_2_01_CREATED", function() { return 65; });
 Copper.__defineGetter__("CODE_2_02_DELETED", function() { return 66; });
@@ -152,6 +155,9 @@ Copper.getCodeName = function(code) {
 	case Copper.POST: return 'POST';
 	case Copper.PUT: return 'PUT';
 	case Copper.DELETE: return 'DELETE';
+	case Copper.FETCH: return 'FETCH';
+	case Copper.PATCH: return 'PATCH';
+	case Copper.IPATCH: return 'iPATCH';
 	// response codes
 	case Copper.CODE_2_01_CREATED: return '2.01 Created';
 	case Copper.CODE_2_02_DELETED: return '2.02 Deleted';
