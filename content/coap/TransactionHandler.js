@@ -248,10 +248,6 @@ Copper.TransactionHandler.prototype = {
 				Copper.logEvent('INFO: Ignoring duplicate (Message ID: '+message.getMID()+')');
 			}
 			return;
-		
-		// implicit acknowledgement
-		} else if (message.isResponse()) {
-			
 		}
 
 		// callback for message
@@ -260,6 +256,7 @@ Copper.TransactionHandler.prototype = {
 		// Requests
 		if (message.isRequest()) {
 			
+			// no server role in this add-on
 			callback = null;
 			
 		// Responses
@@ -270,7 +267,7 @@ Copper.TransactionHandler.prototype = {
 				// separate response
 				if (!this.registeredMIDs[message.getMID()]) {
 					if (message.getType()==Copper.MSG_TYPE_CON || message.getType()==Copper.MSG_TYPE_NON) {
-						Copper.logEvent('INFO: Separate response for token: '+message.getToken() );
+						Copper.logEvent('INFO: Separate response as implicit acknowledgement for token: '+message.getToken() );
 						// stop retransmission if implicit acknowledgement
 						this.stopRetransmission(message.getToken());
 					}
@@ -303,6 +300,11 @@ Copper.TransactionHandler.prototype = {
 				return;
 			}
 			
+			// ACK separate response before handler (which might elicit a new request)
+			if (message.getType()==Copper.MSG_TYPE_CON) {
+				this.ack(message.getMID());
+			}
+			
 		// Empty messages
 		} else {
 			callback = this.registeredMIDs[message.getMID()];
@@ -328,8 +330,6 @@ Copper.TransactionHandler.prototype = {
 		// piggyback response or ack received CON messages
 		if (message.reply) {
 			this.send(message.reply);
-		} else if (message.getType()==Copper.MSG_TYPE_CON) {
-			this.ack(message.getMID());
 		}
 		
 		// add to duplicates filter
