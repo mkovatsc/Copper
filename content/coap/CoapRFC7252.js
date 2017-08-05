@@ -304,7 +304,8 @@ Copper.serialize = function(message) {
     			if (Copper.bytes2str(message.options[optTypeIt][1])!="") {
 					let splitString = Copper.bytes2str(message.options[optTypeIt][1]).split(separator);
 					for (let s in splitString) {
-						splitOption.push(Copper.str2bytes(splitString[s]));
+						// sending decoded segments on the wire
+						splitOption.push(Copper.str2bytes(decodeURIComponent(splitString[s])));
 					}
     			}
 			} else {
