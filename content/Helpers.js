@@ -389,11 +389,17 @@ Copper.parseLinkFormat = function(data) {
 			Copper.logEvent(' '+uri+' ('+tokens.length+')');
 		
 			for (var j in tokens) {
-				//Copper.logEvent('  '+tokens[j]+'\n');
-				var keyVal = tokens[j].match(/;\s*([^<"\s;,=]+)\s*(=\s*(([^<"\s;,]+)|"([^"\\]*(\\.[^"\\]*)*)"))?/);
+				//Copper.logEvent('  '+tokens[j]);
+				var keyVal = tokens[j].match(/;\s*([^<"\s;,=]+)\s*(=\s*(([0-9\.]+)|([^<"\s;,]+)|"([^"\\]*(\\.[^"\\]*)*)"))?/);
+				// 0: all
+				// 1: key
+				// 2: value including =
+				// 3: value
+				// 4: number
+				// 5: word
+				// 6: quoted string or list
 				if (keyVal) {
-					//Copper.logEvent(keyVal[0]+'\n');
-					//Copper.logEvent('   '+keyVal[1] + (keyVal[2] ? (': '+ (keyVal[4] ? keyVal[4] : keyVal[5].replace(/\\/g,''))) : ''));
+					Copper.logEvent('   '+keyVal[1] + (keyVal[2] ? (': '+ (keyVal[4] ? keyVal[4] : (keyVal[5] ? keyVal[5] : keyVal[6].replace(/\\/g,'')))) : ''));
 					
 					if (links[uri][keyVal[1]]!=null) {
 						
@@ -402,12 +408,10 @@ Copper.parseLinkFormat = function(data) {
 							links[uri][keyVal[1]] = new Array(0);
 							links[uri][keyVal[1]].push(temp);
 						}
-						
-						links[uri][keyVal[1]].push(keyVal[2] ? (keyVal[4] ? parseInt(keyVal[4]) : keyVal[5].replace(/\\/g,'')) : true);
+						links[uri][keyVal[1]].push(keyVal[2] ? (keyVal[4] ? parseInt(keyVal[4]) : (keyVal[5] ? keyVal[5] : keyVal[6].replace(/\\/g,''))) : true);
 						
 					} else {
-						
-						links[uri][keyVal[1]] = keyVal[2] ? (keyVal[4] ? parseInt(keyVal[4]) : keyVal[5].replace(/\\/g,'')) : true;
+						links[uri][keyVal[1]] = keyVal[2] ? (keyVal[4] ? parseInt(keyVal[4]) : (keyVal[5] ? keyVal[5] : keyVal[6].replace(/\\/g,''))) : true;
 					}
 				}
 			}

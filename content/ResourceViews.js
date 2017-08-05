@@ -140,7 +140,7 @@ Copper.addTreeResource = function(uri, attributes) {
 					}
 					
 					if (tooltiptext) tooltiptext += '\n';
-					tooltiptext += attrib + '="'+attributes[attrib]+'"';
+					tooltiptext += attrib + ': '+attributes[attrib];
 				}
 				var itemCellAttrib = document.createElement("treecell");
 				itemCellAttrib.setAttribute('value', tooltiptext);
