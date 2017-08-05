@@ -119,8 +119,14 @@ Copper.Observing.prototype = {
 					
 					let uri = Copper.checkUri(); // get current URI
 					var cancel = new Copper.CoapMessage(Copper.MSG_TYPE_CON, Copper.GET, uri); // always use CON
-					cancel.setToken(this.subscription.token);
 					
+					// add all debug options also for cancel
+					Copper.checkDebugOptions(cancel);
+					if (Copper.behavior.blockSize!=0) {
+						cancel.setBlock2(0, Copper.behavior.blockSize);
+					}
+					
+					cancel.setToken(this.subscription.token);
 					cancel.setObserve(1);
 					
 					Copper.clearLabels();
