@@ -5,8 +5,19 @@ Implements [RFC7252](http://tools.ietf.org/html/rfc7252)
 
 Also see [Copper (Cu4Cr)](https://github.com/mkovatsc/Copper4Cr)
 
-A Firefox add-on to browse the Internet of Things
--------------------------------------------------
+## Not supported by Firefox 56+ / WebExtensions API
+
+Mozilla changed their add-on model to the [WebExtensions API](https://developer.mozilla.org/Add-ons/WebExtensions), which does not allow implementing protocol handlers.
+
+**Copper cannot be fixed** to work again unless Mozilla changes the internals of Firefox again -- not to the old one, but a safe one that allows for protocol handler add-ons.
+
+### Alternatives
+
+* [Copper4Cr](https://github.com/mkovatsc/Copper4Cr): Chrome also uses the WebExtensions API, but has a loophole through [discontinued Apps](https://blog.chromium.org/2016/08/from-chrome-apps-to-web.html) installed in developer mode
+* [Californium (Cf) Browser](https://github.com/eclipse/californium.tools/tree/master/cf-browser): Java-based tool, yet without the debug options support
+* [Firefox 55 Portable](https://www.firefox-usb.com/): Downgrade, but only use for add-ons, not browsing...
+
+## A Firefox add-on to browse the Internet of Things
 
 ### How to integrate the Copper sources into Firefox:
 
