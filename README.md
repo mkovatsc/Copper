@@ -18,8 +18,8 @@ Mozilla changed their add-on model to the [WebExtensions API](https://developer.
 * [Firefox 55 Portable](https://sourceforge.net/projects/portableapps/files/Mozilla%20Firefox%2C%20Portable%20Ed./Mozilla%20Firefox%2C%20Portable%20Edition%2055.0.3/): Downgrade, but only use for add-ons, not browsing...
    1. Ensure to start offline (no Internet connection!) and disable auto updates
    2. Open <a href="about:config">`about:config`</a>
-   3. Search `browser.tabs.remote.autostart.2`
-   4. Set to `false`
+   3. Search `browser.tabs.remote.autostart` and `browser.tabs.remote.autostart.2`
+   4. Set both to `false`
 
 ## A Firefox add-on to browse the Internet of Things
 
