@@ -15,7 +15,11 @@ Mozilla changed their add-on model to the [WebExtensions API](https://developer.
 
 * [Copper4Cr](https://github.com/mkovatsc/Copper4Cr): Chrome also uses the WebExtensions API, but has a loophole through [discontinued Apps](https://blog.chromium.org/2016/08/from-chrome-apps-to-web.html) installed in developer mode
 * [Californium (Cf) Browser](https://github.com/eclipse/californium.tools/tree/master/cf-browser): Java-based tool, yet without the debug options support
-* [Firefox 55 Portable](https://www.firefox-usb.com/): Downgrade, but only use for add-ons, not browsing...
+* [Firefox 55 Portable](https://sourceforge.net/projects/portableapps/files/Mozilla%20Firefox%2C%20Portable%20Ed./Mozilla%20Firefox%2C%20Portable%20Edition%2055.0.3/): Downgrade, but only use for add-ons, not browsing...
+   1. Ensure to start offline (no Internet connection!) and disable auto updates
+   2. Open <a href="about:config">`about:config`</a>
+   3. Search `browser.tabs.remote.autostart.2`
+   4. Set to `false`
 
 ## A Firefox add-on to browse the Internet of Things
 
